@@ -1,0 +1,24 @@
+{
+    "name": "conformance",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "packages/conformance/src",
+    "projectType": "library",
+    "targets": {
+        "test": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "echo 'Stub conformance test'"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ]
+        }
+    },
+    "tags": [
+        "scope:conformance",
+        "type:lib"
+    ]
+}

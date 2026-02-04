@@ -1,0 +1,18 @@
+{
+    "name": "ir",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "packages/ir/src",
+    "projectType": "library",
+    "targets": {
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ]
+        }
+    },
+    "tags": [
+        "scope:ir",
+        "type:lib"
+    ]
+}

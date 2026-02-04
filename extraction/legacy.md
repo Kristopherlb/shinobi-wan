@@ -1,0 +1,32 @@
+## Legacy
+
+| ID | Title | Rationale | Evidence | V3 Mapping |
+|---|---|---|---|---|
+| LEG-001 | CDK `PolicyStatement` in IAM intent | Kernel-adjacent contracts embed CDK types, breaking backend neutrality at the IR boundary. | `packages/core/src/platform/contracts/bindings.ts:L35-L36`; `packages/core/src/platform/contracts/bindings.ts:L294-L298` | Replace with backend-neutral `IamIntentStatement` schema; adapters lower to provider-specific policy primitives. |
+| LEG-002 | Binder “direct composition” semantics | Spec text describes binders mutating CDK constructs directly, coupling semantic intent to a construct tree. | `packages/core/src/platform/contracts/platform-binding-trigger-spec.ts:L154-L163`; `packages/core/src/platform/contracts/platform-binding-trigger-spec.ts:L157-L159` | Replace with binder outputs as backend-neutral intents; adapters apply intents during lowering. |
+| LEG-003 | Compliance evaluation hard-coded switch | Rule evaluation is partly encoded in code (`switch(ruleName)`), conflicting with a purely pack-driven policy engine. | `packages/core/src/platform/contracts/unified-binder-strategy-base.ts:L453-L473` | Replace with a policy engine that evaluates rule catalogs from packs; binders emit facts/intents only. |
+| LEG-004 | Compliance “recommendations” branch by framework | Plan formatter branches on framework strings and inspects CDK-derived data structures; this is backend-anchored presentation logic. | `packages/core/src/services/plan-output-formatter.ts:L114-L144`; `packages/core/src/services/plan-output-formatter.ts:L169-L199`; `packages/core/src/services/plan-output-formatter.ts:L208-L220` | Replace with presentation derived from graph/policy outputs and IR diff/explain (no construct handles). |
+| LEG-005 | CloudFormation template diff as truth | Diff logic compares CloudFormation template `Resources/Outputs`, which is backend-specific and noisy relative to semantic changes. | `apps/svc/src/cli/utils/template-diff.ts:L121-L223`; `apps/svc/src/cli/__tests__/template-diff.test.ts:L1-L66` | Replace with IR-level diff/explain over canonical graph/intent serialization. |
+| LEG-006 | CloudFormation API dependence for diff | CLI diff path uses CloudFormation API clients, coupling “diff” to AWS CFN deployment state. | `apps/svc/src/cli/__tests__/diff-command.test.ts:L22-L29` | Replace with **adapter-owned** deployed-state read + IR compare (never kernel/CLI-owned), per backend. |
+| LEG-007 | CFN logical-ID drift engine | Drift avoidance is implemented as CDK aspects over CloudFormation logical IDs, which is not a portable kernel concept. (Cluster: **DriftAndMigrationViaCFNSemantics**) | `packages/core/src/platform/logical-id/logical-id-manager.ts:L7-L12`; `packages/core/src/platform/logical-id/logical-id-manager.ts:L53-L121`; `packages/core/src/platform/logical-id/logical-id-manager.ts:L157-L165` | Replace with stable node/edge IDs in IR and adapter mapping for backend identifiers (state address translation). |
+| LEG-008 | Drift via CDK stack traversal | Drift analysis depends on CDK stack traversal and (optionally) original CloudFormation templates. (Cluster: **DriftAndMigrationViaCFNSemantics**) | `packages/core/src/platform/logical-id/drift-avoidance.ts:L69-L116`; `packages/core/src/platform/logical-id/drift-avoidance.ts:L81-L90` | Replace with drift detection over graph IR snapshots vs observed backend state, via adapters. |
+| LEG-009 | CDK-nag test harness | Security tests rely on CDK-nag packs and CDK constructs; these assert backend/engine mechanics rather than portable intent semantics. | `packages/components/sqs-queue/tests/security/cdk-nag.test.ts:L8-L14`; `packages/components/sqs-queue/tests/security/cdk-nag.test.ts:L83-L93` | Replace with backend-neutral security policy checks over intents and evidence bundles; adapter-only checks are optional. |
+| LEG-010 | Suppressions named `cdkNag` | Suppression schema is keyed to CDK-nag, leaking a backend tool into the governance model. | `packages/core/src/services/reference-validator.ts:L53-L68` | Replace with backend-neutral exception records; map legacy `cdkNag` suppressions into exceptions as migration input only. |
+| LEG-011 | Patches described as “manual CDK modifications” | Escape-hatch messaging explicitly frames patches as CDK-level modifications rather than backend-neutral overrides. | `packages/core/src/services/plan-output-formatter.ts:L156-L161` | Replace with controlled override records that apply at IR/adapter boundaries with registration + expiry. |
+| LEG-012 | Manifest-order dependency constraint | Reference validation enforces ordering due to “components synthesized in manifest order,” a CDK synthesis artifact. | `packages/core/src/services/reference-validator.ts:L118-L179` | Replace with explicit dependency edges/topological resolution in graph planning; manifest order becomes irrelevant. |
+| LEG-013 | Framework enum restriction in manifest | Manifest schema restricts framework values to a fixed enum, conflicting with extensible framework-by-pack design. | `packages/core/src/services/service-manifest.schema.json:L21-L30`; `tickets/bugs/compliance-framework-enum-removal.md:L10-L18` | Replace with `complianceFramework: string` and pack discovery/validation at runtime. |
+| LEG-014 | Deployment status strings are CFN-shaped | Deployment artifact status enumerates CloudFormation status strings, baking CFN semantics into artifacts. | `packages/core/src/platform/contracts/artifacts.ts:L95-L112` | Replace with backend-neutral apply status model; adapter maps backend events/status to that model. |
+| LEG-015 | Migration artifacts assume CFN drift concepts | Migration artifact includes logical-id maps, drift checks, and patch files oriented around CloudFormation-era migration. (Cluster: **DriftAndMigrationViaCFNSemantics**) | `packages/core/src/platform/contracts/artifacts.ts:L42-L52`; `packages/core/src/platform/contracts/artifacts.ts:L176-L221` | Replace with graph migration artifact format (IR transforms, adapter address maps, and intent-level drift checks). |
+
+## Exit Criteria
+
+- [ ] All backend/engine-coupled types in contracts classified (e.g., CDK types, CFN status enums).
+- [ ] All template/construct-tree diffing and CFN API flows classified.
+- [ ] All drift/logical-id preservation mechanisms classified.
+- [ ] All CDK-nag and suppression workflows classified with V3 replacements.
+- [ ] Any “order-dependent” synthesis assumptions classified and mapped to graph-native resolution.
+
+## Open Questions
+
+- None.
+

@@ -1,0 +1,11 @@
+{
+    "name": "@shinobi/kernel",
+    "version": "0.0.1",
+    "main": "src/index.ts",
+    "dependencies": {
+        "@shinobi/contracts": "workspace:*",
+        "@shinobi/ir": "workspace:*",
+        "@shinobi/policy": "workspace:*",
+        "@shinobi/binder": "workspace:*"
+    }
+}

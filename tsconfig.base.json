@@ -1,0 +1,47 @@
+{
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "target": "es2015",
+        "module": "esnext",
+        "lib": [
+            "es2020",
+            "dom"
+        ],
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@shinobi/kernel": [
+                "packages/kernel/src/index.ts"
+            ],
+            "@shinobi/contracts": [
+                "packages/contracts/src/index.ts"
+            ],
+            "@shinobi/ir": [
+                "packages/ir/src/index.ts"
+            ],
+            "@shinobi/binder": [
+                "packages/binder/src/index.ts"
+            ],
+            "@shinobi/policy": [
+                "packages/policy/src/index.ts"
+            ],
+            "@shinobi/conformance": [
+                "packages/conformance/src/index.ts"
+            ],
+            "@shinobi/cli": [
+                "packages/cli/src/index.ts"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "tmp"
+    ]
+}
