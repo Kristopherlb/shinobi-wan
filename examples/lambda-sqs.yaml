@@ -1,0 +1,32 @@
+service: my-lambda-sqs
+components:
+  - id: api-handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: index.handler
+      memorySize: 256
+      timeout: 30
+  - id: work-queue
+    type: platform
+    platform: aws-sqs
+    config:
+      visibilityTimeout: 300
+bindings:
+  - source: api-handler
+    target: work-queue
+    type: bindsTo
+    config:
+      resourceType: queue
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: QUEUE_URL
+          valueSource:
+            type: reference
+            nodeRef: work-queue
+            field: url
+policyPack: Baseline

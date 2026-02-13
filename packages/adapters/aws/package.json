@@ -4,6 +4,8 @@
     "main": "src/index.ts",
     "dependencies": {
         "@shinobi/contracts": "workspace:*",
-        "@shinobi/ir": "workspace:*"
+        "@shinobi/ir": "workspace:*",
+        "@pulumi/pulumi": "^3.0.0",
+        "@pulumi/aws": "^6.0.0"
     }
 }

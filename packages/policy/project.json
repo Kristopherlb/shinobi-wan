@@ -9,6 +9,13 @@
             "outputs": [
                 "{options.outputFile}"
             ]
+        },
+        "test": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "vitest run --config packages/policy/vitest.config.ts",
+                "cwd": "{workspaceRoot}"
+            }
         }
     },
     "tags": [

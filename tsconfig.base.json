@@ -37,6 +37,12 @@
             ],
             "@shinobi/cli": [
                 "packages/cli/src/index.ts"
+            ],
+            "@shinobi/validation": [
+                "packages/validation/src/index.ts"
+            ],
+            "@shinobi/adapter-aws": [
+                "packages/adapters/aws/src/index.ts"
             ]
         }
     },

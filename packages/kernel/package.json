@@ -5,7 +5,6 @@
     "dependencies": {
         "@shinobi/contracts": "workspace:*",
         "@shinobi/ir": "workspace:*",
-        "@shinobi/policy": "workspace:*",
-        "@shinobi/binder": "workspace:*"
+        "@shinobi/validation": "workspace:*"
     }
 }

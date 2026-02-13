@@ -1,0 +1,122 @@
+{
+    "root": true,
+    "ignorePatterns": [
+        "**/*",
+        "node_modules"
+    ],
+    "plugins": [
+        "@nx"
+    ],
+    "overrides": [
+        {
+            "files": [
+                "*.ts",
+                "*.tsx",
+                "*.js",
+                "*.jsx"
+            ],
+            "rules": {
+                "@nx/enforce-module-boundaries": [
+                    "error",
+                    {
+                        "enforceBuildableLibDependency": true,
+                        "allow": [],
+                        "depConstraints": [
+                            {
+                                "sourceTag": "scope:kernel",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:contracts",
+                                    "scope:ir",
+                                    "scope:policy",
+                                    "scope:binder",
+                                    "scope:validation"
+                                ]
+                            },
+                            {
+                                "sourceTag": "scope:validation",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:contracts",
+                                    "scope:ir"
+                                ]
+                            },
+                            {
+                                "sourceTag": "scope:contracts",
+                                "onlyDependOnLibsWithTags": []
+                            },
+                            {
+                                "sourceTag": "scope:ir",
+                                "onlyDependOnLibsWithTags": []
+                            },
+                            {
+                                "sourceTag": "scope:binder",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:contracts",
+                                    "scope:ir",
+                                    "scope:kernel"
+                                ]
+                            },
+                            {
+                                "sourceTag": "scope:policy",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:contracts",
+                                    "scope:ir",
+                                    "scope:kernel",
+                                    "scope:binder"
+                                ]
+                            },
+                            {
+                                "sourceTag": "scope:conformance",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:contracts",
+                                    "scope:ir",
+                                    "scope:kernel",
+                                    "scope:binder",
+                                    "scope:policy"
+                                ]
+                            },
+                            {
+                                "sourceTag": "scope:adapter",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:contracts",
+                                    "scope:ir"
+                                ]
+                            },
+                            {
+                                "sourceTag": "scope:cli",
+                                "onlyDependOnLibsWithTags": [
+                                    "scope:kernel",
+                                    "scope:conformance",
+                                    "scope:contracts",
+                                    "scope:ir",
+                                    "scope:policy",
+                                    "scope:binder",
+                                    "scope:adapter"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "files": [
+                "*.ts",
+                "*.tsx"
+            ],
+            "extends": [
+                "plugin:@nx/typescript"
+            ],
+            "rules": {}
+        },
+        {
+            "files": [
+                "*.js",
+                "*.jsx"
+            ],
+            "extends": [
+                "plugin:@nx/javascript"
+            ],
+            "rules": {}
+        }
+    ]
+}

@@ -2,5 +2,12 @@
     "name": "@shinobi/policy",
     "version": "0.0.1",
     "main": "src/index.ts",
-    "dependencies": {}
+    "dependencies": {
+        "@shinobi/contracts": "workspace:*",
+        "@shinobi/ir": "workspace:*",
+        "@shinobi/kernel": "workspace:*"
+    },
+    "devDependencies": {
+        "@shinobi/binder": "workspace:*"
+    }
 }
