@@ -104,6 +104,7 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
       const r2 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
 
       expect(r1.serialized).toBe(r2.serialized);
+      expect(r1.serialized).toMatchSnapshot();
     });
 
     it('G-022: intents are in identical order across runs', () => {

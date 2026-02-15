@@ -3,3 +3,6 @@ export { NetworkIntentLowerer } from './network-lowerer';
 export { ConfigIntentLowerer } from './config-lowerer';
 export { LambdaLowerer } from './lambda-lowerer';
 export { SqsLowerer } from './sqs-lowerer';
+export { DynamoDbLowerer } from './dynamodb-lowerer';
+export { S3Lowerer } from './s3-lowerer';
+export { ApiGatewayLowerer } from './apigateway-lowerer';

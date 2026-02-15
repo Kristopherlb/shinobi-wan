@@ -94,6 +94,44 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 
 ---
 
+#### PAT-010: Utility Function Duplication Across Lowerers
+**Occurrences:** 1
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+
+**Description:** The `shortName(nodeId)` utility (extracts part after first colon from kernel IDs) is copy-pasted in 6 files: lambda-lowerer, sqs-lowerer, dynamodb-lowerer, s3-lowerer, apigateway-lowerer, and adapter.ts. Each new lowerer copies it again.
+
+**Impact:** DRY violation, risk of drift if behavior changes. Currently 6 copies.
+
+**Proposed Resolution:** Extract to `packages/adapters/aws/src/lowerers/utils.ts` and import everywhere. See IMP-018.
+
+---
+
+#### PAT-011: Platform-Specific If-Chain in resolveConfigValue
+**Occurrences:** 1
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+
+**Description:** `resolveConfigValue()` in adapter.ts uses a growing `if (platform === 'aws-sqs')... if (platform === 'aws-dynamodb')...` chain to resolve config references. Each new platform adds another branch.
+
+**Impact:** Linear growth in function complexity with each new platform.
+
+**Proposed Resolution:** Replace with `PLATFORM_REF_MAP` data structure. See IMP-019.
+
+---
+
+### 🟢 Success
+
+#### PAT-012: Pattern-Following Lowerer Implementation
+**Occurrences:** 1
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+
+**Description:** Adding new node lowerers (DynamoDB, S3, API Gateway) was ~95% mechanical copy-edit from existing Lambda/SQS patterns. The `NodeLowerer` interface, test helpers, and Pulumi mock patterns all transfer directly. Average: ~3 minutes per lowerer including tests.
+
+**Impact:** Extremely fast expansion of resource coverage.
+
+**Proposed Resolution:** Document as "Resource Lowerer Checklist" in plan templates for future additions.
+
+---
+
 ### 🔵 Tooling Gap
 
 #### PAT-003: Missing Nx ESLint Plugin

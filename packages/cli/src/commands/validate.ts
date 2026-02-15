@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { parseManifest, manifestToMutations } from '../manifest';
 import { Kernel } from '@shinobi/kernel';
 import type { IBinder, IPolicyEvaluator, CompilationResult } from '@shinobi/kernel';
-import { ComponentPlatformBinder, BinderRegistry } from '@shinobi/binder';
+import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 
 export interface ValidateOptions {
@@ -22,6 +22,7 @@ export interface ValidateResult {
 function createBinders(): ReadonlyArray<IBinder> {
   const registry = new BinderRegistry();
   registry.register(new ComponentPlatformBinder());
+  registry.register(new TriggersBinder());
   return registry.getBinders();
 }
 

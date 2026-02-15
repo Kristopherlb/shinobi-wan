@@ -73,6 +73,22 @@ describe('ComponentPlatformBinder', () => {
       ]);
     });
 
+    it('defaults to scope:specific when bindingConfig.scope is not set', () => {
+      const ctx = makeContext({ resourceType: 'queue' });
+      const result = binder.compileEdge(ctx);
+
+      const iam = result.intents[0] as IamIntent;
+      expect(iam.resource.scope).toBe('specific');
+    });
+
+    it('uses scope:pattern when bindingConfig.scope is pattern', () => {
+      const ctx = makeContext({ resourceType: 'queue', scope: 'pattern' });
+      const result = binder.compileEdge(ctx);
+
+      const iam = result.intents[0] as IamIntent;
+      expect(iam.resource.scope).toBe('pattern');
+    });
+
     it('uses custom actions when provided, overriding access level defaults', () => {
       const ctx = makeContext({
         resourceType: 'bucket',

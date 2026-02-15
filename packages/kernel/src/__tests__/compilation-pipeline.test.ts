@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { compilePipeline } from '../compilation-pipeline';
 import { PolicyPackError } from '../errors';
-import type { GraphSnapshot } from '@shinobi/ir';
+import type { GraphSnapshot, Node, Edge } from '@shinobi/ir';
 import { createTestNode, createTestEdge, createSnapshot } from '@shinobi/ir';
 import type { Intent } from '@shinobi/contracts';
 import type { IBinder } from '../interfaces/binder-interface';
@@ -38,11 +38,17 @@ const emptyConfig: KernelConfig = {};
 // --- Tests ---
 
 describe('compilePipeline', () => {
-  it('returns early with validation errors for invalid snapshot', () => {
-    const invalidSnapshot = { schemaVersion: '1.0.0', nodes: [], edges: [], artifacts: [] } as GraphSnapshot;
-    // An empty but valid snapshot should pass validation
-    const result = compilePipeline(invalidSnapshot, emptyConfig, [], []);
+  it('compiles a valid empty snapshot successfully', () => {
+    const emptySnapshot = { schemaVersion: '1.0.0', nodes: [], edges: [], artifacts: [] } as GraphSnapshot;
+    const result = compilePipeline(emptySnapshot, emptyConfig, [], []);
     expect(result.validation.valid).toBe(true);
+  });
+
+  it('returns early with validation errors for invalid snapshot', () => {
+    const invalid = { schemaVersion: '1.0.0', nodes: [{ id: 'bad' }], edges: [], artifacts: [] } as GraphSnapshot;
+    const result = compilePipeline(invalid, emptyConfig, [], []);
+    expect(result.validation.valid).toBe(false);
+    expect(result.intents).toEqual([]);
   });
 
   it('compiles an empty graph with no binders or evaluators', () => {
@@ -155,6 +161,31 @@ describe('compilePipeline', () => {
     expect(policy?.compliant).toBe(true);
     expect(policy?.policyPack).toBe('Baseline');
     expect(policy?.violations).toEqual([]);
+  });
+
+  it('sets compliant to false when evaluator returns violations', () => {
+    const snapshot = createSnapshot([], []);
+    const config: KernelConfig = { policyPack: 'Baseline' };
+
+    const evaluator: IPolicyEvaluator = {
+      id: 'violation-eval',
+      supportedPacks: ['Baseline'],
+      evaluate: () => [{
+        id: 'violation:test-rule:node:x',
+        schemaVersion: '1.0.0' as const,
+        ruleId: 'test-rule',
+        ruleName: 'Test Rule',
+        severity: 'error' as const,
+        message: 'Test violation',
+        target: { type: 'node' as const, id: 'node:x' },
+        policyPack: 'Baseline',
+        remediation: { summary: 'Fix it', autoFixable: false },
+      }],
+    };
+
+    const result = compilePipeline(snapshot, config, [], [evaluator]);
+    expect(result.policy?.compliant).toBe(false);
+    expect(result.policy?.violations).toHaveLength(1);
   });
 
   it('returns frozen result', () => {

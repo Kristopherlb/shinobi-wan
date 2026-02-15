@@ -275,6 +275,53 @@ Before specifying expected violation counts:
 4. Currently covered: G-001/2/3, G-020/22/23, G-040/41 (8 of 12)
 5. Missing: G-004, G-005, G-021, G-042
 
+### IMP-018: Extract `shortName()` to Shared Lowerer Utility
+**Status:** 🟡 Proposed
+**Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+**Effort:** 10 min
+**Impact:** Eliminates 6-way duplication of `shortName()` across adapter lowerers
+
+**Action:** Create `packages/adapters/aws/src/lowerers/utils.ts`:
+```typescript
+export function shortName(nodeId: string): string {
+  const idx = nodeId.indexOf(':');
+  return idx >= 0 ? nodeId.substring(idx + 1) : nodeId;
+}
+```
+Then replace all 6 local copies with `import { shortName } from './utils'`.
+
+---
+
+### IMP-019: Data-Driven resolveConfigValue with PLATFORM_REF_MAP
+**Status:** 🟡 Proposed
+**Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+**Effort:** 15 min
+**Impact:** Replaces growing platform if-chain with O(1) lookup table
+
+**Action:** In `adapter.ts`, replace the if-chain with:
+```typescript
+const PLATFORM_REF_MAP: Record<string, { suffix: string; field: string }> = {
+  'aws-sqs': { suffix: '-queue', field: 'url' },
+  'aws-dynamodb': { suffix: '-table', field: 'name' },
+  'aws-apigateway': { suffix: '-api', field: '' }, // uses intent.valueSource.field
+  'aws-s3': { suffix: '-bucket', field: 'bucket' },
+};
+```
+
+---
+
+### IMP-020: Conformance Golden Tests for New Resources
+**Status:** 🟡 Proposed
+**Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+**Effort:** 2 hours
+**Impact:** End-to-end determinism verification for DynamoDB, S3, API Gateway resource types
+
+**Action:** Add golden test scenarios:
+- API Gateway → Lambda → DynamoDB (triggers + bindsTo)
+- Lambda → S3 bucket (bindsTo with versioning)
+- Verify byte-stable output across identical runs
+- Expand triad matrix with triggers edge scenarios
+
 ---
 
 ## Impact Tracking

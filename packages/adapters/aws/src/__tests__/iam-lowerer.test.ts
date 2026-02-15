@@ -99,6 +99,37 @@ describe('IamIntentLowerer', () => {
     }
   });
 
+  it('scope:specific uses resource pattern in IAM policy Resource field', () => {
+    const intent = makeIamIntent({
+      resource: {
+        nodeRef: 'platform:work-queue',
+        resourceType: 'queue',
+        scope: 'specific',
+        pattern: 'arn:*:sqs:*:*:work-queue',
+      },
+    });
+    const resources = lowerer.lower(intent, makeContext());
+
+    const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
+    const policyDoc = JSON.parse(policy?.properties['policy'] as string);
+    expect(policyDoc.Statement[0].Resource).toBe('arn:*:sqs:*:*:work-queue');
+  });
+
+  it('scope:pattern uses wildcard * in IAM policy Resource field', () => {
+    const intent = makeIamIntent({
+      resource: {
+        nodeRef: 'platform:work-queue',
+        resourceType: 'queue',
+        scope: 'pattern',
+      },
+    });
+    const resources = lowerer.lower(intent, makeContext());
+
+    const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
+    const policyDoc = JSON.parse(policy?.properties['policy'] as string);
+    expect(policyDoc.Statement[0].Resource).toBe('*');
+  });
+
   it('determinism: identical input produces identical output', () => {
     const intent = makeIamIntent();
     const ctx = makeContext();

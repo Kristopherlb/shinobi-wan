@@ -18,6 +18,12 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     write: ['dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem', 'dynamodb:GetItem', 'dynamodb:Query'],
     admin: ['dynamodb:*'],
   },
+  api: {
+    invoke: ['lambda:InvokeFunction'],
+    read: ['execute-api:Invoke'],
+    write: ['execute-api:Invoke'],
+    admin: ['execute-api:*'],
+  },
 };
 
 const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
@@ -84,7 +90,7 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
             {
               Effect: 'Allow',
               Action: iamActions,
-              Resource: intent.resource.scope === 'specific' ? '*' : intent.resource.pattern ?? '*',
+              Resource: intent.resource.scope === 'specific' ? (intent.resource.pattern ?? '*') : '*',
               ...(intent.conditions && intent.conditions.length > 0
                 ? { Condition: this.buildConditions(intent) }
                 : {}),

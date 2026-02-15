@@ -1,7 +1,11 @@
 import { Command } from 'commander';
 import { validate } from './commands/validate';
 import { plan } from './commands/plan';
+import type { PlanResult } from './commands/plan';
 import { up } from './commands/up';
+import type { UpResult } from './commands/up';
+import { preview } from '@shinobi/adapter-aws';
+import type { AdapterConfig } from '@shinobi/adapter-aws';
 
 export function createCli(): Command {
   const program = new Command();
@@ -35,9 +39,29 @@ export function createCli(): Command {
     .argument('<manifest>', 'Path to the YAML service manifest')
     .option('--region <region>', 'AWS region', 'us-east-1')
     .option('--code-path <path>', 'Path to Lambda code artifact')
+    .option('--preview', 'Run a Pulumi preview (requires AWS credentials)')
     .option('--json', 'Output results as JSON')
-    .action((manifestPath: string, opts: { region?: string; codePath?: string; json?: boolean }) => {
-      const result = plan({ manifestPath, region: opts.region, codePath: opts.codePath, json: opts.json });
+    .action(async (manifestPath: string, opts: { region?: string; codePath?: string; preview?: boolean; json?: boolean }) => {
+      const result = plan({ manifestPath, region: opts.region, codePath: opts.codePath, json: opts.json, preview: opts.preview });
+
+      // If --preview is set and plan succeeded, run Pulumi preview
+      if (opts.preview && result.success && result.plan) {
+        const adapterConfig: AdapterConfig = {
+          region: opts.region ?? 'us-east-1',
+          serviceName: result.validation.manifest?.service ?? 'shinobi-service',
+          ...(opts.codePath ? { codePath: opts.codePath } : {}),
+        };
+
+        const previewResult = await preview(result.plan, adapterConfig);
+        // Attach preview result — cast to mutable to set the field
+        (result as { previewResult?: typeof previewResult }).previewResult = previewResult;
+
+        if (!previewResult.success) {
+          process.stdout.write(`Preview failed: ${previewResult.error}\n`);
+          process.exitCode = 1;
+          return;
+        }
+      }
 
       if (opts.json) {
         const { validation: { compilation: _, ...validation }, ...rest } = result;
@@ -57,8 +81,8 @@ export function createCli(): Command {
     .option('--code-path <path>', 'Path to Lambda code artifact')
     .option('--no-dry-run', 'Actually deploy (default is dry run)')
     .option('--json', 'Output results as JSON')
-    .action((manifestPath: string, opts: { region?: string; codePath?: string; dryRun?: boolean; json?: boolean }) => {
-      const result = up({
+    .action(async (manifestPath: string, opts: { region?: string; codePath?: string; dryRun?: boolean; json?: boolean }) => {
+      const result = await up({
         manifestPath,
         region: opts.region,
         codePath: opts.codePath,
@@ -129,13 +153,20 @@ function printPlanResult(result: ReturnType<typeof plan>): void {
   }
 }
 
-function printUpResult(result: ReturnType<typeof up>): void {
+function printUpResult(result: UpResult): void {
   process.stdout.write(`${result.message}\n`);
 
   if (result.plan.plan) {
     process.stdout.write(`\nResources (${result.plan.plan.resources.length}):\n`);
     for (const r of result.plan.plan.resources) {
       process.stdout.write(`  + ${r.resourceType} "${r.name}"\n`);
+    }
+  }
+
+  if (result.deployResult?.outputs && Object.keys(result.deployResult.outputs).length > 0) {
+    process.stdout.write(`\nOutputs:\n`);
+    for (const [key, value] of Object.entries(result.deployResult.outputs)) {
+      process.stdout.write(`  ${key}: ${String(value)}\n`);
     }
   }
 }

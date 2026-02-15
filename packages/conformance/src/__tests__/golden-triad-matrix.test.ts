@@ -251,6 +251,7 @@ describe('Golden: Triad Matrix (G-040, G-041)', () => {
         const r2 = runGoldenCase(opts);
 
         expect(r1.serialized).toBe(r2.serialized);
+        expect(r1.serialized).toMatchSnapshot();
       });
     }
   );

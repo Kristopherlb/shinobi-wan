@@ -1,0 +1,60 @@
+import type { Node } from '@shinobi/ir';
+import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+
+/**
+ * Extracts a short name from a kernel node ID.
+ */
+function shortName(nodeId: string): string {
+  const idx = nodeId.indexOf(':');
+  return idx >= 0 ? nodeId.substring(idx + 1) : nodeId;
+}
+
+/**
+ * Lowers a platform node with platform "aws-apigateway" → API Gateway HTTP API + Stage.
+ */
+export class ApiGatewayLowerer implements NodeLowerer {
+  readonly platform = 'aws-apigateway';
+
+  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+    const name = shortName(node.id);
+
+    const resources: LoweredResource[] = [];
+
+    const apiName = `${name}-api`;
+    const stageName = `${name}-stage`;
+
+    // API Gateway HTTP API
+    resources.push({
+      name: apiName,
+      resourceType: 'aws:apigatewayv2:Api',
+      properties: {
+        name: `${context.adapterConfig.serviceName}-${name}`,
+        protocolType: 'HTTP',
+        tags: {
+          'shinobi:node': node.id,
+          'shinobi:platform': 'aws-apigateway',
+        },
+      },
+      sourceId: node.id,
+      dependsOn: [],
+    });
+
+    // Default stage with auto-deploy
+    resources.push({
+      name: stageName,
+      resourceType: 'aws:apigatewayv2:Stage',
+      properties: {
+        apiId: { ref: apiName },
+        name: '$default',
+        autoDeploy: true,
+        tags: {
+          'shinobi:node': node.id,
+        },
+      },
+      sourceId: node.id,
+      dependsOn: [apiName],
+    });
+
+    return resources;
+  }
+}

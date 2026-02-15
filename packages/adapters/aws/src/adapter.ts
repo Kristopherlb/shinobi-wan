@@ -10,7 +10,7 @@ import type {
 } from './types';
 import type { Node } from '@shinobi/ir';
 import { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer } from './lowerers';
-import { LambdaLowerer, SqsLowerer } from './lowerers';
+import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer } from './lowerers';
 
 /**
  * Extracts a short name from a kernel node ID.
@@ -31,6 +31,9 @@ const INTENT_LOWERERS: ReadonlyArray<IntentLowerer> = [
 const NODE_LOWERERS: ReadonlyArray<NodeLowerer> = [
   new LambdaLowerer(),
   new SqsLowerer(),
+  new DynamoDbLowerer(),
+  new S3Lowerer(),
+  new ApiGatewayLowerer(),
 ];
 
 /**
@@ -105,6 +108,10 @@ export function lower(context: LoweringContext): AdapterResult {
   const eventMappings = generateEventSourceMappings(context, nodeDeps);
   allResources.push(...eventMappings);
 
+  // Phase 5: Generate API Gateway → Lambda integrations
+  const apiGwIntegrations = generateApiGatewayIntegrations(context);
+  allResources.push(...apiGwIntegrations);
+
   // Deduplicate resources by name (IAM roles may appear multiple times)
   const seen = new Set<string>();
   const deduped: LoweredResource[] = [];
@@ -166,11 +173,23 @@ function resolveConfigValue(intent: ConfigIntent, context: LoweringContext): unk
     case 'literal':
       return String(intent.valueSource.value);
     case 'reference': {
-      const targetNode = context.snapshot.nodes.find((n) => n.id === `platform:${intent.valueSource.nodeRef}`);
+      // Try direct node ID match first, then with platform: prefix
+      const targetNode =
+        context.snapshot.nodes.find((n) => n.id === intent.valueSource.nodeRef) ??
+        context.snapshot.nodes.find((n) => n.id === `platform:${intent.valueSource.nodeRef}`);
       if (targetNode) {
         const platform = targetNode.metadata.properties['platform'] as string;
         if (platform === 'aws-sqs') {
           return { ref: `${shortName(targetNode.id)}-queue.url` };
+        }
+        if (platform === 'aws-dynamodb') {
+          return { ref: `${shortName(targetNode.id)}-table.name` };
+        }
+        if (platform === 'aws-apigateway') {
+          return { ref: `${shortName(targetNode.id)}-api.${intent.valueSource.field}` };
+        }
+        if (platform === 'aws-s3') {
+          return { ref: `${shortName(targetNode.id)}-bucket.bucket` };
         }
       }
       return { ref: `${intent.valueSource.nodeRef}.${intent.valueSource.field}` };
@@ -224,4 +243,97 @@ function generateEventSourceMappings(
   }
 
   return mappings;
+}
+
+/**
+ * Generates API Gateway → Lambda integration resources for triggers edges.
+ *
+ * For each `triggers` edge where source is aws-apigateway and target is aws-lambda:
+ * - Integration: Lambda proxy integration
+ * - Route: HTTP route (e.g., "GET /items")
+ * - Permission: allows API Gateway to invoke the Lambda function
+ */
+function generateApiGatewayIntegrations(
+  context: LoweringContext,
+): ReadonlyArray<LoweredResource> {
+  const resources: LoweredResource[] = [];
+
+  for (const edge of context.snapshot.edges) {
+    if (edge.type !== 'triggers') continue;
+
+    const sourceNode = context.snapshot.nodes.find((n) => n.id === edge.source);
+    const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
+    if (!sourceNode || !targetNode) continue;
+
+    const sourcePlatform = sourceNode.metadata.properties['platform'] as string | undefined;
+    const targetPlatform = targetNode.metadata.properties['platform'] as string | undefined;
+
+    // API Gateway → Lambda triggers = Integration + Route + Permission
+    if (sourcePlatform === 'aws-apigateway' && targetPlatform === 'aws-lambda') {
+      const apiName = shortName(sourceNode.id);
+      const lambdaName = shortName(targetNode.id);
+
+      const bindingConfig = edge.metadata.bindingConfig as
+        | { route?: string; method?: string }
+        | undefined;
+      const route = bindingConfig?.route;
+      const method = bindingConfig?.method;
+
+      // Determine routeKey: use "$default" if no route/method, otherwise "METHOD /path"
+      const routeKey = route && method ? `${method} ${route}` : '$default';
+
+      const integrationName = `${apiName}-${lambdaName}-integration`;
+      const routeName = `${apiName}-${lambdaName}-route`;
+      const permissionName = `${apiName}-${lambdaName}-permission`;
+
+      // Lambda proxy integration
+      resources.push({
+        name: integrationName,
+        resourceType: 'aws:apigatewayv2:Integration',
+        properties: {
+          apiId: { ref: `${apiName}-api` },
+          integrationType: 'AWS_PROXY',
+          integrationUri: { ref: `${lambdaName}-function` },
+          payloadFormatVersion: '2.0',
+          tags: {
+            'shinobi:edge': edge.id,
+          },
+        },
+        sourceId: edge.id,
+        dependsOn: [`${apiName}-api`, `${lambdaName}-function`],
+      });
+
+      // Route
+      resources.push({
+        name: routeName,
+        resourceType: 'aws:apigatewayv2:Route',
+        properties: {
+          apiId: { ref: `${apiName}-api` },
+          routeKey,
+          target: { ref: integrationName },
+        },
+        sourceId: edge.id,
+        dependsOn: [`${apiName}-api`, integrationName],
+      });
+
+      // Lambda permission for API Gateway
+      resources.push({
+        name: permissionName,
+        resourceType: 'aws:lambda:Permission',
+        properties: {
+          action: 'lambda:InvokeFunction',
+          function: { ref: `${lambdaName}-function` },
+          principal: 'apigateway.amazonaws.com',
+          sourceArn: { ref: `${apiName}-api` },
+          tags: {
+            'shinobi:edge': edge.id,
+          },
+        },
+        sourceId: edge.id,
+        dependsOn: [`${lambdaName}-function`, `${apiName}-api`],
+      });
+    }
+  }
+
+  return resources;
 }

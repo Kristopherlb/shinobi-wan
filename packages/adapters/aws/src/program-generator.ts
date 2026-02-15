@@ -58,6 +58,18 @@ export function generatePlan(result: AdapterResult, config: AdapterConfig): Reso
       case 'aws:iam:Role':
         outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
         break;
+      case 'aws:dynamodb:Table':
+        outputs[`${resource.name}-name`] = `\${${resource.name}.name}`;
+        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
+        break;
+      case 'aws:s3:Bucket':
+        outputs[`${resource.name}-bucket`] = `\${${resource.name}.bucket}`;
+        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
+        break;
+      case 'aws:apigatewayv2:Api':
+        outputs[`${resource.name}-id`] = `\${${resource.name}.id}`;
+        outputs[`${resource.name}-url`] = `\${${resource.name}.apiEndpoint}`;
+        break;
     }
   }
 

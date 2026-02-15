@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
 import { Kernel } from '@shinobi/kernel';
 import { ComponentPlatformBinder } from '../binders/component-platform-binder';
+import { TriggersBinder } from '../binders/triggers-binder';
 import { BinderRegistry } from '../registry';
 import { makeNode, makeEdge } from './test-helpers';
 
@@ -9,6 +10,7 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
   function createKernelWithBinder() {
     const registry = new BinderRegistry();
     registry.register(new ComponentPlatformBinder());
+    registry.register(new TriggersBinder());
 
     return new Kernel({
       binders: registry.getBinders(),
@@ -185,14 +187,58 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
   it('BinderRegistry can be used to compose multiple binder sets', () => {
     const registry = new BinderRegistry();
     registry.register(new ComponentPlatformBinder());
+    registry.register(new TriggersBinder());
 
     const binders = registry.getBinders();
-    expect(binders).toHaveLength(1);
-    expect(binders[0].id).toBe('component-platform-binder');
+    expect(binders).toHaveLength(2);
 
-    // Verify lookup works
-    const found = registry.findBinder('bindsTo', 'component', 'platform');
-    expect(found).toBeDefined();
-    expect(found?.id).toBe('component-platform-binder');
+    // Verify lookup works for both patterns
+    const bindsTo = registry.findBinder('bindsTo', 'component', 'platform');
+    expect(bindsTo).toBeDefined();
+    expect(bindsTo?.id).toBe('component-platform-binder');
+
+    const triggers = registry.findBinder('triggers', 'platform', 'component');
+    expect(triggers).toBeDefined();
+    expect(triggers?.id).toBe('triggers-binder');
+  });
+
+  it('compiles triggers edge with TriggersBinder producing IAM + config intents', () => {
+    const kernel = createKernelWithBinder();
+
+    const apiGw = makeNode({ id: 'platform:api-gw', type: 'platform' });
+    const handler = makeNode({ id: 'component:handler', type: 'component' });
+    const triggersEdge = makeEdge({
+      id: 'edge:triggers:platform:api-gw:component:handler',
+      type: 'triggers',
+      source: apiGw.id,
+      target: handler.id,
+      metadata: {
+        bindingConfig: {
+          resourceType: 'api',
+          route: '/items',
+          method: 'GET',
+        },
+      },
+    });
+
+    kernel.applyMutation([
+      { type: 'addNode', node: apiGw },
+      { type: 'addNode', node: handler },
+      { type: 'addEdge', edge: triggersEdge },
+    ]);
+
+    const result = kernel.compile();
+
+    // TriggersBinder produces 1 IAM + 2 config = 3 intents
+    expect(result.intents).toHaveLength(3);
+
+    const iam = result.intents.find((i) => i.type === 'iam') as IamIntent;
+    expect(iam).toBeDefined();
+    expect(iam.principal.nodeRef).toBe('platform:api-gw');
+    expect(iam.resource.nodeRef).toBe('component:handler');
+    expect(iam.actions).toEqual([{ level: 'write', action: 'invoke' }]);
+
+    const configs = result.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+    expect(configs).toHaveLength(2);
   });
 });

@@ -18,6 +18,7 @@ const ACCESS_LEVEL_ACTIONS: Record<string, ReadonlyArray<string>> = {
 interface BindingConfig {
   readonly accessLevel?: string;
   readonly resourceType?: string;
+  readonly scope?: 'specific' | 'pattern';
   readonly actions?: ReadonlyArray<string>;
   readonly network?: {
     readonly port?: number;
@@ -90,7 +91,7 @@ export class ComponentPlatformBinder implements IBinder {
         {
           nodeRef: targetNode.id,
           resourceType: bindingConfig.resourceType,
-          scope: 'specific',
+          scope: bindingConfig.scope ?? 'specific',
         },
         iamActions
       )

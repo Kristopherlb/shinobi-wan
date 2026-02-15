@@ -72,7 +72,7 @@ describe('Kernel', () => {
     expect(snap.nodes[0].id).toBe('component:svc');
   });
 
-  it('validate returns a ValidationResult', () => {
+  it('validate returns a valid ValidationResult for a valid graph', () => {
     const kernel = new Kernel();
     const node = createTestNode({ id: 'component:svc', type: 'component' });
     kernel.applyMutation([{ type: 'addNode', node }]);
@@ -80,6 +80,8 @@ describe('Kernel', () => {
     const result = kernel.validate();
     expect(result).toHaveProperty('valid');
     expect(result).toHaveProperty('errors');
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
   });
 
   it('compile works with no binders or evaluators', () => {
@@ -145,6 +147,63 @@ describe('Kernel', () => {
     expect(policy).toBeDefined();
     expect(policy?.compliant).toBe(true);
     expect(policy?.policyPack).toBe('Baseline');
+  });
+
+  it('compile sets compliant to false when evaluator returns violations', () => {
+    const binder: IBinder = {
+      id: 'test-binder',
+      supportedEdgeTypes: [{ edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' }],
+      compileEdge: (ctx) => ({
+        intents: [{
+          type: 'iam' as const,
+          schemaVersion: '1.0.0' as const,
+          sourceEdgeId: ctx.edge.id,
+        }],
+        diagnostics: [],
+      }),
+    };
+
+    const evaluator: IPolicyEvaluator = {
+      id: 'violation-eval',
+      supportedPacks: ['Baseline'],
+      evaluate: () => [{
+        id: 'violation:test-rule:component:svc',
+        schemaVersion: '1.0.0' as const,
+        ruleId: 'test-rule',
+        ruleName: 'Test Rule',
+        severity: 'error' as const,
+        message: 'Test violation',
+        target: { type: 'node' as const, id: 'component:svc' },
+        policyPack: 'Baseline',
+        remediation: { summary: 'Fix it', autoFixable: false },
+      }],
+    };
+
+    const kernel = new Kernel({
+      binders: [binder],
+      evaluators: [evaluator],
+      config: { policyPack: 'Baseline' },
+    });
+
+    const n1 = createTestNode({ id: 'component:svc', type: 'component' });
+    const n2 = createTestNode({ id: 'platform:lambda', type: 'platform' });
+    const e1 = createTestEdge({
+      id: 'edge:bindsTo:component:svc:platform:lambda',
+      type: 'bindsTo',
+      source: n1.id,
+      target: n2.id,
+    });
+
+    kernel.applyMutation([
+      { type: 'addNode', node: n1 },
+      { type: 'addNode', node: n2 },
+    ]);
+    kernel.applyMutation([{ type: 'addEdge', edge: e1 }]);
+
+    const result = kernel.compile();
+    expect(result.policy?.compliant).toBe(false);
+    expect(result.policy?.violations).toHaveLength(1);
+    expect(result.policy?.violations[0].ruleId).toBe('test-rule');
   });
 
   it('getResolvedConfig returns frozen merged config', () => {

@@ -93,6 +93,7 @@ describe('Golden: Graph IR (G-001, G-002, G-003)', () => {
       const r2 = runGoldenCase({ setup: validGraphSetup });
 
       expect(r1.serialized).toBe(r2.serialized);
+      expect(r1.serialized).toMatchSnapshot();
     });
   });
 

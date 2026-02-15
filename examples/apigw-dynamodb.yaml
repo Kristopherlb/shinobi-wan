@@ -1,0 +1,49 @@
+service: apigw-dynamodb-api
+
+components:
+  - id: api-gateway
+    type: platform
+    platform: aws-apigateway
+
+  - id: handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: index.handler
+      memorySize: 256
+      timeout: 30
+
+  - id: data-table
+    type: platform
+    platform: aws-dynamodb
+    config:
+      keySchema:
+        hashKey:
+          name: pk
+          type: S
+        rangeKey:
+          name: sk
+          type: S
+
+bindings:
+  - source: handler
+    target: data-table
+    type: bindsTo
+    config:
+      resourceType: table
+      accessLevel: write
+      configKeys:
+        - key: TABLE_NAME
+          valueSource:
+            type: reference
+            nodeRef: data-table
+            field: name
+
+  - source: api-gateway
+    target: handler
+    type: triggers
+    config:
+      resourceType: api
+      route: /items
+      method: GET

@@ -1,13 +1,14 @@
 import { validate } from './validate';
 import type { ValidateResult } from './validate';
-import { lower, generatePlan } from '@shinobi/adapter-aws';
-import type { AdapterConfig, AdapterResult, ResourcePlan } from '@shinobi/adapter-aws';
+import { lower, generatePlan, preview } from '@shinobi/adapter-aws';
+import type { AdapterConfig, AdapterResult, ResourcePlan, PreviewResult } from '@shinobi/adapter-aws';
 
 export interface PlanOptions {
   readonly manifestPath: string;
   readonly region?: string;
   readonly codePath?: string;
   readonly json?: boolean;
+  readonly preview?: boolean;
 }
 
 export interface PlanResult {
@@ -15,6 +16,7 @@ export interface PlanResult {
   readonly validation: ValidateResult;
   readonly adapter?: AdapterResult;
   readonly plan?: ResourcePlan;
+  readonly previewResult?: PreviewResult;
   readonly errors: ReadonlyArray<{ path: string; message: string }>;
 }
 

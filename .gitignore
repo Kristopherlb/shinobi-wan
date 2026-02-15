@@ -1,9 +1,12 @@
 # dependencies
-/node_modules
+**/node_modules
 
 # nx
 /.nx
 /tmp
+
+# build output
+**/dist
 
 # misc
 .DS_Store

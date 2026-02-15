@@ -1,5 +1,7 @@
 import { plan } from './plan';
 import type { PlanOptions, PlanResult } from './plan';
+import { deploy, preview } from '@shinobi/adapter-aws';
+import type { DeployResult, PreviewResult, AdapterConfig } from '@shinobi/adapter-aws';
 
 export interface UpOptions extends PlanOptions {
   readonly dryRun?: boolean;
@@ -10,16 +12,17 @@ export interface UpResult {
   readonly plan: PlanResult;
   readonly deployed: boolean;
   readonly message: string;
+  readonly deployResult?: DeployResult;
+  readonly previewResult?: PreviewResult;
 }
 
 /**
  * Runs the up command: validate → plan → deploy.
  *
- * For MVP, this generates the plan and reports what would be deployed.
- * Actual Pulumi deployment requires the Pulumi CLI and is gated behind
- * the `dryRun` flag (default: true for safety).
+ * Default mode is dry run (calls Pulumi preview).
+ * Pass `dryRun: false` to actually deploy via Pulumi Automation API.
  */
-export function up(options: UpOptions): UpResult {
+export async function up(options: UpOptions): Promise<UpResult> {
   const planResult = plan(options);
 
   if (!planResult.success || !planResult.plan) {
@@ -31,21 +34,60 @@ export function up(options: UpOptions): UpResult {
     };
   }
 
+  const adapterConfig: AdapterConfig = {
+    region: options.region ?? 'us-east-1',
+    serviceName: planResult.validation.manifest?.service ?? 'shinobi-service',
+    ...(options.codePath ? { codePath: options.codePath } : {}),
+  };
+
   if (options.dryRun !== false) {
+    // Dry run: call Pulumi preview for a real dry-run
+    const previewResult = await preview(planResult.plan, adapterConfig);
+
+    if (!previewResult.success) {
+      return {
+        success: false,
+        plan: planResult,
+        deployed: false,
+        message: `Preview failed: ${previewResult.error}`,
+        previewResult,
+      };
+    }
+
+    const changes = previewResult.changeSummary ?? {};
+    const createCount = changes['create'] ?? 0;
+
     return {
       success: true,
       plan: planResult,
       deployed: false,
-      message: `Dry run complete. ${planResult.plan.resources.length} resources would be created. Use --no-dry-run to deploy.`,
+      message: `Preview complete. ${createCount} resources would be created. Use --no-dry-run to deploy.`,
+      previewResult,
     };
   }
 
-  // Actual deployment would use Pulumi automation API here.
-  // For MVP, we return the plan with a message about manual deployment.
+  // Actual deployment via Pulumi Automation API
+  const deployResult = await deploy(planResult.plan, adapterConfig, {
+    onOutput: (out: string) => process.stdout.write(out),
+  });
+
+  if (!deployResult.success) {
+    return {
+      success: false,
+      plan: planResult,
+      deployed: false,
+      message: `Deployment failed: ${deployResult.error}`,
+      deployResult,
+    };
+  }
+
+  const created = deployResult.summary.resourceChanges?.['create'] ?? 0;
+
   return {
     success: true,
     plan: planResult,
-    deployed: false,
-    message: `Plan ready with ${planResult.plan.resources.length} resources. Pulumi deployment not yet wired — use the generated plan with 'pulumi up'.`,
+    deployed: true,
+    message: `Deployed ${created} resources to stack '${deployResult.stackName}'.`,
+    deployResult,
   };
 }

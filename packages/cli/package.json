@@ -2,6 +2,9 @@
     "name": "@shinobi/cli",
     "version": "0.0.1",
     "main": "src/index.ts",
+    "bin": {
+        "shinobi": "./src/main.ts"
+    },
     "dependencies": {
         "@shinobi/contracts": "workspace:*",
         "@shinobi/ir": "workspace:*",

@@ -15,6 +15,13 @@ export { lower } from './adapter';
 export { generatePlan } from './program-generator';
 export type { PulumiFn, ResourcePlan, PlannedResource } from './program-generator';
 
+// Pulumi program builder
+export { createPulumiProgram } from './pulumi-program';
+
+// Deployer (Pulumi Automation API)
+export { deploy, preview } from './deployer';
+export type { DeployResult, PreviewResult, DeployOptions } from './deployer';
+
 // Types
 export type {
   LoweringContext,
@@ -29,4 +36,4 @@ export type {
 
 // Individual lowerers (for custom adapter composition)
 export { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer } from './lowerers';
-export { LambdaLowerer, SqsLowerer } from './lowerers';
+export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer } from './lowerers';
