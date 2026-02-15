@@ -127,6 +127,12 @@ describe('up command', () => {
     expect(preview).not.toHaveBeenCalled();
   });
 
+  it('passes policy pack through', async () => {
+    const result = await up({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-Moderate' });
+
+    expect(result.plan.validation.policy?.policyPack).toBe('FedRAMP-Moderate');
+  });
+
   it('passes region to adapter config', async () => {
     await up({ manifestPath: MANIFEST_PATH, dryRun: false, region: 'eu-west-1' });
 

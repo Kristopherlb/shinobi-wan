@@ -14,4 +14,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
+      - run: pnpm nx run-many -t test
+      - run: pnpm nx run-many -t lint --exclude validation
+      - run: pnpm nx build cli
       - run: pnpm conformance:check

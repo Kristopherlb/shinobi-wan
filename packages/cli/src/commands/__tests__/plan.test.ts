@@ -76,6 +76,12 @@ describe('plan command', () => {
     expect(result.errors.length).toBeGreaterThan(0);
   });
 
+  it('passes policy pack through to validation', () => {
+    const result = plan({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-High' });
+
+    expect(result.validation.policy?.policyPack).toBe('FedRAMP-High');
+  });
+
   it('determinism: same manifest produces identical plan', () => {
     const r1 = plan({ manifestPath: MANIFEST_PATH });
     const r2 = plan({ manifestPath: MANIFEST_PATH });

@@ -67,6 +67,18 @@ describe('validate command', () => {
     }
   });
 
+  it('--policy-pack overrides manifest value', () => {
+    const result = validate({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-High' });
+
+    expect(result.policy?.policyPack).toBe('FedRAMP-High');
+  });
+
+  it('FedRAMP-High flags iam-missing-conditions as error', () => {
+    const result = validate({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-High' });
+
+    expect(result.policy?.compliant).toBe(false);
+  });
+
   it('determinism: same manifest produces identical results', () => {
     const r1 = validate({ manifestPath: MANIFEST_PATH });
     const r2 = validate({ manifestPath: MANIFEST_PATH });

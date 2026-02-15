@@ -34,7 +34,8 @@ vi.mock('@pulumi/pulumi/automation', () => {
 });
 
 // Import after mocks
-import { deploy, preview } from '../deployer';
+import { deploy, preview, classifyError } from '../deployer';
+import type { DeployerEvent } from '../deployer';
 import * as automation from '@pulumi/pulumi/automation';
 
 // Access the mock stack via the module
@@ -258,5 +259,185 @@ describe('preview', () => {
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
       expect.objectContaining({ stackName: 'preview-stack' }),
     );
+  });
+});
+
+describe('classifyError', () => {
+  it('classifies AWS credential errors', () => {
+    const result = classifyError(new Error('NoCredentialProviders: no valid providers'));
+
+    expect(result.category).toBe('aws-credentials');
+    expect(result.retryable).toBe(false);
+    expect(result.originalError).toBeInstanceOf(Error);
+  });
+
+  it('classifies ExpiredToken as aws-credentials', () => {
+    const result = classifyError(new Error('ExpiredToken: the security token included in the request is expired'));
+
+    expect(result.category).toBe('aws-credentials');
+    expect(result.retryable).toBe(false);
+  });
+
+  it('classifies stack conflict errors as retryable', () => {
+    const result = classifyError(new Error('Stack is already being updated'));
+
+    expect(result.category).toBe('stack-conflict');
+    expect(result.retryable).toBe(true);
+  });
+
+  it('classifies timeout errors as retryable', () => {
+    const result = classifyError(new Error('Operation timed out'));
+
+    expect(result.category).toBe('timeout');
+    expect(result.retryable).toBe(true);
+  });
+
+  it('classifies pulumi runtime errors', () => {
+    const result = classifyError(new Error('failed to load plugin'));
+
+    expect(result.category).toBe('pulumi-runtime');
+    expect(result.retryable).toBe(false);
+  });
+
+  it('classifies unknown errors as not retryable', () => {
+    const result = classifyError(new Error('Something unexpected happened'));
+
+    expect(result.category).toBe('unknown');
+    expect(result.retryable).toBe(false);
+  });
+
+  it('handles non-Error values', () => {
+    const result = classifyError('string error');
+
+    expect(result.category).toBe('unknown');
+    expect(result.message).toBe('string error');
+    expect(result.originalError).toBeUndefined();
+  });
+});
+
+describe('error detail in results', () => {
+  beforeEach(() => {
+    const mockStack = getMockStack();
+    vi.clearAllMocks();
+    mockStack.up.mockResolvedValue({
+      outputs: { 'my-function-arn': { value: 'arn:test' } },
+      summary: { resourceChanges: { create: 5 } },
+    });
+    mockStack.preview.mockResolvedValue({
+      changeSummary: { create: 5 },
+    });
+    mockStack.setConfig.mockResolvedValue(undefined);
+    (automation.LocalWorkspace.createOrSelectStack as ReturnType<typeof vi.fn>).mockResolvedValue(mockStack);
+  });
+
+  it('deploy includes errorDetail for AWS credential errors', async () => {
+    const mockStack = getMockStack();
+    mockStack.up.mockRejectedValueOnce(new Error('NoCredentialProviders: no valid providers'));
+
+    const result = await deploy(makePlan(), DEFAULT_CONFIG);
+
+    expect(result.success).toBe(false);
+    expect(result.errorDetail?.category).toBe('aws-credentials');
+    expect(result.errorDetail?.retryable).toBe(false);
+  });
+
+  it('preview includes errorDetail for stack conflict errors', async () => {
+    const mockStack = getMockStack();
+    mockStack.preview.mockRejectedValueOnce(new Error('Stack is already being updated'));
+
+    const result = await preview(makePlan(), DEFAULT_CONFIG);
+
+    expect(result.success).toBe(false);
+    expect(result.errorDetail?.category).toBe('stack-conflict');
+    expect(result.errorDetail?.retryable).toBe(true);
+  });
+
+  it('deploy with timeout fires timeout error', async () => {
+    const mockStack = getMockStack();
+    mockStack.up.mockImplementationOnce(
+      () => new Promise((resolve) => setTimeout(resolve, 5000))
+    );
+
+    const result = await deploy(makePlan(), DEFAULT_CONFIG, { timeoutMs: 50 });
+
+    expect(result.success).toBe(false);
+    expect(result.errorDetail?.category).toBe('timeout');
+    expect(result.errorDetail?.retryable).toBe(true);
+  });
+
+  it('success result has no errorDetail', async () => {
+    const result = await deploy(makePlan(), DEFAULT_CONFIG);
+
+    expect(result.success).toBe(true);
+    expect(result.errorDetail).toBeUndefined();
+  });
+});
+
+describe('onEvent callbacks', () => {
+  beforeEach(() => {
+    const mockStack = getMockStack();
+    vi.clearAllMocks();
+    mockStack.up.mockResolvedValue({
+      outputs: { 'my-function-arn': { value: 'arn:test' } },
+      summary: { resourceChanges: { create: 5 } },
+    });
+    mockStack.preview.mockResolvedValue({
+      changeSummary: { create: 5 },
+    });
+    mockStack.setConfig.mockResolvedValue(undefined);
+    (automation.LocalWorkspace.createOrSelectStack as ReturnType<typeof vi.fn>).mockResolvedValue(mockStack);
+  });
+
+  it('deploy emits progress events on success', async () => {
+    const events: DeployerEvent[] = [];
+    await deploy(makePlan(), DEFAULT_CONFIG, {
+      onEvent: (e) => events.push(e),
+    });
+
+    expect(events.map((e) => e.type)).toEqual([
+      'stack-creating',
+      'stack-configuring',
+      'deploying',
+      'complete',
+    ]);
+  });
+
+  it('preview emits progress events on success', async () => {
+    const events: DeployerEvent[] = [];
+    await preview(makePlan(), DEFAULT_CONFIG, {
+      onEvent: (e) => events.push(e),
+    });
+
+    expect(events.map((e) => e.type)).toEqual([
+      'stack-creating',
+      'stack-configuring',
+      'previewing',
+      'complete',
+    ]);
+  });
+
+  it('deploy emits error event on failure', async () => {
+    const mockStack = getMockStack();
+    mockStack.up.mockRejectedValueOnce(new Error('ExpiredToken: token expired'));
+
+    const events: DeployerEvent[] = [];
+    await deploy(makePlan(), DEFAULT_CONFIG, {
+      onEvent: (e) => events.push(e),
+    });
+
+    const errorEvent = events.find((e) => e.type === 'error');
+    expect(errorEvent).toBeDefined();
+    expect(errorEvent?.type === 'error' && errorEvent.error.category).toBe('aws-credentials');
+  });
+
+  it('all events include stackName', async () => {
+    const events: DeployerEvent[] = [];
+    await deploy(makePlan(), DEFAULT_CONFIG, {
+      onEvent: (e) => events.push(e),
+    });
+
+    for (const event of events) {
+      expect(event.stackName).toBe('test-service-us-east-1');
+    }
   });
 });

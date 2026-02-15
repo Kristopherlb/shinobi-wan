@@ -8,6 +8,7 @@ import { BaselinePolicyEvaluator } from '@shinobi/policy';
 export interface ValidateOptions {
   readonly manifestPath: string;
   readonly json?: boolean;
+  readonly policyPack?: string;
 }
 
 export interface ValidateResult {
@@ -61,7 +62,9 @@ export function validate(options: ValidateOptions): ValidateResult {
   const kernel = new Kernel({
     binders: createBinders(),
     evaluators: createEvaluators(),
-    config: manifest.policyPack ? { policyPack: manifest.policyPack } : {},
+    config: (options.policyPack || manifest.policyPack)
+      ? { policyPack: options.policyPack ?? manifest.policyPack }
+      : {},
   });
 
   // Apply mutations

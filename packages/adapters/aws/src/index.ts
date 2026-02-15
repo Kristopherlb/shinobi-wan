@@ -19,8 +19,15 @@ export type { PulumiFn, ResourcePlan, PlannedResource } from './program-generato
 export { createPulumiProgram } from './pulumi-program';
 
 // Deployer (Pulumi Automation API)
-export { deploy, preview } from './deployer';
-export type { DeployResult, PreviewResult, DeployOptions } from './deployer';
+export { deploy, preview, classifyError } from './deployer';
+export type {
+  DeployResult,
+  PreviewResult,
+  DeployOptions,
+  DeployerError,
+  DeployerErrorCategory,
+  DeployerEvent,
+} from './deployer';
 
 // Types
 export type {

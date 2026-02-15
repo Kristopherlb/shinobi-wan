@@ -20,8 +20,9 @@ export function createCli(): Command {
     .description('Parse and validate a service manifest')
     .argument('<manifest>', 'Path to the YAML service manifest')
     .option('--json', 'Output results as JSON')
-    .action((manifestPath: string, opts: { json?: boolean }) => {
-      const result = validate({ manifestPath, json: opts.json });
+    .option('--policy-pack <pack>', 'Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)')
+    .action((manifestPath: string, opts: { json?: boolean; policyPack?: string }) => {
+      const result = validate({ manifestPath, json: opts.json, policyPack: opts.policyPack });
 
       if (opts.json) {
         const { compilation: _, ...output } = result;
@@ -41,8 +42,9 @@ export function createCli(): Command {
     .option('--code-path <path>', 'Path to Lambda code artifact')
     .option('--preview', 'Run a Pulumi preview (requires AWS credentials)')
     .option('--json', 'Output results as JSON')
-    .action(async (manifestPath: string, opts: { region?: string; codePath?: string; preview?: boolean; json?: boolean }) => {
-      const result = plan({ manifestPath, region: opts.region, codePath: opts.codePath, json: opts.json, preview: opts.preview });
+    .option('--policy-pack <pack>', 'Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)')
+    .action(async (manifestPath: string, opts: { region?: string; codePath?: string; preview?: boolean; json?: boolean; policyPack?: string }) => {
+      const result = plan({ manifestPath, region: opts.region, codePath: opts.codePath, json: opts.json, preview: opts.preview, policyPack: opts.policyPack });
 
       // If --preview is set and plan succeeded, run Pulumi preview
       if (opts.preview && result.success && result.plan) {
@@ -81,13 +83,15 @@ export function createCli(): Command {
     .option('--code-path <path>', 'Path to Lambda code artifact')
     .option('--no-dry-run', 'Actually deploy (default is dry run)')
     .option('--json', 'Output results as JSON')
-    .action(async (manifestPath: string, opts: { region?: string; codePath?: string; dryRun?: boolean; json?: boolean }) => {
+    .option('--policy-pack <pack>', 'Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)')
+    .action(async (manifestPath: string, opts: { region?: string; codePath?: string; dryRun?: boolean; json?: boolean; policyPack?: string }) => {
       const result = await up({
         manifestPath,
         region: opts.region,
         codePath: opts.codePath,
         dryRun: opts.dryRun,
         json: opts.json,
+        policyPack: opts.policyPack,
       });
 
       if (opts.json) {

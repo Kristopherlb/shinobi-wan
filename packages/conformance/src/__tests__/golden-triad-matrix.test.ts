@@ -162,7 +162,76 @@ const CLEAN_READ_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
   },
 ];
 
-const ALL_EXPECTATIONS = [...ADMIN_WILDCARD_EXPECTATIONS, ...CLEAN_READ_EXPECTATIONS];
+// ── Scenario: wildcard-resource ─────────────────────────────────────────────
+// component→platform with accessLevel:'read', scope:'pattern', protocol:'tcp'
+// Triggers: iam-no-wildcard-resource (pattern scope) + iam-missing-conditions (cross-service)
+// Does NOT trigger: iam-admin-access-review (read, not admin), network-broad-protocol (tcp, not any)
+
+function wildcardResourceSetup(): ReadonlyArray<GraphMutation> {
+  const source = createTestNode({ id: 'component:wildcard-svc', type: 'component' });
+  const target = createTestNode({ id: 'platform:wildcard-db', type: 'platform' });
+  const edge = createTestEdge({
+    id: 'edge:bindsTo:component:wildcard-svc:platform:wildcard-db',
+    type: 'bindsTo',
+    source: source.id,
+    target: target.id,
+    metadata: {
+      bindingConfig: {
+        resourceType: 'table',
+        accessLevel: 'read',
+        scope: 'pattern',
+        network: { port: 5432, protocol: 'tcp' },
+      },
+    },
+  });
+
+  return [
+    { type: 'addNode', node: source },
+    { type: 'addNode', node: target },
+    { type: 'addEdge', edge },
+  ];
+}
+
+const WILDCARD_RESOURCE_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
+  {
+    cell: { scenario: 'wildcard-resource', policyPack: 'Baseline' },
+    expectedRuleIds: [
+      'iam-missing-conditions',
+      'iam-no-wildcard-resource',
+    ],
+    expectedCompliant: true, // Baseline: warning + info, no errors
+    expectedSeverities: {
+      'iam-no-wildcard-resource': 'warning',
+      'iam-missing-conditions': 'info',
+    },
+  },
+  {
+    cell: { scenario: 'wildcard-resource', policyPack: 'FedRAMP-Moderate' },
+    expectedRuleIds: [
+      'iam-missing-conditions',
+      'iam-no-wildcard-resource',
+    ],
+    expectedCompliant: false, // FedRAMP-Moderate: iam-no-wildcard-resource is error
+    expectedSeverities: {
+      'iam-no-wildcard-resource': 'error',
+      'iam-missing-conditions': 'warning',
+    },
+  },
+  {
+    cell: { scenario: 'wildcard-resource', policyPack: 'FedRAMP-High' },
+    expectedRuleIds: [
+      'iam-missing-conditions',
+      'iam-no-wildcard-resource',
+    ],
+    expectedCompliant: false, // FedRAMP-High: both errors
+    expectedSeverities: {
+      'iam-no-wildcard-resource': 'error',
+      'iam-missing-conditions': 'error',
+    },
+  },
+];
+
+const ALL_EXPECTATIONS = [...ADMIN_WILDCARD_EXPECTATIONS, ...CLEAN_READ_EXPECTATIONS, ...WILDCARD_RESOURCE_EXPECTATIONS];
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
@@ -170,7 +239,9 @@ describe('Golden: Triad Matrix (G-040, G-041)', () => {
   // Case: golden:triad:matrix — gates G-040, G-041
 
   function getSetup(scenario: string) {
-    return scenario === 'admin-wildcard' ? adminWildcardSetup : cleanReadSetup;
+    if (scenario === 'admin-wildcard') return adminWildcardSetup;
+    if (scenario === 'wildcard-resource') return wildcardResourceSetup;
+    return cleanReadSetup;
   }
 
   describe.each(ALL_EXPECTATIONS)(
@@ -279,6 +350,28 @@ describe('Golden: Triad Matrix (G-040, G-041)', () => {
 
       expect(baselineSeverities).not.toContain('error');
       expect(highSeverities.every((s) => s === 'error')).toBe(true);
+    });
+
+    it('wildcard-resource: iam-no-wildcard-resource severity escalates across packs', () => {
+      const results = PACKS.map((pack) =>
+        runGoldenCase({
+          setup: wildcardResourceSetup,
+          config: { policyPack: pack },
+          binders: createBinderList(),
+          evaluators: createEvaluatorList(),
+        })
+      );
+
+      // Each pack should have exactly 2 violations
+      for (const r of results) {
+        expect(r.compilation.policy?.violations).toHaveLength(2);
+      }
+
+      // iam-no-wildcard-resource severity: warning → error → error
+      const wildcardSeverities = results.map(
+        (r) => r.compilation.policy?.violations.find((v) => v.ruleId === 'iam-no-wildcard-resource')?.severity
+      );
+      expect(wildcardSeverities).toEqual(['warning', 'error', 'error']);
     });
 
     it('clean-read: only iam-missing-conditions fires, severity escalates across packs', () => {

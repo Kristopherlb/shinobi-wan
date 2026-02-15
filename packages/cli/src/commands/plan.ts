@@ -9,6 +9,7 @@ export interface PlanOptions {
   readonly codePath?: string;
   readonly json?: boolean;
   readonly preview?: boolean;
+  readonly policyPack?: string;
 }
 
 export interface PlanResult {
@@ -28,7 +29,11 @@ export interface PlanResult {
  */
 export function plan(options: PlanOptions): PlanResult {
   // Run validation first
-  const validationResult = validate({ manifestPath: options.manifestPath, json: options.json });
+  const validationResult = validate({
+    manifestPath: options.manifestPath,
+    json: options.json,
+    policyPack: options.policyPack,
+  });
 
   if (!validationResult.success || !validationResult.compilation) {
     return {
