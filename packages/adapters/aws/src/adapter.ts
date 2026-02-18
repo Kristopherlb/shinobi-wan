@@ -10,15 +10,10 @@ import type {
 } from './types';
 import type { Node } from '@shinobi/ir';
 import { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer } from './lowerers';
-import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer } from './lowerers';
-
-/**
- * Extracts a short name from a kernel node ID.
- */
-function shortName(nodeRef: string): string {
-  const idx = nodeRef.indexOf(':');
-  return idx >= 0 ? nodeRef.substring(idx + 1) : nodeRef;
-}
+import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer } from './lowerers';
+import { resolveConfigReference } from './lowerers/reference-utils';
+import { shortName } from './lowerers/utils';
+import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
 
 /** Default intent lowerers */
 const INTENT_LOWERERS: ReadonlyArray<IntentLowerer> = [
@@ -34,7 +29,17 @@ const NODE_LOWERERS: ReadonlyArray<NodeLowerer> = [
   new DynamoDbLowerer(),
   new S3Lowerer(),
   new ApiGatewayLowerer(),
+  new SnsLowerer(),
 ];
+
+const DEFAULT_NODE_LOWERER_REGISTRY = createDefaultNodeLowererRegistry();
+
+export interface LowerOptions {
+  /** Plugin-style registry lookup path (default). */
+  readonly nodeLowererRegistry?: NodeLowererRegistry;
+  /** Rollback switch to use legacy static array lookup path. */
+  readonly useLegacyNodeLowererLookup?: boolean;
+}
 
 /**
  * Lowers a compilation result into AWS resources.
@@ -46,13 +51,23 @@ const NODE_LOWERERS: ReadonlyArray<NodeLowerer> = [
  * 4. Generate event source mappings for trigger/bind relationships
  * 5. Return deterministically ordered resource list
  */
-export function lower(context: LoweringContext): AdapterResult {
+export function lower(context: LoweringContext, options?: LowerOptions): AdapterResult {
   const allResources: LoweredResource[] = [];
   const diagnostics: LoweringDiagnostic[] = [];
   const resourceMap: Record<string, string[]> = {};
 
   // Phase 1: Lower intents
   for (const intent of context.intents) {
+    if (intent.type === 'network') {
+      diagnostics.push({
+        severity: 'warning',
+        message:
+          'Network intent lowering is not yet supported by the AWS adapter; intent was recorded but no resource was emitted',
+        sourceId: intent.sourceEdgeId,
+      });
+      continue;
+    }
+
     const lowerer = INTENT_LOWERERS.find((l) => l.intentType === intent.type);
     if (!lowerer) {
       // Telemetry intents are silently skipped for MVP
@@ -66,14 +81,22 @@ export function lower(context: LoweringContext): AdapterResult {
       continue;
     }
 
-    const resources = lowerer.lower(intent, context);
-    allResources.push(...resources);
+    try {
+      const resources = lowerer.lower(intent, context);
+      allResources.push(...resources);
 
-    // Track which intents generated which resources
-    if (!resourceMap[intent.sourceEdgeId]) {
-      resourceMap[intent.sourceEdgeId] = [];
+      // Track which intents generated which resources
+      if (!resourceMap[intent.sourceEdgeId]) {
+        resourceMap[intent.sourceEdgeId] = [];
+      }
+      resourceMap[intent.sourceEdgeId].push(...resources.map((r) => r.name));
+    } catch (e) {
+      diagnostics.push({
+        severity: 'error',
+        message: `Intent lowerer "${lowerer.constructor.name}" failed: ${(e as Error).message}`,
+        sourceId: intent.sourceEdgeId,
+      });
     }
-    resourceMap[intent.sourceEdgeId].push(...resources.map((r) => r.name));
   }
 
   // Phase 2: Resolve per-node dependencies from intents
@@ -84,7 +107,9 @@ export function lower(context: LoweringContext): AdapterResult {
     const platform = node.metadata.properties['platform'] as string | undefined;
     if (!platform) continue;
 
-    const lowerer = NODE_LOWERERS.find((l) => l.platform === platform);
+    const lowerer = options?.useLegacyNodeLowererLookup
+      ? NODE_LOWERERS.find((l) => l.platform === platform)
+      : (options?.nodeLowererRegistry ?? DEFAULT_NODE_LOWERER_REGISTRY).get(platform);
     if (!lowerer) {
       diagnostics.push({
         severity: 'warning',
@@ -95,13 +120,21 @@ export function lower(context: LoweringContext): AdapterResult {
     }
 
     const deps = nodeDeps.get(node.id) ?? { envVars: {}, securityGroups: [] };
-    const resources = lowerer.lower(node, context, deps);
-    allResources.push(...resources);
+    try {
+      const resources = lowerer.lower(node, context, deps);
+      allResources.push(...resources);
 
-    if (!resourceMap[node.id]) {
-      resourceMap[node.id] = [];
+      if (!resourceMap[node.id]) {
+        resourceMap[node.id] = [];
+      }
+      resourceMap[node.id].push(...resources.map((r) => r.name));
+    } catch (e) {
+      diagnostics.push({
+        severity: 'error',
+        message: `Node lowerer "${lowerer.constructor.name}" failed: ${(e as Error).message}`,
+        sourceId: node.id,
+      });
     }
-    resourceMap[node.id].push(...resources.map((r) => r.name));
   }
 
   // Phase 4: Generate event source mappings
@@ -131,6 +164,28 @@ export function lower(context: LoweringContext): AdapterResult {
     diagnostics,
     success: !diagnostics.some((d) => d.severity === 'error'),
   };
+}
+
+export interface LowerAsyncOptions {
+  readonly onPhase?: (phase: 'intents' | 'nodes' | 'event-mappings' | 'integrations' | 'complete') => void;
+  readonly lowerOptions?: LowerOptions;
+}
+
+/**
+ * Async variant for wrapper/service runtimes that expect Promise-based lowering APIs.
+ * Current implementation preserves deterministic behavior by delegating to `lower()`.
+ */
+export async function lowerAsync(
+  context: LoweringContext,
+  options?: LowerAsyncOptions,
+): Promise<AdapterResult> {
+  options?.onPhase?.('intents');
+  options?.onPhase?.('nodes');
+  options?.onPhase?.('event-mappings');
+  options?.onPhase?.('integrations');
+  const result = lower(context, options?.lowerOptions);
+  options?.onPhase?.('complete');
+  return result;
 }
 
 /**
@@ -173,26 +228,11 @@ function resolveConfigValue(intent: ConfigIntent, context: LoweringContext): unk
     case 'literal':
       return String(intent.valueSource.value);
     case 'reference': {
-      // Try direct node ID match first, then with platform: prefix
-      const targetNode =
-        context.snapshot.nodes.find((n) => n.id === intent.valueSource.nodeRef) ??
-        context.snapshot.nodes.find((n) => n.id === `platform:${intent.valueSource.nodeRef}`);
-      if (targetNode) {
-        const platform = targetNode.metadata.properties['platform'] as string;
-        if (platform === 'aws-sqs') {
-          return { ref: `${shortName(targetNode.id)}-queue.url` };
-        }
-        if (platform === 'aws-dynamodb') {
-          return { ref: `${shortName(targetNode.id)}-table.name` };
-        }
-        if (platform === 'aws-apigateway') {
-          return { ref: `${shortName(targetNode.id)}-api.${intent.valueSource.field}` };
-        }
-        if (platform === 'aws-s3') {
-          return { ref: `${shortName(targetNode.id)}-bucket.bucket` };
-        }
-      }
-      return { ref: `${intent.valueSource.nodeRef}.${intent.valueSource.field}` };
+      return resolveConfigReference(
+        context.snapshot,
+        intent.valueSource.nodeRef,
+        intent.valueSource.field,
+      );
     }
     case 'secret':
       return { secretRef: intent.valueSource.secretRef };

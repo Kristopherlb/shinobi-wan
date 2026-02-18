@@ -73,6 +73,9 @@ vi.mock('@pulumi/aws', () => {
       Integration: makeConstructor('aws:apigatewayv2:Integration'),
       Route: makeConstructor('aws:apigatewayv2:Route'),
     },
+    sns: {
+      Topic: makeConstructor('aws:sns:Topic'),
+    },
   };
 });
 
@@ -224,6 +227,7 @@ describe('createPulumiProgram', () => {
       'aws:apigatewayv2:Stage',
       'aws:apigatewayv2:Integration',
       'aws:apigatewayv2:Route',
+      'aws:sns:Topic',
     ];
 
     const resources = allTypes.map((type, i) =>
@@ -262,6 +266,22 @@ describe('createPulumiProgram', () => {
     );
   });
 
+  it('throws when a resource ref points to a missing resource', async () => {
+    const plan = makePlan([
+      makePlannedResource({
+        name: 'my-attachment',
+        resourceType: 'aws:iam:RolePolicyAttachment',
+        properties: {
+          role: { ref: 'missing-role' },
+          policyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+        },
+      }),
+    ]);
+
+    const fn = createPulumiProgram(plan, DEFAULT_CONFIG);
+    await expect(fn()).rejects.toThrow('Unresolved ref "missing-role"');
+  });
+
   it('returns stack outputs', async () => {
     const plan = makePlan(
       [
@@ -280,6 +300,26 @@ describe('createPulumiProgram', () => {
     const outputs = await fn();
 
     expect(outputs['my-function-arn']).toBeDefined();
+  });
+
+  it('throws when output template field does not exist', async () => {
+    const plan = makePlan(
+      [
+        makePlannedResource({
+          name: 'my-function',
+          resourceType: 'aws:lambda:Function',
+          properties: { functionName: 'test' },
+        }),
+      ],
+      {
+        'my-function-missing': '${my-function.nope}',
+      },
+    );
+
+    const fn = createPulumiProgram(plan, DEFAULT_CONFIG);
+    await expect(fn()).rejects.toThrow(
+      'Unresolved output "my-function-missing": field "nope" does not exist on resource "my-function"',
+    );
   });
 
   it('handles empty plan', async () => {

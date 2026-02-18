@@ -61,6 +61,9 @@ export type { ValidationResult, ValidationOptions } from './validation';
 // Snapshot factory
 export { createSnapshot } from './snapshot-factory';
 
+// Runtime builders
+export { createNode, createEdge } from './builders';
+
 // Test fixtures
 export { createTestNode, createTestEdge } from './test-fixtures';
 

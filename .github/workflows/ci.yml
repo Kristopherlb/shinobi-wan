@@ -18,3 +18,19 @@ jobs:
       - run: pnpm nx run-many -t lint --exclude validation
       - run: pnpm nx build cli
       - run: pnpm conformance:check
+      - run: pnpm roadmap:check
+      - run: pnpm rollout:dashboard:check
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx build cli
+      - run: pnpm docs:check

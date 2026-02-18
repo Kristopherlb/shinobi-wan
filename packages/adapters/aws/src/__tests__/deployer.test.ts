@@ -278,11 +278,11 @@ describe('classifyError', () => {
     expect(result.retryable).toBe(false);
   });
 
-  it('classifies stack conflict errors as retryable', () => {
+  it('classifies stack conflict errors as non-retryable', () => {
     const result = classifyError(new Error('Stack is already being updated'));
 
     expect(result.category).toBe('stack-conflict');
-    expect(result.retryable).toBe(true);
+    expect(result.retryable).toBe(false);
   });
 
   it('classifies timeout errors as retryable', () => {
@@ -290,6 +290,14 @@ describe('classifyError', () => {
 
     expect(result.category).toBe('timeout');
     expect(result.retryable).toBe(true);
+    expect(result.retriableReason).toBe('upstream_timeout');
+  });
+
+  it('classifies rate limit errors as retryable with rate_limit reason', () => {
+    const result = classifyError(new Error('429 Too Many Requests'));
+    expect(result.code).toBe('RATE_LIMIT');
+    expect(result.retryable).toBe(true);
+    expect(result.retriableReason).toBe('rate_limit');
   });
 
   it('classifies pulumi runtime errors', () => {
@@ -299,11 +307,12 @@ describe('classifyError', () => {
     expect(result.retryable).toBe(false);
   });
 
-  it('classifies unknown errors as not retryable', () => {
+  it('classifies unknown errors as retryable (dependency-unavailable)', () => {
     const result = classifyError(new Error('Something unexpected happened'));
 
     expect(result.category).toBe('unknown');
-    expect(result.retryable).toBe(false);
+    expect(result.retryable).toBe(true);
+    expect(result.retriableReason).toBe('dependency_unavailable');
   });
 
   it('handles non-Error values', () => {
@@ -312,6 +321,7 @@ describe('classifyError', () => {
     expect(result.category).toBe('unknown');
     expect(result.message).toBe('string error');
     expect(result.originalError).toBeUndefined();
+    expect(result.retriableReason).toBe('dependency_unavailable');
   });
 });
 
@@ -349,7 +359,7 @@ describe('error detail in results', () => {
 
     expect(result.success).toBe(false);
     expect(result.errorDetail?.category).toBe('stack-conflict');
-    expect(result.errorDetail?.retryable).toBe(true);
+    expect(result.errorDetail?.retryable).toBe(false);
   });
 
   it('deploy with timeout fires timeout error', async () => {
@@ -363,6 +373,7 @@ describe('error detail in results', () => {
     expect(result.success).toBe(false);
     expect(result.errorDetail?.category).toBe('timeout');
     expect(result.errorDetail?.retryable).toBe(true);
+    expect(result.errorDetail?.retriableReason).toBe('upstream_timeout');
   });
 
   it('success result has no errorDetail', async () => {

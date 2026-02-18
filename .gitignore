@@ -11,3 +11,5 @@
 # misc
 .DS_Store
 .env
+docs/conformance/gate-coverage-report.md
+docs/operations/harmony-rollout-dashboard.md

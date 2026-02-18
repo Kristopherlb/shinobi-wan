@@ -1,14 +1,13 @@
 import { validate } from './validate';
 import type { ValidateResult } from './validate';
-import { lower, generatePlan, preview } from '@shinobi/adapter-aws';
-import type { AdapterConfig, AdapterResult, ResourcePlan, PreviewResult } from '@shinobi/adapter-aws';
+import { lower, lowerAsync, generatePlan } from '@shinobi/adapter-aws';
+import type { AdapterConfig, AdapterResult, ResourcePlan } from '@shinobi/adapter-aws';
 
 export interface PlanOptions {
   readonly manifestPath: string;
   readonly region?: string;
   readonly codePath?: string;
   readonly json?: boolean;
-  readonly preview?: boolean;
   readonly policyPack?: string;
 }
 
@@ -17,8 +16,11 @@ export interface PlanResult {
   readonly validation: ValidateResult;
   readonly adapter?: AdapterResult;
   readonly plan?: ResourcePlan;
-  readonly previewResult?: PreviewResult;
   readonly errors: ReadonlyArray<{ path: string; message: string }>;
+}
+
+export interface PlanAsyncOptions extends PlanOptions {
+  readonly onProgress?: (phase: 'validate' | 'lower' | 'generate-plan' | 'complete') => void;
 }
 
 /**
@@ -73,6 +75,61 @@ export function plan(options: PlanOptions): PlanResult {
   // Generate execution plan
   const resourcePlan = generatePlan(adapterResult, adapterConfig);
 
+  return {
+    success: true,
+    validation: validationResult,
+    adapter: adapterResult,
+    plan: resourcePlan,
+    errors: [],
+  };
+}
+
+/**
+ * Async plan variant for wrapper/service integrations.
+ */
+export async function planAsync(options: PlanAsyncOptions): Promise<PlanResult> {
+  options.onProgress?.('validate');
+  const validationResult = validate({
+    manifestPath: options.manifestPath,
+    json: options.json,
+    policyPack: options.policyPack,
+  });
+
+  if (!validationResult.success || !validationResult.compilation) {
+    return {
+      success: false,
+      validation: validationResult,
+      errors: validationResult.errors,
+    };
+  }
+
+  const adapterConfig: AdapterConfig = {
+    region: options.region ?? 'us-east-1',
+    serviceName: validationResult.manifest?.service ?? 'shinobi-service',
+    ...(options.codePath ? { codePath: options.codePath } : {}),
+  };
+
+  options.onProgress?.('lower');
+  const adapterResult = await lowerAsync({
+    intents: validationResult.compilation.intents,
+    snapshot: validationResult.compilation.snapshot,
+    adapterConfig,
+  });
+
+  if (!adapterResult.success) {
+    return {
+      success: false,
+      validation: validationResult,
+      adapter: adapterResult,
+      errors: adapterResult.diagnostics
+        .filter((d) => d.severity === 'error')
+        .map((d) => ({ path: d.sourceId, message: d.message })),
+    };
+  }
+
+  options.onProgress?.('generate-plan');
+  const resourcePlan = generatePlan(adapterResult, adapterConfig);
+  options.onProgress?.('complete');
   return {
     success: true,
     validation: validationResult,

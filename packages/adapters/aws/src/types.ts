@@ -41,6 +41,12 @@ export interface AdapterConfig {
   readonly codePath?: string;
   /** Optional: S3 bucket/key for Lambda code */
   readonly codeS3?: { readonly bucket: string; readonly key: string };
+  /** Optional: correlation trace identifier passed from external tool surfaces */
+  readonly traceId?: string;
+  /** Optional: tool version emitted by wrapper/tooling surfaces */
+  readonly toolVersion?: string;
+  /** Optional: contract version emitted by wrapper/tooling surfaces */
+  readonly contractVersion?: string;
 }
 
 /**
@@ -50,6 +56,18 @@ export interface LoweringDiagnostic {
   readonly severity: 'error' | 'warning' | 'info';
   readonly message: string;
   readonly sourceId: string;
+  /** Stable machine-friendly error code when available */
+  readonly code?: string;
+  /** Retry hint for external orchestration layers */
+  readonly retriable?: boolean;
+  /** Stable reason enum when retriable is true */
+  readonly retriableReason?:
+    | 'rate_limit'
+    | 'upstream_timeout'
+    | 'upstream_5xx'
+    | 'transport_unavailable'
+    | 'worker_unavailable'
+    | 'dependency_unavailable';
 }
 
 /**

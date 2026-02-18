@@ -5,6 +5,17 @@ import type { AdapterResult, LoweredResource, AdapterConfig } from './types';
  */
 export type PulumiFn = () => Promise<Record<string, unknown>>;
 
+/** Maps resource type → stack output entries (suffix + field). */
+export const OUTPUT_MAP: Record<string, ReadonlyArray<{ suffix: string; field: string }>> = {
+  'aws:lambda:Function': [{ suffix: 'arn', field: 'arn' }],
+  'aws:sqs:Queue': [{ suffix: 'url', field: 'url' }, { suffix: 'arn', field: 'arn' }],
+  'aws:iam:Role': [{ suffix: 'arn', field: 'arn' }],
+  'aws:dynamodb:Table': [{ suffix: 'name', field: 'name' }, { suffix: 'arn', field: 'arn' }],
+  'aws:s3:Bucket': [{ suffix: 'bucket', field: 'bucket' }, { suffix: 'arn', field: 'arn' }],
+  'aws:apigatewayv2:Api': [{ suffix: 'id', field: 'id' }, { suffix: 'url', field: 'apiEndpoint' }],
+  'aws:sns:Topic': [{ suffix: 'arn', field: 'arn' }],
+};
+
 /**
  * Resource creation plan — an intermediate representation of the
  * Pulumi program that can be inspected in tests without running Pulumi.
@@ -47,29 +58,11 @@ export function generatePlan(result: AdapterResult, config: AdapterConfig): Reso
     });
 
     // Collect outputs based on resource type
-    switch (resource.resourceType) {
-      case 'aws:lambda:Function':
-        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
-        break;
-      case 'aws:sqs:Queue':
-        outputs[`${resource.name}-url`] = `\${${resource.name}.url}`;
-        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
-        break;
-      case 'aws:iam:Role':
-        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
-        break;
-      case 'aws:dynamodb:Table':
-        outputs[`${resource.name}-name`] = `\${${resource.name}.name}`;
-        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
-        break;
-      case 'aws:s3:Bucket':
-        outputs[`${resource.name}-bucket`] = `\${${resource.name}.bucket}`;
-        outputs[`${resource.name}-arn`] = `\${${resource.name}.arn}`;
-        break;
-      case 'aws:apigatewayv2:Api':
-        outputs[`${resource.name}-id`] = `\${${resource.name}.id}`;
-        outputs[`${resource.name}-url`] = `\${${resource.name}.apiEndpoint}`;
-        break;
+    const outputEntries = OUTPUT_MAP[resource.resourceType];
+    if (outputEntries) {
+      for (const entry of outputEntries) {
+        outputs[`${resource.name}-${entry.suffix}`] = `\${${resource.name}.${entry.field}}`;
+      }
     }
   }
 

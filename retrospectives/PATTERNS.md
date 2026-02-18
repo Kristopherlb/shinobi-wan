@@ -94,35 +94,23 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 
 ---
 
-#### PAT-010: Utility Function Duplication Across Lowerers
+#### PAT-013: Nx Cache Masks Test Failures After Source Changes
 **Occurrences:** 1
-**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+**Sessions:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
 
-**Description:** The `shortName(nodeId)` utility (extracts part after first colon from kernel IDs) is copy-pasted in 6 files: lambda-lowerer, sqs-lowerer, dynamodb-lowerer, s3-lowerer, apigateway-lowerer, and adapter.ts. Each new lowerer copies it again.
+**Description:** When a test expectation doesn't match the implementation (e.g., deployer `classifyError` returns `retryable: true` for unknown errors but the test expects `false`), the Nx cache can mask the failure if the test file itself wasn't modified. The failure only surfaces when the cache is invalidated.
 
-**Impact:** DRY violation, risk of drift if behavior changes. Currently 6 copies.
+**Impact:** ~2 minutes diagnosing a "new" failure that was always there.
 
-**Proposed Resolution:** Extract to `packages/adapters/aws/src/lowerers/utils.ts` and import everywhere. See IMP-018.
-
----
-
-#### PAT-011: Platform-Specific If-Chain in resolveConfigValue
-**Occurrences:** 1
-**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
-
-**Description:** `resolveConfigValue()` in adapter.ts uses a growing `if (platform === 'aws-sqs')... if (platform === 'aws-dynamodb')...` chain to resolve config references. Each new platform adds another branch.
-
-**Impact:** Linear growth in function complexity with each new platform.
-
-**Proposed Resolution:** Replace with `PLATFORM_REF_MAP` data structure. See IMP-019.
+**Proposed Resolution:** Run `--skip-nx-cache` for affected packages after modifying source files that tests depend on. See IMP-021.
 
 ---
 
 ### 🟢 Success
 
 #### PAT-012: Pattern-Following Lowerer Implementation
-**Occurrences:** 1
-**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
+**Occurrences:** 2
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
 
 **Description:** Adding new node lowerers (DynamoDB, S3, API Gateway) was ~95% mechanical copy-edit from existing Lambda/SQS patterns. The `NodeLowerer` interface, test helpers, and Pulumi mock patterns all transfer directly. Average: ~3 minutes per lowerer including tests.
 
@@ -155,6 +143,22 @@ _Patterns that have been resolved with formal solutions._
 **Sessions:** 2026-02-07 through 2026-02-11
 
 **Resolution:** Pattern fully internalized into plan guidance and memory. Conformance package (Phase 7) had zero canonical ordering issues — `runGoldenCase()` delegates to `Kernel.compile()` which handles all ordering internally. `createTestNode`/`createTestEdge` from `@shinobi/ir` are the single source of truth for test fixtures. Duplicate `makeNode`/`makeEdge`/`makeSnapshot` helpers in kernel/binder/policy remain but are no longer causing friction. IMP-012 tracks consolidation.
+
+---
+
+### PAT-010: Utility Function Duplication Across Lowerers (GRADUATED)
+**Occurrences:** 2
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
+
+**Resolution:** `shortName()` extracted to `packages/adapters/aws/src/lowerers/utils.ts` and imported by all 9 files that used local copies. IMP-018 implemented. The SNS lowerer (added in the same phase) used the shared utility directly — zero duplication.
+
+---
+
+### PAT-011: Platform-Specific If-Chain in resolveConfigValue (GRADUATED)
+**Occurrences:** 2
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
+
+**Resolution:** `PLATFORM_REF_MAP` data map in `reference-utils.ts` and `OUTPUT_MAP` in `program-generator.ts` replaced if-chains and switch statements. IMP-019 implemented. Adding SNS was a 1-line map entry per file — O(1) instead of a new if-branch.
 
 ---
 

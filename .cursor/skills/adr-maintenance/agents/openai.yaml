@@ -1,0 +1,3 @@
+display_name: ADR Maintenance
+short_description: Record and verify architecture decisions
+default_prompt: Create or update Shinobi ADR entries with context, decision, consequences, verification evidence, and follow-up actions.

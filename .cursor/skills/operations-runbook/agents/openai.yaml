@@ -1,0 +1,3 @@
+display_name: Operations Runbook
+short_description: Build safe deploy and rollback procedures
+default_prompt: Create or update a Shinobi operations runbook for validate, plan, preview, deploy, and rollback/teardown with explicit preconditions and deterministic triage.

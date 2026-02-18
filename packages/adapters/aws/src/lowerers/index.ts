@@ -6,3 +6,5 @@ export { SqsLowerer } from './sqs-lowerer';
 export { DynamoDbLowerer } from './dynamodb-lowerer';
 export { S3Lowerer } from './s3-lowerer';
 export { ApiGatewayLowerer } from './apigateway-lowerer';
+export { SnsLowerer } from './sns-lowerer';
+export { shortName } from './utils';

@@ -3,7 +3,12 @@
     "version": "0.0.0",
     "license": "MIT",
     "scripts": {
-        "conformance:check": "nx run tools:conformance:check",
+        "conformance:check": "node tools/conformance-check.js",
+        "conformance:report": "node tools/conformance-gate-report.js --write",
+        "docs:check": "node tools/docs-check.js",
+        "roadmap:check": "node tools/roadmap-metadata-check.js",
+        "rollout:dashboard": "node tools/rollout-dashboard.js --write",
+        "rollout:dashboard:check": "node tools/rollout-dashboard.js --check",
         "format:check": "nx run tools:format:check",
         "format:write": "nx run tools:format:write"
     },

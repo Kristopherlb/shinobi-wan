@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as path from 'path';
-import { plan } from '../plan';
+import { plan, planAsync } from '../plan';
 
 const MANIFEST_PATH = path.resolve(__dirname, '../../../../../examples/lambda-sqs.yaml');
 
@@ -87,5 +87,15 @@ describe('plan command', () => {
     const r2 = plan({ manifestPath: MANIFEST_PATH });
 
     expect(JSON.stringify(r1.plan)).toBe(JSON.stringify(r2.plan));
+  });
+
+  it('supports async plan with progress callbacks', async () => {
+    const phases: string[] = [];
+    const result = await planAsync({
+      manifestPath: MANIFEST_PATH,
+      onProgress: (phase) => phases.push(phase),
+    });
+    expect(result.success).toBe(true);
+    expect(phases).toEqual(['validate', 'lower', 'generate-plan', 'complete']);
   });
 });

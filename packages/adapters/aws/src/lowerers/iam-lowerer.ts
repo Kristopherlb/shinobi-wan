@@ -1,5 +1,7 @@
 import type { IamIntent } from '@shinobi/contracts';
+import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
+import { shortName } from './utils';
 
 /** Maps intent action levels to AWS IAM action prefixes per resource type */
 const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
@@ -24,6 +26,11 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     write: ['execute-api:Invoke'],
     admin: ['execute-api:*'],
   },
+  topic: {
+    read: ['sns:GetTopicAttributes', 'sns:ListSubscriptionsByTopic'],
+    write: ['sns:Publish', 'sns:GetTopicAttributes'],
+    admin: ['sns:*'],
+  },
 };
 
 const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
@@ -33,21 +40,12 @@ const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
 };
 
 /**
- * Extracts a short name from a kernel node ID.
- * e.g., "component:api-handler" → "api-handler"
- */
-function shortName(nodeRef: string): string {
-  const idx = nodeRef.indexOf(':');
-  return idx >= 0 ? nodeRef.substring(idx + 1) : nodeRef;
-}
-
-/**
  * Lowers IamIntent → IAM Role + Policy + RolePolicyAttachment resources.
  */
 export class IamIntentLowerer implements IntentLowerer<IamIntent> {
   readonly intentType = 'iam' as const;
 
-  lower(intent: IamIntent, _context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(intent: IamIntent, context: LoweringContext): ReadonlyArray<LoweredResource> {
     const principalName = shortName(intent.principal.nodeRef);
     const roleName = `${principalName}-exec-role`;
     const policyName = `${principalName}-${shortName(intent.resource.nodeRef)}-policy`;
@@ -90,7 +88,7 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
             {
               Effect: 'Allow',
               Action: iamActions,
-              Resource: intent.resource.scope === 'specific' ? (intent.resource.pattern ?? '*') : '*',
+              Resource: this.resolvePolicyResource(intent, context),
               ...(intent.conditions && intent.conditions.length > 0
                 ? { Condition: this.buildConditions(intent) }
                 : {}),
@@ -132,6 +130,60 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     });
 
     return resources;
+  }
+
+  private resolvePolicyResource(intent: IamIntent, context: LoweringContext): string {
+    if (intent.resource.scope === 'pattern') {
+      if (!intent.resource.pattern) {
+        throw new Error(
+          `IAM intent "${intent.sourceEdgeId}" uses scope=pattern but does not provide resource.pattern`,
+        );
+      }
+      return intent.resource.pattern;
+    }
+
+    if (intent.resource.pattern) {
+      return intent.resource.pattern;
+    }
+
+    const target = context.snapshot.nodes.find((n) => n.id === intent.resource.nodeRef);
+    if (!target) {
+      throw new Error(
+        `IAM intent "${intent.sourceEdgeId}" references unknown resource node "${intent.resource.nodeRef}"`,
+      );
+    }
+
+    const resolved = this.resolveArnPatternFromNode(target, context);
+    if (!resolved) {
+      throw new Error(
+        `IAM intent "${intent.sourceEdgeId}" cannot resolve specific resource pattern for platform "${String(
+          target.metadata.properties['platform'],
+        )}"`,
+      );
+    }
+    return resolved;
+  }
+
+  private resolveArnPatternFromNode(node: Node, context: LoweringContext): string | undefined {
+    const platform = node.metadata.properties['platform'] as string | undefined;
+    const name = `${context.adapterConfig.serviceName}-${shortName(node.id)}`;
+
+    switch (platform) {
+      case 'aws-sqs':
+        return `arn:aws:sqs:*:*:${name}`;
+      case 'aws-lambda':
+        return `arn:aws:lambda:*:*:function:${name}`;
+      case 'aws-dynamodb':
+        return `arn:aws:dynamodb:*:*:table/${name}`;
+      case 'aws-s3':
+        return `arn:aws:s3:::${name}`;
+      case 'aws-apigateway':
+        return `arn:aws:execute-api:*:*:*`;
+      case 'aws-sns':
+        return `arn:aws:sns:*:*:${name}`;
+      default:
+        return undefined;
+    }
   }
 
   private resolveActions(intent: IamIntent): ReadonlyArray<string> {

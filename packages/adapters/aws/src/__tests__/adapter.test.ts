@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { lower } from '../adapter';
 import { generatePlan } from '../program-generator';
+import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from '../lowerer-registry';
+import type { NodeLowerer, LoweredResource } from '../types';
 import { makeContext, makeIamIntent, makeNetworkIntent, makeConfigIntent, DEFAULT_ADAPTER_CONFIG } from './test-helpers';
 
 describe('lower (adapter orchestrator)', () => {
@@ -14,7 +16,6 @@ describe('lower (adapter orchestrator)', () => {
     expect(types.has('aws:iam:Role')).toBe(true);
     expect(types.has('aws:iam:Policy')).toBe(true);
     expect(types.has('aws:iam:RolePolicyAttachment')).toBe(true);
-    expect(types.has('aws:ec2:SecurityGroupRule')).toBe(true);
     expect(types.has('aws:ssm:Parameter')).toBe(true);
   });
 
@@ -78,6 +79,16 @@ describe('lower (adapter orchestrator)', () => {
     expect(vars['QUEUE_URL']).toBeDefined();
   });
 
+  it('SSM config parameter uses canonical lowered queue ref', () => {
+    const result = lower(makeContext());
+
+    const ssmParam = result.resources.find(
+      (r) => r.resourceType === 'aws:ssm:Parameter' && r.name.includes('QUEUE_URL'),
+    );
+    expect(ssmParam).toBeDefined();
+    expect(ssmParam?.properties['value']).toEqual({ ref: 'work-queue-queue.url' });
+  });
+
   it('silently skips telemetry intents', () => {
     const ctx = makeContext({
       intents: [
@@ -99,11 +110,72 @@ describe('lower (adapter orchestrator)', () => {
     expect(result.diagnostics.some((d) => d.message.includes('telemetry'))).toBe(false);
   });
 
+  it('records explicit warning when network intents are not lowered', () => {
+    const result = lower(makeContext());
+    expect(
+      result.diagnostics.some((d) =>
+        d.message.includes('Network intent lowering is not yet supported'),
+      ),
+    ).toBe(true);
+  });
+
   it('determinism: identical input produces identical output', () => {
     const ctx = makeContext();
     const r1 = lower(ctx);
     const r2 = lower(ctx);
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
+  });
+
+  it('registry path and legacy lookup produce equivalent results', () => {
+    const ctx = makeContext();
+    const fromRegistry = lower(ctx);
+    const fromLegacy = lower(ctx, { useLegacyNodeLowererLookup: true });
+    expect(JSON.stringify(fromRegistry)).toBe(JSON.stringify(fromLegacy));
+  });
+
+  it('supports custom node lowerer registry injection', () => {
+    const registry = createDefaultNodeLowererRegistry();
+    const customLambdaLowerer: NodeLowerer = {
+      platform: 'aws-lambda',
+      lower(node): ReadonlyArray<LoweredResource> {
+        return [
+          {
+            name: `${node.id.replace(':', '-')}-custom`,
+            resourceType: 'test:custom:Lambda',
+            properties: {},
+            sourceId: node.id,
+            dependsOn: [],
+          },
+        ];
+      },
+    };
+    registry.register(customLambdaLowerer, { overwrite: true });
+
+    const result = lower(makeContext(), { nodeLowererRegistry: registry });
+    expect(result.resources.some((r) => r.resourceType === 'test:custom:Lambda')).toBe(true);
+  });
+
+  it('marks lowering as failed when an intent lowerer throws', () => {
+    const ctx = makeContext({
+      intents: [
+        makeIamIntent({
+          resource: {
+            nodeRef: 'platform:missing',
+            resourceType: 'queue',
+            scope: 'specific',
+          },
+        }),
+      ],
+    });
+
+    const result = lower(ctx);
+    expect(result.success).toBe(false);
+    expect(result.diagnostics.some((d) => d.severity === 'error')).toBe(true);
+    expect(
+      result.diagnostics.some((d) =>
+        d.message.includes('references unknown resource node "platform:missing"'),
+      ),
+    ).toBe(true);
   });
 
   it('no upward leakage: resources never contain AWS ARN values', () => {

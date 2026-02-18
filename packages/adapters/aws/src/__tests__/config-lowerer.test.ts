@@ -33,7 +33,7 @@ describe('ConfigIntentLowerer', () => {
     });
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['value']).toEqual({ ref: 'work-queue.url' });
+    expect(resources[0].properties['value']).toEqual({ ref: 'work-queue-queue.url' });
   });
 
   it('resolves literal value source to string', () => {

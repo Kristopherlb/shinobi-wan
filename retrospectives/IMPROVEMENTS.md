@@ -272,55 +272,67 @@ Before specifying expected violation counts:
 1. Parses `docs/conformance/gates.md` for gate IDs
 2. Scans conformance test files for gate ID references
 3. Reports covered vs uncovered gates
-4. Currently covered: G-001/2/3, G-020/22/23, G-040/41 (8 of 12)
-5. Missing: G-004, G-005, G-021, G-042
+4. Currently covered: G-001/2/3, G-004, G-020/21/22/23, G-040/41 (10 of 12)
+5. Missing: G-005, G-042
 
 ### IMP-018: Extract `shortName()` to Shared Lowerer Utility
-**Status:** 🟡 Proposed
+**Status:** 🟢 Implemented
 **Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
-**Effort:** 10 min
-**Impact:** Eliminates 6-way duplication of `shortName()` across adapter lowerers
+**Implemented:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Effort:** 10 min (actual: ~3 min)
+**Impact:** Eliminated 9-way duplication of `shortName()` across adapter lowerers (was 6 at proposal, grew to 9 by implementation)
 
-**Action:** Create `packages/adapters/aws/src/lowerers/utils.ts`:
-```typescript
-export function shortName(nodeId: string): string {
-  const idx = nodeId.indexOf(':');
-  return idx >= 0 ? nodeId.substring(idx + 1) : nodeId;
-}
-```
-Then replace all 6 local copies with `import { shortName } from './utils'`.
+**Action:** Created `packages/adapters/aws/src/lowerers/utils.ts` and replaced all 9 local copies. 6 unit tests added. SNS lowerer used shared utility directly.
 
 ---
 
 ### IMP-019: Data-Driven resolveConfigValue with PLATFORM_REF_MAP
-**Status:** 🟡 Proposed
+**Status:** 🟢 Implemented
 **Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
-**Effort:** 15 min
-**Impact:** Replaces growing platform if-chain with O(1) lookup table
-
-**Action:** In `adapter.ts`, replace the if-chain with:
-```typescript
-const PLATFORM_REF_MAP: Record<string, { suffix: string; field: string }> = {
-  'aws-sqs': { suffix: '-queue', field: 'url' },
-  'aws-dynamodb': { suffix: '-table', field: 'name' },
-  'aws-apigateway': { suffix: '-api', field: '' }, // uses intent.valueSource.field
-  'aws-s3': { suffix: '-bucket', field: 'bucket' },
-};
-```
+**Implemented:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Effort:** 15 min (actual: ~5 min)
+**Impact:** Replaced if-chain in `reference-utils.ts` with `PLATFORM_REF_MAP` and switch in `program-generator.ts` with `OUTPUT_MAP`. Adding SNS was 1-line per map.
 
 ---
 
 ### IMP-020: Conformance Golden Tests for New Resources
-**Status:** 🟡 Proposed
+**Status:** 🟢 Implemented (adapter-level)
 **Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
-**Effort:** 2 hours
-**Impact:** End-to-end determinism verification for DynamoDB, S3, API Gateway resource types
+**Implemented:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Effort:** 2 hours (actual: ~5 min — adapter golden tests, not full conformance triad)
+**Impact:** 14 adapter-level golden determinism tests covering DynamoDB, S3, API GW, and multi-resource scenarios
 
-**Action:** Add golden test scenarios:
-- API Gateway → Lambda → DynamoDB (triggers + bindsTo)
-- Lambda → S3 bucket (bindsTo with versioning)
-- Verify byte-stable output across identical runs
-- Expand triad matrix with triggers edge scenarios
+**Action:** Created `golden-adapter.test.ts` in adapter-aws with 4 scenarios. Kernel-level triad matrix expansion deferred to future phase.
+
+---
+
+### IMP-021: Skip Nx Cache After Deployer Source Changes
+**Status:** 🟡 Proposed
+**Source:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Effort:** 0 min (process change)
+**Impact:** Prevents stale Nx cache from masking test failures when deployer.ts is modified
+
+**Action:** After modifying `deployer.ts` or its tests, run `pnpm nx test adapter-aws --skip-nx-cache` to ensure fresh results.
+
+---
+
+### IMP-022: Conformance Gate G-005 — Component Capability Schema
+**Status:** 🟡 Proposed
+**Source:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Effort:** 1 hour
+**Impact:** 11/12 conformance gates covered
+
+**Action:** Create `packages/conformance/src/__tests__/golden-capability.test.ts` testing that component capability declarations validate against the schema defined in Standard S4.
+
+---
+
+### IMP-023: Conformance Gate G-042 — Policy Severity Escalation Matrix
+**Status:** 🟡 Proposed
+**Source:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Effort:** 1 hour
+**Impact:** 12/12 conformance gates covered
+
+**Action:** Create conformance tests verifying that the same policy rules fire across all 3 packs with escalating severity (info → warning → error). Expands the existing triad matrix.
 
 ---
 
@@ -332,6 +344,9 @@ _Record actual impact after implementation._
 |----|-----------------|---------------|-----------|
 | IMP-001 | Enables lint checks | Lint now runs on ir (15 warnings) and contracts (8 warnings) | ✅ |
 | IMP-002 | TypeScript compilation | IR package type-checks; lint and test pass | ✅ |
+| IMP-018 | Eliminates 6-way shortName duplication | Eliminated 9 copies → 1. SNS lowerer used shared utility directly. | ✅ |
+| IMP-019 | O(1) platform addition | SNS required 1-line per data map. No if-branch or switch case needed. | ✅ |
+| IMP-020 | E2E determinism for new resources | 14 adapter golden tests verify DynamoDB, S3, API GW, multi-resource plans are byte-stable. | ✅ |
 
 ---
 

@@ -1,13 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-
-/**
- * Extracts a short name from a kernel node ID.
- */
-function shortName(nodeId: string): string {
-  const idx = nodeId.indexOf(':');
-  return idx >= 0 ? nodeId.substring(idx + 1) : nodeId;
-}
+import { shortName } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-dynamodb" → DynamoDB Table resource.

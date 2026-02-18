@@ -33,7 +33,11 @@ export function runGoldenCase(options: RunGoldenCaseOptions): GoldenResult {
   });
 
   const mutations = options.setup();
-  kernel.applyMutation(mutations);
+  const mutationResult = kernel.applyMutation(mutations);
+  if (!mutationResult.success) {
+    const errorMessages = mutationResult.errors.map((e) => e.error.message).join('; ');
+    throw new Error(`Golden setup failed: ${errorMessages}`);
+  }
 
   const compilation = kernel.compile();
   const serialized = JSON.stringify(compilation);

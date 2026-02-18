@@ -1,0 +1,30 @@
+service: my-lambda-sns
+components:
+  - id: publisher
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: index.handler
+      memorySize: 256
+      timeout: 30
+  - id: notifications
+    type: platform
+    platform: aws-sns
+bindings:
+  - source: publisher
+    target: notifications
+    type: bindsTo
+    config:
+      resourceType: topic
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: TOPIC_ARN
+          valueSource:
+            type: reference
+            nodeRef: notifications
+            field: arn
+policyPack: Baseline

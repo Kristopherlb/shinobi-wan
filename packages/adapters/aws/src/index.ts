@@ -9,7 +9,9 @@
  */
 
 // Adapter orchestrator
-export { lower } from './adapter';
+export { lower, lowerAsync } from './adapter';
+export type { LowerAsyncOptions, LowerOptions } from './adapter';
+export { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
 
 // Program generator
 export { generatePlan } from './program-generator';
@@ -43,4 +45,4 @@ export type {
 
 // Individual lowerers (for custom adapter composition)
 export { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer } from './lowerers';
-export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer } from './lowerers';
+export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer } from './lowerers';

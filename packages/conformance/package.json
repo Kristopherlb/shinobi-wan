@@ -3,10 +3,11 @@
     "version": "0.0.1",
     "main": "src/index.ts",
     "dependencies": {
+        "@shinobi/binder": "workspace:*",
         "@shinobi/contracts": "workspace:*",
         "@shinobi/ir": "workspace:*",
         "@shinobi/kernel": "workspace:*",
-        "@shinobi/binder": "workspace:*",
-        "@shinobi/policy": "workspace:*"
+        "@shinobi/policy": "workspace:*",
+        "@shinobi/validation": "workspace:^"
     }
 }

@@ -1,5 +1,5 @@
 import type { GraphMutation, NodeType, EdgeType } from '@shinobi/ir';
-import { createTestNode, createTestEdge } from '@shinobi/ir';
+import { createNode, createEdge } from '@shinobi/ir';
 import type { ServiceManifest, ManifestComponent, ManifestBinding } from './types';
 
 /**
@@ -45,7 +45,7 @@ function componentToNode(component: ManifestComponent) {
   const nodeType = component.type as NodeType;
   const nodeId = `${nodeType}:${component.id}`;
 
-  return createTestNode({
+  return createNode({
     id: nodeId,
     type: nodeType,
     provenance: { sourceFile: 'manifest.yaml' },
@@ -68,7 +68,7 @@ function bindingToEdge(
   const edgeType = binding.type as EdgeType;
   const edgeId = `edge:${edgeType}:${sourceNodeId}:${targetNodeId}`;
 
-  return createTestEdge({
+  return createEdge({
     id: edgeId,
     type: edgeType,
     source: sourceNodeId,

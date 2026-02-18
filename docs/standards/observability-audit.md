@@ -23,11 +23,30 @@ JSON schema for logs.
 ### Correlation_TraceId_SpanId_Requirements
 Mandatory correlation IDs.
 
+For Harmony integration, every tool invocation must include:
+
+- request `trace_id`,
+- envelope `metadata.traceId`,
+- downstream error `traceId`,
+- async handle `traceId`.
+
 ### PII_Detection_And_Redaction
 Rules for handling PII.
 
+For wrapper/service integration:
+
+- no secret material in logs,
+- redact secret fields from envelopes and diagnostics,
+- keep raw upstream error payloads in structured logs only.
+
 ### Audit_Required_Rules_By_Framework
 Which events trigger mandatory audit logs.
+
+Restricted operations (`operationClass=apply`) require audit evidence for:
+
+- approval request and decision,
+- plan fingerprint linked to apply request,
+- final outcome and error class (if failed).
 
 ### Governance_Metadata_Derivation
 Deriving governance data from context.
@@ -38,3 +57,4 @@ Schema for immutable audit records.
 ## Validation
 - Runtime libraries.
 - Tool/audit record schema validation.
+- SLO and error-budget alert wiring for read/plan/apply operation classes.

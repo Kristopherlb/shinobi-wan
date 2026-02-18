@@ -115,12 +115,28 @@ describe('IamIntentLowerer', () => {
     expect(policyDoc.Statement[0].Resource).toBe('arn:*:sqs:*:*:work-queue');
   });
 
+  it('scope:specific without pattern resolves deterministic ARN pattern from target platform', () => {
+    const intent = makeIamIntent({
+      resource: {
+        nodeRef: 'platform:work-queue',
+        resourceType: 'queue',
+        scope: 'specific',
+      },
+    });
+    const resources = lowerer.lower(intent, makeContext());
+
+    const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
+    const policyDoc = JSON.parse(policy?.properties['policy'] as string);
+    expect(policyDoc.Statement[0].Resource).toBe('arn:aws:sqs:*:*:my-lambda-sqs-work-queue');
+  });
+
   it('scope:pattern uses wildcard * in IAM policy Resource field', () => {
     const intent = makeIamIntent({
       resource: {
         nodeRef: 'platform:work-queue',
         resourceType: 'queue',
         scope: 'pattern',
+        pattern: '*',
       },
     });
     const resources = lowerer.lower(intent, makeContext());
@@ -128,6 +144,20 @@ describe('IamIntentLowerer', () => {
     const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
     const policyDoc = JSON.parse(policy?.properties['policy'] as string);
     expect(policyDoc.Statement[0].Resource).toBe('*');
+  });
+
+  it('scope:pattern without pattern throws deterministic error', () => {
+    const intent = makeIamIntent({
+      resource: {
+        nodeRef: 'platform:work-queue',
+        resourceType: 'queue',
+        scope: 'pattern',
+      },
+    });
+
+    expect(() => lowerer.lower(intent, makeContext())).toThrow(
+      'uses scope=pattern but does not provide resource.pattern',
+    );
   });
 
   it('determinism: identical input produces identical output', () => {

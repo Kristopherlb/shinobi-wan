@@ -135,6 +135,9 @@ importers:
       '@shinobi/policy':
         specifier: workspace:*
         version: link:../policy
+      '@shinobi/validation':
+        specifier: workspace:^
+        version: link:../validation
 
   packages/contracts: {}
 

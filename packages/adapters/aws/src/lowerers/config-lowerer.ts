@@ -1,13 +1,7 @@
 import type { ConfigIntent } from '@shinobi/contracts';
 import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
-
-/**
- * Extracts a short name from a kernel node ID.
- */
-function shortName(nodeRef: string): string {
-  const idx = nodeRef.indexOf(':');
-  return idx >= 0 ? nodeRef.substring(idx + 1) : nodeRef;
-}
+import { resolveConfigReference } from './reference-utils';
+import { shortName } from './utils';
 
 /**
  * Lowers ConfigIntent → SSM Parameter resources.
@@ -23,7 +17,7 @@ export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
     const targetName = shortName(intent.targetNodeRef);
     const paramName = `${context.adapterConfig.serviceName}-${targetName}-${intent.key}`;
 
-    const value = this.resolveValue(intent);
+    const value = this.resolveValue(intent, context);
 
     return [
       {
@@ -45,13 +39,16 @@ export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
     ];
   }
 
-  private resolveValue(intent: ConfigIntent): unknown {
+  private resolveValue(intent: ConfigIntent, context: LoweringContext): unknown {
     switch (intent.valueSource.type) {
       case 'literal':
         return String(intent.valueSource.value);
       case 'reference':
-        // Reference values are resolved at deploy time via Pulumi outputs
-        return { ref: `${intent.valueSource.nodeRef}.${intent.valueSource.field}` };
+        return resolveConfigReference(
+          context.snapshot,
+          intent.valueSource.nodeRef,
+          intent.valueSource.field,
+        );
       case 'secret':
         // Secrets reference SSM SecureString or Secrets Manager
         return { secretRef: intent.valueSource.secretRef };

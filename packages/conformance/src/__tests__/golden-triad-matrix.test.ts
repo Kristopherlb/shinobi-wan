@@ -5,7 +5,7 @@ import { ComponentPlatformBinder, BinderRegistry } from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import type { IBinder, IPolicyEvaluator } from '@shinobi/kernel';
 import { runGoldenCase } from '../golden-runner';
-import type { TriadCell } from '../types';
+import type { TriadCell, GoldenCase } from '../types';
 
 /*──────────────────────────────────────────────────────────────────────────────
  * G-040 (GOLDEN)  – Policy violation detected and reported
@@ -86,6 +86,12 @@ function cleanReadSetup(): ReadonlyArray<GraphMutation> {
 // ── Expected violation data per triad cell ───────────────────────────────────
 
 const PACKS = ['Baseline', 'FedRAMP-Moderate', 'FedRAMP-High'] as const;
+
+const CASE_SCHEMA: GoldenCase = {
+  id: 'golden:triad:matrix',
+  description: 'Policy violations and compliance blocks are stable across scenario × pack matrix',
+  gates: ['G-040', 'G-041'],
+};
 
 interface CellExpectation {
   readonly cell: TriadCell;
@@ -235,8 +241,10 @@ const ALL_EXPECTATIONS = [...ADMIN_WILDCARD_EXPECTATIONS, ...CLEAN_READ_EXPECTAT
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
-describe('Golden: Triad Matrix (G-040, G-041)', () => {
-  // Case: golden:triad:matrix — gates G-040, G-041
+describe(`Golden: Triad Matrix (G-040, G-041)`, () => {
+  it('documents conformance gate coverage metadata', () => {
+    expect(CASE_SCHEMA.gates).toEqual(['G-040', 'G-041']);
+  });
 
   function getSetup(scenario: string) {
     if (scenario === 'admin-wildcard') return adminWildcardSetup;
