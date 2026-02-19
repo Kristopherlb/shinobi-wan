@@ -1,10 +1,22 @@
 {
-    "name": "@shinobi/kernel",
-    "version": "0.0.1",
-    "main": "src/index.ts",
-    "dependencies": {
-        "@shinobi/contracts": "workspace:*",
-        "@shinobi/ir": "workspace:*",
-        "@shinobi/validation": "workspace:*"
+  "name": "@shinobi/kernel",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "dependencies": {
+    "@shinobi/contracts": "workspace:*",
+    "@shinobi/ir": "workspace:*",
+    "@shinobi/validation": "workspace:*"
+  }
 }

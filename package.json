@@ -3,6 +3,14 @@
     "version": "0.0.0",
     "license": "MIT",
     "scripts": {
+        "build": "nx run-many -t build",
+        "test": "nx run-many -t test",
+        "lint": "nx run-many -t lint",
+        "prepare": "nx run-many -t build",
+        "changeset": "changeset",
+        "version": "changeset version",
+        "smoke:consumer": "node scripts/consumer-smoke.mjs",
+        "conformance": "node tools/conformance-check.js",
         "conformance:check": "node tools/conformance-check.js",
         "conformance:report": "node tools/conformance-gate-report.js --write",
         "docs:check": "node tools/docs-check.js",
@@ -14,6 +22,7 @@
     },
     "private": true,
     "devDependencies": {
+        "@changesets/cli": "^2.29.8",
         "@nx/eslint-plugin": "^22.4.5",
         "@nx/js": "^22.4.5",
         "@nx/node": "^22.4.5",
@@ -27,9 +36,11 @@
         "nx": "22.4.5",
         "prettier": "^3.8.1",
         "ts-node": "^10.9.2",
+        "tsup": "^8.5.1",
         "typescript": "~5.7.3",
         "vitest": "^4.0.18",
-        "yaml": "^2.8.2"
+        "yaml": "^2.8.2",
+        "@shinobi/kernel": "workspace:*"
     },
     "packageManager": "pnpm@9.15.0"
 }

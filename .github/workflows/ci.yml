@@ -14,10 +14,11 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
-      - run: pnpm nx run-many -t test
-      - run: pnpm nx run-many -t lint --exclude validation
-      - run: pnpm nx build cli
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm lint
       - run: pnpm conformance:check
+      - run: pnpm smoke:consumer
       - run: pnpm roadmap:check
       - run: pnpm rollout:dashboard:check
   docs-check:

@@ -38,3 +38,26 @@ export type { CompilationDetail } from './errors';
 
 // Utilities
 export { deepFreeze } from './freeze';
+
+// Facade (Harmony integration)
+export {
+  CONTRACT_VERSION,
+  contractVersion,
+  validatePlan,
+  planChange,
+  applyChange,
+  readEntities,
+  readActivity,
+} from './facade';
+export type {
+  ContractVersion,
+  ToolResponseEnvelope,
+  ToolErrorEnvelope,
+  ToolResponseMetadata,
+  ValidatePlanInput,
+  PlanChangeInput,
+  ApplyChangeInput,
+  ReadEntitiesInput,
+  ReadActivityInput,
+  FacadeMode,
+} from './facade';

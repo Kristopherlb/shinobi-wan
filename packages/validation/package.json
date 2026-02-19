@@ -1,9 +1,19 @@
 {
-    "name": "@shinobi/validation",
-    "version": "0.0.1",
-    "main": "src/index.ts",
-    "dependencies": {
-        "@shinobi/contracts": "workspace:*",
-        "@shinobi/ir": "workspace:*"
+  "name": "@shinobi/validation",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "dependencies": {
+    "@shinobi/contracts": "workspace:*",
+    "@shinobi/ir": "workspace:*"
+  }
 }
