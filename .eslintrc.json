@@ -1,8 +1,8 @@
 {
     "root": true,
     "ignorePatterns": [
-        "**/*",
-        "node_modules"
+        "node_modules",
+        "**/dist/**"
     ],
     "plugins": [
         "@nx"
@@ -21,6 +21,7 @@
                     {
                         "enforceBuildableLibDependency": true,
                         "allow": [],
+                        "checkDynamicDependenciesExceptions": ["@shinobi/validation"],
                         "depConstraints": [
                             {
                                 "sourceTag": "scope:kernel",
@@ -71,7 +72,8 @@
                                     "scope:ir",
                                     "scope:kernel",
                                     "scope:binder",
-                                    "scope:policy"
+                                    "scope:policy",
+                                    "scope:validation"
                                 ]
                             },
                             {
