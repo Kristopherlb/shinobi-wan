@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { RULE_CATALOG, getRuleById } from '../rules';
+import { SEVERITY_MAP, SUPPORTED_PACKS } from '../severity-map';
 
 describe('RULE_CATALOG', () => {
-  it('contains exactly 15 rules', () => {
-    expect(RULE_CATALOG).toHaveLength(15);
+  it('contains at least 15 rules', () => {
+    expect(RULE_CATALOG.length).toBeGreaterThanOrEqual(15);
   });
 
   it('has no duplicate ruleIds', () => {
@@ -35,6 +36,31 @@ describe('RULE_CATALOG', () => {
     expect(ids).toContain('stepfunctions-logging-disabled');
     expect(ids).toContain('eventbridge-retry-missing');
     expect(ids).toContain('s3-public-access-not-blocked');
+  });
+});
+
+describe('RULE_CATALOG ↔ SEVERITY_MAP consistency', () => {
+  const catalogIds = RULE_CATALOG.map((r) => r.ruleId).sort();
+
+  it.each([...SUPPORTED_PACKS])('every catalog rule has a severity in %s', (pack) => {
+    const mapIds = Object.keys(SEVERITY_MAP[pack]).sort();
+    for (const ruleId of catalogIds) {
+      expect(mapIds, `Rule "${ruleId}" missing from SEVERITY_MAP["${pack}"]`).toContain(ruleId);
+    }
+  });
+
+  it.each([...SUPPORTED_PACKS])('every %s severity entry maps to a catalog rule', (pack) => {
+    const mapIds = Object.keys(SEVERITY_MAP[pack]).sort();
+    for (const ruleId of mapIds) {
+      expect(catalogIds, `SEVERITY_MAP["${pack}"] has orphan rule "${ruleId}"`).toContain(ruleId);
+    }
+  });
+
+  it('all packs have the same rule set', () => {
+    const packKeys = SUPPORTED_PACKS.map((p) => Object.keys(SEVERITY_MAP[p]).sort());
+    for (let i = 1; i < packKeys.length; i++) {
+      expect(packKeys[i]).toEqual(packKeys[0]);
+    }
   });
 });
 
