@@ -13,3 +13,4 @@
 .env
 docs/conformance/gate-coverage-report.md
 docs/operations/harmony-rollout-dashboard.md
+audit-fedramp-report.json

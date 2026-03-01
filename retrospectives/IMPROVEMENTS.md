@@ -347,6 +347,70 @@ _Record actual impact after implementation._
 | IMP-018 | Eliminates 6-way shortName duplication | Eliminated 9 copies → 1. SNS lowerer used shared utility directly. | ✅ |
 | IMP-019 | O(1) platform addition | SNS required 1-line per data map. No if-branch or switch case needed. | ✅ |
 | IMP-020 | E2E determinism for new resources | 14 adapter golden tests verify DynamoDB, S3, API GW, multi-resource plans are byte-stable. | ✅ |
+| IMP-024 | Blueprint FedRAMP compliance auditing | BP-004 validates clean under Baseline (0 errors), expected escalation under FedRAMP-High. | ✅ |
+
+---
+
+### IMP-024: FedRAMP Audit Script
+**Status:** 🟢 Implemented
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 15 min
+**Impact:** Validates every blueprint against all 3 policy packs, reports compliance status and violation details
+
+**Action:** Created `scripts/audit-fedramp.ts`. Runs against individual blueprints or scans `blueprints/*/` automatically. Outputs both console report and `audit-fedramp-report.json`. Exit code 1 if Baseline has errors.
+
+---
+
+### IMP-025: Rule Catalog Completeness Helper
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 15 min
+**Impact:** Prevents RULE_CATALOG / SEVERITY_MAP drift — ensures every rule has severity entries for all 3 packs
+
+**Action:** Create `assertRuleCatalogComplete()` test helper that:
+1. Verifies every rule in RULE_CATALOG has entries in SEVERITY_MAP for all 3 packs
+2. Verifies every rule in SEVERITY_MAP exists in RULE_CATALOG
+3. Add as a test in `rules.test.ts`
+
+---
+
+### IMP-026: Generator Scripts Auto-Modify Source Files
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 2 hours
+**Impact:** Currently `generate-lowerer.ts` and `generate-policy-rule.ts` only print boilerplate that must be manually pasted. AST-based transforms would auto-add to index.ts, registry, ACTION_MAP, PLATFORM_REF_MAP, OUTPUT_MAP.
+
+**Action:** Extend generators with `ts-morph` or simple regex transforms to modify source files directly.
+
+---
+
+### IMP-027: Document Node-Level Policy Check Pattern
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 10 min
+**Impact:** Phase 2+ rules (cloudfront-ssl, waf-not-attached, s3-public-access) use same pattern
+
+**Action:** Add to memory: "Node-level checks use `checkComputeNodes()` pattern — iterate `snapshot.nodes`, filter by platform, check properties, emit violation with `target: { type: 'node', id: node.id }`."
+
+---
+
+### IMP-028: Blueprint Golden Test Generator
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase2-checkpoint
+**Effort:** 30 min
+**Impact:** Prevents copy-paste errors when creating golden tests from blueprint manifests. Auto-detects component vs platform-only architectures for correct intent assertions.
+
+**Action:** Create a script that reads a YAML manifest and generates a golden test scaffold with correct node/edge counts, platform types, and intent expectations.
+
+---
+
+### IMP-029: WAF Attachment via Binder
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase2-checkpoint
+**Effort:** 1 hour
+**Impact:** Makes `waf-not-attached` policy rule work with edge-based WAF attachment (currently checks node properties only)
+
+**Action:** Consider a `WafBinder` that processes WAF→CDN bindsTo edges and sets `wafAclArn` on the CDN node metadata, making the property visible to policy rules at compile time. Alternative: modify the policy rule to inspect edges.
 
 ---
 

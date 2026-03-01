@@ -1,0 +1,147 @@
+# Blueprint BP-006: ECS Fargate + ALB
+#
+# Architecture:
+#   VPC + Subnets + Security Groups
+#   ECR Repository → ECS Cluster → ECS Task Definition → ECS Service → ALB
+#
+# Features:
+#   - VPC with public subnets across 2 AZs
+#   - Security groups for ALB (public HTTPS) and ECS tasks (ALB-only ingress)
+#   - ECR with immutable tags and scan-on-push
+#   - ECS Cluster with Container Insights and Fargate capacity providers
+#   - ECS Task Definition with awslogs driver, Fargate-compatible
+#   - ECS Service with ALB integration, private subnets, desired count 2
+#   - ALB with HTTPS listener, HTTP→HTTPS redirect, health checks
+
+service: ecs-fargate-alb
+
+components:
+  # VPC for network isolation
+  - id: app-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  # Public subnets across 2 AZs for ALB
+  - id: subnet-1a
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: true
+
+  - id: subnet-1b
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.2.0/24"
+      availabilityZone: us-east-1b
+      mapPublicIpOnLaunch: true
+
+  # Security group for ALB — public HTTPS ingress
+  - id: alb-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:app-vpc"
+      description: "ALB security group — public HTTPS"
+      ingressRules:
+        - protocol: tcp
+          fromPort: 443
+          toPort: 443
+          cidrBlocks:
+            - "0.0.0.0/0"
+        - protocol: tcp
+          fromPort: 80
+          toPort: 80
+          cidrBlocks:
+            - "0.0.0.0/0"
+
+  # Security group for ECS tasks — ALB-only ingress
+  - id: ecs-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:app-vpc"
+      description: "ECS tasks — ALB ingress only"
+
+  # ECR repository for container images
+  - id: app-repo
+    type: platform
+    platform: aws-ecr
+    config:
+      scanOnPush: true
+
+  # ECS cluster with Fargate
+  - id: app-cluster
+    type: platform
+    platform: aws-ecs-cluster
+    config:
+      containerInsights: true
+
+  # ECS task definition
+  - id: app-task
+    type: platform
+    platform: aws-ecs-task-definition
+    config:
+      cpu: "256"
+      memory: "512"
+      containerDefinitions:
+        - name: app
+          image: "ecs-fargate-alb-app-task:latest"
+          cpu: 256
+          memory: 512
+          portMappings:
+            - containerPort: 3000
+              protocol: tcp
+
+  # ECS service with ALB integration
+  - id: app-service
+    type: platform
+    platform: aws-ecs-service
+    config:
+      cluster: "platform:app-cluster"
+      taskDefinition: "platform:app-task"
+      desiredCount: 2
+      subnets:
+        - "platform:subnet-1a"
+        - "platform:subnet-1b"
+      securityGroups:
+        - "platform:ecs-sg"
+      assignPublicIp: false
+
+  # Application Load Balancer
+  - id: app-alb
+    type: platform
+    platform: aws-alb
+    config:
+      vpcId: "platform:app-vpc"
+      subnets:
+        - "platform:subnet-1a"
+        - "platform:subnet-1b"
+      securityGroups:
+        - "platform:alb-sg"
+      healthCheck:
+        path: "/health"
+        interval: 30
+        timeout: 5
+        healthyThreshold: 2
+        unhealthyThreshold: 3
+
+bindings:
+  # ECS Service gets traffic from ALB
+  - source: app-service
+    target: app-alb
+    type: bindsTo
+    config:
+      resourceType: loadbalancer
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+
+policyPack: Baseline

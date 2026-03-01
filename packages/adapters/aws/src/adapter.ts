@@ -9,8 +9,8 @@ import type {
   ResolvedDeps,
 } from './types';
 import type { Node } from '@shinobi/ir';
-import { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer } from './lowerers';
-import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer } from './lowerers';
+import { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer, TelemetryIntentLowerer } from './lowerers';
+import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer } from './lowerers';
 import { resolveConfigReference } from './lowerers/reference-utils';
 import { shortName } from './lowerers/utils';
 import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
@@ -20,6 +20,7 @@ const INTENT_LOWERERS: ReadonlyArray<IntentLowerer> = [
   new IamIntentLowerer(),
   new NetworkIntentLowerer(),
   new ConfigIntentLowerer(),
+  new TelemetryIntentLowerer(),
 ];
 
 /** Default node/resource lowerers */
@@ -30,6 +31,20 @@ const NODE_LOWERERS: ReadonlyArray<NodeLowerer> = [
   new S3Lowerer(),
   new ApiGatewayLowerer(),
   new SnsLowerer(),
+  new CloudFrontLowerer(),
+  new WafLowerer(),
+  new AcmLowerer(),
+  new CloudFrontFunctionLowerer(),
+  new EventBridgeLowerer(),
+  new StepFunctionsLowerer(),
+  new VpcLowerer(),
+  new SubnetLowerer(),
+  new SecurityGroupLowerer(),
+  new EcrLowerer(),
+  new EcsClusterLowerer(),
+  new EcsTaskDefinitionLowerer(),
+  new EcsServiceLowerer(),
+  new AlbLowerer(),
 ];
 
 const DEFAULT_NODE_LOWERER_REGISTRY = createDefaultNodeLowererRegistry();
@@ -70,14 +85,11 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
 
     const lowerer = INTENT_LOWERERS.find((l) => l.intentType === intent.type);
     if (!lowerer) {
-      // Telemetry intents are silently skipped for MVP
-      if (intent.type !== 'telemetry') {
-        diagnostics.push({
-          severity: 'warning',
-          message: `No lowerer for intent type '${intent.type}'`,
-          sourceId: intent.sourceEdgeId,
-        });
-      }
+      diagnostics.push({
+        severity: 'warning',
+        message: `No lowerer for intent type '${intent.type}'`,
+        sourceId: intent.sourceEdgeId,
+      });
       continue;
     }
 
@@ -144,6 +156,10 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
   // Phase 5: Generate API Gateway → Lambda integrations
   const apiGwIntegrations = generateApiGatewayIntegrations(context);
   allResources.push(...apiGwIntegrations);
+
+  // Phase 6: Generate EventBridge Scheduler → target integrations
+  const ebIntegrations = generateEventBridgeIntegrations(context);
+  allResources.push(...ebIntegrations);
 
   // Deduplicate resources by name (IAM roles may appear multiple times)
   const seen = new Set<string>();
@@ -371,6 +387,72 @@ function generateApiGatewayIntegrations(
         },
         sourceId: edge.id,
         dependsOn: [`${lambdaName}-function`, `${apiName}-api`],
+      });
+    }
+  }
+
+  return resources;
+}
+
+/**
+ * Generates EventBridge Scheduler → target integration resources.
+ *
+ * For each `triggers` edge where source is aws-eventbridge-scheduler:
+ * - Adds target configuration to the schedule resource
+ * - For Lambda targets: sets target ARN to the function
+ * - For Step Functions targets: sets target ARN to the state machine
+ */
+function generateEventBridgeIntegrations(
+  context: LoweringContext,
+): ReadonlyArray<LoweredResource> {
+  const resources: LoweredResource[] = [];
+
+  for (const edge of context.snapshot.edges) {
+    if (edge.type !== 'triggers') continue;
+
+    const sourceNode = context.snapshot.nodes.find((n) => n.id === edge.source);
+    const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
+    if (!sourceNode || !targetNode) continue;
+
+    const sourcePlatform = sourceNode.metadata.properties['platform'] as string | undefined;
+    const targetPlatform = targetNode.metadata.properties['platform'] as string | undefined;
+
+    if (sourcePlatform !== 'aws-eventbridge-scheduler') continue;
+
+    const schedulerName = shortName(sourceNode.id);
+    const targetName = shortName(targetNode.id);
+
+    if (targetPlatform === 'aws-lambda') {
+      // EventBridge → Lambda: generate target config
+      resources.push({
+        name: `${schedulerName}-${targetName}-target`,
+        resourceType: 'aws:scheduler:ScheduleTarget',
+        properties: {
+          scheduleArn: { ref: `${schedulerName}-schedule` },
+          arn: { ref: `${targetName}-function` },
+          roleArn: { ref: `${schedulerName}-exec-role` },
+          tags: {
+            'shinobi:edge': edge.id,
+          },
+        },
+        sourceId: edge.id,
+        dependsOn: [`${schedulerName}-schedule`, `${targetName}-function`],
+      });
+    } else if (targetPlatform === 'aws-stepfunctions') {
+      // EventBridge → Step Functions: generate target config
+      resources.push({
+        name: `${schedulerName}-${targetName}-target`,
+        resourceType: 'aws:scheduler:ScheduleTarget',
+        properties: {
+          scheduleArn: { ref: `${schedulerName}-schedule` },
+          arn: { ref: `${targetName}-state-machine` },
+          roleArn: { ref: `${schedulerName}-exec-role` },
+          tags: {
+            'shinobi:edge': edge.id,
+          },
+        },
+        sourceId: edge.id,
+        dependsOn: [`${schedulerName}-schedule`, `${targetName}-state-machine`],
       });
     }
   }

@@ -106,6 +106,42 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 
 ---
 
+#### PAT-014: Hardcoded Rule Counts Break When Adding Policy Rules
+**Occurrences:** 2
+**Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint
+
+**Description:** `rules.test.ts` asserted `RULE_CATALOG.toHaveLength(4)`. Adding 3 new compute rules (sqs-dlq-missing, lambda-timeout-excessive, telemetry-tracing-disabled) broke this test. Similarly, golden-triad-resources expected rule IDs didn't account for the new `telemetry-tracing-disabled` rule firing on Lambda components without tracing.
+
+**Impact:** ~3 minutes debugging and fixing test expectations across 2 files
+
+**Proposed Resolution:** Use dynamic assertions (e.g., `>= expected`) for catalog counts, or add rules to a known-rules constant. For conformance tests, re-verify expected rule sets after adding any new policy rule.
+
+---
+
+#### PAT-015: New Policy Rules Ripple Through Conformance Golden Tests
+**Occurrences:** 1
+**Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint
+
+**Description:** Adding `telemetry-tracing-disabled` caused the `apigw-trigger` scenario in `golden-triad-resources.test.ts` to fire an additional rule (Lambda without tracing). This is correct behavior — conformance tests caught the change as expected. However, the developer must manually identify which existing golden tests are affected by new rules.
+
+**Impact:** ~2 minutes finding affected tests and updating expectations
+
+**Proposed Resolution:** When adding a new policy rule, run full conformance suite immediately. The failures show exactly which golden tests need updated expectations.
+
+---
+
+#### PAT-017: Platform-to-Platform Edges Produce Zero Intents
+**Occurrences:** 1
+**Sessions:** 2026-02-28-compute-blueprints-phase2-checkpoint
+
+**Description:** BP-008 (Static Site + CDN + WAF) has only `platform:*` nodes and `platform→platform` bindsTo edges. `ComponentPlatformBinder` only fires for `component→platform` edges, so these blueprints produce zero intents at compile time. Infrastructure relationships (CDN→S3, WAF→CDN) are resolved by lowerers instead. Golden tests must assert `intents.toHaveLength(0)` rather than copying intent assertions from component-based blueprints.
+
+**Impact:** ~3 minutes debugging a failing golden test (copied intent assertion from BP-004)
+
+**Proposed Resolution:** When writing golden tests for infrastructure-only blueprints, check whether any component nodes exist. If not, expect zero intents.
+
+---
+
 ### 🟢 Success
 
 #### PAT-012: Pattern-Following Lowerer Implementation
@@ -117,6 +153,18 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 **Impact:** Extremely fast expansion of resource coverage.
 
 **Proposed Resolution:** Document as "Resource Lowerer Checklist" in plan templates for future additions.
+
+---
+
+#### PAT-016: Node-Level Policy Checks Scale Cleanly
+**Occurrences:** 2
+**Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint
+
+**Description:** Adding `checkComputeNodes()` to the evaluator introduced a new pattern: policy rules that inspect `snapshot.nodes` directly (not just intents). The contracts `ViolationTarget` interface already supported `type: 'node'`, so no contracts changes were needed. This pattern will scale for Phase 2+ node-level rules (CloudFront SSL, WAF attachment, S3 public access).
+
+**Impact:** Positive — clean extension point for compute/resource-level policy rules.
+
+**Proposed Resolution:** Document as the "node-level policy check" pattern in memory. Use for all future rules that inspect node properties rather than intents.
 
 ---
 

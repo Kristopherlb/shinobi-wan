@@ -6,6 +6,20 @@ import {
   S3Lowerer,
   ApiGatewayLowerer,
   SnsLowerer,
+  CloudFrontLowerer,
+  WafLowerer,
+  AcmLowerer,
+  CloudFrontFunctionLowerer,
+  EventBridgeLowerer,
+  StepFunctionsLowerer,
+  VpcLowerer,
+  SubnetLowerer,
+  SecurityGroupLowerer,
+  EcrLowerer,
+  EcsClusterLowerer,
+  EcsTaskDefinitionLowerer,
+  EcsServiceLowerer,
+  AlbLowerer,
 } from './lowerers';
 
 export interface RegisterNodeLowererOptions {
@@ -46,5 +60,19 @@ export function createDefaultNodeLowererRegistry(): NodeLowererRegistry {
   registry.register(new S3Lowerer());
   registry.register(new ApiGatewayLowerer());
   registry.register(new SnsLowerer());
+  registry.register(new CloudFrontLowerer());
+  registry.register(new WafLowerer());
+  registry.register(new AcmLowerer());
+  registry.register(new CloudFrontFunctionLowerer());
+  registry.register(new EventBridgeLowerer());
+  registry.register(new StepFunctionsLowerer());
+  registry.register(new VpcLowerer());
+  registry.register(new SubnetLowerer());
+  registry.register(new SecurityGroupLowerer());
+  registry.register(new EcrLowerer());
+  registry.register(new EcsClusterLowerer());
+  registry.register(new EcsTaskDefinitionLowerer());
+  registry.register(new EcsServiceLowerer());
+  registry.register(new AlbLowerer());
   return registry;
 }

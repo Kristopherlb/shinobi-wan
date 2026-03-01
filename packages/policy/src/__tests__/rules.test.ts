@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { RULE_CATALOG, getRuleById } from '../rules';
 
 describe('RULE_CATALOG', () => {
-  it('contains exactly 4 rules', () => {
-    expect(RULE_CATALOG).toHaveLength(4);
+  it('contains exactly 15 rules', () => {
+    expect(RULE_CATALOG).toHaveLength(15);
   });
 
   it('has no duplicate ruleIds', () => {
@@ -27,6 +27,14 @@ describe('RULE_CATALOG', () => {
     expect(ids).toContain('iam-admin-access-review');
     expect(ids).toContain('iam-missing-conditions');
     expect(ids).toContain('network-broad-protocol');
+    expect(ids).toContain('sqs-dlq-missing');
+    expect(ids).toContain('lambda-timeout-excessive');
+    expect(ids).toContain('telemetry-tracing-disabled');
+    expect(ids).toContain('cloudfront-ssl-protocol-weak');
+    expect(ids).toContain('waf-not-attached');
+    expect(ids).toContain('stepfunctions-logging-disabled');
+    expect(ids).toContain('eventbridge-retry-missing');
+    expect(ids).toContain('s3-public-access-not-blocked');
   });
 });
 

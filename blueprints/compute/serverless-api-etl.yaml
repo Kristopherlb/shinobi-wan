@@ -1,0 +1,121 @@
+# Blueprint BP-004: Serverless API → Queue → ETL → S3
+#
+# Architecture:
+#   API Gateway → Lambda (ingest) → SQS (with DLQ) → Lambda (worker, SQS trigger) → S3
+#
+# Features:
+#   - X-Ray tracing on all Lambda functions
+#   - Powertools integration for structured logging
+#   - Dead letter queue on SQS for failed message capture
+#   - S3 bucket with versioning for processed data
+
+service: serverless-api-etl
+
+components:
+  # API Gateway for incoming requests
+  - id: api
+    type: platform
+    platform: aws-apigateway
+    config: {}
+
+  # Ingest Lambda — receives API requests and enqueues work
+  - id: ingest
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: index.handler
+      memorySize: 256
+      timeout: 30
+      tracing: true
+      powertools: true
+
+  # Work queue with dead letter queue
+  - id: work-queue
+    type: platform
+    platform: aws-sqs
+    config:
+      visibilityTimeout: 300
+      deadLetterQueue: true
+      maxReceiveCount: 3
+
+  # Worker Lambda — processes messages from SQS
+  - id: worker
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: worker.handler
+      memorySize: 512
+      timeout: 300
+      tracing: true
+      powertools: true
+
+  # Output S3 bucket for processed data
+  - id: output-bucket
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+bindings:
+  # API Gateway triggers the ingest Lambda
+  - source: api
+    target: ingest
+    type: triggers
+    config:
+      route: /ingest
+      method: POST
+
+  # Ingest Lambda writes to the work queue
+  - source: ingest
+    target: work-queue
+    type: bindsTo
+    config:
+      resourceType: queue
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: QUEUE_URL
+          valueSource:
+            type: reference
+            nodeRef: work-queue
+            field: url
+
+  # Worker Lambda reads from the work queue (SQS trigger)
+  - source: worker
+    target: work-queue
+    type: bindsTo
+    config:
+      resourceType: queue
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: QUEUE_URL
+          valueSource:
+            type: reference
+            nodeRef: work-queue
+            field: url
+
+  # Worker Lambda writes processed data to S3
+  - source: worker
+    target: output-bucket
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: OUTPUT_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: output-bucket
+            field: bucket
+
+policyPack: Baseline

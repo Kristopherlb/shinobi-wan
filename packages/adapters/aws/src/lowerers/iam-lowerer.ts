@@ -31,6 +31,56 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     write: ['sns:Publish', 'sns:GetTopicAttributes'],
     admin: ['sns:*'],
   },
+  xray: {
+    read: ['xray:GetSamplingRules', 'xray:GetSamplingTargets', 'xray:GetTraceGraph'],
+    write: ['xray:PutTraceSegments', 'xray:PutTelemetryRecords', 'xray:GetSamplingRules', 'xray:GetSamplingTargets'],
+    admin: ['xray:*'],
+  },
+  distribution: {
+    read: ['cloudfront:GetDistribution', 'cloudfront:ListDistributions'],
+    write: ['cloudfront:CreateInvalidation', 'cloudfront:GetDistribution', 'cloudfront:ListDistributions'],
+    admin: ['cloudfront:*'],
+  },
+  webacl: {
+    read: ['wafv2:GetWebACL', 'wafv2:ListWebACLs'],
+    write: ['wafv2:UpdateWebACL', 'wafv2:GetWebACL'],
+    admin: ['wafv2:*'],
+  },
+  certificate: {
+    read: ['acm:DescribeCertificate', 'acm:ListCertificates'],
+    write: ['acm:RequestCertificate', 'acm:DescribeCertificate'],
+    admin: ['acm:*'],
+  },
+  scheduler: {
+    read: ['scheduler:GetSchedule', 'scheduler:ListSchedules'],
+    write: ['scheduler:CreateSchedule', 'scheduler:UpdateSchedule', 'scheduler:GetSchedule'],
+    admin: ['scheduler:*'],
+  },
+  statemachine: {
+    read: ['states:DescribeStateMachine', 'states:ListStateMachines', 'states:ListExecutions'],
+    write: ['states:StartExecution', 'states:StopExecution', 'states:DescribeStateMachine'],
+    admin: ['states:*'],
+  },
+  cluster: {
+    read: ['ecs:DescribeClusters', 'ecs:ListClusters'],
+    write: ['ecs:RunTask', 'ecs:StopTask', 'ecs:DescribeTasks', 'ecs:ListTasks'],
+    admin: ['ecs:*'],
+  },
+  'task-definition': {
+    read: ['ecs:DescribeTaskDefinition', 'ecs:ListTaskDefinitions'],
+    write: ['ecs:RegisterTaskDefinition', 'ecs:DeregisterTaskDefinition'],
+    admin: ['ecs:*'],
+  },
+  repository: {
+    read: ['ecr:GetAuthorizationToken', 'ecr:BatchCheckLayerAvailability', 'ecr:GetDownloadUrlForLayer', 'ecr:BatchGetImage'],
+    write: ['ecr:PutImage', 'ecr:InitiateLayerUpload', 'ecr:UploadLayerPart', 'ecr:CompleteLayerUpload'],
+    admin: ['ecr:*'],
+  },
+  'load-balancer': {
+    read: ['elasticloadbalancing:DescribeLoadBalancers', 'elasticloadbalancing:DescribeTargetGroups', 'elasticloadbalancing:DescribeListeners'],
+    write: ['elasticloadbalancing:RegisterTargets', 'elasticloadbalancing:DeregisterTargets'],
+    admin: ['elasticloadbalancing:*'],
+  },
 };
 
 const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
@@ -181,6 +231,32 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
         return `arn:aws:execute-api:*:*:*`;
       case 'aws-sns':
         return `arn:aws:sns:*:*:${name}`;
+      case 'aws-cloudfront':
+        return `arn:aws:cloudfront::*:distribution/*`;
+      case 'aws-wafv2':
+        return `arn:aws:wafv2:*:*:*/webacl/${name}/*`;
+      case 'aws-acm':
+        return `arn:aws:acm:*:*:certificate/*`;
+      case 'aws-eventbridge-scheduler':
+        return `arn:aws:scheduler:*:*:schedule/${name}/*`;
+      case 'aws-stepfunctions':
+        return `arn:aws:states:*:*:stateMachine:${name}`;
+      case 'aws-ecr':
+        return `arn:aws:ecr:*:*:repository/${name}`;
+      case 'aws-ecs-cluster':
+        return `arn:aws:ecs:*:*:cluster/${name}`;
+      case 'aws-ecs-task-definition':
+        return `arn:aws:ecs:*:*:task-definition/${name}:*`;
+      case 'aws-ecs-service':
+        return `arn:aws:ecs:*:*:service/${name}/*`;
+      case 'aws-alb':
+        return `arn:aws:elasticloadbalancing:*:*:loadbalancer/app/${name}/*`;
+      case 'aws-vpc':
+        return `arn:aws:ec2:*:*:vpc/*`;
+      case 'aws-subnet':
+        return `arn:aws:ec2:*:*:subnet/*`;
+      case 'aws-security-group':
+        return `arn:aws:ec2:*:*:security-group/*`;
       default:
         return undefined;
     }

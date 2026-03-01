@@ -1,0 +1,83 @@
+# Shinobi Blueprint Template
+# Copy this file and customize for your service.
+#
+# Valid component types: component, platform
+# Valid platform types: aws-lambda, aws-sqs, aws-s3, aws-dynamodb, aws-sns, aws-apigateway
+# Valid edge types: bindsTo, triggers, dependsOn
+# Valid access levels: read, write, admin
+# Valid policy packs: Baseline, FedRAMP-Moderate, FedRAMP-High
+
+service: my-service
+
+components:
+  # Components represent your application logic (e.g., Lambda functions)
+  - id: my-handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: index.handler
+      memorySize: 256
+      timeout: 30
+      # tracing: true          # Enable X-Ray tracing
+      # powertools: true       # Enable Powertools env vars
+      # layers: []             # Lambda layers ARNs
+
+  # Platform nodes represent managed services (e.g., SQS, S3, DynamoDB)
+  - id: my-queue
+    type: platform
+    platform: aws-sqs
+    config:
+      visibilityTimeout: 300
+      # deadLetterQueue: true  # Auto-create DLQ with redrive policy
+
+  - id: my-bucket
+    type: platform
+    platform: aws-s3
+    config: {}
+      # versioning: true      # Enable versioning
+
+  # - id: my-table
+  #   type: platform
+  #   platform: aws-dynamodb
+  #   config:
+  #     hashKey: pk
+  #     rangeKey: sk
+
+  # - id: my-topic
+  #   type: platform
+  #   platform: aws-sns
+  #   config: {}
+
+  # - id: my-api
+  #   type: platform
+  #   platform: aws-apigateway
+  #   config: {}
+
+bindings:
+  # bindsTo: component accesses a platform resource
+  - source: my-handler
+    target: my-queue
+    type: bindsTo
+    config:
+      resourceType: queue       # queue | bucket | table | topic | api
+      accessLevel: write        # read | write | admin
+      network:
+        port: 443
+        protocol: tcp           # tcp | udp | any
+      configKeys:
+        - key: QUEUE_URL
+          valueSource:
+            type: reference     # reference | literal | secret
+            nodeRef: my-queue
+            field: url
+
+  # triggers: platform triggers a component (e.g., API Gateway → Lambda)
+  # - source: my-api
+  #   target: my-handler
+  #   type: triggers
+  #   config:
+  #     route: /items
+  #     method: POST
+
+policyPack: Baseline

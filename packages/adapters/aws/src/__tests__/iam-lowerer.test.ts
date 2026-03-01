@@ -167,4 +167,38 @@ describe('IamIntentLowerer', () => {
     const r2 = lowerer.lower(intent, ctx);
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
   });
+
+  it('resolves X-Ray write actions correctly', () => {
+    const intent = makeIamIntent({
+      resource: {
+        nodeRef: 'platform:work-queue',
+        resourceType: 'xray',
+        scope: 'specific',
+        pattern: '*',
+      },
+      actions: [{ level: 'write', action: 'write' }],
+    });
+    const resources = lowerer.lower(intent, makeContext());
+    const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
+    const policyDoc = JSON.parse(policy?.properties['policy'] as string);
+    const actions = policyDoc.Statement[0].Action;
+    expect(actions).toContain('xray:PutTraceSegments');
+    expect(actions).toContain('xray:PutTelemetryRecords');
+  });
+
+  it('resolves X-Ray admin actions correctly', () => {
+    const intent = makeIamIntent({
+      resource: {
+        nodeRef: 'platform:work-queue',
+        resourceType: 'xray',
+        scope: 'specific',
+        pattern: '*',
+      },
+      actions: [{ level: 'admin', action: 'admin' }],
+    });
+    const resources = lowerer.lower(intent, makeContext());
+    const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
+    const policyDoc = JSON.parse(policy?.properties['policy'] as string);
+    expect(policyDoc.Statement[0].Action).toContain('xray:*');
+  });
 });

@@ -14,6 +14,13 @@ export class LambdaLowerer implements NodeLowerer {
 
     const resources: LoweredResource[] = [];
 
+    // Build environment variables: merge resolved deps + Powertools config
+    const envVars: Record<string, unknown> = { ...resolvedDeps.envVars };
+    if (props['powertools'] === true) {
+      envVars['POWERTOOLS_SERVICE_NAME'] = `${context.adapterConfig.serviceName}-${name}`;
+      envVars['POWERTOOLS_LOG_LEVEL'] = (props['powertoolsLogLevel'] as string) ?? 'INFO';
+    }
+
     // Lambda Function
     const functionResource: LoweredResource = {
       name: `${name}-function`,
@@ -31,8 +38,14 @@ export class LambdaLowerer implements NodeLowerer {
         ...(context.adapterConfig.codeS3
           ? { s3Bucket: context.adapterConfig.codeS3.bucket, s3Key: context.adapterConfig.codeS3.key }
           : {}),
-        environment: Object.keys(resolvedDeps.envVars).length > 0
-          ? { variables: resolvedDeps.envVars }
+        ...(props['tracing'] === true
+          ? { tracingConfig: { mode: 'Active' } }
+          : {}),
+        ...(Array.isArray(props['layers']) && (props['layers'] as string[]).length > 0
+          ? { layers: props['layers'] }
+          : {}),
+        environment: Object.keys(envVars).length > 0
+          ? { variables: envVars }
           : undefined,
         tags: {
           'shinobi:node': node.id,

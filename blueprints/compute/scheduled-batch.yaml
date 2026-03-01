@@ -1,0 +1,81 @@
+# Blueprint BP-007: Scheduled Batch Processing
+#
+# Architecture:
+#   EventBridge Scheduler → Step Functions → Lambda (fan-out workers) → S3
+#
+# Features:
+#   - EventBridge Scheduler with cron expression and retry policy
+#   - Step Functions state machine with CloudWatch logging
+#   - Lambda worker with X-Ray tracing
+#   - S3 bucket for processed output
+
+service: scheduled-batch
+
+components:
+  # EventBridge Scheduler — triggers the workflow on a cron schedule
+  - id: daily-trigger
+    type: platform
+    platform: aws-eventbridge-scheduler
+    config:
+      scheduleExpression: "cron(0 2 * * ? *)"
+      flexibleTimeWindow: "FLEXIBLE"
+      retryPolicy:
+        maximumRetryAttempts: 2
+        maximumEventAgeInSeconds: 3600
+
+  # Step Functions state machine — orchestrates the batch workflow
+  - id: batch-workflow
+    type: platform
+    platform: aws-stepfunctions
+    config:
+      type: STANDARD
+      logging: true
+      logLevel: ALL
+
+  # Worker Lambda — processes individual batch items
+  - id: batch-worker
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: worker.handler
+      memorySize: 1024
+      timeout: 300
+      tracing: true
+
+  # Output S3 bucket for batch results
+  - id: batch-output
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+bindings:
+  # Scheduler triggers the Step Functions workflow
+  - source: daily-trigger
+    target: batch-workflow
+    type: triggers
+    config:
+      resourceType: statemachine
+      network:
+        port: 443
+        protocol: tcp
+
+  # Worker Lambda writes results to S3
+  - source: batch-worker
+    target: batch-output
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: OUTPUT_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: batch-output
+            field: bucket
+
+policyPack: Baseline

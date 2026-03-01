@@ -8,6 +8,20 @@ export const PLATFORM_REF_MAP: Record<string, { suffix: string; defaultField: st
   'aws-apigateway': { suffix: 'api', defaultField: '' }, // uses caller-provided field
   'aws-s3': { suffix: 'bucket', defaultField: 'bucket' },
   'aws-sns': { suffix: 'topic', defaultField: 'arn' },
+  'aws-cloudfront': { suffix: 'distribution', defaultField: 'domainName' },
+  'aws-wafv2': { suffix: 'waf', defaultField: 'arn' },
+  'aws-acm': { suffix: 'cert', defaultField: 'arn' },
+  'aws-cloudfront-function': { suffix: 'cf-function', defaultField: 'arn' },
+  'aws-eventbridge-scheduler': { suffix: 'schedule', defaultField: 'arn' },
+  'aws-stepfunctions': { suffix: 'state-machine', defaultField: 'arn' },
+  'aws-vpc': { suffix: 'vpc', defaultField: 'id' },
+  'aws-subnet': { suffix: 'subnet', defaultField: 'id' },
+  'aws-security-group': { suffix: 'sg', defaultField: 'id' },
+  'aws-ecr': { suffix: 'repo', defaultField: 'repositoryUrl' },
+  'aws-ecs-cluster': { suffix: 'cluster', defaultField: 'arn' },
+  'aws-ecs-task-definition': { suffix: 'task-def', defaultField: 'arn' },
+  'aws-ecs-service': { suffix: 'service', defaultField: 'arn' },
+  'aws-alb': { suffix: 'alb', defaultField: 'dnsName' },
 };
 
 function resolveNode(snapshot: GraphSnapshot, nodeRef: string) {
