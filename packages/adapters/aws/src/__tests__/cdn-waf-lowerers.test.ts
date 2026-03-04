@@ -3,23 +3,11 @@ import { CloudFrontLowerer } from '../lowerers/cloudfront-lowerer';
 import { WafLowerer } from '../lowerers/waf-lowerer';
 import { AcmLowerer } from '../lowerers/acm-lowerer';
 import { CloudFrontFunctionLowerer } from '../lowerers/cloudfront-function-lowerer';
-import { makeNode, makeEdge } from './test-helpers';
-import type { LoweringContext, ResolvedDeps } from '../types';
+import { makeNode, makeEdge, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 import { createSnapshot } from '@shinobi/ir';
 
-const DEFAULT_CONTEXT: LoweringContext = {
-  intents: [],
-  snapshot: createSnapshot([], []),
-  adapterConfig: {
-    region: 'us-east-1',
-    serviceName: 'test-svc',
-  },
-};
-
-const DEFAULT_DEPS: ResolvedDeps = {
-  envVars: {},
-  securityGroups: [],
-};
+const DEFAULT_CONTEXT = makeDefaultContext();
+const DEFAULT_DEPS = makeDefaultDeps();
 
 // ---------------------------------------------------------------------------
 // CloudFrontLowerer

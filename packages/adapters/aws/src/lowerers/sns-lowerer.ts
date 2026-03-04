@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-sns" → SNS Topic resource.
@@ -19,10 +19,7 @@ export class SnsLowerer implements NodeLowerer {
       resourceType: 'aws:sns:Topic',
       properties: {
         name: `${context.adapterConfig.serviceName}-${name}`,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-sns',
-        },
+        tags: createStandardTags(node.id, 'aws-sns'),
       },
       sourceId: node.id,
       dependsOn: [],

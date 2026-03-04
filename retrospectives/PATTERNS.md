@@ -110,7 +110,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 **Occurrences:** 2
 **Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint
 
-**Description:** `rules.test.ts` asserted `RULE_CATALOG.toHaveLength(4)`. Adding 3 new compute rules (sqs-dlq-missing, lambda-timeout-excessive, telemetry-tracing-disabled) broke this test. Similarly, golden-triad-resources expected rule IDs didn't account for the new `telemetry-tracing-disabled` rule firing on Lambda components without tracing.
+**Description:** `rules.test.ts` asserted `RULE_CATALOG.toHaveLength(4)`. Adding 3 new compute rules (sqs-dlq-missing, lambda-timeout-excessive, telemetry-tracing-disabled) broke this test. Similarly, golden-triad-resources expected rule IDs didn't account for the new `telemetry-tracing-disabled` rule firing on Lambda components without tracing. Continued through Waves A-C as catalog grew from 4 → 43 rules.
 
 **Impact:** ~3 minutes debugging and fixing test expectations across 2 files
 
@@ -130,25 +130,27 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 
 ---
 
-#### PAT-017: Platform-to-Platform Edges Produce Zero Intents
+---
+
+#### PAT-018: Triggers Edges Require bindingConfig (Not Empty Metadata)
 **Occurrences:** 1
-**Sessions:** 2026-02-28-compute-blueprints-phase2-checkpoint
+**Sessions:** 2026-03-01-wave-a-complete
 
-**Description:** BP-008 (Static Site + CDN + WAF) has only `platform:*` nodes and `platform→platform` bindsTo edges. `ComponentPlatformBinder` only fires for `component→platform` edges, so these blueprints produce zero intents at compile time. Infrastructure relationships (CDN→S3, WAF→CDN) are resolved by lowerers instead. Golden tests must assert `intents.toHaveLength(0)` rather than copying intent assertions from component-based blueprints.
+**Description:** The cost-optimization golden test crashed because the config-rule→lambda triggers edge had `metadata: {}`. TriggersBinder at `triggers-binder.ts:36` accesses `bindingConfig.resourceType`, causing `TypeError: Cannot read properties of undefined`. This is a variant of PAT-009 (plan doesn't verify binder input shape), but applies specifically to non-standard trigger sources (config rules, not just API Gateway).
 
-**Impact:** ~3 minutes debugging a failing golden test (copied intent assertion from BP-004)
+**Impact:** ~3 minutes debugging + fixing golden test and blueprint YAML
 
-**Proposed Resolution:** When writing golden tests for infrastructure-only blueprints, check whether any component nodes exist. If not, expect zero intents.
+**Proposed Resolution:** Add to plan checklist: "every triggers edge must include `metadata.bindingConfig.resourceType`". Consider adding runtime validation in TriggersBinder to throw a clear error when bindingConfig is missing.
 
 ---
 
 ### 🟢 Success
 
 #### PAT-012: Pattern-Following Lowerer Implementation
-**Occurrences:** 2
-**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
+**Occurrences:** 38
+**Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns, 2026-02-28-compute-blueprints-phases-2-3-4-5, 2026-03-01-wave-a-complete, 2026-03-01-wave-b-complete, 2026-03-02-wave-c-complete
 
-**Description:** Adding new node lowerers (DynamoDB, S3, API Gateway) was ~95% mechanical copy-edit from existing Lambda/SQS patterns. The `NodeLowerer` interface, test helpers, and Pulumi mock patterns all transfer directly. Average: ~3 minutes per lowerer including tests.
+**Description:** Adding new node lowerers was ~95% mechanical copy-edit from existing patterns. The `NodeLowerer` interface, test helpers, and Pulumi mock patterns all transfer directly. Wave C added 15 lowerers (including 4-resource NetworkFirewall, variable-count GlueCatalog) with zero friction. Total: 55 lowerers, 0 implementation-level friction across all waves.
 
 **Impact:** Extremely fast expansion of resource coverage.
 
@@ -157,14 +159,44 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-016: Node-Level Policy Checks Scale Cleanly
-**Occurrences:** 2
-**Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint
+**Occurrences:** 30
+**Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint, 2026-02-28-compute-blueprints-phases-3-4-5, 2026-03-01-wave-a-complete, 2026-03-01-wave-b-complete, 2026-03-02-wave-c-complete
 
-**Description:** Adding `checkComputeNodes()` to the evaluator introduced a new pattern: policy rules that inspect `snapshot.nodes` directly (not just intents). The contracts `ViolationTarget` interface already supported `type: 'node'`, so no contracts changes were needed. This pattern will scale for Phase 2+ node-level rules (CloudFront SSL, WAF attachment, S3 public access).
+**Description:** Adding `checkComputeNodes()` to the evaluator introduced a new pattern: policy rules that inspect `snapshot.nodes` directly (not just intents). Wave C added 11 more rules (11 NODE_RULE_CHECKS entries) with zero friction. Total: 43 policy rules, all data-driven via NODE_RULE_CHECKS. The pattern handles diverse rule shapes: simple boolean checks, nested object inspection (MSK auth), enum comparisons (TLS), and conditional checks (private zone).
 
 **Impact:** Positive — clean extension point for compute/resource-level policy rules.
 
 **Proposed Resolution:** Document as the "node-level policy check" pattern in memory. Use for all future rules that inspect node properties rather than intents.
+
+---
+
+#### PAT-019: Policy Rule Reuse Across Platforms via NODE_RULE_CHECKS
+**Occurrences:** 2
+**Sessions:** 2026-03-01-wave-b-complete
+
+**Description:** A single RULE_CATALOG entry can apply to multiple platforms by adding separate NODE_RULE_CHECKS entries. `opensearch-public-access` checks both `aws-opensearch` and `aws-opensearch-serverless`. `sagemaker-vpc-disabled` checks both `aws-sagemaker-batch-transform` and `aws-sagemaker-endpoint`. No new rule, no severity duplication — just a new check entry.
+
+**Impact:** Positive — clean multi-platform rule extension without rule proliferation.
+
+---
+
+#### PAT-020: Zero-Friction Phase Execution via Established Patterns
+**Occurrences:** 2
+**Sessions:** 2026-03-01-wave-b-complete, 2026-03-02-wave-c-complete
+
+**Description:** All phases of Waves B and C passed on first test run with zero friction. Wave C added 15 lowerers (including 4-resource and variable-count patterns), 11 policy rules, 5 blueprints, and 5 golden tests across 3 phases — all passing on first run. The combination of data-driven registries (PAT-011 graduated), mechanical lowerer pattern (PAT-012), and node-level policy checks (PAT-016) eliminated all sources of friction.
+
+**Impact:** Positive — Wave C's "heavy lift" blueprints (networking, streaming, GPU) were no harder to implement than Wave A's simpler ones.
+
+---
+
+#### PAT-021: Context Continuation Preserves Cross-Cutting State
+**Occurrences:** 1
+**Sessions:** 2026-03-02-wave-c-complete
+
+**Description:** When a large implementation exhausts the context window mid-phase, the session continuation summary accurately captures which cross-cutting files (barrel exports, registry, ref map, output map, IAM action map, ARN patterns, policy rules, severity map, evaluator checks, test assertions) have been updated and which remain pending. This enables seamless resumption with no duplicate work or missed updates.
+
+**Impact:** Positive — Wave C Phase 8C was split across context boundaries with zero state loss or duplicate edits.
 
 ---
 
@@ -207,6 +239,14 @@ _Patterns that have been resolved with formal solutions._
 **Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
 
 **Resolution:** `PLATFORM_REF_MAP` data map in `reference-utils.ts` and `OUTPUT_MAP` in `program-generator.ts` replaced if-chains and switch statements. IMP-019 implemented. Adding SNS was a 1-line map entry per file — O(1) instead of a new if-branch.
+
+---
+
+### PAT-017: Platform-to-Platform Edges Produce Zero Intents (GRADUATED)
+**Occurrences:** 3
+**Sessions:** 2026-02-28-compute-blueprints-phase2-checkpoint, 2026-02-28-compute-blueprints-phase4 (BP-006), 2026-02-28-compute-blueprints-phase5 (BP-005)
+
+**Resolution:** Fully internalized into plan/memory guidance. Platform-only blueprints (BP-005, BP-006, BP-008) all use `platform:*` nodes with `platform→platform` edges. `ComponentPlatformBinder` only fires for `component→platform` edges, so these blueprints produce zero intents. Infrastructure relationships are resolved by lowerers at adapter time. Golden tests always assert `intents.toHaveLength(0)` for platform-only blueprints. This is now documented in MEMORY.md and all Phase 4/5 golden tests were written correctly on first pass.
 
 ---
 

@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Default managed rule groups for WAF v2.
@@ -75,10 +75,7 @@ export class WafLowerer implements NodeLowerer {
           metricName: `${serviceName}-${name}`,
           sampledRequestsEnabled: true,
         },
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-wafv2',
-        },
+        tags: createStandardTags(node.id, 'aws-wafv2'),
       },
       sourceId: node.id,
       dependsOn: [],

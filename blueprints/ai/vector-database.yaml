@@ -1,0 +1,64 @@
+# Blueprint BP-A07: Vector Database
+#
+# Architecture:
+#   OpenSearch Serverless Collection (VECTORSEARCH)
+#   Lambda admin handler for index management
+#   KMS encryption key for customer-managed encryption
+#
+# Features:
+#   - OpenSearch Serverless collection for vector search
+#   - Security and access policies
+#   - Lambda for admin/index management operations
+#   - KMS customer-managed encryption
+
+service: vector-database
+
+components:
+  # KMS encryption key
+  - id: encryption-key
+    type: platform
+    platform: aws-kms
+    config:
+      enableKeyRotation: true
+
+  # OpenSearch Serverless vector store
+  - id: vector-store
+    type: platform
+    platform: aws-opensearch-serverless
+    config:
+      collectionType: VECTORSEARCH
+      standbyReplicas: ENABLED
+      encryptionType: CUSTOMER_MANAGED_KEY
+      kmsKeyArn: "platform:encryption-key"
+      publicAccess: false
+
+  # Admin handler for index management
+  - id: admin-handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: admin.handler
+      memorySize: 256
+      timeout: 60
+      tracing: true
+
+bindings:
+  # Admin handler manages vector store
+  - source: admin-handler
+    target: vector-store
+    type: bindsTo
+    config:
+      resourceType: collection
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: COLLECTION_ENDPOINT
+          valueSource:
+            type: reference
+            nodeRef: vector-store
+            field: collectionEndpoint
+
+policyPack: Baseline

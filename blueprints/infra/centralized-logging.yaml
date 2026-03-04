@@ -1,0 +1,117 @@
+# Blueprint BP-I14: Centralized Logging
+#
+# Architecture:
+#   Log Subscription Filter → Kinesis Firehose → OpenSearch Domain
+#   S3 backup bucket for failed documents
+#   KMS encryption, SNS alerts, VPC networking
+#
+# Features:
+#   - CloudWatch log subscription forwarding
+#   - Kinesis Firehose delivery with buffering
+#   - OpenSearch domain with encryption and VPC
+#   - S3 backup for failed deliveries
+#   - KMS encryption key for data at rest
+
+service: centralized-logging
+
+components:
+  # VPC for network isolation
+  - id: app-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  # Subnet for data tier
+  - id: data-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.10.0/24"
+      availabilityZone: us-east-1a
+
+  # Security group for OpenSearch access
+  - id: data-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:app-vpc"
+      description: OpenSearch and Firehose security group
+
+  # KMS key for encryption
+  - id: encryption-key
+    type: platform
+    platform: aws-kms
+    config:
+      enableKeyRotation: true
+
+  # SNS topic for alerts
+  - id: alert-topic
+    type: platform
+    platform: aws-sns
+    config: {}
+
+  # S3 backup bucket for failed documents
+  - id: backup-bucket
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # OpenSearch domain for log storage and search
+  - id: opensearch
+    type: platform
+    platform: aws-opensearch
+    config:
+      engineVersion: OpenSearch_2.11
+      instanceType: t3.small.search
+      instanceCount: 2
+      ebsEnabled: true
+      volumeSize: 50
+      encryptionAtRest: true
+      nodeToNodeEncryption: true
+      enforceHTTPS: true
+      publicAccess: false
+      subnetIds:
+        - "platform:data-subnet"
+      securityGroupIds:
+        - "platform:data-sg"
+
+  # Kinesis Firehose for log delivery
+  - id: firehose
+    type: platform
+    platform: aws-kinesis-firehose
+    config:
+      destinationType: opensearch
+      encryptionEnabled: true
+      bufferingIntervalSeconds: 60
+      bufferingSizeMBs: 5
+      s3BackupMode: FailedDocumentsOnly
+      indexName: logs
+
+  # Log subscription filter
+  - id: app-logs
+    type: platform
+    platform: aws-log-subscription-filter
+    config:
+      filterPattern: ""
+
+bindings:
+  # Firehose writes to OpenSearch
+  - source: firehose
+    target: opensearch
+    type: bindsTo
+    config:
+      resourceType: domain
+      accessLevel: write
+
+  # Firehose backs up to S3
+  - source: firehose
+    target: backup-bucket
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+
+policyPack: Baseline

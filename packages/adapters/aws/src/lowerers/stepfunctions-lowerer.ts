@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-stepfunctions" →
@@ -23,10 +23,7 @@ export class StepFunctionsLowerer implements NodeLowerer {
       properties: {
         name: `/aws/vendedlogs/states/${context.adapterConfig.serviceName}-${name}`,
         retentionInDays: (props['logRetentionDays'] as number) ?? 30,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-stepfunctions',
-        },
+        tags: createStandardTags(node.id, 'aws-stepfunctions'),
       },
       sourceId: node.id,
       dependsOn: [],
@@ -61,10 +58,7 @@ export class StepFunctionsLowerer implements NodeLowerer {
               },
             }
           : {}),
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-stepfunctions',
-        },
+        tags: createStandardTags(node.id, 'aws-stepfunctions'),
       },
       sourceId: node.id,
       dependsOn: loggingEnabled ? [logGroupName] : [],

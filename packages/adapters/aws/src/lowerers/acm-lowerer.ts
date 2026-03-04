@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-acm" → ACM Certificate.
@@ -26,10 +26,7 @@ export class AcmLowerer implements NodeLowerer {
     const certProperties: Record<string, unknown> = {
       domainName,
       validationMethod,
-      tags: {
-        'shinobi:node': node.id,
-        'shinobi:platform': 'aws-acm',
-      },
+      tags: createStandardTags(node.id, 'aws-acm'),
     };
 
     // Add Subject Alternative Names if provided

@@ -1,0 +1,142 @@
+# Blueprint BP-A02: Self-Hosted LLM on EKS
+#
+# Architecture:
+#   VPC + 2 Subnets + Security Group
+#   EKS Cluster + GPU Node Group + VPC CNI Addon
+#   ECR for model container images
+#   S3 for model weights
+#   KMS for encryption
+#   ALB for inference endpoint
+#
+# Features:
+#   - GPU-optimized node group (g5.xlarge, AL2_x86_64_GPU)
+#   - NVIDIA GPU taints for workload isolation
+#   - VPC CNI addon for pod networking
+#   - KMS encryption for model artifacts
+#   - ALB for load-balanced inference serving
+
+service: self-hosted-llm-eks
+
+components:
+  # VPC for network isolation
+  - id: llm-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  # Subnets across 2 AZs
+  - id: llm-subnet-1
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:llm-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: llm-subnet-2
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:llm-vpc"
+      cidrBlock: "10.0.2.0/24"
+      availabilityZone: us-east-1b
+      mapPublicIpOnLaunch: false
+
+  # Security group for cluster communication
+  - id: llm-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:llm-vpc"
+      description: "LLM cluster security group"
+
+  # EKS control plane
+  - id: llm-cluster
+    type: platform
+    platform: aws-eks-cluster
+    config:
+      version: "1.29"
+      subnetIds:
+        - "platform:llm-subnet-1"
+        - "platform:llm-subnet-2"
+      securityGroupIds:
+        - "platform:llm-sg"
+      endpointPrivateAccess: true
+      endpointPublicAccess: false
+      enabledClusterLogTypes:
+        - api
+        - audit
+        - authenticator
+
+  # GPU node group for LLM inference
+  - id: gpu-nodes
+    type: platform
+    platform: aws-eks-gpu-node-group
+    config:
+      clusterRef: "platform:llm-cluster"
+      instanceTypes:
+        - g5.xlarge
+      scalingConfig:
+        desiredSize: 1
+        minSize: 0
+        maxSize: 4
+      subnetIds:
+        - "platform:llm-subnet-1"
+        - "platform:llm-subnet-2"
+
+  # VPC CNI addon for pod networking
+  - id: vpc-cni-addon
+    type: platform
+    platform: aws-eks-addon
+    config:
+      clusterRef: "platform:llm-cluster"
+      addonName: vpc-cni
+      addonVersion: "v1.14.1-eksbuild.1"
+      resolveConflicts: OVERWRITE
+
+  # ECR for model container images
+  - id: model-registry
+    type: platform
+    platform: aws-ecr
+    config:
+      imageTagMutability: IMMUTABLE
+      scanOnPush: true
+
+  # S3 for model weights
+  - id: model-weights
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # KMS for encryption
+  - id: encryption-key
+    type: platform
+    platform: aws-kms
+    config:
+      enableKeyRotation: true
+
+  # ALB for inference endpoint
+  - id: inference-endpoint
+    type: platform
+    platform: aws-alb
+    config:
+      internal: false
+      subnets:
+        - "platform:llm-subnet-1"
+        - "platform:llm-subnet-2"
+      securityGroups:
+        - "platform:llm-sg"
+
+bindings:
+  # GPU nodes read model weights from S3
+  - source: gpu-nodes
+    target: model-weights
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: read
+
+policyPack: Baseline

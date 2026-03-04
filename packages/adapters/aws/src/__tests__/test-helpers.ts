@@ -1,7 +1,7 @@
 import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
 import type { GraphSnapshot, Node, Edge } from '@shinobi/ir';
 import { createTestNode, createTestEdge, createSnapshot } from '@shinobi/ir';
-import type { LoweringContext, AdapterConfig } from '../types';
+import type { LoweringContext, AdapterConfig, ResolvedDeps } from '../types';
 
 export const DEFAULT_ADAPTER_CONFIG: AdapterConfig = {
   region: 'us-east-1',
@@ -109,6 +109,26 @@ export function makeContext(overrides?: Partial<LoweringContext>): LoweringConte
     intents: [makeIamIntent(), makeNetworkIntent(), makeConfigIntent()],
     snapshot: makeLambdaSqsSnapshot(),
     adapterConfig: DEFAULT_ADAPTER_CONFIG,
+    ...overrides,
+  };
+}
+
+export function makeDefaultContext(overrides?: Partial<LoweringContext>): LoweringContext {
+  return {
+    intents: [],
+    snapshot: createSnapshot([], []),
+    adapterConfig: {
+      region: 'us-east-1',
+      serviceName: 'test-svc',
+    },
+    ...overrides,
+  };
+}
+
+export function makeDefaultDeps(overrides?: Partial<ResolvedDeps>): ResolvedDeps {
+  return {
+    envVars: {},
+    securityGroups: [],
     ...overrides,
   };
 }

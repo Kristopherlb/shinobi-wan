@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-eventbridge-scheduler" →
@@ -22,10 +22,7 @@ export class EventBridgeLowerer implements NodeLowerer {
       resourceType: 'aws:scheduler:ScheduleGroup',
       properties: {
         name: `${context.adapterConfig.serviceName}-${name}`,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-eventbridge-scheduler',
-        },
+        tags: createStandardTags(node.id, 'aws-eventbridge-scheduler'),
       },
       sourceId: node.id,
       dependsOn: [],
@@ -53,10 +50,7 @@ export class EventBridgeLowerer implements NodeLowerer {
               },
             }
           : {}),
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-eventbridge-scheduler',
-        },
+        tags: createStandardTags(node.id, 'aws-eventbridge-scheduler'),
       },
       sourceId: node.id,
       dependsOn: [groupName],

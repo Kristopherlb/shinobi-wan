@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a component node with platform "aws-lambda" → Lambda Function resource.
@@ -47,10 +47,7 @@ export class LambdaLowerer implements NodeLowerer {
         environment: Object.keys(envVars).length > 0
           ? { variables: envVars }
           : undefined,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-lambda',
-        },
+        tags: createStandardTags(node.id, 'aws-lambda'),
       },
       sourceId: node.id,
       dependsOn: resolvedDeps.roleName ? [resolvedDeps.roleName] : [],

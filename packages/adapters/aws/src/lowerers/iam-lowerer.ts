@@ -81,6 +81,106 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     write: ['elasticloadbalancing:RegisterTargets', 'elasticloadbalancing:DeregisterTargets'],
     admin: ['elasticloadbalancing:*'],
   },
+  secret: {
+    read: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
+    write: ['secretsmanager:PutSecretValue', 'secretsmanager:UpdateSecret', 'secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
+    admin: ['secretsmanager:*'],
+  },
+  key: {
+    read: ['kms:Decrypt', 'kms:DescribeKey'],
+    write: ['kms:Encrypt', 'kms:Decrypt', 'kms:GenerateDataKey', 'kms:DescribeKey'],
+    admin: ['kms:*'],
+  },
+  redis: {
+    read: ['elasticache:DescribeReplicationGroups', 'elasticache:DescribeCacheClusters'],
+    write: ['elasticache:ModifyReplicationGroup', 'elasticache:DescribeReplicationGroups'],
+    admin: ['elasticache:*'],
+  },
+  bedrock: {
+    read: ['bedrock:InvokeModel', 'bedrock:GetFoundationModel'],
+    write: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream', 'bedrock:GetFoundationModel'],
+    admin: ['bedrock:*'],
+  },
+  model: {
+    read: ['sagemaker:DescribeModel', 'sagemaker:ListModels'],
+    write: ['sagemaker:CreateTransformJob', 'sagemaker:DescribeTransformJob', 'sagemaker:StopTransformJob', 'sagemaker:DescribeModel'],
+    admin: ['sagemaker:*'],
+  },
+  domain: {
+    read: ['es:ESHttpGet', 'es:DescribeElasticsearchDomain'],
+    write: ['es:ESHttpGet', 'es:ESHttpPost', 'es:ESHttpPut', 'es:DescribeElasticsearchDomain'],
+    admin: ['es:*'],
+  },
+  firehose: {
+    read: ['firehose:DescribeDeliveryStream', 'firehose:ListDeliveryStreams'],
+    write: ['firehose:PutRecord', 'firehose:PutRecordBatch', 'firehose:DescribeDeliveryStream'],
+    admin: ['firehose:*'],
+  },
+  collection: {
+    read: ['aoss:APIAccessAll'],
+    write: ['aoss:APIAccessAll'],
+    admin: ['aoss:*'],
+  },
+  'rds-cluster': {
+    read: ['rds:DescribeDBClusters', 'rds:DescribeDBInstances'],
+    write: ['rds:ModifyDBCluster', 'rds:DescribeDBClusters', 'rds:DescribeDBInstances'],
+    admin: ['rds:*'],
+  },
+  'rds-proxy': {
+    read: ['rds:DescribeDBProxies', 'rds:DescribeDBProxyTargets'],
+    write: ['rds:ModifyDBProxy', 'rds:DescribeDBProxies', 'rds:DescribeDBProxyTargets'],
+    admin: ['rds:*'],
+  },
+  endpoint: {
+    read: ['sagemaker:DescribeEndpoint', 'sagemaker:DescribeEndpointConfig'],
+    write: ['sagemaker:InvokeEndpoint', 'sagemaker:DescribeEndpoint', 'sagemaker:DescribeEndpointConfig'],
+    admin: ['sagemaker:*'],
+  },
+  'glue-catalog': {
+    read: ['glue:GetDatabase', 'glue:GetTable', 'glue:GetTables'],
+    write: ['glue:CreateTable', 'glue:UpdateTable', 'glue:GetDatabase', 'glue:GetTable', 'glue:GetTables'],
+    admin: ['glue:*'],
+  },
+  'glue-job': {
+    read: ['glue:GetJob', 'glue:GetJobRun', 'glue:GetJobRuns'],
+    write: ['glue:StartJobRun', 'glue:BatchStopJobRun', 'glue:GetJob', 'glue:GetJobRun'],
+    admin: ['glue:*'],
+  },
+  'glue-crawler': {
+    read: ['glue:GetCrawler', 'glue:GetCrawlers'],
+    write: ['glue:StartCrawler', 'glue:StopCrawler', 'glue:GetCrawler'],
+    admin: ['glue:*'],
+  },
+  'athena-workgroup': {
+    read: ['athena:GetWorkGroup', 'athena:GetQueryResults', 'athena:ListQueryExecutions'],
+    write: ['athena:StartQueryExecution', 'athena:GetWorkGroup', 'athena:GetQueryResults'],
+    admin: ['athena:*'],
+  },
+  'sagemaker-pipeline': {
+    read: ['sagemaker:DescribePipeline', 'sagemaker:ListPipelineExecutions'],
+    write: ['sagemaker:StartPipelineExecution', 'sagemaker:StopPipelineExecution', 'sagemaker:DescribePipeline'],
+    admin: ['sagemaker:*'],
+  },
+  'msk-cluster': {
+    read: ['kafka:DescribeCluster', 'kafka:GetBootstrapBrokers', 'kafka-cluster:Connect', 'kafka-cluster:ReadData'],
+    write: ['kafka:DescribeCluster', 'kafka:GetBootstrapBrokers', 'kafka-cluster:Connect', 'kafka-cluster:ReadData', 'kafka-cluster:WriteData'],
+    admin: ['kafka:*', 'kafka-cluster:*'],
+  },
+  'transit-gateway': {
+    read: ['ec2:DescribeTransitGateways', 'ec2:DescribeTransitGatewayAttachments'],
+    write: ['ec2:CreateTransitGatewayVpcAttachment', 'ec2:CreateTransitGatewayRoute', 'ec2:DescribeTransitGateways'],
+    admin: ['ec2:*'],
+  },
+  'route53-zone': {
+    read: ['route53:GetHostedZone', 'route53:ListResourceRecordSets'],
+    write: ['route53:ChangeResourceRecordSets', 'route53:GetHostedZone', 'route53:ListResourceRecordSets'],
+    admin: ['route53:*'],
+  },
+  'eks-addon': {
+    read: ['eks:DescribeAddon', 'eks:ListAddons'],
+    write: ['eks:CreateAddon', 'eks:UpdateAddon', 'eks:DeleteAddon', 'eks:DescribeAddon'],
+    admin: ['eks:*'],
+  },
 };
 
 const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
@@ -257,6 +357,38 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
         return `arn:aws:ec2:*:*:subnet/*`;
       case 'aws-security-group':
         return `arn:aws:ec2:*:*:security-group/*`;
+      case 'aws-opensearch':
+        return `arn:aws:es:*:*:domain/${name}`;
+      case 'aws-kinesis-firehose':
+        return `arn:aws:firehose:*:*:deliverystream/${name}`;
+      case 'aws-opensearch-serverless':
+        return `arn:aws:aoss:*:*:collection/*`;
+      case 'aws-rds-cluster':
+        return `arn:aws:rds:*:*:cluster:${name}`;
+      case 'aws-rds-proxy':
+        return `arn:aws:rds:*:*:db-proxy:*`;
+      case 'aws-sagemaker-endpoint':
+        return `arn:aws:sagemaker:*:*:endpoint/${name}`;
+      case 'aws-glue-catalog':
+        return `arn:aws:glue:*:*:catalog`;
+      case 'aws-glue-job':
+        return `arn:aws:glue:*:*:job/${name}`;
+      case 'aws-glue-crawler':
+        return `arn:aws:glue:*:*:crawler/${name}`;
+      case 'aws-athena-workgroup':
+        return `arn:aws:athena:*:*:workgroup/${name}`;
+      case 'aws-sagemaker-pipeline':
+        return `arn:aws:sagemaker:*:*:pipeline/${name}`;
+      case 'aws-msk-cluster':
+        return `arn:aws:kafka:*:*:cluster/${name}/*`;
+      case 'aws-transit-gateway':
+        return `arn:aws:ec2:*:*:transit-gateway/*`;
+      case 'aws-route53-zone':
+        return `arn:aws:route53:::hostedzone/*`;
+      case 'aws-eks-addon':
+        return `arn:aws:eks:*:*:addon/*/*/*`;
+      case 'aws-eks-gpu-node-group':
+        return `arn:aws:eks:*:*:nodegroup/*/*/*`;
       default:
         return undefined;
     }

@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-sqs" → SQS Queue resource.
@@ -25,11 +25,7 @@ export class SqsLowerer implements NodeLowerer {
         properties: {
           name: `${context.adapterConfig.serviceName}-${name}-dlq`,
           messageRetentionSeconds: (props['dlqMessageRetention'] as number) ?? 1209600, // 14 days
-          tags: {
-            'shinobi:node': node.id,
-            'shinobi:platform': 'aws-sqs',
-            'shinobi:role': 'dead-letter-queue',
-          },
+          tags: createStandardTags(node.id, 'aws-sqs', { 'shinobi:role': 'dead-letter-queue' }),
         },
         sourceId: node.id,
         dependsOn: [],
@@ -52,10 +48,7 @@ export class SqsLowerer implements NodeLowerer {
               }),
             }
           : {}),
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-sqs',
-        },
+        tags: createStandardTags(node.id, 'aws-sqs'),
       },
       sourceId: node.id,
       dependsOn: hasDlq ? [`${name}-dlq`] : [],

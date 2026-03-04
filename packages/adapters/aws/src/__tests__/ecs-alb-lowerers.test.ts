@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode } from '@shinobi/ir';
-import type { LoweringContext, ResolvedDeps } from '../types';
+import { makeDefaultContext, makeDefaultDeps } from './test-helpers';
 import { VpcLowerer } from '../lowerers/vpc-lowerer';
 import { SubnetLowerer } from '../lowerers/subnet-lowerer';
 import { SecurityGroupLowerer } from '../lowerers/security-group-lowerer';
@@ -10,13 +10,8 @@ import { EcsTaskDefinitionLowerer } from '../lowerers/ecs-task-definition-lowere
 import { EcsServiceLowerer } from '../lowerers/ecs-service-lowerer';
 import { AlbLowerer } from '../lowerers/alb-lowerer';
 
-const DEFAULT_CONTEXT: LoweringContext = {
-  snapshot: { schemaVersion: '1.0.0', nodes: [], edges: [], derivedArtifacts: [] },
-  intents: [],
-  adapterConfig: { serviceName: 'test-svc', region: 'us-east-1' },
-};
-
-const DEFAULT_DEPS: ResolvedDeps = { envVars: {}, securityGroups: [] };
+const DEFAULT_CONTEXT = makeDefaultContext();
+const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('VpcLowerer', () => {
   const lowerer = new VpcLowerer();

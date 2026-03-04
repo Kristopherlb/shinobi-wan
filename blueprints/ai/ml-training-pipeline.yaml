@@ -1,0 +1,86 @@
+# Blueprint BP-A16: ML Training Pipeline
+# Architecture: VPC + Subnet + SG + KMS + S3 (training data/model artifacts) + SageMaker Pipeline + SageMaker Endpoint
+# Platform-only blueprint — pipeline reads training data and writes model artifacts
+
+name: ml-training-pipeline
+description: ML training pipeline with SageMaker Pipeline for model training and deployment
+
+nodes:
+  - id: ml-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  - id: ml-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:ml-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: ml-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:ml-vpc"
+      description: ML training security group
+
+  - id: encryption-key
+    type: platform
+    platform: aws-kms
+    config:
+      description: ML pipeline encryption key
+      enableKeyRotation: true
+
+  - id: training-data
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  - id: model-artifacts
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  - id: training-pipeline
+    type: platform
+    platform: aws-sagemaker-pipeline
+    config:
+      pipelineDefinition: '{"Version": "2020-12-01", "Steps": []}'
+      pipelineDescription: Training pipeline for model v1
+      parallelismConfiguration:
+        maxParallelExecutionSteps: 3
+
+  - id: model-endpoint
+    type: platform
+    platform: aws-sagemaker-endpoint
+    config:
+      instanceType: ml.m5.large
+      initialInstanceCount: 1
+      vpcConfig:
+        subnetIds:
+          - "platform:ml-subnet"
+        securityGroupIds:
+          - "platform:ml-sg"
+
+edges:
+  - id: pipeline-reads-training-data
+    type: bindsTo
+    source: "platform:training-pipeline"
+    target: "platform:training-data"
+    config:
+      resourceType: bucket
+      accessLevel: read
+
+  - id: pipeline-writes-model-artifacts
+    type: bindsTo
+    source: "platform:training-pipeline"
+    target: "platform:model-artifacts"
+    config:
+      resourceType: bucket
+      accessLevel: write

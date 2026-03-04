@@ -1,0 +1,101 @@
+# Blueprint BP-I10: MSK Kafka
+# Architecture: VPC + 3 Subnets + SG + KMS + MSK Configuration + MSK Cluster + S3 (logs)
+# Platform-only blueprint — 1 edge for log delivery
+
+name: msk-kafka
+description: Amazon MSK Kafka cluster with multi-AZ deployment and TLS encryption
+
+nodes:
+  - id: msk-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  - id: msk-subnet-1
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:msk-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: msk-subnet-2
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:msk-vpc"
+      cidrBlock: "10.0.2.0/24"
+      availabilityZone: us-east-1b
+      mapPublicIpOnLaunch: false
+
+  - id: msk-subnet-3
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:msk-vpc"
+      cidrBlock: "10.0.3.0/24"
+      availabilityZone: us-east-1c
+      mapPublicIpOnLaunch: false
+
+  - id: msk-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:msk-vpc"
+      description: MSK cluster security group
+
+  - id: msk-key
+    type: platform
+    platform: aws-kms
+    config:
+      description: MSK encryption key
+      enableKeyRotation: true
+
+  - id: msk-config
+    type: platform
+    platform: aws-msk-configuration
+    config:
+      kafkaVersions:
+        - "3.5.1"
+      serverProperties: |
+        auto.create.topics.enable=false
+        log.retention.hours=168
+        default.replication.factor=3
+        min.insync.replicas=2
+
+  - id: msk-cluster
+    type: platform
+    platform: aws-msk-cluster
+    config:
+      kafkaVersion: "3.5.1"
+      numberOfBrokerNodes: 3
+      instanceType: kafka.m5.large
+      ebsVolumeSize: 100
+      encryptionInTransit: TLS
+      enhancedMonitoring: PER_TOPIC_PER_BROKER
+      clientAuthentication:
+        sasl:
+          iam: true
+      subnetIds:
+        - "platform:msk-subnet-1"
+        - "platform:msk-subnet-2"
+        - "platform:msk-subnet-3"
+      securityGroupIds:
+        - "platform:msk-sg"
+
+  - id: msk-logs
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+edges:
+  - id: msk-cluster-writes-logs
+    type: bindsTo
+    source: "platform:msk-cluster"
+    target: "platform:msk-logs"
+    config:
+      resourceType: bucket
+      accessLevel: write

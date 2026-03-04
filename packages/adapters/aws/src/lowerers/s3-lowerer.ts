@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-s3" → S3 Bucket (+ optional versioning).
@@ -22,10 +22,7 @@ export class S3Lowerer implements NodeLowerer {
       resourceType: 'aws:s3:Bucket',
       properties: {
         bucket: `${context.adapterConfig.serviceName}-${name}`,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-s3',
-        },
+        tags: createStandardTags(node.id, 'aws-s3'),
       },
       sourceId: node.id,
       dependsOn: [],

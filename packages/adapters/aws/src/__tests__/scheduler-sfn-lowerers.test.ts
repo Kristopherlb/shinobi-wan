@@ -1,23 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { EventBridgeLowerer } from '../lowerers/eventbridge-lowerer';
 import { StepFunctionsLowerer } from '../lowerers/stepfunctions-lowerer';
-import { makeNode } from './test-helpers';
-import type { LoweringContext, ResolvedDeps } from '../types';
-import { createSnapshot } from '@shinobi/ir';
+import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT: LoweringContext = {
-  intents: [],
-  snapshot: createSnapshot([], []),
-  adapterConfig: {
-    region: 'us-east-1',
-    serviceName: 'my-service',
-  },
-};
-
-const DEFAULT_DEPS: ResolvedDeps = {
-  envVars: {},
-  securityGroups: [],
-};
+const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_DEPS = makeDefaultDeps();
 
 // ---------------------------------------------------------------------------
 // EventBridgeLowerer

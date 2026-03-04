@@ -1,17 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { TelemetryIntentLowerer } from '../lowerers/telemetry-lowerer';
 import type { TelemetryIntent } from '@shinobi/contracts';
-import type { LoweringContext } from '../types';
-import { createSnapshot } from '@shinobi/ir';
+import { makeDefaultContext } from './test-helpers';
 
-const DEFAULT_CONTEXT: LoweringContext = {
-  intents: [],
-  snapshot: createSnapshot([], []),
-  adapterConfig: {
-    region: 'us-east-1',
-    serviceName: 'my-service',
-  },
-};
+const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
 
 function makeTelemetryIntent(overrides?: Partial<TelemetryIntent>): TelemetryIntent {
   return {

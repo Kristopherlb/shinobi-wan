@@ -1,0 +1,118 @@
+# Blueprint BP-I01: Account Bootstrap
+#
+# Architecture:
+#   AWS Config Recorder for compliance tracking
+#   Security Hub for security posture
+#   GuardDuty for threat detection
+#   CloudTrail for API auditing
+#   S3 for audit logs, KMS for encryption
+#   SNS for alerts, Config Rules, Budgets
+#
+# Features:
+#   - AWS Config Recorder with delivery channel
+#   - Security Hub with CIS benchmark
+#   - GuardDuty threat detection
+#   - CloudTrail multi-region with log validation
+#   - KMS encryption key for audit data
+#   - S3 bucket for centralized audit logs
+#   - SNS topic for security alerts
+#   - Config Rules for compliance checks
+#   - Budgets for cost monitoring
+#   - SecretsManager for sensitive config
+
+service: account-bootstrap
+
+components:
+  # AWS Config Recorder
+  - id: config-recorder
+    type: platform
+    platform: aws-config-recorder
+    config:
+      recordingEnabled: true
+      allSupported: true
+      includeGlobalResourceTypes: true
+      deliveryFrequency: TwentyFour_Hours
+
+  # Security Hub
+  - id: security-hub
+    type: platform
+    platform: aws-securityhub
+    config:
+      enableDefaultStandards: true
+
+  # GuardDuty
+  - id: guardduty
+    type: platform
+    platform: aws-guardduty
+    config:
+      enabled: true
+      findingPublishingFrequency: FIFTEEN_MINUTES
+      s3DataSource: true
+
+  # CloudTrail
+  - id: cloudtrail
+    type: platform
+    platform: aws-cloudtrail
+    config:
+      isMultiRegionTrail: true
+      enableLogFileValidation: true
+      includeGlobalServiceEvents: true
+      cloudWatchLogsEnabled: true
+      logRetentionDays: 90
+
+  # S3 for audit logs
+  - id: audit-logs
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # KMS encryption key
+  - id: encryption-key
+    type: platform
+    platform: aws-kms
+    config:
+      enableKeyRotation: true
+
+  # SNS alert topic
+  - id: alert-topic
+    type: platform
+    platform: aws-sns
+    config: {}
+
+  # Config Rules for compliance
+  - id: config-rules
+    type: platform
+    platform: aws-config-rules
+    config:
+      rules:
+        - name: s3-bucket-versioning-enabled
+          source: AWS
+          sourceIdentifier: S3_BUCKET_VERSIONING_ENABLED
+        - name: iam-root-access-key-check
+          source: AWS
+          sourceIdentifier: IAM_ROOT_ACCESS_KEY_CHECK
+
+  # Cost budget
+  - id: cost-budget
+    type: platform
+    platform: aws-budgets
+    config:
+      budgetType: COST
+      limitAmount: 1000
+      limitUnit: USD
+      timeUnit: MONTHLY
+      thresholdPercentage: 80
+      notificationTopicArn: "platform:alert-topic"
+
+  # SecretsManager for sensitive config
+  - id: trail-secret
+    type: platform
+    platform: aws-secretsmanager
+    config:
+      rotationEnabled: true
+      rotationDays: 90
+
+bindings: []
+
+policyPack: Baseline

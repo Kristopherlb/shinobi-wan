@@ -1,0 +1,113 @@
+# Blueprint BP-I11: Data Lake
+# Architecture: VPC + Subnet + SG + KMS + S3 (raw/processed) + Glue Catalog + Glue Job + Glue Crawler + Athena Workgroup
+# Platform-only blueprint — all platform nodes, edges connect ETL job to S3 buckets and crawler to catalog
+
+name: data-lake
+description: Data lake with Glue ETL, crawlers, and Athena query engine
+
+nodes:
+  - id: data-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  - id: data-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:data-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: data-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:data-vpc"
+      description: Data lake security group
+
+  - id: encryption-key
+    type: platform
+    platform: aws-kms
+    config:
+      description: Data lake encryption key
+      enableKeyRotation: true
+
+  - id: raw-data
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  - id: processed-data
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  - id: data-catalog
+    type: platform
+    platform: aws-glue-catalog
+    config:
+      databaseName: data_lake_catalog
+      description: Central data catalog for data lake
+
+  - id: etl-job
+    type: platform
+    platform: aws-glue-job
+    config:
+      glueVersion: "4.0"
+      command:
+        name: glueetl
+        scriptLocation: s3://scripts/etl.py
+        pythonVersion: "3"
+      workerType: G.1X
+      numberOfWorkers: 5
+      timeout: 2880
+      securityConfiguration: data-lake-sec-config
+
+  - id: data-crawler
+    type: platform
+    platform: aws-glue-crawler
+    config:
+      databaseName: data_lake_catalog
+      s3Targets:
+        - path: s3://raw-data/
+        - path: s3://processed-data/
+      schedule: "cron(0 12 * * ? *)"
+
+  - id: query-workgroup
+    type: platform
+    platform: aws-athena-workgroup
+    config:
+      outputLocation: s3://query-results/
+      encryptionOption: SSE_S3
+      bytesScannedCutoffPerQuery: 10737418240
+      enforceWorkgroupConfiguration: true
+
+edges:
+  - id: etl-job-reads-raw
+    type: bindsTo
+    source: "platform:etl-job"
+    target: "platform:raw-data"
+    config:
+      resourceType: bucket
+      accessLevel: read
+
+  - id: etl-job-writes-processed
+    type: bindsTo
+    source: "platform:etl-job"
+    target: "platform:processed-data"
+    config:
+      resourceType: bucket
+      accessLevel: write
+
+  - id: crawler-writes-catalog
+    type: bindsTo
+    source: "platform:data-crawler"
+    target: "platform:data-catalog"
+    config:
+      resourceType: glue-catalog
+      accessLevel: write

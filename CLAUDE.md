@@ -108,14 +108,14 @@ These invariants are non-negotiable and enforced at CI:
 
 ## Current State
 
-The project is in early implementation. Package scaffolding and documentation are complete, but source files are stubs. Implementation should follow this sequence:
+All 8 core packages are fully implemented and tested: contracts, ir, validation, kernel, binder, policy, conformance, cli, and adapter-aws.
 
-1. `kernel` — Graph model, stable IDs, canonical serialization
-2. `contracts` — Freeze type shapes
-3. Create `validation` package — Schema and semantic validation
-4. `binder` — First real binder end-to-end
-5. `policy` — First policy rule
-6. `conformance` — First golden test
+- **22/38 blueprints complete** (58%) across Waves A, B, and C
+- **55 node lowerers** + 4 intent lowerers in the AWS adapter
+- **43 policy rules** across 3 packs (Baseline, FedRAMP-Moderate, FedRAMP-High)
+- **~1,750 tests** passing across all packages
+
+Wave D is next: 16 remaining blueprints covering CI/CD, cross-cutting concerns, and deferred items (BP-I02 Multi-Account, BP-A10 Temporal on EKS).
 
 ## Agent Roles (from roles.md)
 
@@ -146,3 +146,7 @@ Skills provide structured guidance for specific development tasks:
 | `pulumi-best-practices` | Adapter implementation, Pulumi patterns |
 | `test-driven-development` | Writing tests first, minimal implementations |
 | `docs-with-mermaid` | Architecture diagrams, technical documentation |
+| `adr-maintenance` | Architecture Decision Records creation and maintenance |
+| `environment-matrix-management` | Dev/staging/prod environment controls and policy defaults |
+| `manifest-cookbook-authoring` | Copy-ready manifest pattern docs and examples |
+| `operations-runbook` | Deployment workflow documentation and triage procedures |

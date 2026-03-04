@@ -1,4 +1,4 @@
-import type { Intent, IamIntent, ConfigIntent } from '@shinobi/contracts';
+import type { IamIntent, ConfigIntent } from '@shinobi/contracts';
 import type {
   LoweringContext,
   AdapterResult,
@@ -8,12 +8,12 @@ import type {
   NodeLowerer,
   ResolvedDeps,
 } from './types';
-import type { Node } from '@shinobi/ir';
 import { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer, TelemetryIntentLowerer } from './lowerers';
-import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer } from './lowerers';
+import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer, EksClusterLowerer, EksNodeGroupLowerer } from './lowerers';
 import { resolveConfigReference } from './lowerers/reference-utils';
 import { shortName } from './lowerers/utils';
 import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
+import { generateEdgeIntegrations } from './edge-integrations';
 
 /** Default intent lowerers */
 const INTENT_LOWERERS: ReadonlyArray<IntentLowerer> = [
@@ -45,6 +45,8 @@ const NODE_LOWERERS: ReadonlyArray<NodeLowerer> = [
   new EcsTaskDefinitionLowerer(),
   new EcsServiceLowerer(),
   new AlbLowerer(),
+  new EksClusterLowerer(),
+  new EksNodeGroupLowerer(),
 ];
 
 const DEFAULT_NODE_LOWERER_REGISTRY = createDefaultNodeLowererRegistry();
@@ -149,17 +151,9 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
     }
   }
 
-  // Phase 4: Generate event source mappings
-  const eventMappings = generateEventSourceMappings(context, nodeDeps);
-  allResources.push(...eventMappings);
-
-  // Phase 5: Generate API Gateway → Lambda integrations
-  const apiGwIntegrations = generateApiGatewayIntegrations(context);
-  allResources.push(...apiGwIntegrations);
-
-  // Phase 6: Generate EventBridge Scheduler → target integrations
-  const ebIntegrations = generateEventBridgeIntegrations(context);
-  allResources.push(...ebIntegrations);
+  // Phase 4: Generate edge integrations (event source mappings, API GW, EventBridge)
+  const edgeResources = generateEdgeIntegrations(context);
+  allResources.push(...edgeResources);
 
   // Deduplicate resources by name (IAM roles may appear multiple times)
   const seen = new Set<string>();
@@ -255,207 +249,3 @@ function resolveConfigValue(intent: ConfigIntent, context: LoweringContext): unk
   }
 }
 
-/**
- * Generates EventSourceMapping resources for edges where
- * a Lambda function binds to an SQS queue.
- */
-function generateEventSourceMappings(
-  context: LoweringContext,
-  nodeDeps: Map<string, ResolvedDeps>,
-): ReadonlyArray<LoweredResource> {
-  const mappings: LoweredResource[] = [];
-
-  for (const edge of context.snapshot.edges) {
-    if (edge.type !== 'bindsTo') continue;
-
-    const sourceNode = context.snapshot.nodes.find((n) => n.id === edge.source);
-    const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
-    if (!sourceNode || !targetNode) continue;
-
-    const sourcePlatform = sourceNode.metadata.properties['platform'] as string | undefined;
-    const targetPlatform = targetNode.metadata.properties['platform'] as string | undefined;
-
-    // Lambda → SQS binding = EventSourceMapping
-    if (sourcePlatform === 'aws-lambda' && targetPlatform === 'aws-sqs') {
-      const lambdaName = shortName(sourceNode.id);
-      const sqsName = shortName(targetNode.id);
-
-      mappings.push({
-        name: `${lambdaName}-${sqsName}-event-mapping`,
-        resourceType: 'aws:lambda:EventSourceMapping',
-        properties: {
-          functionName: { ref: `${lambdaName}-function` },
-          eventSourceArn: { ref: `${sqsName}-queue` },
-          batchSize: 10,
-          enabled: true,
-          tags: {
-            'shinobi:edge': edge.id,
-          },
-        },
-        sourceId: edge.id,
-        dependsOn: [`${lambdaName}-function`, `${sqsName}-queue`],
-      });
-    }
-  }
-
-  return mappings;
-}
-
-/**
- * Generates API Gateway → Lambda integration resources for triggers edges.
- *
- * For each `triggers` edge where source is aws-apigateway and target is aws-lambda:
- * - Integration: Lambda proxy integration
- * - Route: HTTP route (e.g., "GET /items")
- * - Permission: allows API Gateway to invoke the Lambda function
- */
-function generateApiGatewayIntegrations(
-  context: LoweringContext,
-): ReadonlyArray<LoweredResource> {
-  const resources: LoweredResource[] = [];
-
-  for (const edge of context.snapshot.edges) {
-    if (edge.type !== 'triggers') continue;
-
-    const sourceNode = context.snapshot.nodes.find((n) => n.id === edge.source);
-    const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
-    if (!sourceNode || !targetNode) continue;
-
-    const sourcePlatform = sourceNode.metadata.properties['platform'] as string | undefined;
-    const targetPlatform = targetNode.metadata.properties['platform'] as string | undefined;
-
-    // API Gateway → Lambda triggers = Integration + Route + Permission
-    if (sourcePlatform === 'aws-apigateway' && targetPlatform === 'aws-lambda') {
-      const apiName = shortName(sourceNode.id);
-      const lambdaName = shortName(targetNode.id);
-
-      const bindingConfig = edge.metadata.bindingConfig as
-        | { route?: string; method?: string }
-        | undefined;
-      const route = bindingConfig?.route;
-      const method = bindingConfig?.method;
-
-      // Determine routeKey: use "$default" if no route/method, otherwise "METHOD /path"
-      const routeKey = route && method ? `${method} ${route}` : '$default';
-
-      const integrationName = `${apiName}-${lambdaName}-integration`;
-      const routeName = `${apiName}-${lambdaName}-route`;
-      const permissionName = `${apiName}-${lambdaName}-permission`;
-
-      // Lambda proxy integration
-      resources.push({
-        name: integrationName,
-        resourceType: 'aws:apigatewayv2:Integration',
-        properties: {
-          apiId: { ref: `${apiName}-api` },
-          integrationType: 'AWS_PROXY',
-          integrationUri: { ref: `${lambdaName}-function` },
-          payloadFormatVersion: '2.0',
-          tags: {
-            'shinobi:edge': edge.id,
-          },
-        },
-        sourceId: edge.id,
-        dependsOn: [`${apiName}-api`, `${lambdaName}-function`],
-      });
-
-      // Route
-      resources.push({
-        name: routeName,
-        resourceType: 'aws:apigatewayv2:Route',
-        properties: {
-          apiId: { ref: `${apiName}-api` },
-          routeKey,
-          target: { ref: integrationName },
-        },
-        sourceId: edge.id,
-        dependsOn: [`${apiName}-api`, integrationName],
-      });
-
-      // Lambda permission for API Gateway
-      resources.push({
-        name: permissionName,
-        resourceType: 'aws:lambda:Permission',
-        properties: {
-          action: 'lambda:InvokeFunction',
-          function: { ref: `${lambdaName}-function` },
-          principal: 'apigateway.amazonaws.com',
-          sourceArn: { ref: `${apiName}-api` },
-          tags: {
-            'shinobi:edge': edge.id,
-          },
-        },
-        sourceId: edge.id,
-        dependsOn: [`${lambdaName}-function`, `${apiName}-api`],
-      });
-    }
-  }
-
-  return resources;
-}
-
-/**
- * Generates EventBridge Scheduler → target integration resources.
- *
- * For each `triggers` edge where source is aws-eventbridge-scheduler:
- * - Adds target configuration to the schedule resource
- * - For Lambda targets: sets target ARN to the function
- * - For Step Functions targets: sets target ARN to the state machine
- */
-function generateEventBridgeIntegrations(
-  context: LoweringContext,
-): ReadonlyArray<LoweredResource> {
-  const resources: LoweredResource[] = [];
-
-  for (const edge of context.snapshot.edges) {
-    if (edge.type !== 'triggers') continue;
-
-    const sourceNode = context.snapshot.nodes.find((n) => n.id === edge.source);
-    const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
-    if (!sourceNode || !targetNode) continue;
-
-    const sourcePlatform = sourceNode.metadata.properties['platform'] as string | undefined;
-    const targetPlatform = targetNode.metadata.properties['platform'] as string | undefined;
-
-    if (sourcePlatform !== 'aws-eventbridge-scheduler') continue;
-
-    const schedulerName = shortName(sourceNode.id);
-    const targetName = shortName(targetNode.id);
-
-    if (targetPlatform === 'aws-lambda') {
-      // EventBridge → Lambda: generate target config
-      resources.push({
-        name: `${schedulerName}-${targetName}-target`,
-        resourceType: 'aws:scheduler:ScheduleTarget',
-        properties: {
-          scheduleArn: { ref: `${schedulerName}-schedule` },
-          arn: { ref: `${targetName}-function` },
-          roleArn: { ref: `${schedulerName}-exec-role` },
-          tags: {
-            'shinobi:edge': edge.id,
-          },
-        },
-        sourceId: edge.id,
-        dependsOn: [`${schedulerName}-schedule`, `${targetName}-function`],
-      });
-    } else if (targetPlatform === 'aws-stepfunctions') {
-      // EventBridge → Step Functions: generate target config
-      resources.push({
-        name: `${schedulerName}-${targetName}-target`,
-        resourceType: 'aws:scheduler:ScheduleTarget',
-        properties: {
-          scheduleArn: { ref: `${schedulerName}-schedule` },
-          arn: { ref: `${targetName}-state-machine` },
-          roleArn: { ref: `${schedulerName}-exec-role` },
-          tags: {
-            'shinobi:edge': edge.id,
-          },
-        },
-        sourceId: edge.id,
-        dependsOn: [`${schedulerName}-schedule`, `${targetName}-state-machine`],
-      });
-    }
-  }
-
-  return resources;
-}

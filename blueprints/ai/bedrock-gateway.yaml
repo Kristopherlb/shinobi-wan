@@ -1,0 +1,119 @@
+# Blueprint BP-A01: Bedrock Gateway + Cost Controls
+#
+# Architecture:
+#   API Gateway → Lambda → Bedrock model invocation
+#   DynamoDB for cost tracking
+#   S3 for invocation logs
+#
+# Features:
+#   - Bedrock guardrails for content filtering
+#   - Invocation logging to CloudWatch
+#   - DynamoDB cost tracking per API key
+#   - S3 for long-term log storage
+#   - X-Ray tracing on Lambda
+
+service: bedrock-gateway
+
+components:
+  # API Gateway for incoming requests
+  - id: api
+    type: platform
+    platform: aws-apigateway
+    config: {}
+
+  # Lambda function that invokes Bedrock
+  - id: gateway-handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: gateway.handler
+      memorySize: 512
+      timeout: 120
+      tracing: true
+      powertools: true
+
+  # Bedrock model configuration with guardrails
+  - id: llm
+    type: platform
+    platform: aws-bedrock
+    config:
+      modelId: anthropic.claude-3-sonnet-20240229-v1:0
+      guardrailEnabled: true
+      invocationLogging: true
+
+  # DynamoDB for cost tracking
+  - id: cost-tracker
+    type: platform
+    platform: aws-dynamodb
+    config:
+      hashKey: apiKey
+      rangeKey: timestamp
+
+  # S3 for invocation logs
+  - id: invocation-logs
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+bindings:
+  # API Gateway triggers the gateway Lambda
+  - source: api
+    target: gateway-handler
+    type: triggers
+    config:
+      route: /invoke
+      method: POST
+
+  # Lambda invokes Bedrock
+  - source: gateway-handler
+    target: llm
+    type: bindsTo
+    config:
+      resourceType: bedrock
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: MODEL_ID
+          valueSource:
+            type: static
+            value: anthropic.claude-3-sonnet-20240229-v1:0
+
+  # Lambda writes cost records to DynamoDB
+  - source: gateway-handler
+    target: cost-tracker
+    type: bindsTo
+    config:
+      resourceType: table
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: COST_TABLE
+          valueSource:
+            type: reference
+            nodeRef: cost-tracker
+            field: name
+
+  # Lambda writes logs to S3
+  - source: gateway-handler
+    target: invocation-logs
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: LOGS_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: invocation-logs
+            field: bucket
+
+policyPack: Baseline

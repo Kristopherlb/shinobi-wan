@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-cloudfront" → CloudFront Distribution + OAC.
@@ -93,10 +93,7 @@ export class CloudFrontLowerer implements NodeLowerer {
           restrictionType: 'none',
         },
       },
-      tags: {
-        'shinobi:node': node.id,
-        'shinobi:platform': 'aws-cloudfront',
-      },
+      tags: createStandardTags(node.id, 'aws-cloudfront'),
     };
 
     // Add custom domain aliases if provided

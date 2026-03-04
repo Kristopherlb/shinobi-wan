@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-cloudfront-function" → CloudFront Function.
@@ -33,10 +33,7 @@ export class CloudFrontFunctionLowerer implements NodeLowerer {
         code,
         comment,
         publish: true,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-cloudfront-function',
-        },
+        tags: createStandardTags(node.id, 'aws-cloudfront-function'),
       },
       sourceId: node.id,
       dependsOn: [],
