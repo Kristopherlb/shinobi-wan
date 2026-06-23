@@ -102,6 +102,14 @@ Current assessment:
 
 `G-005 + G-042 + Harmony Phase 2 hardening gates -> shared go/no-go -> restricted apply enablement (completed 2026-02-17)`
 
+## Backlog (Future Initiatives)
+
+Scoped-but-not-yet-active initiatives live in `docs/product-management/backlog.md`. Promote their
+requirements into the Track A/B execution-control tables when work begins. Current epics:
+
+- `E1` Multi-Cloud Provider Adapters (Azure & GCP) — requirements `MCA-0` … `MCA-10`.
+- `E2` Ephemeral Environments (per-PR/per-branch) — requirements `EE-1` … `EE-10`.
+
 ## Source-of-Truth Order
 
 When docs disagree, use this precedence for roadmap status:

@@ -1,0 +1,78 @@
+{
+  "project": {
+    "name": "Shinobi V3",
+    "description": "Shinobi V3 is a deterministic in-memory object graph kernel for infrastructure-as-code that compiles manifest-defined relationships into backend-neutral intents, evaluates compliance policy, and lowers the result to deployable AWS resources through Pulumi. It is a backend-neutral, policy-driven pnpm + Nx TypeScript monorepo with auditable, structured outputs suitable for CI automation. Note: this project has over 100 source files; consider scoping analysis to a subdirectory for faster results."
+  },
+  "layers": [
+    {
+      "id": "layer:contracts-ir",
+      "name": "Contracts & IR Foundation",
+      "description": "Backend-neutral base types, interfaces, and the Node/Edge/DerivedArtifact graph model with canonical ordering and semantic hashing that all other packages build on.",
+      "nodeCount": 45
+    },
+    {
+      "id": "layer:validation",
+      "name": "Validation",
+      "description": "Deterministic schema, semantic, and determinism validators that enforce structured, stable-path errors over graph snapshots.",
+      "nodeCount": 22
+    },
+    {
+      "id": "layer:kernel",
+      "name": "Kernel",
+      "description": "In-memory graph engine providing the mutation API, deterministic compilation pipeline, canonical serialization, and the facade that composes binders and policy evaluators.",
+      "nodeCount": 22
+    },
+    {
+      "id": "layer:binder",
+      "name": "Binder",
+      "description": "Edge compiler that maps binding directives and edge context into backend-neutral intents (IAM, network, config, telemetry) without branching on policy packs.",
+      "nodeCount": 9
+    },
+    {
+      "id": "layer:policy",
+      "name": "Policy",
+      "description": "Config-driven compliance engine: rule catalog, severity map, and evaluators that inspect intents and nodes across the Baseline, FedRAMP-Moderate, and FedRAMP-High packs.",
+      "nodeCount": 9
+    },
+    {
+      "id": "layer:aws-adapter",
+      "name": "AWS Adapter",
+      "description": "Provider-bound layer that lowers backend-neutral intents and nodes into Pulumi AWS resources and drives deploy/preview via the Pulumi Automation API (the only place provider SDKs appear).",
+      "nodeCount": 74
+    },
+    {
+      "id": "layer:cli",
+      "name": "CLI",
+      "description": "User-facing validate/plan/up commands, the YAML manifest parser, and graph-builder that turn service manifests into kernel mutations and Pulumi deployments.",
+      "nodeCount": 27
+    },
+    {
+      "id": "layer:conformance-tooling",
+      "name": "Conformance & Dev Tooling",
+      "description": "Golden-case and triad-matrix conformance framework plus audit and code-generation scripts (lowerer/policy/golden generators, gate-coverage and FedRAMP audits).",
+      "nodeCount": 17
+    },
+    {
+      "id": "layer:blueprints",
+      "name": "Blueprints & Manifests",
+      "description": "Declarative infrastructure-as-data YAML blueprints across ai, compute, and infra domains that exercise the kernel-to-adapter pipeline.",
+      "nodeCount": 24
+    },
+    {
+      "id": "layer:build-config-docs",
+      "name": "Build, Config & Documentation",
+      "description": "Monorepo build and tooling configuration (Nx, pnpm, TypeScript, Jest, Prettier), GitHub Actions CI/CD pipelines, the mcporter config, and top-level project documentation.",
+      "nodeCount": 19
+    }
+  ],
+  "nodeTypeCounts": {
+    "file": 186,
+    "class": 72,
+    "function": 161,
+    "pipeline": 3,
+    "config": 69,
+    "document": 10
+  },
+  "graphNodes": 501,
+  "graphEdges": 784
+}
