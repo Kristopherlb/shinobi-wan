@@ -1,0 +1,99 @@
+# Blueprint BP-I18: Cost Optimization
+#
+# Architecture:
+#   AWS Budget → SNS alerts
+#   AWS Config Rule → Lambda remediation
+#   S3 for cost reports
+#
+# Features:
+#   - Monthly cost budget with 80% threshold alert
+#   - SNS topic for budget notifications
+#   - Config rule for compliance checking
+#   - Lambda function for automated remediation
+#   - S3 bucket for cost report storage
+
+service: cost-optimization
+
+components:
+  # SNS topic for cost alerts
+  - id: cost-alerts
+    type: platform
+    platform: aws-sns
+    config: {}
+
+  # Monthly cost budget
+  - id: monthly-budget
+    type: platform
+    platform: aws-budgets
+    config:
+      budgetType: COST
+      limitAmount: "1000"
+      limitUnit: USD
+      timeUnit: MONTHLY
+      thresholdPercentage: 80
+      notificationTopicArn: "platform:cost-alerts"
+
+  # AWS Config rule for compliance
+  - id: s3-encryption-check
+    type: platform
+    platform: aws-config-rules
+    config:
+      source:
+        owner: AWS
+        sourceIdentifier: S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED
+      maximumExecutionFrequency: TwentyFour_Hours
+
+  # Lambda for automated remediation
+  - id: remediation-handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: remediation.handler
+      memorySize: 256
+      timeout: 60
+      tracing: true
+
+  # S3 for cost reports
+  - id: cost-reports
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+bindings:
+  # Budget notifies via SNS
+  - source: monthly-budget
+    target: cost-alerts
+    type: bindsTo
+    config:
+      resourceType: topic
+      accessLevel: write
+
+  # Config rule triggers Lambda remediation
+  - source: s3-encryption-check
+    target: remediation-handler
+    type: triggers
+    config:
+      resourceType: config-rule
+      route: /remediate
+      method: POST
+
+  # Remediation Lambda writes to cost reports
+  - source: remediation-handler
+    target: cost-reports
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: REPORTS_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: cost-reports
+            field: bucket
+
+policyPack: Baseline

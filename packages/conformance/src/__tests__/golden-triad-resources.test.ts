@@ -142,7 +142,8 @@ const SCENARIOS: ReadonlyArray<ResourceScenarioExpectation> = PACKS.flatMap((pol
   {
     cell: { scenario: 'apigw-trigger', policyPack },
     expectedIntentTypes: ['config', 'iam'],
-    expectedRuleIds: ['iam-missing-conditions'],
+    // Lambda handler has platform:'aws-lambda' but no tracing: true → telemetry-tracing-disabled fires
+    expectedRuleIds: ['iam-missing-conditions', 'telemetry-tracing-disabled'],
   },
 ]);
 

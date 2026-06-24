@@ -44,5 +44,5 @@ export type {
 } from './types';
 
 // Individual lowerers (for custom adapter composition)
-export { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer } from './lowerers';
-export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer } from './lowerers';
+export { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer, TelemetryIntentLowerer } from './lowerers';
+export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer } from './lowerers';

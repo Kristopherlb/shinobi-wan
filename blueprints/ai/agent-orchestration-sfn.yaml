@@ -1,0 +1,132 @@
+# Blueprint BP-A09: Agent Orchestration (Step Functions)
+#
+# Architecture:
+#   API Gateway → Orchestrator Lambda → Step Functions State Machine
+#                                            ├── Agent Worker Lambda → DynamoDB (state store)
+#                                            └── Agent Worker Lambda → S3 (artifacts)
+#
+# Multi-step AI agent orchestration using Step Functions for workflow
+# coordination, Lambda for compute, DynamoDB for state, and S3 for artifacts.
+
+service: agent-orchestration
+
+components:
+  - id: api
+    type: platform
+    platform: aws-apigateway
+    config: {}
+
+  - id: orchestrator
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: orchestrator.handler
+      memorySize: 256
+      timeout: 30
+      tracing: true
+
+  - id: agent-workflow
+    type: platform
+    platform: aws-stepfunctions
+    config:
+      type: STANDARD
+      logging: true
+      logLevel: ALL
+
+  - id: agent-worker
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: worker.handler
+      memorySize: 512
+      timeout: 60
+      tracing: true
+
+  - id: state-store
+    type: platform
+    platform: aws-dynamodb
+    config:
+      hashKey: agentId
+      rangeKey: stepId
+
+  - id: artifact-store
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+bindings:
+  - source: api
+    target: orchestrator
+    type: triggers
+    config:
+      route: /orchestrate
+      method: POST
+
+  - source: orchestrator
+    target: agent-workflow
+    type: bindsTo
+    config:
+      resourceType: statemachine
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: STATE_MACHINE_ARN
+          valueSource:
+            type: reference
+            nodeRef: agent-workflow
+            field: arn
+
+  - source: orchestrator
+    target: state-store
+    type: bindsTo
+    config:
+      resourceType: table
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: STATE_TABLE_NAME
+          valueSource:
+            type: reference
+            nodeRef: state-store
+            field: table
+
+  - source: agent-worker
+    target: state-store
+    type: bindsTo
+    config:
+      resourceType: table
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: STATE_TABLE_NAME
+          valueSource:
+            type: reference
+            nodeRef: state-store
+            field: table
+
+  - source: agent-worker
+    target: artifact-store
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: ARTIFACT_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: artifact-store
+            field: bucket
+
+policyPack: Baseline

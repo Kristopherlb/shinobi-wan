@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a component node with platform "aws-lambda" → Lambda Function resource.
@@ -13,6 +13,13 @@ export class LambdaLowerer implements NodeLowerer {
     const props = node.metadata.properties;
 
     const resources: LoweredResource[] = [];
+
+    // Build environment variables: merge resolved deps + Powertools config
+    const envVars: Record<string, unknown> = { ...resolvedDeps.envVars };
+    if (props['powertools'] === true) {
+      envVars['POWERTOOLS_SERVICE_NAME'] = `${context.adapterConfig.serviceName}-${name}`;
+      envVars['POWERTOOLS_LOG_LEVEL'] = (props['powertoolsLogLevel'] as string) ?? 'INFO';
+    }
 
     // Lambda Function
     const functionResource: LoweredResource = {
@@ -31,13 +38,16 @@ export class LambdaLowerer implements NodeLowerer {
         ...(context.adapterConfig.codeS3
           ? { s3Bucket: context.adapterConfig.codeS3.bucket, s3Key: context.adapterConfig.codeS3.key }
           : {}),
-        environment: Object.keys(resolvedDeps.envVars).length > 0
-          ? { variables: resolvedDeps.envVars }
+        ...(props['tracing'] === true
+          ? { tracingConfig: { mode: 'Active' } }
+          : {}),
+        ...(Array.isArray(props['layers']) && (props['layers'] as string[]).length > 0
+          ? { layers: props['layers'] }
+          : {}),
+        environment: Object.keys(envVars).length > 0
+          ? { variables: envVars }
           : undefined,
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-lambda',
-        },
+        tags: createStandardTags(node.id, 'aws-lambda'),
       },
       sourceId: node.id,
       dependsOn: resolvedDeps.roleName ? [resolvedDeps.roleName] : [],

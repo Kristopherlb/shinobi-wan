@@ -1,0 +1,561 @@
+[
+  {
+    "id": "bedrock-guardrails-disabled",
+    "name": "Bedrock Guardrails Disabled",
+    "category": "Configuration",
+    "summary": "Detects Bedrock model invocations without guardrails enabled.",
+    "rationale": "Without guardrails, model outputs are not content-filtered, risking harmful, unsafe, or non-compliant responses.",
+    "remediation": "Set guardrailEnabled: true in the Bedrock configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "cloudfront-ssl-protocol-weak",
+    "name": "CloudFront Weak SSL Protocol",
+    "category": "Configuration",
+    "summary": "Detects CloudFront distributions configured to allow SSL/TLS protocols older than TLSv1.2.",
+    "rationale": "Older TLS protocols have known cryptographic vulnerabilities that can be exploited to intercept or downgrade connections.",
+    "remediation": "Set minimumProtocolVersion to TLSv1.2_2021 or higher.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "ecr-image-scan-disabled",
+    "name": "ECR Image Scan Disabled",
+    "category": "Configuration",
+    "summary": "Detects ECR repositories that do not scan images on push.",
+    "rationale": "Without scan-on-push, vulnerable container images can be deployed undetected, propagating known CVEs into production.",
+    "remediation": "Set scanOnPush: true in the ECR repository configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "eks-addon-version-unset",
+    "name": "EKS Addon Version Unset",
+    "category": "Configuration",
+    "summary": "Detects EKS addons that do not pin a specific version.",
+    "rationale": "Unpinned addon versions can be upgraded unexpectedly, introducing compatibility issues or unreviewed changes.",
+    "remediation": "Set addonVersion to a specific version string.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "lambda-timeout-excessive",
+    "name": "Lambda Timeout Excessive",
+    "category": "Configuration",
+    "summary": "Detects Lambda functions configured with a timeout exceeding 900 seconds.",
+    "rationale": "Excessive timeouts often indicate an architectural anti-pattern and can mask hung executions that consume resources and cost.",
+    "remediation": "Reduce the Lambda timeout to 900 seconds or less, or use Step Functions for long-running workflows.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "athena-workgroup-bytes-limit-missing",
+    "name": "Athena Workgroup Bytes Limit Missing",
+    "category": "Cost",
+    "summary": "Detects Athena workgroups that lack a bytes-scanned cutoff per query.",
+    "rationale": "Without a scan limit, a single runaway query can scan enormous amounts of data and incur unexpectedly large costs.",
+    "remediation": "Set bytesScannedCutoffPerQuery in the Athena workgroup configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "info",
+      "FedRAMP-High": "warning"
+    }
+  },
+  {
+    "id": "budget-threshold-missing",
+    "name": "Budget Threshold Missing",
+    "category": "Cost",
+    "summary": "Detects AWS Budgets with no notification threshold or SNS topic configured.",
+    "rationale": "Without a threshold and alert topic, cost overruns go unnoticed until the bill arrives, preventing timely corrective action.",
+    "remediation": "Set thresholdPercentage and notificationTopicArn in the budget configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "s3-public-access-not-blocked",
+    "name": "S3 Public Access Not Blocked",
+    "category": "Data Protection",
+    "summary": "Detects S3 buckets used as CloudFront origins that rely on public access instead of Origin Access Control.",
+    "rationale": "Publicly accessible origin buckets expose data directly, bypassing CloudFront access controls and risking data leakage.",
+    "remediation": "Use CloudFront Origin Access Control (OAC) instead of public S3 bucket access.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "sagemaker-vpc-disabled",
+    "name": "SageMaker VPC Disabled",
+    "category": "Data Protection",
+    "summary": "Detects SageMaker models that are not deployed within a VPC.",
+    "rationale": "Running models outside a VPC removes network isolation, exposing the model and its data to public network risks.",
+    "remediation": "Configure vpcConfig with subnetIds and securityGroupIds.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "athena-workgroup-encryption-disabled",
+    "name": "Athena Workgroup Encryption Disabled",
+    "category": "Encryption",
+    "summary": "Detects Athena workgroups that do not encrypt query results at rest.",
+    "rationale": "Unencrypted query results stored in S3 expose potentially sensitive data to anyone with bucket access.",
+    "remediation": "Set encryptionOption to SSE_S3 or SSE_KMS in the Athena workgroup configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "elasticache-encryption-disabled",
+    "name": "ElastiCache Encryption Disabled",
+    "category": "Encryption",
+    "summary": "Detects ElastiCache Redis replication groups missing at-rest or in-transit encryption.",
+    "rationale": "Unencrypted cache data can be read at rest or intercepted in transit, exposing sensitive cached information.",
+    "remediation": "Set atRestEncryptionEnabled: true and transitEncryptionEnabled: true.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "firehose-encryption-disabled",
+    "name": "Firehose Encryption Disabled",
+    "category": "Encryption",
+    "summary": "Detects Kinesis Firehose delivery streams without server-side encryption.",
+    "rationale": "Unencrypted delivery streams expose streamed data, risking interception of sensitive records in transit.",
+    "remediation": "Set encryptionEnabled: true in the Firehose configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "glue-job-security-config-missing",
+    "name": "Glue Job Security Config Missing",
+    "category": "Encryption",
+    "summary": "Detects AWS Glue jobs that have no security configuration for encryption.",
+    "rationale": "Without a security configuration, Glue job data and logs are not encrypted at rest or in transit, exposing sensitive ETL data.",
+    "remediation": "Set securityConfiguration in the Glue job configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "kms-key-rotation-disabled",
+    "name": "KMS Key Rotation Disabled",
+    "category": "Encryption",
+    "summary": "Detects symmetric KMS keys that do not have automatic key rotation enabled.",
+    "rationale": "Rotation limits the volume of data encrypted under any single key version, reducing the blast radius of a compromised key.",
+    "remediation": "Set enableKeyRotation: true for symmetric KMS keys.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "msk-encryption-in-transit-disabled",
+    "name": "MSK Encryption In Transit Disabled",
+    "category": "Encryption",
+    "summary": "Detects MSK clusters that do not enforce TLS for client-broker communication.",
+    "rationale": "Plaintext client-broker traffic can be intercepted, exposing streamed message data in transit.",
+    "remediation": "Set encryptionInTransit to 'TLS' in the MSK cluster configuration.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "opensearch-encryption-disabled",
+    "name": "OpenSearch Encryption Disabled",
+    "category": "Encryption",
+    "summary": "Detects OpenSearch domains missing at-rest or node-to-node encryption.",
+    "rationale": "Unencrypted OpenSearch data can be read at rest or intercepted between nodes, exposing indexed sensitive data.",
+    "remediation": "Set encryptionAtRest: true and nodeToNodeEncryption: true.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "rds-encryption-disabled",
+    "name": "RDS Encryption Disabled",
+    "category": "Encryption",
+    "summary": "Detects Aurora/RDS clusters without storage encryption enabled.",
+    "rationale": "Unencrypted database storage exposes data at rest if underlying volumes or snapshots are accessed.",
+    "remediation": "Set storageEncrypted: true in the RDS cluster configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "iam-admin-access-review",
+    "name": "Admin Access Review",
+    "category": "Identity & Access",
+    "summary": "Flags IAM intents that grant admin-level actions for justification review.",
+    "rationale": "Admin access grants full control over a resource, violating least privilege and increasing the impact of a compromised principal (KL-005).",
+    "remediation": "Use a 'read' or 'write' access level instead of admin where full control is not required.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "elasticache-auth-disabled",
+    "name": "ElastiCache Auth Disabled",
+    "category": "Identity & Access",
+    "summary": "Detects ElastiCache Redis replication groups that do not require an AUTH token.",
+    "rationale": "Without an AUTH token, any client with network access can connect to the cache, risking unauthorized data access.",
+    "remediation": "Set transitEncryptionEnabled: true and provide an authToken.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "msk-authentication-disabled",
+    "name": "MSK Authentication Disabled",
+    "category": "Identity & Access",
+    "summary": "Detects MSK clusters with no client authentication configured.",
+    "rationale": "Without client authentication, any client with network reach can produce or consume from Kafka topics, risking unauthorized access.",
+    "remediation": "Configure clientAuthentication with SASL-IAM, SASL-SCRAM, or TLS.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "iam-missing-conditions",
+    "name": "Missing IAM Conditions",
+    "category": "Identity & Access",
+    "summary": "Detects cross-service IAM grants that lack scoping conditions.",
+    "rationale": "Unconditioned cross-service grants are broader than necessary, increasing the risk of lateral movement and privilege misuse.",
+    "remediation": "Add conditions to the IAM grant to scope cross-service access.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "iam-no-wildcard-resource",
+    "name": "No Wildcard Resources",
+    "category": "Identity & Access",
+    "summary": "Detects IAM intents that use pattern-scoped (wildcard) resources.",
+    "rationale": "Wildcard resource scopes grant access far beyond what is needed, violating least privilege by construction (KL-005).",
+    "remediation": "Use scope 'specific' with explicit resource references instead of pattern scopes.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "secrets-rotation-disabled",
+    "name": "Secrets Rotation Disabled",
+    "category": "Identity & Access",
+    "summary": "Detects SecretsManager secrets without automatic rotation enabled.",
+    "rationale": "Static, long-lived secrets increase the window of exposure if credentials are leaked or compromised.",
+    "remediation": "Set rotationEnabled: true in the SecretsManager configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "alb-access-logs-disabled",
+    "name": "ALB Access Logs Disabled",
+    "category": "Logging & Audit",
+    "summary": "Detects Application Load Balancers that do not have access logging enabled.",
+    "rationale": "Without access logs, request-level auditing and troubleshooting of traffic to the load balancer is not possible.",
+    "remediation": "Enable access logging on the ALB with an S3 bucket destination.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "cloudtrail-log-validation-disabled",
+    "name": "CloudTrail Log Validation Disabled",
+    "category": "Logging & Audit",
+    "summary": "Detects CloudTrail trails without log file integrity validation enabled.",
+    "rationale": "Without log file validation, tampering with audit logs cannot be detected, undermining forensic and compliance evidence.",
+    "remediation": "Set enableLogFileValidation: true in the CloudTrail configuration.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "eks-logging-disabled",
+    "name": "EKS Logging Disabled",
+    "category": "Logging & Audit",
+    "summary": "Detects EKS clusters that do not enable control plane logging.",
+    "rationale": "Without API, audit, and authenticator logs, security events on the Kubernetes control plane cannot be monitored or investigated.",
+    "remediation": "Enable API, audit, and authenticator log types on the EKS cluster.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "guardduty-not-enabled",
+    "name": "GuardDuty Not Enabled",
+    "category": "Logging & Audit",
+    "summary": "Detects accounts/configurations where GuardDuty threat detection is not enabled.",
+    "rationale": "Without GuardDuty, continuous threat detection and anomaly monitoring across the account is absent, delaying breach detection.",
+    "remediation": "Set enabled: true in the GuardDuty detector configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "network-firewall-logging-disabled",
+    "name": "Network Firewall Logging Disabled",
+    "category": "Logging & Audit",
+    "summary": "Detects AWS Network Firewall instances without logging enabled.",
+    "rationale": "Without firewall logs, malicious traffic and policy violations go unrecorded, impeding security monitoring and forensics.",
+    "remediation": "Set loggingEnabled: true in the Network Firewall configuration.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "stepfunctions-logging-disabled",
+    "name": "Step Functions Logging Disabled",
+    "category": "Logging & Audit",
+    "summary": "Detects Step Functions state machines with CloudWatch logging disabled.",
+    "rationale": "Without execution logging, failures and state transitions cannot be debugged or audited.",
+    "remediation": "Add logging: true to the Step Functions configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "telemetry-tracing-disabled",
+    "name": "Telemetry Tracing Disabled",
+    "category": "Logging & Audit",
+    "summary": "Detects compute resources without X-Ray tracing enabled.",
+    "rationale": "Without distributed tracing, observability into request flows and performance bottlenecks is lost, slowing incident response.",
+    "remediation": "Add tracing: true to the Lambda function configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "network-broad-protocol",
+    "name": "Broad Network Protocol",
+    "category": "Network",
+    "summary": "Detects network intents that use the overly permissive protocol 'any'.",
+    "rationale": "Allowing all protocols broadens the network attack surface beyond what the workload requires.",
+    "remediation": "Specify the protocol as 'tcp' or 'udp' instead of 'any'.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "ecs-task-public-ip",
+    "name": "ECS Task Public IP",
+    "category": "Network",
+    "summary": "Detects Fargate tasks configured to assign a public IP address.",
+    "rationale": "Public IPs on tasks expand the attack surface by exposing workloads directly to the internet instead of routing through controlled egress.",
+    "remediation": "Set assignPublicIp to false (DISABLED) in the ECS service configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "eks-endpoint-public-access",
+    "name": "EKS Endpoint Public Access",
+    "category": "Network",
+    "summary": "Detects EKS clusters exposing the Kubernetes API endpoint publicly.",
+    "rationale": "A public API endpoint exposes the cluster control plane to the internet, increasing the risk of unauthorized access attempts.",
+    "remediation": "Disable public endpoint access and use a VPN or bastion host for cluster management.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "opensearch-public-access",
+    "name": "OpenSearch Public Access",
+    "category": "Network",
+    "summary": "Detects OpenSearch domains or serverless collections that are publicly accessible.",
+    "rationale": "Public OpenSearch access exposes indexed data directly to the internet, risking data exfiltration.",
+    "remediation": "Set publicAccess: false and configure VPC endpoints.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "rds-public-access",
+    "name": "RDS Public Access",
+    "category": "Network",
+    "summary": "Detects RDS clusters that are configured as publicly accessible.",
+    "rationale": "Publicly accessible databases are exposed to the internet, dramatically increasing the risk of unauthorized access and data breach.",
+    "remediation": "Set publicAccess: false and use RDS Proxy for application connections.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "error",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "transit-gateway-auto-accept-enabled",
+    "name": "Transit Gateway Auto Accept Enabled",
+    "category": "Network",
+    "summary": "Detects transit gateways that auto-accept shared attachments.",
+    "rationale": "Auto-accepting attachments allows unvetted VPCs to connect, risking unauthorized network peering and lateral movement.",
+    "remediation": "Set autoAcceptSharedAttachments to 'disable'.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "waf-not-attached",
+    "name": "WAF Not Attached",
+    "category": "Network",
+    "summary": "Detects public-facing CloudFront distributions with no WAF Web ACL attached.",
+    "rationale": "Without a WAF, public distributions lack protection against common web exploits such as injection and bot traffic.",
+    "remediation": "Add a WAF v2 Web ACL and associate it with the CloudFront distribution.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "eks-gpu-spot-capacity",
+    "name": "EKS GPU Spot Capacity",
+    "category": "Resilience",
+    "summary": "Detects GPU node groups using SPOT capacity for production workloads.",
+    "rationale": "SPOT GPU instances can be reclaimed at any time, interrupting training or inference jobs and causing workload failures.",
+    "remediation": "Set capacityType to 'ON_DEMAND' for production GPU node groups.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "warning"
+    }
+  },
+  {
+    "id": "eventbridge-retry-missing",
+    "name": "EventBridge Retry Missing",
+    "category": "Resilience",
+    "summary": "Detects EventBridge Scheduler schedules with no retry policy configured.",
+    "rationale": "Without retries, transient failures cause schedules to silently drop invocations, leading to missed or lost executions.",
+    "remediation": "Add a retryPolicy with maximumRetryAttempts to the schedule configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "info",
+      "FedRAMP-High": "warning"
+    }
+  },
+  {
+    "id": "route53-health-check-missing",
+    "name": "Route53 Health Check Missing",
+    "category": "Resilience",
+    "summary": "Detects public Route53 hosted zones with no health checks configured.",
+    "rationale": "Without health checks, DNS cannot fail over away from unhealthy endpoints, reducing availability during outages.",
+    "remediation": "Add a healthCheck configuration to the Route53 zone.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "info",
+      "FedRAMP-High": "warning"
+    }
+  },
+  {
+    "id": "sqs-dlq-missing",
+    "name": "SQS DLQ Missing",
+    "category": "Resilience",
+    "summary": "Detects SQS queues that have no dead letter queue configured.",
+    "rationale": "Without a DLQ, repeatedly failing messages are eventually discarded, causing silent data loss.",
+    "remediation": "Add deadLetterQueue: true to the SQS queue configuration.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  },
+  {
+    "id": "sagemaker-pipeline-parallelism-missing",
+    "name": "SageMaker Pipeline Parallelism Missing",
+    "category": "Resilience",
+    "summary": "Detects SageMaker pipelines without parallelism configuration.",
+    "rationale": "Unbounded parallelism can exhaust resources during pipeline execution, causing failures or unpredictable resource consumption.",
+    "remediation": "Set parallelismConfiguration with maxParallelExecutionSteps.",
+    "severity": {
+      "Baseline": "info",
+      "FedRAMP-Moderate": "info",
+      "FedRAMP-High": "warning"
+    }
+  },
+  {
+    "id": "sfn-max-recursion",
+    "name": "Step Functions Max Recursion Exceeded",
+    "category": "Resilience",
+    "summary": "Detects Step Functions state machines with an excessive recursion depth.",
+    "rationale": "Deep recursion risks infinite loops and resource exhaustion, potentially causing runaway executions and cost.",
+    "remediation": "Reduce maxRecursionDepth to 50 or less, or refactor into separate state machines with dynamic parallelism.",
+    "severity": {
+      "Baseline": "warning",
+      "FedRAMP-Moderate": "warning",
+      "FedRAMP-High": "error"
+    }
+  }
+]

@@ -38,6 +38,55 @@ const RESOURCE_CONSTRUCTORS: Record<
   'aws:apigatewayv2:Route': (n, a, o) =>
     new aws.apigatewayv2.Route(n, a as unknown as aws.apigatewayv2.RouteArgs, o),
   'aws:sns:Topic': (n, a, o) => new aws.sns.Topic(n, a as unknown as aws.sns.TopicArgs, o),
+  'aws:cloudfront:Distribution': (n, a, o) =>
+    new aws.cloudfront.Distribution(n, a as unknown as aws.cloudfront.DistributionArgs, o),
+  'aws:cloudfront:OriginAccessControl': (n, a, o) =>
+    new aws.cloudfront.OriginAccessControl(n, a as unknown as aws.cloudfront.OriginAccessControlArgs, o),
+  'aws:cloudfront:Function': (n, a, o) =>
+    new aws.cloudfront.Function(n, a as unknown as aws.cloudfront.FunctionArgs, o),
+  'aws:wafv2:WebAcl': (n, a, o) => new aws.wafv2.WebAcl(n, a as unknown as aws.wafv2.WebAclArgs, o),
+  'aws:acm:Certificate': (n, a, o) =>
+    new aws.acm.Certificate(n, a as unknown as aws.acm.CertificateArgs, o),
+  'aws:scheduler:Schedule': (n, a, o) =>
+    new aws.scheduler.Schedule(n, a as unknown as aws.scheduler.ScheduleArgs, o),
+  'aws:scheduler:ScheduleGroup': (n, a, o) =>
+    new aws.scheduler.ScheduleGroup(n, a as unknown as aws.scheduler.ScheduleGroupArgs, o),
+  'aws:sfn:StateMachine': (n, a, o) =>
+    new aws.sfn.StateMachine(n, a as unknown as aws.sfn.StateMachineArgs, o),
+  'aws:cloudwatch:LogGroup': (n, a, o) =>
+    new aws.cloudwatch.LogGroup(n, a as unknown as aws.cloudwatch.LogGroupArgs, o),
+  'aws:ec2:Vpc': (n, a, o) => new aws.ec2.Vpc(n, a as unknown as aws.ec2.VpcArgs, o),
+  'aws:ec2:InternetGateway': (n, a, o) =>
+    new aws.ec2.InternetGateway(n, a as unknown as aws.ec2.InternetGatewayArgs, o),
+  'aws:ec2:InternetGatewayAttachment': (n, a, o) =>
+    new aws.ec2.InternetGatewayAttachment(n, a as unknown as aws.ec2.InternetGatewayAttachmentArgs, o),
+  'aws:ec2:Subnet': (n, a, o) => new aws.ec2.Subnet(n, a as unknown as aws.ec2.SubnetArgs, o),
+  'aws:ec2:RouteTable': (n, a, o) =>
+    new aws.ec2.RouteTable(n, a as unknown as aws.ec2.RouteTableArgs, o),
+  'aws:ec2:RouteTableAssociation': (n, a, o) =>
+    new aws.ec2.RouteTableAssociation(n, a as unknown as aws.ec2.RouteTableAssociationArgs, o),
+  'aws:ec2:SecurityGroup': (n, a, o) =>
+    new aws.ec2.SecurityGroup(n, a as unknown as aws.ec2.SecurityGroupArgs, o),
+  'aws:vpc:SecurityGroupIngressRule': (n, a, o) =>
+    new aws.vpc.SecurityGroupIngressRule(n, a as unknown as aws.vpc.SecurityGroupIngressRuleArgs, o),
+  'aws:vpc:SecurityGroupEgressRule': (n, a, o) =>
+    new aws.vpc.SecurityGroupEgressRule(n, a as unknown as aws.vpc.SecurityGroupEgressRuleArgs, o),
+  'aws:ecr:Repository': (n, a, o) =>
+    new aws.ecr.Repository(n, a as unknown as aws.ecr.RepositoryArgs, o),
+  'aws:ecr:LifecyclePolicy': (n, a, o) =>
+    new aws.ecr.LifecyclePolicy(n, a as unknown as aws.ecr.LifecyclePolicyArgs, o),
+  'aws:ecs:Cluster': (n, a, o) =>
+    new aws.ecs.Cluster(n, a as unknown as aws.ecs.ClusterArgs, o),
+  'aws:ecs:TaskDefinition': (n, a, o) =>
+    new aws.ecs.TaskDefinition(n, a as unknown as aws.ecs.TaskDefinitionArgs, o),
+  'aws:ecs:Service': (n, a, o) =>
+    new aws.ecs.Service(n, a as unknown as aws.ecs.ServiceArgs, o),
+  'aws:lb:LoadBalancer': (n, a, o) =>
+    new aws.lb.LoadBalancer(n, a as unknown as aws.lb.LoadBalancerArgs, o),
+  'aws:lb:TargetGroup': (n, a, o) =>
+    new aws.lb.TargetGroup(n, a as unknown as aws.lb.TargetGroupArgs, o),
+  'aws:lb:Listener': (n, a, o) =>
+    new aws.lb.Listener(n, a as unknown as aws.lb.ListenerArgs, o),
 };
 
 /**

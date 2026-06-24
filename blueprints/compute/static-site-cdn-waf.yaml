@@ -1,0 +1,97 @@
+# Blueprint BP-008: Static Site + CDN + WAF
+#
+# Architecture:
+#   S3 (private, OAC) → CloudFront (custom domain, ACM cert) → WAF v2
+#
+# Features:
+#   - S3 bucket with versioning, no public access (OAC enforced)
+#   - CloudFront distribution with TLSv1.2_2021
+#   - ACM certificate for custom domain
+#   - WAF v2 with managed rule groups (CommonRuleSet, KnownBadInputs, IpReputationList)
+#   - CloudFront Function for URL rewriting (index.html default)
+
+service: static-site-cdn-waf
+
+components:
+  # S3 bucket — private origin for static assets
+  - id: site-assets
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # ACM certificate for HTTPS
+  - id: site-cert
+    type: platform
+    platform: aws-acm
+    config:
+      domainName: static-site-cdn-waf.example.com
+
+  # WAF v2 Web ACL for attack protection
+  - id: site-waf
+    type: platform
+    platform: aws-wafv2
+    config:
+      scope: CLOUDFRONT
+
+  # CloudFront CDN distribution
+  - id: cdn
+    type: platform
+    platform: aws-cloudfront
+    config:
+      minimumProtocolVersion: TLSv1.2_2021
+      aliases:
+        - static-site-cdn-waf.example.com
+      certificateDomain: static-site-cdn-waf.example.com
+
+  # CloudFront Function for URL rewriting
+  - id: url-rewriter
+    type: platform
+    platform: aws-cloudfront-function
+    config:
+      runtime: cloudfront-js-2.0
+      code: |
+        function handler(event) {
+          var request = event.request;
+          if (request.uri.endsWith('/')) {
+            request.uri += 'index.html';
+          }
+          return request;
+        }
+
+bindings:
+  # CloudFront serves from S3 (OAC)
+  - source: cdn
+    target: site-assets
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: ORIGIN_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: site-assets
+            field: bucket
+
+  # WAF attached to CloudFront
+  - source: site-waf
+    target: cdn
+    type: bindsTo
+    config:
+      resourceType: distribution
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: DISTRIBUTION_ARN
+          valueSource:
+            type: reference
+            nodeRef: cdn
+            field: arn
+
+policyPack: Baseline

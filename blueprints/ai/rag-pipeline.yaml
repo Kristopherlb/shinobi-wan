@@ -1,0 +1,179 @@
+# Blueprint BP-A06: RAG Pipeline
+#
+# Architecture:
+#   S3 (doc store) → Lambda (ingestion) → Bedrock (embeddings)
+#   Lambda (ingestion) → OpenSearch (vector store)
+#   Lambda (query handler) → OpenSearch (vector store)
+#   Lambda (query handler) → DynamoDB (context store)
+#   API Gateway → Lambda (query handler)
+#
+# Features:
+#   - Document ingestion with S3 event-driven Lambda
+#   - Bedrock embeddings generation
+#   - OpenSearch vector store for similarity search
+#   - DynamoDB context/session management
+#   - API Gateway for query endpoint
+
+service: rag-pipeline
+
+components:
+  # API Gateway for query endpoint
+  - id: api
+    type: platform
+    platform: aws-apigateway
+    config: {}
+
+  # Document storage bucket
+  - id: doc-store
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # Ingestion Lambda
+  - id: ingestion
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: ingestion.handler
+      memorySize: 512
+      timeout: 300
+      tracing: true
+
+  # Bedrock for embeddings
+  - id: embeddings
+    type: platform
+    platform: aws-bedrock
+    config:
+      modelId: amazon.titan-embed-text-v1
+      guardrailEnabled: true
+
+  # OpenSearch vector store
+  - id: vector-store
+    type: platform
+    platform: aws-opensearch
+    config:
+      engineVersion: OpenSearch_2.11
+      instanceType: r6g.large.search
+      instanceCount: 2
+      ebsEnabled: true
+      volumeSize: 100
+      encryptionAtRest: true
+      nodeToNodeEncryption: true
+      enforceHTTPS: true
+      publicAccess: false
+
+  # Query handler Lambda
+  - id: query-handler
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: query.handler
+      memorySize: 512
+      timeout: 60
+      tracing: true
+
+  # DynamoDB for conversation context
+  - id: context-store
+    type: platform
+    platform: aws-dynamodb
+    config:
+      hashKey: sessionId
+      rangeKey: timestamp
+
+bindings:
+  # Ingestion reads documents from S3
+  - source: ingestion
+    target: doc-store
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: DOC_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: doc-store
+            field: bucket
+
+  # Ingestion invokes Bedrock for embeddings
+  - source: ingestion
+    target: embeddings
+    type: bindsTo
+    config:
+      resourceType: bedrock
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: EMBEDDING_MODEL
+          valueSource:
+            type: static
+            value: amazon.titan-embed-text-v1
+
+  # Ingestion writes embeddings to OpenSearch
+  - source: ingestion
+    target: vector-store
+    type: bindsTo
+    config:
+      resourceType: domain
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: OPENSEARCH_ENDPOINT
+          valueSource:
+            type: reference
+            nodeRef: vector-store
+            field: endpoint
+
+  # Query handler reads from OpenSearch
+  - source: query-handler
+    target: vector-store
+    type: bindsTo
+    config:
+      resourceType: domain
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: OPENSEARCH_ENDPOINT
+          valueSource:
+            type: reference
+            nodeRef: vector-store
+            field: endpoint
+
+  # Query handler writes context to DynamoDB
+  - source: query-handler
+    target: context-store
+    type: bindsTo
+    config:
+      resourceType: table
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: CONTEXT_TABLE
+          valueSource:
+            type: reference
+            nodeRef: context-store
+            field: name
+
+  # API Gateway triggers query handler
+  - source: api
+    target: query-handler
+    type: triggers
+    config:
+      route: /query
+      method: POST
+
+policyPack: Baseline

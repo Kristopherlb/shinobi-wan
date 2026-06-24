@@ -1,0 +1,101 @@
+# Blueprint BP-A03: SageMaker Endpoint
+#
+# Architecture:
+#   SageMaker Model + EndpointConfig + Endpoint
+#   S3 for model artifacts
+#   Lambda invoker function
+#   VPC + Subnet for network isolation
+#
+# Features:
+#   - Real-time inference endpoint
+#   - Model artifacts from S3
+#   - Lambda function for invocation
+#   - VPC networking for model isolation
+
+service: sagemaker-endpoint
+
+components:
+  # VPC for network isolation
+  - id: app-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  # Model subnet
+  - id: model-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.10.0/24"
+      availabilityZone: us-east-1a
+
+  # S3 for model artifacts
+  - id: model-artifacts
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # SageMaker endpoint
+  - id: model-endpoint
+    type: platform
+    platform: aws-sagemaker-endpoint
+    config:
+      modelImage: "123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest"
+      modelDataUrl: "s3://model-artifacts/model.tar.gz"
+      instanceType: ml.m5.large
+      initialInstanceCount: 1
+      vpcConfig:
+        subnetIds:
+          - "platform:model-subnet"
+        securityGroupIds: []
+
+  # Lambda function for model invocation
+  - id: invoker
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: invoke.handler
+      memorySize: 512
+      timeout: 60
+      tracing: true
+
+bindings:
+  # Invoker calls SageMaker endpoint
+  - source: invoker
+    target: model-endpoint
+    type: bindsTo
+    config:
+      resourceType: endpoint
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: ENDPOINT_NAME
+          valueSource:
+            type: reference
+            nodeRef: model-endpoint
+            field: arn
+
+  # Invoker reads model artifacts
+  - source: invoker
+    target: model-artifacts
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: read
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: MODEL_BUCKET
+          valueSource:
+            type: reference
+            nodeRef: model-artifacts
+            field: bucket
+
+policyPack: Baseline

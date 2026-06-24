@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-dynamodb" → DynamoDB Table resource.
@@ -39,10 +39,7 @@ export class DynamoDbLowerer implements NodeLowerer {
         hashKey: hashKey.name,
         ...(keySchema?.rangeKey ? { rangeKey: keySchema.rangeKey.name } : {}),
         attributes: attributes.map((a) => ({ name: a.name, type: a.type })),
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-dynamodb',
-        },
+        tags: createStandardTags(node.id, 'aws-dynamodb'),
       },
       sourceId: node.id,
       dependsOn: [],

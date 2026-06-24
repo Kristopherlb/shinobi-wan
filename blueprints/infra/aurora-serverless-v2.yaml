@@ -1,0 +1,125 @@
+# Blueprint BP-I09: Aurora Serverless v2
+#
+# Architecture:
+#   VPC + 2 Subnets + Security Group
+#   Aurora Serverless v2 Cluster (encrypted, deletion-protected)
+#   RDS Proxy for connection pooling
+#   SecretsManager for credentials
+#   KMS for encryption
+#
+# Features:
+#   - Aurora PostgreSQL Serverless v2 with auto-scaling
+#   - RDS Proxy for connection management
+#   - SecretsManager secret with rotation
+#   - KMS customer-managed encryption
+#   - Multi-AZ subnet configuration
+
+service: aurora-serverless-v2
+
+components:
+  # VPC for network isolation
+  - id: app-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  # Database subnet AZ-a
+  - id: db-subnet-1
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.10.0/24"
+      availabilityZone: us-east-1a
+
+  # Database subnet AZ-b
+  - id: db-subnet-2
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.11.0/24"
+      availabilityZone: us-east-1b
+
+  # Database security group
+  - id: db-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:app-vpc"
+      description: Aurora Serverless v2 security group
+
+  # KMS encryption key
+  - id: db-key
+    type: platform
+    platform: aws-kms
+    config:
+      enableKeyRotation: true
+
+  # SecretsManager for database credentials
+  - id: db-secret
+    type: platform
+    platform: aws-secretsmanager
+    config:
+      kmsKeyId: "platform:db-key"
+      rotationEnabled: true
+      rotationDays: 30
+
+  # Aurora Serverless v2 cluster
+  - id: db-cluster
+    type: platform
+    platform: aws-rds-cluster
+    config:
+      engine: aurora-postgresql
+      engineVersion: "15.4"
+      masterUsername: admin
+      masterPassword: "platform:db-secret"
+      storageEncrypted: true
+      kmsKeyId: "platform:db-key"
+      deletionProtection: true
+      backupRetentionPeriod: 7
+      publicAccess: false
+      instanceClass: db.serverless
+      serverlessMinCapacity: 0.5
+      serverlessMaxCapacity: 16
+      subnetIds:
+        - "platform:db-subnet-1"
+        - "platform:db-subnet-2"
+      securityGroupIds:
+        - "platform:db-sg"
+
+  # RDS Proxy for connection pooling
+  - id: db-proxy
+    type: platform
+    platform: aws-rds-proxy
+    config:
+      engineFamily: POSTGRESQL
+      clusterRef: "platform:db-cluster"
+      secretArn: "platform:db-secret"
+      requireTls: true
+      idleClientTimeout: 1800
+      subnetIds:
+        - "platform:db-subnet-1"
+        - "platform:db-subnet-2"
+      securityGroupIds:
+        - "platform:db-sg"
+
+bindings:
+  # RDS Proxy connects to RDS Cluster
+  - source: db-proxy
+    target: db-cluster
+    type: bindsTo
+    config:
+      resourceType: rds-cluster
+      accessLevel: write
+
+  # RDS Proxy reads secrets
+  - source: db-proxy
+    target: db-secret
+    type: bindsTo
+    config:
+      resourceType: secret
+      accessLevel: read
+
+policyPack: Baseline

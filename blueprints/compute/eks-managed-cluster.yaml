@@ -1,0 +1,96 @@
+# Blueprint BP-005: EKS Managed Cluster
+#
+# Architecture:
+#   VPC + Subnets + Security Group
+#   EKS Cluster (private endpoint, logging enabled)
+#   EKS Managed Node Group (t3.medium, 2 desired)
+#
+# Features:
+#   - VPC with public subnets across 2 AZs
+#   - Security group for cluster communication
+#   - EKS control plane with private endpoint, audit logging
+#   - Managed node group with auto-scaling (1-4 nodes)
+
+service: eks-managed-cluster
+
+components:
+  # VPC for network isolation
+  - id: app-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  # Subnets across 2 AZs
+  - id: subnet-1a
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: subnet-1b
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:app-vpc"
+      cidrBlock: "10.0.2.0/24"
+      availabilityZone: us-east-1b
+      mapPublicIpOnLaunch: false
+
+  # Security group for cluster communication
+  - id: cluster-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:app-vpc"
+      description: "EKS cluster security group"
+
+  # EKS control plane — private endpoint, logging enabled
+  - id: eks-cluster
+    type: platform
+    platform: aws-eks-cluster
+    config:
+      version: "1.29"
+      subnetIds:
+        - "platform:subnet-1a"
+        - "platform:subnet-1b"
+      securityGroupIds:
+        - "platform:cluster-sg"
+      endpointPrivateAccess: true
+      endpointPublicAccess: false
+      enabledClusterLogTypes:
+        - api
+        - audit
+        - authenticator
+
+  # Managed node group
+  - id: eks-nodes
+    type: platform
+    platform: aws-eks-node-group
+    config:
+      clusterName: "platform:eks-cluster"
+      subnetIds:
+        - "platform:subnet-1a"
+        - "platform:subnet-1b"
+      instanceTypes:
+        - t3.medium
+      scalingConfig:
+        desiredSize: 2
+        minSize: 1
+        maxSize: 4
+      amiType: AL2_x86_64
+      diskSize: 20
+
+bindings:
+  # Node group binds to cluster
+  - source: eks-nodes
+    target: eks-cluster
+    type: bindsTo
+    config:
+      resourceType: cluster
+      accessLevel: read
+
+policyPack: Baseline

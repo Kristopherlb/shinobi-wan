@@ -263,17 +263,13 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-017: Conformance Gate Coverage Report Script
-**Status:** 🟡 Proposed
+**Status:** 🟢 Implemented
 **Source:** 2026-02-11-conformance-golden-tests-implementation
-**Effort:** 30 min
+**Implemented:** 2026-02-28
+**Effort:** 15 min
 **Impact:** Auto-generates which of the 12 gates defined in gates.md are covered by conformance tests
 
-**Action:** Create a script that:
-1. Parses `docs/conformance/gates.md` for gate IDs
-2. Scans conformance test files for gate ID references
-3. Reports covered vs uncovered gates
-4. Currently covered: G-001/2/3, G-004, G-020/21/22/23, G-040/41 (10 of 12)
-5. Missing: G-005, G-042
+**Action:** Created `scripts/audit-gate-coverage.ts`. Parses `docs/conformance/gates.md` for gate IDs, scans conformance test files for references, reports covered vs uncovered gates. Outputs both console report and `gate-coverage-report.json` for CI.
 
 ### IMP-018: Extract `shortName()` to Shared Lowerer Utility
 **Status:** 🟢 Implemented
@@ -347,6 +343,155 @@ _Record actual impact after implementation._
 | IMP-018 | Eliminates 6-way shortName duplication | Eliminated 9 copies → 1. SNS lowerer used shared utility directly. | ✅ |
 | IMP-019 | O(1) platform addition | SNS required 1-line per data map. No if-branch or switch case needed. | ✅ |
 | IMP-020 | E2E determinism for new resources | 14 adapter golden tests verify DynamoDB, S3, API GW, multi-resource plans are byte-stable. | ✅ |
+| IMP-024 | Blueprint FedRAMP compliance auditing | BP-004 validates clean under Baseline (0 errors), expected escalation under FedRAMP-High. | ✅ |
+| IMP-025 | RULE_CATALOG/SEVERITY_MAP drift prevention | Already covered by consistency tests in rules.test.ts (catalog↔severity, all packs identical). | ✅ |
+| IMP-031 | Batch cross-cutting updates faster/safer | Wave A: 7 rules added atomically, consistency tests caught drift immediately. | ✅ |
+| IMP-032 | Dual-platform rule pattern documented | opensearch-public-access + sagemaker-vpc-disabled each span 2 platforms via NODE_RULE_CHECKS. | ✅ |
+| IMP-033 | Zero-edge blueprint support | BP-I01 (10 nodes, 0 edges) compiles and tests cleanly. | ✅ |
+| IMP-034 | Variable-count resource lowerer | GlueCatalog: 1 + N resources from config array. Indexed naming works. | ✅ |
+| IMP-035 | Max-resource lowerer (4 resources) | NetworkFirewall: 4-resource serial chain. Topological sort handles it. | ✅ |
+
+---
+
+### IMP-024: FedRAMP Audit Script
+**Status:** 🟢 Implemented
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 15 min
+**Impact:** Validates every blueprint against all 3 policy packs, reports compliance status and violation details
+
+**Action:** Created `scripts/audit-fedramp.ts`. Runs against individual blueprints or scans `blueprints/*/` automatically. Outputs both console report and `audit-fedramp-report.json`. Exit code 1 if Baseline has errors.
+
+---
+
+### IMP-025: Rule Catalog Completeness Helper
+**Status:** ✅ Validated
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 0 min (already covered)
+**Impact:** Prevents RULE_CATALOG / SEVERITY_MAP drift — ensures every rule has severity entries for all 3 packs
+
+**Action:** Already implemented by consistency tests in `packages/policy/src/__tests__/rules.test.ts` (lines 42-65):
+- Every RULE_CATALOG entry has severity in each pack
+- Every SEVERITY_MAP entry maps to a catalog rule (no orphans)
+- All packs have identical rule sets
+
+---
+
+### IMP-026: Generator Scripts Auto-Modify Source Files
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 2 hours
+**Impact:** Currently `generate-lowerer.ts` and `generate-policy-rule.ts` only print boilerplate that must be manually pasted. AST-based transforms would auto-add to index.ts, registry, ACTION_MAP, PLATFORM_REF_MAP, OUTPUT_MAP.
+
+**Action:** Extend generators with `ts-morph` or simple regex transforms to modify source files directly.
+
+---
+
+### IMP-027: Document Node-Level Policy Check Pattern
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
+**Effort:** 10 min
+**Impact:** Phase 2+ rules (cloudfront-ssl, waf-not-attached, s3-public-access) use same pattern
+
+**Action:** Add to memory: "Node-level checks use `checkComputeNodes()` pattern — iterate `snapshot.nodes`, filter by platform, check properties, emit violation with `target: { type: 'node', id: node.id }`."
+
+---
+
+### IMP-028: Blueprint Golden Test Generator
+**Status:** 🟢 Implemented
+**Source:** 2026-02-28-compute-blueprints-phase2-checkpoint
+**Implemented:** 2026-02-28
+**Effort:** 20 min
+**Impact:** Prevents copy-paste errors when creating golden tests from blueprint manifests. Auto-detects component vs platform-only architectures for correct intent assertions.
+
+**Action:** Created `scripts/generate-golden-test.ts`. Reads a YAML manifest and generates a conformance golden test scaffold with correct node/edge counts, variable names, platform types, and intent expectations. Outputs to stdout.
+
+---
+
+### IMP-029: WAF Attachment via Binder
+**Status:** 🟡 Proposed
+**Source:** 2026-02-28-compute-blueprints-phase2-checkpoint
+**Effort:** 1 hour
+**Impact:** Makes `waf-not-attached` policy rule work with edge-based WAF attachment (currently checks node properties only)
+
+**Action:** Consider a `WafBinder` that processes WAF→CDN bindsTo edges and sets `wafAclArn` on the CDN node metadata, making the property visible to policy rules at compile time. Alternative: modify the policy rule to inspect edges.
+
+---
+
+### IMP-030: TriggersBinder Input Validation for Missing bindingConfig
+**Status:** 🟡 Proposed
+**Source:** 2026-03-01-wave-a-complete
+**Effort:** 15 min
+**Impact:** Prevents cryptic `TypeError: Cannot read properties of undefined` when triggers edges lack bindingConfig
+
+**Action:** Add a guard at the top of `TriggersBinder.compileEdge()`:
+```typescript
+if (!edge.metadata?.bindingConfig?.resourceType) {
+  throw new Error(`Triggers edge ${edge.id} missing metadata.bindingConfig.resourceType`);
+}
+```
+
+---
+
+### IMP-031: Batch Cross-Cutting File Updates Pattern
+**Status:** ✅ Validated
+**Source:** 2026-03-01-wave-a-complete
+**Effort:** 0 min (process observation)
+**Impact:** Updating RULE_CATALOG, SEVERITY_MAP, NODE_RULE_CHECKS, and rules.test.ts atomically for all rules in a wave is faster and safer than per-blueprint updates. Consistency tests catch drift immediately.
+
+**Action:** Document as standard practice: when implementing multiple blueprints, batch all policy rule additions into shared files in a single pass.
+
+---
+
+### IMP-032: Document Dual-Platform Rule Pattern
+**Status:** 🟢 Implemented (documented in PAT-019 + memory)
+**Source:** 2026-03-01-wave-b-complete
+**Effort:** 0 min (process observation)
+**Impact:** When a single policy rule applies to multiple platforms, add multiple NODE_RULE_CHECKS entries with the same ruleId. No RULE_CATALOG or SEVERITY_MAP duplication needed.
+
+---
+
+### IMP-033: Zero-Edge Blueprint Support Confirmed
+**Status:** ✅ Validated
+**Source:** 2026-03-01-wave-b-complete
+**Effort:** 0 min (architectural validation)
+**Impact:** BP-I01 (Account Bootstrap) proved the kernel handles 10-node, 0-edge graphs correctly. Golden tests assert `edges.toHaveLength(0)` and `intents.toHaveLength(0)`. No special casing required.
+
+---
+
+### IMP-034: Variable-Count Resource Lowerer Pattern
+**Status:** ✅ Validated
+**Source:** 2026-03-02-wave-c-complete
+**Effort:** 0 min (pattern observation)
+**Impact:** GlueCatalogLowerer emits 1 + N resources (database + N tables from config array). Uses indexed naming `{name}-table-{i}` with table dependencies on database. Same pattern as ConfigRulesLowerer. No special kernel or adapter handling needed.
+
+---
+
+### IMP-035: Max-Resource Lowerer Pattern (4 resources)
+**Status:** ✅ Validated
+**Source:** 2026-03-02-wave-c-complete
+**Effort:** 0 min (pattern observation)
+**Impact:** NetworkFirewallLowerer emits 4 resources with a serial dependency chain (policy → firewall → log-group + logging-config). Follows ALB pattern cleanly. No architectural limit on resources per lowerer discovered. The adapter's topological sort handles arbitrary dependency chains correctly.
+
+---
+
+### IMP-036: Update Blueprint Catalog After Wave C
+**Status:** 🟢 Implemented
+**Source:** 2026-03-02-wave-c-complete
+**Implemented:** 2026-03-03
+**Effort:** 5 min
+**Impact:** docs/blueprints/catalog.md updated with 5 completed blueprints, lowerer inventory (55), Wave C/D sections, and header totals (22/38 = 58%)
+
+**Action:** Updated catalog.md to mark BP-I11, BP-A16, BP-I10, BP-I03, BP-A02 as **DONE**, updated running totals and lowerer inventory.
+
+---
+
+### IMP-037: Wave D Planning
+**Status:** 🟡 Proposed
+**Source:** 2026-03-02-wave-c-complete
+**Effort:** 1-2 hours
+**Impact:** Wave D targets remaining 16 blueprints. Key decisions needed: multi-stack deployment model (BP-I02), Helm chart integration (BP-A10), CI/CD blueprints (BP-I16, BP-I17).
+
+**Action:** Create Wave D plan. Deferred items from Wave C (BP-I02 Multi-Account, BP-A10 Temporal) need architectural decisions before implementation.
 
 ---
 

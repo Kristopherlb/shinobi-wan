@@ -141,4 +141,227 @@ describe('SqsLowerer', () => {
     expect(tags['shinobi:node']).toBe('platform:work-queue');
     expect(tags['shinobi:platform']).toBe('aws-sqs');
   });
+
+  describe('DLQ support', () => {
+    const dlqNode = makeNode({
+      id: 'platform:work-queue',
+      type: 'platform',
+      metadata: {
+        properties: {
+          platform: 'aws-sqs',
+          visibilityTimeout: 300,
+          deadLetterQueue: true,
+        },
+      },
+    });
+
+    it('emits two resources when deadLetterQueue is true', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      expect(resources).toHaveLength(2);
+    });
+
+    it('creates DLQ resource before main queue', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      expect(resources[0].name).toBe('work-queue-dlq');
+      expect(resources[0].resourceType).toBe('aws:sqs:Queue');
+      expect(resources[1].name).toBe('work-queue-queue');
+    });
+
+    it('DLQ uses -dlq suffix in name', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      expect(resources[0].properties['name']).toBe('my-lambda-sqs-work-queue-dlq');
+    });
+
+    it('DLQ has 14-day default retention', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      expect(resources[0].properties['messageRetentionSeconds']).toBe(1209600);
+    });
+
+    it('DLQ has dead-letter-queue role tag', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      const tags = resources[0].properties['tags'] as Record<string, string>;
+      expect(tags['shinobi:role']).toBe('dead-letter-queue');
+    });
+
+    it('main queue has redrivePolicy pointing to DLQ', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      const mainQueue = resources[1];
+      const policy = JSON.parse(mainQueue.properties['redrivePolicy'] as string);
+      expect(policy.deadLetterTargetArn).toEqual({ ref: 'work-queue-dlq' });
+      expect(policy.maxReceiveCount).toBe(3);
+    });
+
+    it('main queue depends on DLQ', () => {
+      const resources = lowerer.lower(dlqNode, makeContext(), deps);
+      expect(resources[1].dependsOn).toContain('work-queue-dlq');
+    });
+
+    it('uses custom maxReceiveCount from config', () => {
+      const customNode = makeNode({
+        id: 'platform:work-queue',
+        type: 'platform',
+        metadata: {
+          properties: {
+            platform: 'aws-sqs',
+            deadLetterQueue: true,
+            maxReceiveCount: 5,
+          },
+        },
+      });
+      const resources = lowerer.lower(customNode, makeContext(), deps);
+      const policy = JSON.parse(resources[1].properties['redrivePolicy'] as string);
+      expect(policy.maxReceiveCount).toBe(5);
+    });
+  });
+});
+
+describe('LambdaLowerer — tracing + Powertools', () => {
+  const lowerer = new LambdaLowerer();
+  const deps: ResolvedDeps = { envVars: {}, securityGroups: [] };
+
+  it('adds tracingConfig when tracing is true', () => {
+    const node = makeNode({
+      id: 'component:traced-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          tracing: true,
+        },
+      },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    expect(resources[0].properties['tracingConfig']).toEqual({ mode: 'Active' });
+  });
+
+  it('omits tracingConfig when tracing is not set', () => {
+    const node = makeNode({
+      id: 'component:handler',
+      type: 'component',
+      metadata: { properties: { platform: 'aws-lambda' } },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    expect(resources[0].properties['tracingConfig']).toBeUndefined();
+  });
+
+  it('adds Powertools env vars when powertools is true', () => {
+    const node = makeNode({
+      id: 'component:pw-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          powertools: true,
+        },
+      },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const vars = env?.['variables'] as Record<string, unknown>;
+    expect(vars['POWERTOOLS_SERVICE_NAME']).toBe('my-lambda-sqs-pw-handler');
+    expect(vars['POWERTOOLS_LOG_LEVEL']).toBe('INFO');
+  });
+
+  it('uses custom log level for Powertools', () => {
+    const node = makeNode({
+      id: 'component:pw-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          powertools: true,
+          powertoolsLogLevel: 'DEBUG',
+        },
+      },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const vars = env?.['variables'] as Record<string, unknown>;
+    expect(vars['POWERTOOLS_LOG_LEVEL']).toBe('DEBUG');
+  });
+
+  it('merges Powertools env vars with resolved deps env vars', () => {
+    const node = makeNode({
+      id: 'component:pw-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          powertools: true,
+        },
+      },
+    });
+    const depsWithEnv: ResolvedDeps = {
+      envVars: { QUEUE_URL: { ref: 'work-queue-queue.url' } },
+      securityGroups: [],
+    };
+    const resources = lowerer.lower(node, makeContext(), depsWithEnv);
+    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const vars = env?.['variables'] as Record<string, unknown>;
+    expect(vars['QUEUE_URL']).toEqual({ ref: 'work-queue-queue.url' });
+    expect(vars['POWERTOOLS_SERVICE_NAME']).toBeDefined();
+  });
+
+  it('adds layers from config', () => {
+    const layerArns = ['arn:aws:lambda:us-east-1:123:layer:my-layer:1'];
+    const node = makeNode({
+      id: 'component:layered-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          layers: layerArns,
+        },
+      },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    expect(resources[0].properties['layers']).toEqual(layerArns);
+  });
+
+  it('omits layers when not configured', () => {
+    const node = makeNode({
+      id: 'component:handler',
+      type: 'component',
+      metadata: { properties: { platform: 'aws-lambda' } },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    expect(resources[0].properties['layers']).toBeUndefined();
+  });
+
+  it('tracing + Powertools output is deterministic', () => {
+    const node = makeNode({
+      id: 'component:full-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          tracing: true,
+          powertools: true,
+        },
+      },
+    });
+    const r1 = lowerer.lower(node, makeContext(), deps);
+    const r2 = lowerer.lower(node, makeContext(), deps);
+    expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
+  });
+
+  it('combines tracing and powertools and layers', () => {
+    const node = makeNode({
+      id: 'component:full-handler',
+      type: 'component',
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          tracing: true,
+          powertools: true,
+          layers: ['arn:aws:lambda:us-east-1:123:layer:powertools:5'],
+        },
+      },
+    });
+    const resources = lowerer.lower(node, makeContext(), deps);
+    expect(resources[0].properties['tracingConfig']).toEqual({ mode: 'Active' });
+    expect(resources[0].properties['layers']).toHaveLength(1);
+    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    expect(env?.['variables']).toBeDefined();
+  });
 });

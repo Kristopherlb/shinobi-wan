@@ -1,6 +1,6 @@
 import type { Node } from '@shinobi/ir';
 import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName } from './utils';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-apigateway" → API Gateway HTTP API + Stage.
@@ -23,10 +23,7 @@ export class ApiGatewayLowerer implements NodeLowerer {
       properties: {
         name: `${context.adapterConfig.serviceName}-${name}`,
         protocolType: 'HTTP',
-        tags: {
-          'shinobi:node': node.id,
-          'shinobi:platform': 'aws-apigateway',
-        },
+        tags: createStandardTags(node.id, 'aws-apigateway'),
       },
       sourceId: node.id,
       dependsOn: [],
@@ -40,9 +37,7 @@ export class ApiGatewayLowerer implements NodeLowerer {
         apiId: { ref: apiName },
         name: '$default',
         autoDeploy: true,
-        tags: {
-          'shinobi:node': node.id,
-        },
+        tags: createStandardTags(node.id, 'aws-apigateway'),
       },
       sourceId: node.id,
       dependsOn: [apiName],

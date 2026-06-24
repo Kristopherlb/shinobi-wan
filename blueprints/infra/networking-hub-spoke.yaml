@@ -1,0 +1,123 @@
+# Blueprint BP-I03: Networking Hub-Spoke
+# Architecture: Hub VPC (public+private subnets) + 2 Spoke VPCs + Transit Gateway + 3 TGW Attachments + Network Firewall + NAT Gateway
+# Platform-only, zero edges — connectivity via config refs
+
+name: networking-hub-spoke
+description: Hub-spoke network topology with transit gateway, network firewall, and NAT gateway
+
+nodes:
+  - id: hub-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.0.0.0/16"
+
+  - id: hub-public-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:hub-vpc"
+      cidrBlock: "10.0.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: true
+
+  - id: hub-private-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:hub-vpc"
+      cidrBlock: "10.0.2.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: hub-sg
+    type: platform
+    platform: aws-security-group
+    config:
+      vpcId: "platform:hub-vpc"
+      description: Hub VPC security group
+
+  - id: spoke-a-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.1.0.0/16"
+
+  - id: spoke-a-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:spoke-a-vpc"
+      cidrBlock: "10.1.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: spoke-b-vpc
+    type: platform
+    platform: aws-vpc
+    config:
+      cidrBlock: "10.2.0.0/16"
+
+  - id: spoke-b-subnet
+    type: platform
+    platform: aws-subnet
+    config:
+      vpcId: "platform:spoke-b-vpc"
+      cidrBlock: "10.2.1.0/24"
+      availabilityZone: us-east-1a
+      mapPublicIpOnLaunch: false
+
+  - id: transit-gw
+    type: platform
+    platform: aws-transit-gateway
+    config:
+      autoAcceptSharedAttachments: disable
+      defaultRouteTableAssociation: enable
+      defaultRouteTablePropagation: enable
+      dnsSupport: enable
+
+  - id: hub-tgw-attach
+    type: platform
+    platform: aws-tgw-vpc-attachment
+    config:
+      transitGatewayRef: "platform:transit-gw"
+      vpcRef: "platform:hub-vpc"
+      subnetIds:
+        - "platform:hub-private-subnet"
+
+  - id: spoke-a-tgw-attach
+    type: platform
+    platform: aws-tgw-vpc-attachment
+    config:
+      transitGatewayRef: "platform:transit-gw"
+      vpcRef: "platform:spoke-a-vpc"
+      subnetIds:
+        - "platform:spoke-a-subnet"
+
+  - id: spoke-b-tgw-attach
+    type: platform
+    platform: aws-tgw-vpc-attachment
+    config:
+      transitGatewayRef: "platform:transit-gw"
+      vpcRef: "platform:spoke-b-vpc"
+      subnetIds:
+        - "platform:spoke-b-subnet"
+
+  - id: network-fw
+    type: platform
+    platform: aws-network-firewall
+    config:
+      vpcRef: "platform:hub-vpc"
+      subnetMappings:
+        - "platform:hub-private-subnet"
+      loggingEnabled: true
+      deleteProtection: true
+
+  - id: nat-gw
+    type: platform
+    platform: aws-nat-gateway
+    config:
+      subnetRef: "platform:hub-public-subnet"
+      connectivityType: public
+
+edges: []

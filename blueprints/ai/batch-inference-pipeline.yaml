@@ -1,0 +1,98 @@
+# Blueprint BP-A05: Batch Inference Pipeline
+#
+# Architecture:
+#   S3 input → SageMaker Batch Transform → S3 output
+#   Orchestrated by Step Functions, triggered by Lambda
+#
+# Features:
+#   - SageMaker Model for batch transform jobs
+#   - Step Functions state machine for orchestration
+#   - S3 buckets for input data and output results
+#   - Lambda trigger for pipeline execution
+#   - VPC isolation for SageMaker model
+
+service: batch-inference-pipeline
+
+components:
+  # S3 for input data
+  - id: input-data
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # S3 for output results
+  - id: output-results
+    type: platform
+    platform: aws-s3
+    config:
+      versioning: true
+
+  # SageMaker model definition
+  - id: inference-model
+    type: platform
+    platform: aws-sagemaker-batch-transform
+    config:
+      modelImage: "123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest"
+      modelDataUrl: "s3://models/model.tar.gz"
+      vpcConfig:
+        subnetIds:
+          - subnet-1
+          - subnet-2
+        securityGroupIds:
+          - sg-1
+
+  # Step Functions for orchestration
+  - id: pipeline-workflow
+    type: platform
+    platform: aws-stepfunctions
+    config:
+      logging: true
+      type: STANDARD
+
+  # Lambda trigger for pipeline execution
+  - id: pipeline-trigger
+    type: component
+    platform: aws-lambda
+    config:
+      runtime: nodejs20.x
+      handler: trigger.handler
+      memorySize: 256
+      timeout: 60
+      tracing: true
+
+bindings:
+  # Lambda triggers Step Functions
+  - source: pipeline-trigger
+    target: pipeline-workflow
+    type: bindsTo
+    config:
+      resourceType: statemachine
+      accessLevel: write
+      network:
+        port: 443
+        protocol: tcp
+      configKeys:
+        - key: STATE_MACHINE_ARN
+          valueSource:
+            type: reference
+            nodeRef: pipeline-workflow
+            field: arn
+
+  # SageMaker reads input from S3
+  - source: inference-model
+    target: input-data
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: read
+
+  # SageMaker writes output to S3
+  - source: inference-model
+    target: output-results
+    type: bindsTo
+    config:
+      resourceType: bucket
+      accessLevel: write
+
+policyPack: Baseline
