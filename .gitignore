@@ -4,6 +4,11 @@
 # nx
 /.nx
 /tmp
+# nx daemon downloads nx@latest into workspace-root temp dirs (nx-console status check)
+/tmp-*/
+/node-compile-cache/
+/nx-native-file-cache-*/
+/plugin*.sock
 
 # build output
 **/dist
