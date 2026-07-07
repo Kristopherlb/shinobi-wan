@@ -26,7 +26,14 @@ checkout before any floor is enforced.
 
 Usage:
   probe_core.py --eval-dir DIR --checkout DIR [--per-op 10] [--full]
+                [--run-sandboxed PATH]
 Output: one JSON line {"operators": {"<op>": <0..1>, ...}}
+
+--run-sandboxed: hub-side only. Path to ops/run-sandboxed.sh; mutant
+execution (agent code) then runs inside the docker jail (--network=none,
+checkout ro at /work, workdir rw at /out) instead of directly on the hub
+host — same runtime answer-exfiltration fence as score-holdout.sh. The
+dev-side probe (agent's own machine, no answers present) runs directly.
 """
 import argparse
 import glob
@@ -134,6 +141,7 @@ def main():
     ap.add_argument("--checkout", required=True)
     ap.add_argument("--per-op", type=int, default=10)
     ap.add_argument("--full", action="store_true")
+    ap.add_argument("--run-sandboxed")
     args = ap.parse_args()
     checkout = os.path.abspath(args.checkout)
 
@@ -168,11 +176,21 @@ def main():
                 f.write(text)
             with open(os.path.join(inputs, mid + ".argv"), "w") as f:
                 f.write("\n".join(argv) + "\n")
-        subprocess.run(
-            ["bash", os.path.join(HERE, "stage1-run.sh"), checkout,
-             inputs, results],
-            capture_output=True, timeout=int(os.environ.get(
-                "PROBE_TIMEOUT", "1200")))
+        timeout = int(os.environ.get("PROBE_TIMEOUT", "1200"))
+        if args.run_sandboxed:
+            import shutil
+            shutil.copy(os.path.join(HERE, "stage1-run.sh"),
+                        os.path.join(work, "stage1-run.sh"))
+            subprocess.run(
+                ["bash", args.run_sandboxed, checkout, work, str(timeout),
+                 "bash", "/out/stage1-run.sh", "/work", "/out/inputs",
+                 "/out/results"],
+                capture_output=True, timeout=timeout + 120)
+        else:
+            subprocess.run(
+                ["bash", os.path.join(HERE, "stage1-run.sh"), checkout,
+                 inputs, results],
+                capture_output=True, timeout=timeout)
 
         scores, detail = {}, {}
         for op_name, mid, _, _, predicted, check in mutants:

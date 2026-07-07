@@ -103,8 +103,11 @@ def main():
         by_class[cls][1] += 1
 
     point, lo, hi = bootstrap_ci(outcomes, args.bootstrap, args.seed)
-    out = {"score": round(point, 4), "ci_low": round(lo, 4),
-           "ci_high": round(hi, 4), "n": len(outcomes)}
+    # 3-decimal reporting is a leak fence, not cosmetics: the CI bounds are
+    # a deterministic function of the outcome vector, and coarser rounding
+    # caps the bits a holdout response can carry (independent-audit rec).
+    out = {"score": round(point, 3), "ci_low": round(lo, 3),
+           "ci_high": round(hi, 3), "n": len(outcomes)}
     if args.full:
         out["by_class"] = {c: {"pass": v[0], "n": v[1],
                                "rate": round(v[0] / v[1], 3) if v[1] else None}
