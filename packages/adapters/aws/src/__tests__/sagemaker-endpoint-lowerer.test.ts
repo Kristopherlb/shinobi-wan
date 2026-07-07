@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { SageMakerEndpointLowerer } from '../lowerers/sagemaker-endpoint-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('SageMakerEndpointLowerer', () => {
@@ -22,7 +24,9 @@ describe('SageMakerEndpointLowerer', () => {
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(3);
     expect(resources[0].resourceType).toBe('aws:sagemaker:Model');
-    expect(resources[1].resourceType).toBe('aws:sagemaker:EndpointConfiguration');
+    expect(resources[1].resourceType).toBe(
+      'aws:sagemaker:EndpointConfiguration',
+    );
     expect(resources[2].resourceType).toBe('aws:sagemaker:Endpoint');
   });
 
@@ -60,7 +64,10 @@ describe('SageMakerEndpointLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const variants = resources[1].properties['productionVariants'] as Record<string, unknown>[];
+    const variants = resources[1].properties['productionVariants'] as Record<
+      string,
+      unknown
+    >[];
     expect(variants[0]['instanceType']).toBe('ml.m5.large');
     expect(variants[0]['initialInstanceCount']).toBe(1);
     expect(variants[0]['variantName']).toBe('AllTraffic');
@@ -85,8 +92,12 @@ describe('SageMakerEndpointLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[2].dependsOn).toContain('model-endpoint-sm-endpoint-config');
-    expect(resources[2].properties['endpointConfigName']).toEqual({ ref: 'model-endpoint-sm-endpoint-config' });
+    expect(resources[2].dependsOn).toContain(
+      'model-endpoint-sm-endpoint-config',
+    );
+    expect(resources[2].properties['endpointConfigName']).toEqual({
+      ref: 'model-endpoint-sm-endpoint-config',
+    });
   });
 
   it('passes model image and data URL', () => {
@@ -96,15 +107,21 @@ describe('SageMakerEndpointLowerer', () => {
       metadata: {
         properties: {
           platform: 'aws-sagemaker-endpoint',
-          modelImage: '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest',
+          modelImage:
+            '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest',
           modelDataUrl: 's3://my-bucket/model.tar.gz',
         },
       },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const container = resources[0].properties['primaryContainer'] as Record<string, unknown>;
-    expect(container['image']).toBe('123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest');
+    const container = resources[0].properties['primaryContainer'] as Record<
+      string,
+      unknown
+    >;
+    expect(container['image']).toBe(
+      '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest',
+    );
     expect(container['modelDataUrl']).toBe('s3://my-bucket/model.tar.gz');
   });
 
@@ -154,7 +171,12 @@ describe('SageMakerEndpointLowerer', () => {
     const node = makeNode({
       id: 'platform:model-endpoint',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-sagemaker-endpoint', tags: { env: 'prod' } } },
+      metadata: {
+        properties: {
+          platform: 'aws-sagemaker-endpoint',
+          tags: { env: 'prod' },
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

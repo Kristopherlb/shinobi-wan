@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -8,12 +13,20 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class EcsTaskDefinitionLowerer implements NodeLowerer {
   readonly platform = 'aws-ecs-task-definition';
 
-  lower(node: Node, context: LoweringContext, resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const serviceName = context.adapterConfig.serviceName;
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
-    const tags = createStandardTags(node.id, 'aws-ecs-task-definition', extraTags);
+    const tags = createStandardTags(
+      node.id,
+      'aws-ecs-task-definition',
+      extraTags,
+    );
 
     const resources: LoweredResource[] = [];
 
@@ -31,7 +44,9 @@ export class EcsTaskDefinitionLowerer implements NodeLowerer {
     });
 
     // Container definitions — pass through from config
-    const containerDefinitions = config['containerDefinitions'] as Array<Record<string, unknown>>;
+    const containerDefinitions = config['containerDefinitions'] as Array<
+      Record<string, unknown>
+    >;
 
     // Task definition properties
     const taskDefProps: Record<string, unknown> = {

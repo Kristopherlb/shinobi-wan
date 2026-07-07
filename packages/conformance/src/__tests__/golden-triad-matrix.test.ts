@@ -32,7 +32,10 @@ function createEvaluatorList(): ReadonlyArray<IPolicyEvaluator> {
 //   iam-missing-conditions, network-broad-protocol
 
 function adminWildcardSetup(): ReadonlyArray<GraphMutation> {
-  const source = createTestNode({ id: 'component:admin-svc', type: 'component' });
+  const source = createTestNode({
+    id: 'component:admin-svc',
+    type: 'component',
+  });
   const target = createTestNode({ id: 'platform:aws-sqs', type: 'platform' });
   const edge = createTestEdge({
     id: 'edge:bindsTo:component:admin-svc:platform:aws-sqs',
@@ -60,7 +63,10 @@ function adminWildcardSetup(): ReadonlyArray<GraphMutation> {
 // Triggers only iam-missing-conditions (cross-service, no conditions)
 
 function cleanReadSetup(): ReadonlyArray<GraphMutation> {
-  const source = createTestNode({ id: 'component:clean-svc', type: 'component' });
+  const source = createTestNode({
+    id: 'component:clean-svc',
+    type: 'component',
+  });
   const target = createTestNode({ id: 'platform:clean-db', type: 'platform' });
   const edge = createTestEdge({
     id: 'edge:bindsTo:component:clean-svc:platform:clean-db',
@@ -89,7 +95,8 @@ const PACKS = ['Baseline', 'FedRAMP-Moderate', 'FedRAMP-High'] as const;
 
 const CASE_SCHEMA: GoldenCase = {
   id: 'golden:triad:matrix',
-  description: 'Policy violations and compliance blocks are stable across scenario × pack matrix',
+  description:
+    'Policy violations and compliance blocks are stable across scenario × pack matrix',
   gates: ['G-040', 'G-041'],
 };
 
@@ -174,8 +181,14 @@ const CLEAN_READ_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
 // Does NOT trigger: iam-admin-access-review (read, not admin), network-broad-protocol (tcp, not any)
 
 function wildcardResourceSetup(): ReadonlyArray<GraphMutation> {
-  const source = createTestNode({ id: 'component:wildcard-svc', type: 'component' });
-  const target = createTestNode({ id: 'platform:wildcard-db', type: 'platform' });
+  const source = createTestNode({
+    id: 'component:wildcard-svc',
+    type: 'component',
+  });
+  const target = createTestNode({
+    id: 'platform:wildcard-db',
+    type: 'platform',
+  });
   const edge = createTestEdge({
     id: 'edge:bindsTo:component:wildcard-svc:platform:wildcard-db',
     type: 'bindsTo',
@@ -201,10 +214,7 @@ function wildcardResourceSetup(): ReadonlyArray<GraphMutation> {
 const WILDCARD_RESOURCE_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
   {
     cell: { scenario: 'wildcard-resource', policyPack: 'Baseline' },
-    expectedRuleIds: [
-      'iam-missing-conditions',
-      'iam-no-wildcard-resource',
-    ],
+    expectedRuleIds: ['iam-missing-conditions', 'iam-no-wildcard-resource'],
     expectedCompliant: true, // Baseline: warning + info, no errors
     expectedSeverities: {
       'iam-no-wildcard-resource': 'warning',
@@ -213,10 +223,7 @@ const WILDCARD_RESOURCE_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
   },
   {
     cell: { scenario: 'wildcard-resource', policyPack: 'FedRAMP-Moderate' },
-    expectedRuleIds: [
-      'iam-missing-conditions',
-      'iam-no-wildcard-resource',
-    ],
+    expectedRuleIds: ['iam-missing-conditions', 'iam-no-wildcard-resource'],
     expectedCompliant: false, // FedRAMP-Moderate: iam-no-wildcard-resource is error
     expectedSeverities: {
       'iam-no-wildcard-resource': 'error',
@@ -225,10 +232,7 @@ const WILDCARD_RESOURCE_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
   },
   {
     cell: { scenario: 'wildcard-resource', policyPack: 'FedRAMP-High' },
-    expectedRuleIds: [
-      'iam-missing-conditions',
-      'iam-no-wildcard-resource',
-    ],
+    expectedRuleIds: ['iam-missing-conditions', 'iam-no-wildcard-resource'],
     expectedCompliant: false, // FedRAMP-High: both errors
     expectedSeverities: {
       'iam-no-wildcard-resource': 'error',
@@ -237,7 +241,11 @@ const WILDCARD_RESOURCE_EXPECTATIONS: ReadonlyArray<CellExpectation> = [
   },
 ];
 
-const ALL_EXPECTATIONS = [...ADMIN_WILDCARD_EXPECTATIONS, ...CLEAN_READ_EXPECTATIONS, ...WILDCARD_RESOURCE_EXPECTATIONS];
+const ALL_EXPECTATIONS = [
+  ...ADMIN_WILDCARD_EXPECTATIONS,
+  ...CLEAN_READ_EXPECTATIONS,
+  ...WILDCARD_RESOURCE_EXPECTATIONS,
+];
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
@@ -332,7 +340,7 @@ describe(`Golden: Triad Matrix (G-040, G-041)`, () => {
         expect(r1.serialized).toBe(r2.serialized);
         expect(r1.serialized).toMatchSnapshot();
       });
-    }
+    },
   );
 
   describe('cross-cell: severity escalation (KL-008)', () => {
@@ -343,18 +351,23 @@ describe(`Golden: Triad Matrix (G-040, G-041)`, () => {
           config: { policyPack: pack },
           binders: createBinderList(),
           evaluators: createEvaluatorList(),
-        })
+        }),
       );
 
       // Same rule IDs across all packs
       const ruleIdSets = results.map((r) =>
-        (r.compilation.policy?.violations ?? []).map((v) => v.ruleId).sort().join(',')
+        (r.compilation.policy?.violations ?? [])
+          .map((v) => v.ruleId)
+          .sort()
+          .join(','),
       );
       expect(new Set(ruleIdSets).size).toBe(1);
 
       // Severity escalates: Baseline has no errors, FedRAMP-High has all errors
-      const baselineSeverities = results[0].compilation.policy?.violations.map((v) => v.severity) ?? [];
-      const highSeverities = results[2].compilation.policy?.violations.map((v) => v.severity) ?? [];
+      const baselineSeverities =
+        results[0].compilation.policy?.violations.map((v) => v.severity) ?? [];
+      const highSeverities =
+        results[2].compilation.policy?.violations.map((v) => v.severity) ?? [];
 
       expect(baselineSeverities).not.toContain('error');
       expect(highSeverities.every((s) => s === 'error')).toBe(true);
@@ -367,7 +380,7 @@ describe(`Golden: Triad Matrix (G-040, G-041)`, () => {
           config: { policyPack: pack },
           binders: createBinderList(),
           evaluators: createEvaluatorList(),
-        })
+        }),
       );
 
       // Each pack should have exactly 2 violations
@@ -377,7 +390,10 @@ describe(`Golden: Triad Matrix (G-040, G-041)`, () => {
 
       // iam-no-wildcard-resource severity: warning → error → error
       const wildcardSeverities = results.map(
-        (r) => r.compilation.policy?.violations.find((v) => v.ruleId === 'iam-no-wildcard-resource')?.severity
+        (r) =>
+          r.compilation.policy?.violations.find(
+            (v) => v.ruleId === 'iam-no-wildcard-resource',
+          )?.severity,
       );
       expect(wildcardSeverities).toEqual(['warning', 'error', 'error']);
     });
@@ -389,18 +405,20 @@ describe(`Golden: Triad Matrix (G-040, G-041)`, () => {
           config: { policyPack: pack },
           binders: createBinderList(),
           evaluators: createEvaluatorList(),
-        })
+        }),
       );
 
       // Each pack should have exactly 1 violation
       for (const r of results) {
         expect(r.compilation.policy?.violations).toHaveLength(1);
-        expect(r.compilation.policy?.violations[0].ruleId).toBe('iam-missing-conditions');
+        expect(r.compilation.policy?.violations[0].ruleId).toBe(
+          'iam-missing-conditions',
+        );
       }
 
       // Severity escalation: info → warning → error
       const severities = results.map(
-        (r) => r.compilation.policy?.violations[0].severity
+        (r) => r.compilation.policy?.violations[0].severity,
       );
       expect(severities).toEqual(['info', 'warning', 'error']);
     });

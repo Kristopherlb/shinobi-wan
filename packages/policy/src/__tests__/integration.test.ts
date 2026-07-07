@@ -109,13 +109,13 @@ describe('Kernel + Binder + Policy integration', () => {
     // But it should still have some violations (missing conditions on cross-service)
     // The key check: no wildcard, no admin, no 'any' protocol
     const wildcardV = result.policy?.violations.find(
-      (v) => v.ruleId === 'iam-no-wildcard-resource'
+      (v) => v.ruleId === 'iam-no-wildcard-resource',
     );
     const adminV = result.policy?.violations.find(
-      (v) => v.ruleId === 'iam-admin-access-review'
+      (v) => v.ruleId === 'iam-admin-access-review',
     );
     const networkV = result.policy?.violations.find(
-      (v) => v.ruleId === 'network-broad-protocol'
+      (v) => v.ruleId === 'network-broad-protocol',
     );
     expect(wildcardV).toBeUndefined();
     expect(adminV).toBeUndefined();
@@ -148,13 +148,18 @@ describe('Kernel + Binder + Policy integration', () => {
     const result = kernel.compile();
     const violations = result.policy?.violations ?? [];
 
-    const severityOrder: Record<string, number> = { error: 0, warning: 1, info: 2 };
+    const severityOrder: Record<string, number> = {
+      error: 0,
+      warning: 1,
+      info: 2,
+    };
     for (let i = 1; i < violations.length; i++) {
       const prev = violations[i - 1];
       const curr = violations[i];
 
       const sevCmp =
-        (severityOrder[prev.severity] ?? 3) - (severityOrder[curr.severity] ?? 3);
+        (severityOrder[prev.severity] ?? 3) -
+        (severityOrder[curr.severity] ?? 3);
       if (sevCmp !== 0) {
         expect(sevCmp).toBeLessThan(0);
         continue;
@@ -164,7 +169,9 @@ describe('Kernel + Binder + Policy integration', () => {
         expect(ruleCmp).toBeLessThan(0);
         continue;
       }
-      expect(prev.target.id.localeCompare(curr.target.id)).toBeLessThanOrEqual(0);
+      expect(prev.target.id.localeCompare(curr.target.id)).toBeLessThanOrEqual(
+        0,
+      );
     }
   });
 

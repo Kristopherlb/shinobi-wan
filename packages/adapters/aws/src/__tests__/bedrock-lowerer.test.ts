@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { BedrockLowerer } from '../lowerers/bedrock-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('BedrockLowerer', () => {
@@ -16,7 +18,9 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', guardrailEnabled: true } },
+      metadata: {
+        properties: { platform: 'aws-bedrock', guardrailEnabled: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -29,7 +33,13 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', guardrailEnabled: true, invocationLogging: true } },
+      metadata: {
+        properties: {
+          platform: 'aws-bedrock',
+          guardrailEnabled: true,
+          invocationLogging: true,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -42,11 +52,15 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', invocationLogging: true } },
+      metadata: {
+        properties: { platform: 'aws-bedrock', invocationLogging: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const logGroup = resources.find((r) => r.resourceType === 'aws:cloudwatch:LogGroup');
+    const logGroup = resources.find(
+      (r) => r.resourceType === 'aws:cloudwatch:LogGroup',
+    );
     expect(logGroup?.properties['name']).toBe('/aws/bedrock/my-service-llm');
   });
 
@@ -54,11 +68,15 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', invocationLogging: true } },
+      metadata: {
+        properties: { platform: 'aws-bedrock', invocationLogging: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const logGroup = resources.find((r) => r.resourceType === 'aws:cloudwatch:LogGroup');
+    const logGroup = resources.find(
+      (r) => r.resourceType === 'aws:cloudwatch:LogGroup',
+    );
     expect(logGroup?.properties['retentionInDays']).toBe(30);
   });
 
@@ -66,11 +84,19 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', invocationLogging: true, logRetentionDays: 90 } },
+      metadata: {
+        properties: {
+          platform: 'aws-bedrock',
+          invocationLogging: true,
+          logRetentionDays: 90,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const logGroup = resources.find((r) => r.resourceType === 'aws:cloudwatch:LogGroup');
+    const logGroup = resources.find(
+      (r) => r.resourceType === 'aws:cloudwatch:LogGroup',
+    );
     expect(logGroup?.properties['retentionInDays']).toBe(90);
   });
 
@@ -91,7 +117,9 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', guardrailEnabled: true } },
+      metadata: {
+        properties: { platform: 'aws-bedrock', guardrailEnabled: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -104,7 +132,9 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', guardrailEnabled: true } },
+      metadata: {
+        properties: { platform: 'aws-bedrock', guardrailEnabled: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -117,7 +147,13 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', guardrailEnabled: true, invocationLogging: true } },
+      metadata: {
+        properties: {
+          platform: 'aws-bedrock',
+          guardrailEnabled: true,
+          invocationLogging: true,
+        },
+      },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -129,7 +165,13 @@ describe('BedrockLowerer', () => {
     const node = makeNode({
       id: 'platform:llm',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-bedrock', guardrailEnabled: true, tags: { team: 'ml' } } },
+      metadata: {
+        properties: {
+          platform: 'aws-bedrock',
+          guardrailEnabled: true,
+          tags: { team: 'ml' },
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

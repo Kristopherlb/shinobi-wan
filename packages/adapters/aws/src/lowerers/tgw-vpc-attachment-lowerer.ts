@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,11 +14,19 @@ import { shortName, createStandardTags } from './utils';
 export class TgwVpcAttachmentLowerer implements NodeLowerer {
   readonly platform = 'aws-tgw-vpc-attachment';
 
-  lower(node: Node, _context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    _context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
-    const tags = createStandardTags(node.id, 'aws-tgw-vpc-attachment', extraTags);
+    const tags = createStandardTags(
+      node.id,
+      'aws-tgw-vpc-attachment',
+      extraTags,
+    );
 
     const attachmentName = `${name}-tgw-attachment`;
 
@@ -24,7 +37,9 @@ export class TgwVpcAttachmentLowerer implements NodeLowerer {
 
     // Build subnet refs
     const subnetIds = Array.isArray(config['subnetIds'])
-      ? (config['subnetIds'] as string[]).map((s) => ({ ref: `${shortName(s)}-subnet` }))
+      ? (config['subnetIds'] as string[]).map((s) => ({
+          ref: `${shortName(s)}-subnet`,
+        }))
       : [];
 
     const properties: Record<string, unknown> = {
@@ -35,7 +50,9 @@ export class TgwVpcAttachmentLowerer implements NodeLowerer {
     };
 
     if (transitGatewayRef) {
-      properties.transitGatewayId = { ref: `${shortName(transitGatewayRef)}-tgw` };
+      properties.transitGatewayId = {
+        ref: `${shortName(transitGatewayRef)}-tgw`,
+      };
     }
     if (vpcRef) {
       properties.vpcId = { ref: `${shortName(vpcRef)}-vpc` };

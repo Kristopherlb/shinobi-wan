@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -42,13 +46,25 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const mlSg = createTestNode({
     id: 'platform:ml-sg',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-security-group', vpcId: 'platform:ml-vpc', description: 'ML SG' } },
+    metadata: {
+      properties: {
+        platform: 'aws-security-group',
+        vpcId: 'platform:ml-vpc',
+        description: 'ML SG',
+      },
+    },
   });
 
   const encryptionKey = createTestNode({
     id: 'platform:encryption-key',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-kms', description: 'ML key', enableKeyRotation: true } },
+    metadata: {
+      properties: {
+        platform: 'aws-kms',
+        description: 'ML key',
+        enableKeyRotation: true,
+      },
+    },
   });
 
   const trainingData = createTestNode({
@@ -97,7 +113,9 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
     type: 'bindsTo',
     source: trainingPipeline.id,
     target: trainingData.id,
-    metadata: { bindingConfig: { resourceType: 'bucket', accessLevel: 'read' } },
+    metadata: {
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'read' },
+    },
   });
 
   const pipelineWritesArtifacts = createTestEdge({
@@ -105,7 +123,9 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
     type: 'bindsTo',
     source: trainingPipeline.id,
     target: modelArtifacts.id,
-    metadata: { bindingConfig: { resourceType: 'bucket', accessLevel: 'write' } },
+    metadata: {
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'write' },
+    },
   });
 
   return [

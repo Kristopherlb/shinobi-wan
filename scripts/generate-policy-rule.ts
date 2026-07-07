@@ -54,18 +54,30 @@ console.log(`    '${ruleId}': '${high}',`);
 console.log('');
 console.log('=== Add to baseline-policy-evaluator.ts ===');
 console.log(`// At module level:`);
-console.log(`const RULE_${ruleId.toUpperCase().replace(/-/g, '_')} = getRuleById('${ruleId}');`);
+console.log(
+  `const RULE_${ruleId.toUpperCase().replace(/-/g, '_')} = getRuleById('${ruleId}');`,
+);
 console.log('');
 console.log(`// In evaluate() or a new check method:`);
-console.log(`if (/* condition */ && RULE_${ruleId.toUpperCase().replace(/-/g, '_')}) {`);
+console.log(
+  `if (/* condition */ && RULE_${ruleId.toUpperCase().replace(/-/g, '_')}) {`,
+);
 console.log(`  violations.push(`);
 console.log(`    createViolation({`);
-console.log(`      ruleId: RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.ruleId,`);
-console.log(`      ruleName: RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.ruleName,`);
-console.log(`      severity: getSeverity(policyPack, RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.ruleId),`);
+console.log(
+  `      ruleId: RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.ruleId,`,
+);
+console.log(
+  `      ruleName: RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.ruleName,`,
+);
+console.log(
+  `      severity: getSeverity(policyPack, RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.ruleId),`,
+);
 console.log(`      target: { type: 'edge', id: targetId },`);
 console.log(`      message: 'TODO: violation message',`);
-console.log(`      remediation: RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.remediation,`);
+console.log(
+  `      remediation: RULE_${ruleId.toUpperCase().replace(/-/g, '_')}.remediation,`,
+);
 console.log(`      policyPack,`);
 console.log(`    })`);
 console.log(`  );`);

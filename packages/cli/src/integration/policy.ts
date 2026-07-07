@@ -39,6 +39,8 @@ const POLICIES: Record<OperationClass, OperationPolicy> = {
   },
 };
 
-export function getOperationPolicy(operationClass: OperationClass): OperationPolicy {
+export function getOperationPolicy(
+  operationClass: OperationClass,
+): OperationPolicy {
   return POLICIES[operationClass];
 }

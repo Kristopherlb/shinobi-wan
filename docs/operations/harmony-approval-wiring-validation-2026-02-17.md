@@ -33,11 +33,11 @@ Apply requests in restricted mode must include:
 
 ## Result
 
-| Check | Expected | Observed | Status |
-|---|---|---|---|
-| missing approval evidence | `APPROVAL_REQUIRED` authorization envelope | observed | pass |
-| approval evidence present | async apply accepted with handle | observed | pass |
-| SLA threshold validation | threshold enforced by validator | observed | pass |
+| Check                     | Expected                                   | Observed | Status |
+| ------------------------- | ------------------------------------------ | -------- | ------ |
+| missing approval evidence | `APPROVAL_REQUIRED` authorization envelope | observed | pass   |
+| approval evidence present | async apply accepted with handle           | observed | pass   |
+| SLA threshold validation  | threshold enforced by validator            | observed | pass   |
 
 ## Owner Notes
 

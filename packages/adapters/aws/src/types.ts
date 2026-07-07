@@ -1,4 +1,9 @@
-import type { Intent, IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
+import type {
+  Intent,
+  IamIntent,
+  NetworkIntent,
+  ConfigIntent,
+} from '@shinobi/contracts';
 import type { Node, GraphSnapshot } from '@shinobi/ir';
 
 /**
@@ -97,7 +102,11 @@ export interface IntentLowerer<T extends Intent = Intent> {
  */
 export interface NodeLowerer {
   readonly platform: string;
-  lower(node: Node, context: LoweringContext, resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource>;
+  lower(
+    node: Node,
+    context: LoweringContext,
+    resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource>;
 }
 
 /**

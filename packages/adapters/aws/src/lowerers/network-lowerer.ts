@@ -10,7 +10,10 @@ import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
 export class NetworkIntentLowerer implements IntentLowerer<NetworkIntent> {
   readonly intentType = 'network' as const;
 
-  lower(_intent: NetworkIntent, _context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    _intent: NetworkIntent,
+    _context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     return [];
   }
 }

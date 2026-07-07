@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class TransitGatewayLowerer implements NodeLowerer {
   readonly platform = 'aws-transit-gateway';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -18,9 +27,12 @@ export class TransitGatewayLowerer implements NodeLowerer {
     const tgwName = `${name}-tgw`;
     const rtName = `${name}-tgw-rt`;
 
-    const autoAcceptSharedAttachments = (config['autoAcceptSharedAttachments'] as string) ?? 'disable';
-    const defaultRouteTableAssociation = (config['defaultRouteTableAssociation'] as string) ?? 'enable';
-    const defaultRouteTablePropagation = (config['defaultRouteTablePropagation'] as string) ?? 'enable';
+    const autoAcceptSharedAttachments =
+      (config['autoAcceptSharedAttachments'] as string) ?? 'disable';
+    const defaultRouteTableAssociation =
+      (config['defaultRouteTableAssociation'] as string) ?? 'enable';
+    const defaultRouteTablePropagation =
+      (config['defaultRouteTablePropagation'] as string) ?? 'enable';
     const dnsSupport = (config['dnsSupport'] as string) ?? 'enable';
     const vpnEcmpSupport = (config['vpnEcmpSupport'] as string) ?? 'enable';
     const amazonSideAsn = (config['amazonSideAsn'] as number) ?? 64512;
@@ -31,7 +43,10 @@ export class TransitGatewayLowerer implements NodeLowerer {
       name: tgwName,
       resourceType: 'aws:ec2transitgateway:TransitGateway',
       properties: {
-        description: makeResourceName(node.id, context.adapterConfig.serviceName),
+        description: makeResourceName(
+          node.id,
+          context.adapterConfig.serviceName,
+        ),
         autoAcceptSharedAttachments,
         defaultRouteTableAssociation,
         defaultRouteTablePropagation,

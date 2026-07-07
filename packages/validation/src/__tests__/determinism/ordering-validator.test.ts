@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { validateCanonicalOrdering, isCanonicallyOrdered } from '../../determinism/ordering-validator';
+import {
+  validateCanonicalOrdering,
+  isCanonicallyOrdered,
+} from '../../determinism/ordering-validator';
 import type { GraphSnapshot, Node, Edge, DerivedArtifact } from '@shinobi/ir';
 
 describe('ordering-validator', () => {
@@ -23,10 +26,17 @@ describe('ordering-validator', () => {
     schemaVersion: '1.0.0',
   });
 
-  const makeArtifact = (type: string, sourceNodeId: string): DerivedArtifact => ({
+  const makeArtifact = (
+    type: string,
+    sourceNodeId: string,
+  ): DerivedArtifact => ({
     id: `artifact:${type}:${sourceNodeId}`,
     semanticHash: 'sha256:abc',
-    type: type as 'iam-policy' | 'network-rule' | 'config-map' | 'telemetry-config',
+    type: type as
+      | 'iam-policy'
+      | 'network-rule'
+      | 'config-map'
+      | 'telemetry-config',
     sourceNodeId,
     content: {},
     provenance: { sourceFile: 'test.ts' },
@@ -35,12 +45,16 @@ describe('ordering-validator', () => {
 
   describe('isCanonicallyOrdered', () => {
     it('returns true for empty arrays', () => {
-      expect(isCanonicallyOrdered<Node>([], (a, b) => a.id.localeCompare(b.id))).toBe(true);
+      expect(
+        isCanonicallyOrdered<Node>([], (a, b) => a.id.localeCompare(b.id)),
+      ).toBe(true);
     });
 
     it('returns true for single element', () => {
       const nodes = [makeNode('component', 'component:a')];
-      expect(isCanonicallyOrdered(nodes, (a, b) => a.id.localeCompare(b.id))).toBe(true);
+      expect(
+        isCanonicallyOrdered(nodes, (a, b) => a.id.localeCompare(b.id)),
+      ).toBe(true);
     });
 
     it('returns true for correctly ordered nodes', () => {
@@ -49,10 +63,12 @@ describe('ordering-validator', () => {
         makeNode('component', 'component:b'),
         makeNode('platform', 'platform:x'),
       ];
-      expect(isCanonicallyOrdered(nodes, (a, b) => {
-        const typeCompare = a.type.localeCompare(b.type);
-        return typeCompare !== 0 ? typeCompare : a.id.localeCompare(b.id);
-      })).toBe(true);
+      expect(
+        isCanonicallyOrdered(nodes, (a, b) => {
+          const typeCompare = a.type.localeCompare(b.type);
+          return typeCompare !== 0 ? typeCompare : a.id.localeCompare(b.id);
+        }),
+      ).toBe(true);
     });
 
     it('returns false for incorrectly ordered nodes', () => {
@@ -60,10 +76,12 @@ describe('ordering-validator', () => {
         makeNode('platform', 'platform:x'),
         makeNode('component', 'component:a'),
       ];
-      expect(isCanonicallyOrdered(nodes, (a, b) => {
-        const typeCompare = a.type.localeCompare(b.type);
-        return typeCompare !== 0 ? typeCompare : a.id.localeCompare(b.id);
-      })).toBe(false);
+      expect(
+        isCanonicallyOrdered(nodes, (a, b) => {
+          const typeCompare = a.type.localeCompare(b.type);
+          return typeCompare !== 0 ? typeCompare : a.id.localeCompare(b.id);
+        }),
+      ).toBe(false);
     });
   });
 
@@ -75,12 +93,8 @@ describe('ordering-validator', () => {
           makeNode('component', 'component:a'),
           makeNode('component', 'component:b'),
         ],
-        edges: [
-          makeEdge('bindsTo', 'component:a', 'component:b'),
-        ],
-        artifacts: [
-          makeArtifact('iam-policy', 'component:a'),
-        ],
+        edges: [makeEdge('bindsTo', 'component:a', 'component:b')],
+        artifacts: [makeArtifact('iam-policy', 'component:a')],
       };
 
       const result = validateCanonicalOrdering(snapshot);
@@ -100,7 +114,9 @@ describe('ordering-validator', () => {
 
       const result = validateCanonicalOrdering(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'non-canonical-ordering')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'non-canonical-ordering'),
+      ).toBe(true);
       expect(result.errors.some((e) => e.path === '$.nodes')).toBe(true);
     });
 
@@ -127,9 +143,7 @@ describe('ordering-validator', () => {
     it('returns error for misordered artifacts', () => {
       const snapshot: GraphSnapshot = {
         schemaVersion: '1.0.0',
-        nodes: [
-          makeNode('component', 'component:a'),
-        ],
+        nodes: [makeNode('component', 'component:a')],
         edges: [],
         artifacts: [
           makeArtifact('network-config', 'component:a'),

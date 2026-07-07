@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class RdsClusterLowerer implements NodeLowerer {
   readonly platform = 'aws-rds-cluster';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -25,7 +34,8 @@ export class RdsClusterLowerer implements NodeLowerer {
     const masterUsername = (props['masterUsername'] as string) ?? 'admin';
     const storageEncrypted = props['storageEncrypted'] !== false;
     const deletionProtection = props['deletionProtection'] !== false;
-    const backupRetentionPeriod = (props['backupRetentionPeriod'] as number) ?? 7;
+    const backupRetentionPeriod =
+      (props['backupRetentionPeriod'] as number) ?? 7;
     const publicAccess = props['publicAccess'] === true;
     const instanceClass = (props['instanceClass'] as string) ?? 'db.serverless';
 

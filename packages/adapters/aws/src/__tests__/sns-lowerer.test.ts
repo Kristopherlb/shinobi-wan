@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { SnsLowerer } from '../lowerers/sns-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('SnsLowerer', () => {

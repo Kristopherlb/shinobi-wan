@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class SecurityHubLowerer implements NodeLowerer {
   readonly platform = 'aws-securityhub';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const extraTags = (props['tags'] as Record<string, string>) ?? {};
@@ -32,7 +41,9 @@ export class SecurityHubLowerer implements NodeLowerer {
     // Optional Standards Subscription
     const enableDefaultStandards = props['enableDefaultStandards'] !== false;
     if (enableDefaultStandards) {
-      const standardsArn = (props['standardsArn'] as string) ?? 'arn:aws:securityhub:::ruleset/cis-aws-foundations-benchmark/v/1.2.0';
+      const standardsArn =
+        (props['standardsArn'] as string) ??
+        'arn:aws:securityhub:::ruleset/cis-aws-foundations-benchmark/v/1.2.0';
       const standardName = `${name}-securityhub-standard`;
 
       resources.push({

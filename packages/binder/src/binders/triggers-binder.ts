@@ -1,5 +1,11 @@
 import type { Intent } from '@shinobi/contracts';
-import type { IBinder, SupportedEdgePattern, BindingContext, BinderOutput, BindingDiagnostic } from '@shinobi/kernel';
+import type {
+  IBinder,
+  SupportedEdgePattern,
+  BindingContext,
+  BinderOutput,
+  BindingDiagnostic,
+} from '@shinobi/kernel';
 import { createIamIntent, createConfigIntent } from '../intent-factories';
 
 /**
@@ -53,8 +59,8 @@ export class TriggersBinder implements IBinder {
           resourceType: bindingConfig.resourceType,
           scope: 'specific', // Triggers always target a specific function
         },
-        [{ level: 'write', action: 'invoke' }]
-      )
+        [{ level: 'write', action: 'invoke' }],
+      ),
     );
 
     // Emit config intent: inject the source platform's URL/ID into the target component's env
@@ -62,22 +68,19 @@ export class TriggersBinder implements IBinder {
     const method = bindingConfig.method ?? 'ANY';
 
     intents.push(
-      createConfigIntent(
-        edge.id,
-        targetNode.id,
-        'API_GATEWAY_URL',
-        { type: 'reference', nodeRef: sourceNode.id, field: 'url' }
-      )
+      createConfigIntent(edge.id, targetNode.id, 'API_GATEWAY_URL', {
+        type: 'reference',
+        nodeRef: sourceNode.id,
+        field: 'url',
+      }),
     );
 
     // Emit config intent for route metadata (literal values)
     intents.push(
-      createConfigIntent(
-        edge.id,
-        targetNode.id,
-        'API_ROUTE',
-        { type: 'literal', value: `${method} ${route}` }
-      )
+      createConfigIntent(edge.id, targetNode.id, 'API_ROUTE', {
+        type: 'literal',
+        value: `${method} ${route}`,
+      }),
     );
 
     return { intents, diagnostics };

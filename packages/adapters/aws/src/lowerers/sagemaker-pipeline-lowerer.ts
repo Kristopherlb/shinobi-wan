@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -9,27 +14,43 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class SageMakerPipelineLowerer implements NodeLowerer {
   readonly platform = 'aws-sagemaker-pipeline';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
-    const tags = createStandardTags(node.id, 'aws-sagemaker-pipeline', extraTags);
+    const tags = createStandardTags(
+      node.id,
+      'aws-sagemaker-pipeline',
+      extraTags,
+    );
 
     const pipelineName = `${name}-pipeline`;
     const logGroupName = `${name}-pipeline-log-group`;
 
-    const pipelineDefinition = config['pipelineDefinition'] as string | undefined;
+    const pipelineDefinition = config['pipelineDefinition'] as
+      | string
+      | undefined;
     const pipelineDescription = (config['pipelineDescription'] as string) ?? '';
     const roleArn = config['roleArn'] as string | undefined;
-    const parallelismConfiguration = config['parallelismConfiguration'] as Record<string, unknown> | undefined;
+    const parallelismConfiguration = config['parallelismConfiguration'] as
+      | Record<string, unknown>
+      | undefined;
 
     const pipelineProperties: Record<string, unknown> = {
-      pipelineName: makeResourceName(node.id, context.adapterConfig.serviceName),
+      pipelineName: makeResourceName(
+        node.id,
+        context.adapterConfig.serviceName,
+      ),
       pipelineDescription,
       tags,
     };
 
-    if (pipelineDefinition) pipelineProperties.pipelineDefinition = pipelineDefinition;
+    if (pipelineDefinition)
+      pipelineProperties.pipelineDefinition = pipelineDefinition;
     if (roleArn) pipelineProperties.roleArn = roleArn;
     if (parallelismConfiguration) {
       pipelineProperties.parallelismConfiguration = parallelismConfiguration;

@@ -64,7 +64,9 @@ describe('EksClusterLowerer', () => {
     const node = createTestNode({
       id: 'platform:my-cluster',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-eks-cluster', version: '1.28' } },
+      metadata: {
+        properties: { platform: 'aws-eks-cluster', version: '1.28' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -86,7 +88,10 @@ describe('EksClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    const vpcConfig = result[0]?.properties?.vpcConfig as Record<string, unknown>;
+    const vpcConfig = result[0]?.properties?.vpcConfig as Record<
+      string,
+      unknown
+    >;
     expect(vpcConfig?.subnetIds).toEqual([
       { ref: 'subnet-1a-subnet' },
       { ref: 'subnet-1b-subnet' },
@@ -107,7 +112,10 @@ describe('EksClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    const vpcConfig = result[0]?.properties?.vpcConfig as Record<string, unknown>;
+    const vpcConfig = result[0]?.properties?.vpcConfig as Record<
+      string,
+      unknown
+    >;
     expect(vpcConfig?.securityGroupIds).toEqual([{ ref: 'cluster-sg-sg' }]);
   });
 
@@ -120,7 +128,10 @@ describe('EksClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    const vpcConfig = result[0]?.properties?.vpcConfig as Record<string, unknown>;
+    const vpcConfig = result[0]?.properties?.vpcConfig as Record<
+      string,
+      unknown
+    >;
     expect(vpcConfig?.endpointPrivateAccess).toBe(true);
     expect(vpcConfig?.endpointPublicAccess).toBe(false);
   });
@@ -140,7 +151,10 @@ describe('EksClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    const vpcConfig = result[0]?.properties?.vpcConfig as Record<string, unknown>;
+    const vpcConfig = result[0]?.properties?.vpcConfig as Record<
+      string,
+      unknown
+    >;
     expect(vpcConfig?.endpointPrivateAccess).toBe(false);
     expect(vpcConfig?.endpointPublicAccess).toBe(true);
   });
@@ -154,7 +168,11 @@ describe('EksClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.enabledClusterLogTypes).toEqual(['api', 'audit', 'authenticator']);
+    expect(result[0]?.properties?.enabledClusterLogTypes).toEqual([
+      'api',
+      'audit',
+      'authenticator',
+    ]);
   });
 
   it('should respect custom log types', () => {
@@ -224,7 +242,9 @@ describe('EksClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.roleArn).toEqual({ ref: 'my-cluster-exec-role' });
+    expect(result[0]?.properties?.roleArn).toEqual({
+      ref: 'my-cluster-exec-role',
+    });
   });
 
   it('determinism: identical output across two runs', () => {
@@ -315,7 +335,9 @@ describe('EksNodeGroupLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.clusterName).toEqual({ ref: 'my-cluster-cluster.name' });
+    expect(result[0]?.properties?.clusterName).toEqual({
+      ref: 'my-cluster-cluster.name',
+    });
   });
 
   it('should resolve subnet refs', () => {
@@ -371,7 +393,10 @@ describe('EksNodeGroupLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.instanceTypes).toEqual(['m5.large', 'm5.xlarge']);
+    expect(result[0]?.properties?.instanceTypes).toEqual([
+      'm5.large',
+      'm5.xlarge',
+    ]);
   });
 
   it('should use default scaling config', () => {
@@ -488,7 +513,9 @@ describe('EksNodeGroupLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.nodeRoleArn).toEqual({ ref: 'my-nodes-exec-role' });
+    expect(result[0]?.properties?.nodeRoleArn).toEqual({
+      ref: 'my-nodes-exec-role',
+    });
   });
 
   it('determinism: identical output across two runs', () => {

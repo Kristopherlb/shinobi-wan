@@ -10,14 +10,14 @@ nodes:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   - id: ml-subnet
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:ml-vpc"
-      cidrBlock: "10.0.1.0/24"
+      vpcId: 'platform:ml-vpc'
+      cidrBlock: '10.0.1.0/24'
       availabilityZone: us-east-1a
       mapPublicIpOnLaunch: false
 
@@ -25,7 +25,7 @@ nodes:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:ml-vpc"
+      vpcId: 'platform:ml-vpc'
       description: ML training security group
 
   - id: encryption-key
@@ -64,23 +64,23 @@ nodes:
       initialInstanceCount: 1
       vpcConfig:
         subnetIds:
-          - "platform:ml-subnet"
+          - 'platform:ml-subnet'
         securityGroupIds:
-          - "platform:ml-sg"
+          - 'platform:ml-sg'
 
 edges:
   - id: pipeline-reads-training-data
     type: bindsTo
-    source: "platform:training-pipeline"
-    target: "platform:training-data"
+    source: 'platform:training-pipeline'
+    target: 'platform:training-data'
     config:
       resourceType: bucket
       accessLevel: read
 
   - id: pipeline-writes-model-artifacts
     type: bindsTo
-    source: "platform:training-pipeline"
-    target: "platform:model-artifacts"
+    source: 'platform:training-pipeline'
+    target: 'platform:model-artifacts'
     config:
       resourceType: bucket
       accessLevel: write

@@ -78,7 +78,9 @@ function checkCliExamples(files) {
 
   const missing = [...commands].filter((cmd) => !declared.has(cmd));
   if (missing.length > 0) {
-    throw new Error(`Docs reference unknown CLI command(s): ${missing.join(', ')}`);
+    throw new Error(
+      `Docs reference unknown CLI command(s): ${missing.join(', ')}`,
+    );
   }
 }
 
@@ -88,7 +90,8 @@ function main() {
     if (rel === 'README.md') return true;
     if (rel === path.join('docs', 'getting-started.md')) return true;
     if (rel.startsWith(path.join('docs', 'operations') + path.sep)) return true;
-    if (rel.startsWith(path.join('docs', 'architecture') + path.sep)) return true;
+    if (rel.startsWith(path.join('docs', 'architecture') + path.sep))
+      return true;
     if (rel.startsWith(path.join('docs', 'cookbook') + path.sep)) return true;
     if (rel.startsWith(path.join('docs', 'audit') + path.sep)) return true;
     return false;
@@ -96,9 +99,7 @@ function main() {
 
   const broken = checkLinks(files);
   if (broken.length > 0) {
-    const details = broken
-      .map((b) => `- ${b.file}: ${b.link}`)
-      .join('\n');
+    const details = broken.map((b) => `- ${b.file}: ${b.link}`).join('\n');
     throw new Error(`Broken local markdown links detected:\n${details}`);
   }
 

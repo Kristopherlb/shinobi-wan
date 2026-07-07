@@ -103,7 +103,7 @@ components:
       limitUnit: USD
       timeUnit: MONTHLY
       thresholdPercentage: 80
-      notificationTopicArn: "platform:alert-topic"
+      notificationTopicArn: 'platform:alert-topic'
 
   # SecretsManager for sensitive config
   - id: trail-secret

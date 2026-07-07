@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class MskClusterLowerer implements NodeLowerer {
   readonly platform = 'aws-msk-cluster';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -22,21 +31,29 @@ export class MskClusterLowerer implements NodeLowerer {
     const numberOfBrokerNodes = (config['numberOfBrokerNodes'] as number) ?? 3;
     const instanceType = (config['instanceType'] as string) ?? 'kafka.m5.large';
     const ebsVolumeSize = (config['ebsVolumeSize'] as number) ?? 100;
-    const encryptionInTransit = (config['encryptionInTransit'] as string) ?? 'TLS';
+    const encryptionInTransit =
+      (config['encryptionInTransit'] as string) ?? 'TLS';
     const encryptionAtRest = config['encryptionAtRest'] !== false;
     const kmsKeyArn = config['kmsKeyArn'] as string | undefined;
-    const enhancedMonitoring = (config['enhancedMonitoring'] as string) ?? 'PER_TOPIC_PER_BROKER';
-    const clientAuthentication = config['clientAuthentication'] as Record<string, unknown> | undefined;
+    const enhancedMonitoring =
+      (config['enhancedMonitoring'] as string) ?? 'PER_TOPIC_PER_BROKER';
+    const clientAuthentication = config['clientAuthentication'] as
+      | Record<string, unknown>
+      | undefined;
     const cloudwatchLogsEnabled = config['cloudwatchLogsEnabled'] !== false;
 
     // Build subnet refs
     const subnetIds = Array.isArray(config['subnetIds'])
-      ? (config['subnetIds'] as string[]).map((s) => ({ ref: `${shortName(s)}-subnet` }))
+      ? (config['subnetIds'] as string[]).map((s) => ({
+          ref: `${shortName(s)}-subnet`,
+        }))
       : [];
 
     // Build security group refs
     const securityGroupIds = Array.isArray(config['securityGroupIds'])
-      ? (config['securityGroupIds'] as string[]).map((s) => ({ ref: `${shortName(s)}-sg` }))
+      ? (config['securityGroupIds'] as string[]).map((s) => ({
+          ref: `${shortName(s)}-sg`,
+        }))
       : [];
 
     const brokerNodeGroupInfo: Record<string, unknown> = {
@@ -64,7 +81,8 @@ export class MskClusterLowerer implements NodeLowerer {
       tags,
     };
 
-    if (clientAuthentication) clusterProperties.clientAuthentication = clientAuthentication;
+    if (clientAuthentication)
+      clusterProperties.clientAuthentication = clientAuthentication;
 
     if (cloudwatchLogsEnabled) {
       clusterProperties.loggingInfo = {

@@ -37,7 +37,9 @@ describe('LambdaLowerer', () => {
   it('function name includes service name prefix', () => {
     const resources = lowerer.lower(lambdaNode, makeContext(), deps);
 
-    expect(resources[0].properties['functionName']).toBe('my-lambda-sqs-api-handler');
+    expect(resources[0].properties['functionName']).toBe(
+      'my-lambda-sqs-api-handler',
+    );
   });
 
   it('passes through runtime, handler, memorySize, timeout', () => {
@@ -52,15 +54,22 @@ describe('LambdaLowerer', () => {
   it('references IAM role from resolved deps', () => {
     const resources = lowerer.lower(lambdaNode, makeContext(), deps);
 
-    expect(resources[0].properties['role']).toEqual({ ref: 'api-handler-exec-role' });
+    expect(resources[0].properties['role']).toEqual({
+      ref: 'api-handler-exec-role',
+    });
     expect(resources[0].dependsOn).toContain('api-handler-exec-role');
   });
 
   it('includes environment variables from resolved deps', () => {
     const resources = lowerer.lower(lambdaNode, makeContext(), deps);
 
-    const env = resources[0].properties['environment'] as Record<string, unknown>;
-    expect(env['variables']).toEqual({ QUEUE_URL: { ref: 'work-queue-queue.url' } });
+    const env = resources[0].properties['environment'] as Record<
+      string,
+      unknown
+    >;
+    expect(env['variables']).toEqual({
+      QUEUE_URL: { ref: 'work-queue-queue.url' },
+    });
   });
 
   it('omits environment when no env vars', () => {
@@ -72,11 +81,16 @@ describe('LambdaLowerer', () => {
 
   it('includes code path when configured', () => {
     const ctx = makeContext({
-      adapterConfig: { ...DEFAULT_ADAPTER_CONFIG, codePath: './dist/handler.zip' },
+      adapterConfig: {
+        ...DEFAULT_ADAPTER_CONFIG,
+        codePath: './dist/handler.zip',
+      },
     });
     const resources = lowerer.lower(lambdaNode, ctx, deps);
 
-    expect(resources[0].properties['code']).toEqual({ path: './dist/handler.zip' });
+    expect(resources[0].properties['code']).toEqual({
+      path: './dist/handler.zip',
+    });
   });
 
   it('carries shinobi tags', () => {
@@ -169,7 +183,9 @@ describe('SqsLowerer', () => {
 
     it('DLQ uses -dlq suffix in name', () => {
       const resources = lowerer.lower(dlqNode, makeContext(), deps);
-      expect(resources[0].properties['name']).toBe('my-lambda-sqs-work-queue-dlq');
+      expect(resources[0].properties['name']).toBe(
+        'my-lambda-sqs-work-queue-dlq',
+      );
     });
 
     it('DLQ has 14-day default retention', () => {
@@ -186,7 +202,9 @@ describe('SqsLowerer', () => {
     it('main queue has redrivePolicy pointing to DLQ', () => {
       const resources = lowerer.lower(dlqNode, makeContext(), deps);
       const mainQueue = resources[1];
-      const policy = JSON.parse(mainQueue.properties['redrivePolicy'] as string);
+      const policy = JSON.parse(
+        mainQueue.properties['redrivePolicy'] as string,
+      );
       expect(policy.deadLetterTargetArn).toEqual({ ref: 'work-queue-dlq' });
       expect(policy.maxReceiveCount).toBe(3);
     });
@@ -209,7 +227,9 @@ describe('SqsLowerer', () => {
         },
       });
       const resources = lowerer.lower(customNode, makeContext(), deps);
-      const policy = JSON.parse(resources[1].properties['redrivePolicy'] as string);
+      const policy = JSON.parse(
+        resources[1].properties['redrivePolicy'] as string,
+      );
       expect(policy.maxReceiveCount).toBe(5);
     });
   });
@@ -231,7 +251,9 @@ describe('LambdaLowerer — tracing + Powertools', () => {
       },
     });
     const resources = lowerer.lower(node, makeContext(), deps);
-    expect(resources[0].properties['tracingConfig']).toEqual({ mode: 'Active' });
+    expect(resources[0].properties['tracingConfig']).toEqual({
+      mode: 'Active',
+    });
   });
 
   it('omits tracingConfig when tracing is not set', () => {
@@ -256,7 +278,10 @@ describe('LambdaLowerer — tracing + Powertools', () => {
       },
     });
     const resources = lowerer.lower(node, makeContext(), deps);
-    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const env = resources[0].properties['environment'] as Record<
+      string,
+      unknown
+    >;
     const vars = env?.['variables'] as Record<string, unknown>;
     expect(vars['POWERTOOLS_SERVICE_NAME']).toBe('my-lambda-sqs-pw-handler');
     expect(vars['POWERTOOLS_LOG_LEVEL']).toBe('INFO');
@@ -275,7 +300,10 @@ describe('LambdaLowerer — tracing + Powertools', () => {
       },
     });
     const resources = lowerer.lower(node, makeContext(), deps);
-    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const env = resources[0].properties['environment'] as Record<
+      string,
+      unknown
+    >;
     const vars = env?.['variables'] as Record<string, unknown>;
     expect(vars['POWERTOOLS_LOG_LEVEL']).toBe('DEBUG');
   });
@@ -296,7 +324,10 @@ describe('LambdaLowerer — tracing + Powertools', () => {
       securityGroups: [],
     };
     const resources = lowerer.lower(node, makeContext(), depsWithEnv);
-    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const env = resources[0].properties['environment'] as Record<
+      string,
+      unknown
+    >;
     const vars = env?.['variables'] as Record<string, unknown>;
     expect(vars['QUEUE_URL']).toEqual({ ref: 'work-queue-queue.url' });
     expect(vars['POWERTOOLS_SERVICE_NAME']).toBeDefined();
@@ -359,9 +390,14 @@ describe('LambdaLowerer — tracing + Powertools', () => {
       },
     });
     const resources = lowerer.lower(node, makeContext(), deps);
-    expect(resources[0].properties['tracingConfig']).toEqual({ mode: 'Active' });
+    expect(resources[0].properties['tracingConfig']).toEqual({
+      mode: 'Active',
+    });
     expect(resources[0].properties['layers']).toHaveLength(1);
-    const env = resources[0].properties['environment'] as Record<string, unknown>;
+    const env = resources[0].properties['environment'] as Record<
+      string,
+      unknown
+    >;
     expect(env?.['variables']).toBeDefined();
   });
 });

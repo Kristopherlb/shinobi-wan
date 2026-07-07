@@ -1,11 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as path from 'path';
 
-const MANIFEST_PATH = path.resolve(__dirname, '../../../../../examples/lambda-sqs.yaml');
+const MANIFEST_PATH = path.resolve(
+  __dirname,
+  '../../../../../examples/lambda-sqs.yaml',
+);
 
 // Mock the deployer functions from adapter-aws so tests don't need Pulumi installed
 vi.mock('@shinobi/adapter-aws', async () => {
-  const actual = await vi.importActual<typeof import('@shinobi/adapter-aws')>('@shinobi/adapter-aws');
+  const actual = await vi.importActual<typeof import('@shinobi/adapter-aws')>(
+    '@shinobi/adapter-aws',
+  );
   return {
     ...actual,
     deploy: vi.fn().mockResolvedValue({
@@ -58,7 +63,11 @@ describe('up command', () => {
 
     expect(result.previewResult).toBeDefined();
     expect(result.previewResult?.success).toBe(true);
-    expect(result.previewResult?.changeSummary).toEqual({ create: 5, update: 0, delete: 0 });
+    expect(result.previewResult?.changeSummary).toEqual({
+      create: 5,
+      update: 0,
+      delete: 0,
+    });
   });
 
   it('calls deploy when dryRun is false', async () => {
@@ -76,7 +85,9 @@ describe('up command', () => {
 
     expect(result.deployResult).toBeDefined();
     expect(result.deployResult?.success).toBe(true);
-    expect(result.deployResult?.outputs['function-arn']).toBe('arn:aws:lambda:us-east-1:123:function:test');
+    expect(result.deployResult?.outputs['function-arn']).toBe(
+      'arn:aws:lambda:us-east-1:123:function:test',
+    );
   });
 
   it('reports stack name after deployment', async () => {
@@ -128,13 +139,20 @@ describe('up command', () => {
   });
 
   it('passes policy pack through', async () => {
-    const result = await up({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-Moderate' });
+    const result = await up({
+      manifestPath: MANIFEST_PATH,
+      policyPack: 'FedRAMP-Moderate',
+    });
 
     expect(result.plan.validation.policy?.policyPack).toBe('FedRAMP-Moderate');
   });
 
   it('passes region to adapter config', async () => {
-    await up({ manifestPath: MANIFEST_PATH, dryRun: false, region: 'eu-west-1' });
+    await up({
+      manifestPath: MANIFEST_PATH,
+      dryRun: false,
+      region: 'eu-west-1',
+    });
 
     expect(deploy).toHaveBeenCalledWith(
       expect.anything(),

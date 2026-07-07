@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -12,7 +17,11 @@ import { shortName, createStandardTags } from './utils';
 export class ElastiCacheLowerer implements NodeLowerer {
   readonly platform = 'aws-elasticache';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -29,9 +38,10 @@ export class ElastiCacheLowerer implements NodeLowerer {
       properties: {
         name: `${serviceName}-${name}-subnet-group`,
         description: `Subnet group for ${serviceName}-${name} Redis`,
-        subnetIds: subnetIds.length > 0
-          ? subnetIds.map((s) => ({ ref: `${shortName(s)}-subnet` }))
-          : [],
+        subnetIds:
+          subnetIds.length > 0
+            ? subnetIds.map((s) => ({ ref: `${shortName(s)}-subnet` }))
+            : [],
         tags: createStandardTags(node.id, 'aws-elasticache', extraTags),
       },
       sourceId: node.id,
@@ -42,7 +52,8 @@ export class ElastiCacheLowerer implements NodeLowerer {
     const redisName = `${name}-redis`;
     const nodeType = (props['nodeType'] as string) ?? 'cache.t3.micro';
     const numCacheClusters = (props['numCacheClusters'] as number) ?? 2;
-    const transitEncryptionEnabled = props['transitEncryptionEnabled'] !== false;
+    const transitEncryptionEnabled =
+      props['transitEncryptionEnabled'] !== false;
     const atRestEncryptionEnabled = props['atRestEncryptionEnabled'] !== false;
     const port = (props['port'] as number) ?? 6379;
 
@@ -62,9 +73,9 @@ export class ElastiCacheLowerer implements NodeLowerer {
     }
 
     if (props['securityGroupIds']) {
-      replicationGroupProperties['securityGroupIds'] = (props['securityGroupIds'] as string[]).map(
-        (sg) => ({ ref: `${shortName(sg)}-sg` }),
-      );
+      replicationGroupProperties['securityGroupIds'] = (
+        props['securityGroupIds'] as string[]
+      ).map((sg) => ({ ref: `${shortName(sg)}-sg` }));
     }
 
     resources.push({

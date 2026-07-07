@@ -10,14 +10,14 @@ nodes:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   - id: data-subnet
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:data-vpc"
-      cidrBlock: "10.0.1.0/24"
+      vpcId: 'platform:data-vpc'
+      cidrBlock: '10.0.1.0/24'
       availabilityZone: us-east-1a
       mapPublicIpOnLaunch: false
 
@@ -25,7 +25,7 @@ nodes:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:data-vpc"
+      vpcId: 'platform:data-vpc'
       description: Data lake security group
 
   - id: encryption-key
@@ -58,11 +58,11 @@ nodes:
     type: platform
     platform: aws-glue-job
     config:
-      glueVersion: "4.0"
+      glueVersion: '4.0'
       command:
         name: glueetl
         scriptLocation: s3://scripts/etl.py
-        pythonVersion: "3"
+        pythonVersion: '3'
       workerType: G.1X
       numberOfWorkers: 5
       timeout: 2880
@@ -76,7 +76,7 @@ nodes:
       s3Targets:
         - path: s3://raw-data/
         - path: s3://processed-data/
-      schedule: "cron(0 12 * * ? *)"
+      schedule: 'cron(0 12 * * ? *)'
 
   - id: query-workgroup
     type: platform
@@ -90,24 +90,24 @@ nodes:
 edges:
   - id: etl-job-reads-raw
     type: bindsTo
-    source: "platform:etl-job"
-    target: "platform:raw-data"
+    source: 'platform:etl-job'
+    target: 'platform:raw-data'
     config:
       resourceType: bucket
       accessLevel: read
 
   - id: etl-job-writes-processed
     type: bindsTo
-    source: "platform:etl-job"
-    target: "platform:processed-data"
+    source: 'platform:etl-job'
+    target: 'platform:processed-data'
     config:
       resourceType: bucket
       accessLevel: write
 
   - id: crawler-writes-catalog
     type: bindsTo
-    source: "platform:data-crawler"
-    target: "platform:data-catalog"
+    source: 'platform:data-crawler'
+    target: 'platform:data-catalog'
     config:
       resourceType: glue-catalog
       accessLevel: write

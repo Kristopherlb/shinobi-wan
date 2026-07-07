@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -105,7 +109,13 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'MODEL_ID', valueSource: { type: 'static', value: 'anthropic.claude-3-sonnet-20240229-v1:0' } },
+          {
+            key: 'MODEL_ID',
+            valueSource: {
+              type: 'static',
+              value: 'anthropic.claude-3-sonnet-20240229-v1:0',
+            },
+          },
         ],
       },
     },
@@ -122,7 +132,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'COST_TABLE', valueSource: { type: 'reference', nodeRef: 'cost-tracker', field: 'name' } },
+          {
+            key: 'COST_TABLE',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'cost-tracker',
+              field: 'name',
+            },
+          },
         ],
       },
     },
@@ -139,7 +156,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'LOGS_BUCKET', valueSource: { type: 'reference', nodeRef: 'invocation-logs', field: 'bucket' } },
+          {
+            key: 'LOGS_BUCKET',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'invocation-logs',
+              field: 'bucket',
+            },
+          },
         ],
       },
     },

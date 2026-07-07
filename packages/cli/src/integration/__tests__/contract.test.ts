@@ -25,17 +25,23 @@ describe('integration contract compatibility', () => {
   });
 
   it('requires operationClass in metadata schema summary', () => {
-    expect(ENVELOPE_SCHEMA_SUMMARY.requiredMetadataFields).toContain('operationClass');
+    expect(ENVELOPE_SCHEMA_SUMMARY.requiredMetadataFields).toContain(
+      'operationClass',
+    );
   });
 
   it('requires retriableReason when retriable=true', () => {
-    expect(ENVELOPE_SCHEMA_SUMMARY.requiredWhenRetriable).toContain('retriableReason');
+    expect(ENVELOPE_SCHEMA_SUMMARY.requiredWhenRetriable).toContain(
+      'retriableReason',
+    );
   });
 
   it('tracks compatibility policy semantics', () => {
     expect(ENVELOPE_COMPATIBILITY_POLICY.additiveField).toBe('minor');
     expect(ENVELOPE_COMPATIBILITY_POLICY.removalOrTypeChange).toBe('major');
-    expect(ENVELOPE_COMPATIBILITY_POLICY.requiredReleaseGate).toBe('golden-compatibility-tests');
+    expect(ENVELOPE_COMPATIBILITY_POLICY.requiredReleaseGate).toBe(
+      'golden-compatibility-tests',
+    );
   });
 
   it('defines terminal state retryability map', () => {

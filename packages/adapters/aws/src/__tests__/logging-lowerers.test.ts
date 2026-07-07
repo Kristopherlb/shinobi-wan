@@ -3,7 +3,9 @@ import { KinesisFirehoseLowerer } from '../lowerers/kinesis-firehose-lowerer';
 import { LogSubscriptionFilterLowerer } from '../lowerers/log-subscription-filter-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('KinesisFirehoseLowerer', () => {
@@ -22,7 +24,9 @@ describe('KinesisFirehoseLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(1);
-    expect(resources[0].resourceType).toBe('aws:kinesis:FirehoseDeliveryStream');
+    expect(resources[0].resourceType).toBe(
+      'aws:kinesis:FirehoseDeliveryStream',
+    );
   });
 
   it('uses correct naming convention', () => {
@@ -76,7 +80,9 @@ describe('KinesisFirehoseLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0].properties['destination']).toBe('extended_s3');
-    const s3Config = resources[0].properties['extendedS3Configuration'] as Record<string, unknown>;
+    const s3Config = resources[0].properties[
+      'extendedS3Configuration'
+    ] as Record<string, unknown>;
     expect(s3Config).toBeDefined();
   });
 
@@ -93,7 +99,10 @@ describe('KinesisFirehoseLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const sse = resources[0].properties['serverSideEncryption'] as Record<string, unknown>;
+    const sse = resources[0].properties['serverSideEncryption'] as Record<
+      string,
+      unknown
+    >;
     expect(sse['enabled']).toBe(true);
   });
 
@@ -111,7 +120,9 @@ describe('KinesisFirehoseLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const osConfig = resources[0].properties['opensearchConfiguration'] as Record<string, unknown>;
+    const osConfig = resources[0].properties[
+      'opensearchConfiguration'
+    ] as Record<string, unknown>;
     const hints = osConfig['bufferingHints'] as Record<string, unknown>;
     expect(hints['intervalInSeconds']).toBe(120);
     expect(hints['sizeInMBs']).toBe(10);
@@ -144,7 +155,9 @@ describe('KinesisFirehoseLowerer', () => {
     const node = makeNode({
       id: 'platform:firehose',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-kinesis-firehose', tags: { env: 'prod' } } },
+      metadata: {
+        properties: { platform: 'aws-kinesis-firehose', tags: { env: 'prod' } },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -169,7 +182,9 @@ describe('LogSubscriptionFilterLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(1);
-    expect(resources[0].resourceType).toBe('aws:cloudwatch:LogSubscriptionFilter');
+    expect(resources[0].resourceType).toBe(
+      'aws:cloudwatch:LogSubscriptionFilter',
+    );
   });
 
   it('uses correct naming convention', () => {
@@ -239,7 +254,12 @@ describe('LogSubscriptionFilterLowerer', () => {
     const node = makeNode({
       id: 'platform:app-logs',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-log-subscription-filter', tags: { env: 'prod' } } },
+      metadata: {
+        properties: {
+          platform: 'aws-log-subscription-filter',
+          tags: { env: 'prod' },
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

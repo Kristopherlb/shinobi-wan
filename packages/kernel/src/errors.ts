@@ -17,9 +17,12 @@ export class CompilationError extends Error {
   constructor(
     phase: CompilationError['phase'],
     details: ReadonlyArray<CompilationDetail>,
-    message?: string
+    message?: string,
   ) {
-    super(message ?? `Compilation failed in ${phase} phase with ${details.length} error(s)`);
+    super(
+      message ??
+        `Compilation failed in ${phase} phase with ${details.length} error(s)`,
+    );
     this.name = 'CompilationError';
     this.phase = phase;
     this.details = details;
@@ -50,7 +53,7 @@ export class PolicyPackError extends Error {
 
   constructor(requestedPack: string, availablePacks: ReadonlyArray<string>) {
     super(
-      `Policy pack "${requestedPack}" not found. Available: [${availablePacks.join(', ')}]`
+      `Policy pack "${requestedPack}" not found. Available: [${availablePacks.join(', ')}]`,
     );
     this.name = 'PolicyPackError';
     this.requestedPack = requestedPack;

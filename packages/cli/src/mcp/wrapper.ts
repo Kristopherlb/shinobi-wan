@@ -23,7 +23,9 @@ import type {
 
 const workflowClient = createHttpWorkflowClient();
 
-export async function getOperationStatus(operationId: string): Promise<OperationStatusRecord | undefined> {
+export async function getOperationStatus(
+  operationId: string,
+): Promise<OperationStatusRecord | undefined> {
   return workflowClient.getOperationStatus(operationId);
 }
 
@@ -37,10 +39,10 @@ function getVersions() {
 
 function hasApplyWiring(): boolean {
   return Boolean(
-    process.env.SHINOBI_HARMONY_WORKFLOW_NAME
-    && process.env.SHINOBI_HARMONY_TASK_QUEUE
-    && process.env.SHINOBI_HARMONY_STATUS_BASE_URL
-    && process.env.SHINOBI_HARMONY_DISPATCH_URL,
+    process.env.SHINOBI_HARMONY_WORKFLOW_NAME &&
+    process.env.SHINOBI_HARMONY_TASK_QUEUE &&
+    process.env.SHINOBI_HARMONY_STATUS_BASE_URL &&
+    process.env.SHINOBI_HARMONY_DISPATCH_URL,
   );
 }
 
@@ -77,7 +79,10 @@ function validateApprovalEvidence(
   if (!Number.isFinite(approval.slaMinutes) || approval.slaMinutes <= 0) {
     missingFields.push('approval.slaMinutes');
   }
-  if (Number.isFinite(approval.slaMinutes) && approval.slaMinutes > maxSlaMinutes) {
+  if (
+    Number.isFinite(approval.slaMinutes) &&
+    approval.slaMinutes > maxSlaMinutes
+  ) {
     missingFields.push('approval.slaMinutes.withinThreshold');
   }
   return missingFields.length === 0
@@ -107,7 +112,11 @@ export async function invokeHarmonyTool(
           operationClass: 'read',
           defaultTimeoutMs: 5_000,
           maxTimeoutMs: 15_000,
-          retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+          retryPolicy: {
+            maxAttempts: 1,
+            initialIntervalSeconds: 1,
+            backoffCoefficient: 1,
+          },
           idempotency: 'optional',
           mode: 'await',
         },
@@ -125,9 +134,17 @@ export async function invokeHarmonyTool(
 
   switch (request.toolId) {
     case 'golden.shinobi.validate_plan':
-      return runValidate(request.input as ValidatePlanInput, request.traceId, versions);
+      return runValidate(
+        request.input as ValidatePlanInput,
+        request.traceId,
+        versions,
+      );
     case 'golden.shinobi.plan_change':
-      return runPlan(request.input as PlanChangeInput, request.traceId, versions);
+      return runPlan(
+        request.input as PlanChangeInput,
+        request.traceId,
+        versions,
+      );
     case 'golden.shinobi.apply_change':
       return runApply(
         request.input as ApplyChangeInput,
@@ -142,7 +159,12 @@ export async function invokeHarmonyTool(
       return runRollback(request.traceId, versions);
     case 'golden.shinobi.read_entities':
     case 'golden.shinobi.read_activity':
-      return runReadProjection(request.toolId, request.input as ReadInput, request.traceId, versions);
+      return runReadProjection(
+        request.toolId,
+        request.input as ReadInput,
+        request.traceId,
+        versions,
+      );
   }
 }
 
@@ -226,7 +248,11 @@ async function runApply(
           operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
-          retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+          retryPolicy: {
+            maxAttempts: 1,
+            initialIntervalSeconds: 1,
+            backoffCoefficient: 1,
+          },
           idempotency: 'required',
           mode: 'start',
         },
@@ -258,7 +284,11 @@ async function runApply(
           operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
-          retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+          retryPolicy: {
+            maxAttempts: 1,
+            initialIntervalSeconds: 1,
+            backoffCoefficient: 1,
+          },
           idempotency: 'required',
           mode: 'start',
         },
@@ -290,7 +320,11 @@ async function runApply(
           operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
-          retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+          retryPolicy: {
+            maxAttempts: 1,
+            initialIntervalSeconds: 1,
+            backoffCoefficient: 1,
+          },
           idempotency: 'required',
           mode: 'start',
         },
@@ -307,7 +341,10 @@ async function runApply(
   }
 
   if (approvalRequired) {
-    const approvalValidation = validateApprovalEvidence(input.approval, approvalMaxSlaMinutes);
+    const approvalValidation = validateApprovalEvidence(
+      input.approval,
+      approvalMaxSlaMinutes,
+    );
     if (!approvalValidation.valid) {
       return {
         envelope: {
@@ -324,7 +361,11 @@ async function runApply(
             operationClass: 'apply',
             defaultTimeoutMs: 30_000,
             maxTimeoutMs: 120_000,
-            retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+            retryPolicy: {
+              maxAttempts: 1,
+              initialIntervalSeconds: 1,
+              backoffCoefficient: 1,
+            },
             idempotency: 'required',
             mode: 'start',
           },
@@ -362,7 +403,11 @@ async function runApply(
           operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
-          retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+          retryPolicy: {
+            maxAttempts: 1,
+            initialIntervalSeconds: 1,
+            backoffCoefficient: 1,
+          },
           idempotency: 'required',
           mode: 'start',
         },
@@ -394,7 +439,11 @@ async function runApply(
           operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
-          retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+          retryPolicy: {
+            maxAttempts: 1,
+            initialIntervalSeconds: 1,
+            backoffCoefficient: 1,
+          },
           idempotency: 'required',
           mode: 'start',
         },
@@ -405,7 +454,8 @@ async function runApply(
           retriableReason: 'dependency_unavailable',
           source: 'cli.mcp.wrapper',
           traceId,
-          message: 'Harmony wiring is incomplete. Apply remains blocked while read/plan continue.',
+          message:
+            'Harmony wiring is incomplete. Apply remains blocked while read/plan continue.',
         },
       },
     };
@@ -440,7 +490,11 @@ async function runApply(
             operationClass: 'apply',
             defaultTimeoutMs: 30_000,
             maxTimeoutMs: 120_000,
-            retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+            retryPolicy: {
+              maxAttempts: 1,
+              initialIntervalSeconds: 1,
+              backoffCoefficient: 1,
+            },
             idempotency: 'required',
             mode: 'start',
           },
@@ -476,7 +530,11 @@ async function runApply(
             operationClass: 'apply',
             defaultTimeoutMs: 30_000,
             maxTimeoutMs: 120_000,
-            retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+            retryPolicy: {
+              maxAttempts: 1,
+              initialIntervalSeconds: 1,
+              backoffCoefficient: 1,
+            },
             idempotency: 'required',
             mode: 'start',
           },
@@ -529,21 +587,29 @@ async function runReadProjection(
     json: true,
   });
 
-  const derivedPayload = toolId === 'golden.shinobi.read_entities'
-    ? {
-      manifest: validateResult.manifest,
-      resources: planResult.plan?.resources.map((resource) => ({
-        name: resource.name,
-        type: resource.resourceType,
-      })) ?? [],
-    }
-    : {
-      diagnostics: [
-        ...(validateResult.errors.map((error) => ({ source: error.path, message: error.message }))),
-        ...(planResult.errors.map((error) => ({ source: error.path, message: error.message }))),
-      ],
-      policy: validateResult.policy,
-    };
+  const derivedPayload =
+    toolId === 'golden.shinobi.read_entities'
+      ? {
+          manifest: validateResult.manifest,
+          resources:
+            planResult.plan?.resources.map((resource) => ({
+              name: resource.name,
+              type: resource.resourceType,
+            })) ?? [],
+        }
+      : {
+          diagnostics: [
+            ...validateResult.errors.map((error) => ({
+              source: error.path,
+              message: error.message,
+            })),
+            ...planResult.errors.map((error) => ({
+              source: error.path,
+              message: error.message,
+            })),
+          ],
+          policy: validateResult.policy,
+        };
 
   const readSuccess = validateResult.success && planResult.success;
   return {
@@ -561,23 +627,28 @@ async function runReadProjection(
         operationClass: 'read',
         defaultTimeoutMs: 5_000,
         maxTimeoutMs: 15_000,
-        retryPolicy: { maxAttempts: 2, initialIntervalSeconds: 1, backoffCoefficient: 2 },
+        retryPolicy: {
+          maxAttempts: 2,
+          initialIntervalSeconds: 1,
+          backoffCoefficient: 2,
+        },
         idempotency: 'recommended',
         mode: 'await',
       },
       ...(readSuccess
         ? { data: derivedPayload }
         : {
-          error: {
-            code: 'INPUT_VALIDATION_FAILED',
-            category: 'validation',
-            retriable: false,
-            source: 'cli.mcp.wrapper',
-            traceId,
-            message: 'Read projection failed because validate/plan did not succeed.',
-            details: derivedPayload as Record<string, unknown>,
-          },
-        }),
+            error: {
+              code: 'INPUT_VALIDATION_FAILED',
+              category: 'validation',
+              retriable: false,
+              source: 'cli.mcp.wrapper',
+              traceId,
+              message:
+                'Read projection failed because validate/plan did not succeed.',
+              details: derivedPayload as Record<string, unknown>,
+            },
+          }),
     },
   };
 }
@@ -601,7 +672,11 @@ async function runRollback(
         operationClass: 'apply',
         defaultTimeoutMs: 30_000,
         maxTimeoutMs: 120_000,
-        retryPolicy: { maxAttempts: 1, initialIntervalSeconds: 1, backoffCoefficient: 1 },
+        retryPolicy: {
+          maxAttempts: 1,
+          initialIntervalSeconds: 1,
+          backoffCoefficient: 1,
+        },
         idempotency: 'required',
         mode: 'start',
       },
@@ -611,7 +686,8 @@ async function runRollback(
         retriable: false,
         source: 'cli.mcp.wrapper',
         traceId,
-        message: 'Rollback is not yet a first-class Shinobi operation. Use wrapper-managed compensation.',
+        message:
+          'Rollback is not yet a first-class Shinobi operation. Use wrapper-managed compensation.',
       },
     },
   };

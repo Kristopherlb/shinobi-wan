@@ -29,7 +29,9 @@ function makeTriggersContext(overrides?: {
       bindingConfig: overrides?.bindingConfig ?? {
         resourceType: overrides?.resourceType ?? 'api',
         ...(overrides?.route !== undefined ? { route: overrides.route } : {}),
-        ...(overrides?.method !== undefined ? { method: overrides.method } : {}),
+        ...(overrides?.method !== undefined
+          ? { method: overrides.method }
+          : {}),
       },
     },
   });
@@ -71,7 +73,9 @@ describe('TriggersBinder', () => {
     const ctx = makeTriggersContext();
     const result = binder.compileEdge(ctx);
 
-    const configs = result.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+    const configs = result.intents.filter(
+      (i) => i.type === 'config',
+    ) as ConfigIntent[];
     const urlConfig = configs.find((c) => c.key === 'API_GATEWAY_URL');
     expect(urlConfig).toBeDefined();
     expect(urlConfig?.targetNodeRef).toBe('component:handler');
@@ -86,7 +90,9 @@ describe('TriggersBinder', () => {
     const ctx = makeTriggersContext();
     const result = binder.compileEdge(ctx);
 
-    const configs = result.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+    const configs = result.intents.filter(
+      (i) => i.type === 'config',
+    ) as ConfigIntent[];
     const routeConfig = configs.find((c) => c.key === 'API_ROUTE');
     expect(routeConfig).toBeDefined();
     expect(routeConfig?.valueSource).toEqual({
@@ -99,7 +105,9 @@ describe('TriggersBinder', () => {
     const ctx = makeTriggersContext({ route: '/items', method: 'GET' });
     const result = binder.compileEdge(ctx);
 
-    const configs = result.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+    const configs = result.intents.filter(
+      (i) => i.type === 'config',
+    ) as ConfigIntent[];
     const routeConfig = configs.find((c) => c.key === 'API_ROUTE');
     expect(routeConfig?.valueSource).toEqual({
       type: 'literal',
@@ -139,7 +147,9 @@ describe('TriggersBinder', () => {
     const result = binder.compileEdge(ctx);
 
     for (const intent of result.intents) {
-      expect(intent.sourceEdgeId).toBe('edge:triggers:platform:api-gw:component:handler');
+      expect(intent.sourceEdgeId).toBe(
+        'edge:triggers:platform:api-gw:component:handler',
+      );
     }
   });
 

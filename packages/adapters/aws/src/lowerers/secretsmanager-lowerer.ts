@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class SecretsManagerLowerer implements NodeLowerer {
   readonly platform = 'aws-secretsmanager';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -26,7 +35,9 @@ export class SecretsManagerLowerer implements NodeLowerer {
 
     // KMS key reference for encryption
     if (props['kmsKeyId']) {
-      secretProperties['kmsKeyId'] = { ref: `${shortName(props['kmsKeyId'] as string)}-key` };
+      secretProperties['kmsKeyId'] = {
+        ref: `${shortName(props['kmsKeyId'] as string)}-key`,
+      };
     }
 
     resources.push({
@@ -34,7 +45,9 @@ export class SecretsManagerLowerer implements NodeLowerer {
       resourceType: 'aws:secretsmanager:Secret',
       properties: secretProperties,
       sourceId: node.id,
-      dependsOn: props['kmsKeyId'] ? [`${shortName(props['kmsKeyId'] as string)}-key`] : [],
+      dependsOn: props['kmsKeyId']
+        ? [`${shortName(props['kmsKeyId'] as string)}-key`]
+        : [],
     });
 
     // Optional rotation schedule

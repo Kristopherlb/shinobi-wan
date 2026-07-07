@@ -47,7 +47,9 @@ describe('S3Lowerer', () => {
     const resources = lowerer.lower(s3Node, makeContext(), deps);
 
     expect(resources).toHaveLength(1);
-    expect(resources.every((r) => r.resourceType !== 'aws:s3:BucketVersioningV2')).toBe(true);
+    expect(
+      resources.every((r) => r.resourceType !== 'aws:s3:BucketVersioningV2'),
+    ).toBe(true);
   });
 
   it('produces versioning resource when versioning is true', () => {
@@ -64,9 +66,13 @@ describe('S3Lowerer', () => {
     const resources = lowerer.lower(node, makeContext(), deps);
 
     expect(resources).toHaveLength(2);
-    const versioning = resources.find((r) => r.resourceType === 'aws:s3:BucketVersioningV2');
+    const versioning = resources.find(
+      (r) => r.resourceType === 'aws:s3:BucketVersioningV2',
+    );
     expect(versioning).toBeDefined();
-    expect(versioning?.properties['versioningConfiguration']).toEqual({ status: 'Enabled' });
+    expect(versioning?.properties['versioningConfiguration']).toEqual({
+      status: 'Enabled',
+    });
   });
 
   it('versioning resource depends on bucket', () => {
@@ -82,7 +88,9 @@ describe('S3Lowerer', () => {
     });
     const resources = lowerer.lower(node, makeContext(), deps);
 
-    const versioning = resources.find((r) => r.resourceType === 'aws:s3:BucketVersioningV2');
+    const versioning = resources.find(
+      (r) => r.resourceType === 'aws:s3:BucketVersioningV2',
+    );
     expect(versioning?.dependsOn).toContain('versioned-bucket-bucket');
   });
 
@@ -99,8 +107,12 @@ describe('S3Lowerer', () => {
     });
     const resources = lowerer.lower(node, makeContext(), deps);
 
-    const versioning = resources.find((r) => r.resourceType === 'aws:s3:BucketVersioningV2');
-    expect(versioning?.properties['bucket']).toEqual({ ref: 'versioned-bucket-bucket' });
+    const versioning = resources.find(
+      (r) => r.resourceType === 'aws:s3:BucketVersioningV2',
+    );
+    expect(versioning?.properties['bucket']).toEqual({
+      ref: 'versioned-bucket-bucket',
+    });
   });
 
   it('resource name uses short name from node ID', () => {

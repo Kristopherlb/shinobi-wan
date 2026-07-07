@@ -3,6 +3,7 @@
 **Date:** 2026-02-13
 **Session Duration:** ~15 minutes
 **Artifacts Produced:**
+
 - 3 new node lowerers (DynamoDB, S3, API Gateway) in `@shinobi/adapter-aws`
 - 1 new binder (TriggersBinder) in `@shinobi/binder`
 - API Gateway → Lambda integration post-processor in adapter
@@ -15,24 +16,31 @@
 ## What Went Well
 
 ### 1. Existing Patterns Made Implementation Mechanical (~95%)
+
 The Lambda/SQS lowerer pair provided a perfect template for all 3 new lowerers. Each new lowerer was nearly copy-edit: change the platform string, resource type, and property mapping. The `NodeLowerer` interface, `shortName()` utility, and test-helper conventions (`makeNode`, `makeContext`, `ResolvedDeps`) were all reusable without modification.
 
 ### 2. Test Helpers Were Already Cross-Package Ready
+
 The adapter test-helpers (`test-helpers.ts`) with `makeNode()`, `makeEdge()`, `makeContext()`, and `DEFAULT_ADAPTER_CONFIG` worked directly for all new lowerer tests. No new test infrastructure was needed for the adapter package.
 
 ### 3. Binder Pattern Transferred Cleanly to TriggersBinder
+
 The `IBinder` interface, `BindingContext`, `BinderOutput` types, and `createIamIntent()`/`createConfigIntent()` factories from `ComponentPlatformBinder` mapped directly. The TriggersBinder was ~70 lines and produced 3 intents per edge — matching the existing pattern without introducing new abstractions.
 
 ### 4. API Gateway Integration Followed EventSourceMapping Pattern
+
 The existing `generateEventSourceMappings()` function for Lambda→SQS provided the exact pattern for `generateApiGatewayIntegrations()` for API GW→Lambda. Both iterate over edges, check platform types, and emit post-processing resources. The adapter's 5-phase `lower()` orchestrator accommodated a 6th phase (API GW integrations) with a single added call.
 
 ### 5. Zero Test Infrastructure Changes
+
 All new tests used existing Vitest configs, test helpers, and mock patterns. The Pulumi constructor mock pattern (`makeConstructor` with `function` syntax for `new` support) extended cleanly to 8 new resource types.
 
 ### 6. IAM ACTION_MAP Was Pre-Wired
+
 The `iam-lowerer.ts` already had `table` and `bucket` entries in `ACTION_MAP`. Only `api` needed to be added for the TriggersBinder's `invoke` action. This shows good anticipatory design in the original IAM lowerer.
 
 ### 7. Integration Test Validated Triggers Binder in Context
+
 The existing binder integration test had a test case with `component→component` triggers edge (unbound). After registering the TriggersBinder, the same test still works (unbound for wrong types), and the new `platform→component` test case produces 3 intents. This validates the registry's pattern-matching selectivity.
 
 ---
@@ -40,6 +48,7 @@ The existing binder integration test had a test case with `component→component
 ## What Could Have Been Better
 
 ### 1. `shortName()` Duplicated Across 5 Lowerer Files
+
 The utility function `shortName(nodeId: string): string` is now duplicated in: `lambda-lowerer.ts`, `sqs-lowerer.ts`, `dynamodb-lowerer.ts`, `s3-lowerer.ts`, `apigateway-lowerer.ts`, and `adapter.ts` (6 copies total, 3 pre-existing + 3 new). This should be extracted to a shared utility.
 
 **Impact:** No bugs yet, but violates DRY and risks drift.
@@ -47,6 +56,7 @@ The utility function `shortName(nodeId: string): string` is now duplicated in: `
 **Proposed Fix:** Extract to `packages/adapters/aws/src/lowerers/utils.ts` and import from there. See IMP-018.
 
 ### 2. `resolveConfigValue()` Requires Manual Platform Case Extension
+
 Each new platform type (aws-dynamodb, aws-s3, aws-apigateway) needed a new `if (platform === '...')` branch in `resolveConfigValue()`. This is a maintenance burden and will grow linearly with each new platform.
 
 **Impact:** ~1 minute per new platform type.
@@ -54,11 +64,13 @@ Each new platform type (aws-dynamodb, aws-s3, aws-apigateway) needed a new `if (
 **Proposed Fix:** Create a `PLATFORM_REF_MAP` constant that maps platform → (resource suffix, output field), replacing the if-chain. See IMP-019.
 
 ### 3. Plan Was Comprehensive but Very Long
+
 The plan was ~200 lines covering 7 steps, 19 files, and detailed design for each component. While accurate, it was more detailed than needed — most implementation was pattern-following. A shorter plan with "follow Lambda/SQS pattern" references would have been sufficient for the 3 lowerers.
 
 **Impact:** No implementation impact, but plan creation time could be reduced for pattern-following work.
 
 ### 4. No Conformance Tests for New Resources
+
 The conformance package's golden tests and triad matrix still only cover the Lambda+SQS scenario. DynamoDB, S3, and API Gateway aren't exercised in conformance. This is acceptable for now but should be tracked.
 
 **Impact:** Lower confidence in end-to-end determinism for new resource types.
@@ -123,41 +135,41 @@ The conformance package's golden tests and triad matrix still only cover the Lam
 
 ### Immediate (This Sprint)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
-| IMP-018 | Extract `shortName()` to shared lowerer utility | 10 min | Eliminates 6-way duplication in adapter lowerers |
+| ID      | Action                                               | Effort | Impact                                            |
+| ------- | ---------------------------------------------------- | ------ | ------------------------------------------------- |
+| IMP-018 | Extract `shortName()` to shared lowerer utility      | 10 min | Eliminates 6-way duplication in adapter lowerers  |
 | IMP-019 | Create `PLATFORM_REF_MAP` for `resolveConfigValue()` | 15 min | Replaces growing if-chain with data-driven lookup |
 
 ### Near-Term (Next 2 Sprints)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
+| ID      | Action                                                       | Effort  | Impact                                                     |
+| ------- | ------------------------------------------------------------ | ------- | ---------------------------------------------------------- |
 | IMP-020 | Add DynamoDB/S3/API GW scenarios to conformance triad matrix | 2 hours | End-to-end determinism verification for new resource types |
-| IMP-003 | Package generator with Vitest config (still open) | 2 hours | Eliminates setup for future packages |
+| IMP-003 | Package generator with Vitest config (still open)            | 2 hours | Eliminates setup for future packages                       |
 
 ### Strategic (Roadmap)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
-| — | Additional lowerers: SNS, EventBridge, CloudFront, RDS | 2-3 hours | Broader AWS resource coverage following same pattern |
-| — | `dependsOn` binder | 1 hour | Complete edge type coverage beyond bindsTo and triggers |
-| — | Adapter plugin system | 4+ hours | Replace hardcoded NODE_LOWERERS with registrable plugins |
+| ID  | Action                                                 | Effort    | Impact                                                   |
+| --- | ------------------------------------------------------ | --------- | -------------------------------------------------------- |
+| —   | Additional lowerers: SNS, EventBridge, CloudFront, RDS | 2-3 hours | Broader AWS resource coverage following same pattern     |
+| —   | `dependsOn` binder                                     | 1 hour    | Complete edge type coverage beyond bindsTo and triggers  |
+| —   | Adapter plugin system                                  | 4+ hours  | Replace hardcoded NODE_LOWERERS with registrable plugins |
 
 ---
 
 ## Metrics
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Files created | 9 | 3 lowerers, 1 binder, 4 test files, 1 example manifest |
-| Files modified | 10 | Exports, registrations, Pulumi constructors, tests |
-| New tests | 45 | DynamoDB(11) + S3(9) + ApiGW(13) + Triggers(11) + integration(1) |
-| Total tests | 753 | Up from 708 |
-| New source lines | ~500 | Lowerers + binder + integration code |
-| Lint errors | 0 | 0 new errors; pre-existing warnings unchanged |
-| Test failures during dev | 0 | All tests passed on first run |
-| Session duration | ~15 min | Fastest phase — entirely pattern-following |
-| Packages touched | 3 | adapter-aws, binder, cli |
+| Metric                   | Value   | Notes                                                            |
+| ------------------------ | ------- | ---------------------------------------------------------------- |
+| Files created            | 9       | 3 lowerers, 1 binder, 4 test files, 1 example manifest           |
+| Files modified           | 10      | Exports, registrations, Pulumi constructors, tests               |
+| New tests                | 45      | DynamoDB(11) + S3(9) + ApiGW(13) + Triggers(11) + integration(1) |
+| Total tests              | 753     | Up from 708                                                      |
+| New source lines         | ~500    | Lowerers + binder + integration code                             |
+| Lint errors              | 0       | 0 new errors; pre-existing warnings unchanged                    |
+| Test failures during dev | 0       | All tests passed on first run                                    |
+| Session duration         | ~15 min | Fastest phase — entirely pattern-following                       |
+| Packages touched         | 3       | adapter-aws, binder, cli                                         |
 
 ---
 
@@ -181,6 +193,7 @@ The conformance package's golden tests and triad matrix still only cover the Lam
 ## Resource Lowerer Implementation Checklist (for pattern-following additions)
 
 When adding a new node lowerer:
+
 1. Copy closest existing lowerer (Lambda for compute, SQS for messaging, DynamoDB for storage)
 2. Change: platform string, resourceType, property mapping, resource name suffix
 3. Register in: NODE_LOWERERS (adapter.ts), lowerers/index.ts, index.ts (adapter)
@@ -196,18 +209,19 @@ When adding a new node lowerer:
 
 ## Improvements / Capabilities That Would Help Next
 
-| Type | Proposal | Effort | Expected Impact |
-|------|----------|--------|-----------------|
-| Refactor | IMP-018: Extract `shortName()` to `lowerers/utils.ts` | 10 min | Eliminates 6x duplication, single source of truth |
-| Refactor | IMP-019: Data-driven `resolveConfigValue()` with PLATFORM_REF_MAP | 15 min | O(1) platform addition instead of growing if-chain |
-| Testing | IMP-020: Conformance golden tests for DynamoDB/S3/API GW | 2 hours | End-to-end determinism coverage for new resources |
-| Skill | Update plan templates with "Resource Lowerer Checklist" | 15 min | Makes future lowerer additions even more mechanical |
+| Type     | Proposal                                                          | Effort  | Expected Impact                                     |
+| -------- | ----------------------------------------------------------------- | ------- | --------------------------------------------------- |
+| Refactor | IMP-018: Extract `shortName()` to `lowerers/utils.ts`             | 10 min  | Eliminates 6x duplication, single source of truth   |
+| Refactor | IMP-019: Data-driven `resolveConfigValue()` with PLATFORM_REF_MAP | 15 min  | O(1) platform addition instead of growing if-chain  |
+| Testing  | IMP-020: Conformance golden tests for DynamoDB/S3/API GW          | 2 hours | End-to-end determinism coverage for new resources   |
+| Skill    | Update plan templates with "Resource Lowerer Checklist"           | 15 min  | Makes future lowerer additions even more mechanical |
 
 ---
 
 ## Files Created/Modified
 
 ### Created
+
 ```
 packages/adapters/aws/src/lowerers/dynamodb-lowerer.ts
 packages/adapters/aws/src/lowerers/s3-lowerer.ts
@@ -221,6 +235,7 @@ examples/apigw-dynamodb.yaml
 ```
 
 ### Modified
+
 ```
 packages/adapters/aws/src/adapter.ts (register lowerers + API GW integration + resolveConfigValue)
 packages/adapters/aws/src/lowerers/index.ts (export new lowerers)

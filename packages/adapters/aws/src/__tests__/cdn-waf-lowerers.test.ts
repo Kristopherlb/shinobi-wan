@@ -3,7 +3,12 @@ import { CloudFrontLowerer } from '../lowerers/cloudfront-lowerer';
 import { WafLowerer } from '../lowerers/waf-lowerer';
 import { AcmLowerer } from '../lowerers/acm-lowerer';
 import { CloudFrontFunctionLowerer } from '../lowerers/cloudfront-function-lowerer';
-import { makeNode, makeEdge, makeDefaultContext, makeDefaultDeps } from './test-helpers';
+import {
+  makeNode,
+  makeEdge,
+  makeDefaultContext,
+  makeDefaultDeps,
+} from './test-helpers';
 import { createSnapshot } from '@shinobi/ir';
 
 const DEFAULT_CONTEXT = makeDefaultContext();
@@ -37,7 +42,9 @@ describe('CloudFrontLowerer', () => {
 
   it('OAC has correct resource type', () => {
     const resources = lowerer.lower(cfNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0]?.resourceType).toBe('aws:cloudfront:OriginAccessControl');
+    expect(resources[0]?.resourceType).toBe(
+      'aws:cloudfront:OriginAccessControl',
+    );
   });
 
   it('OAC properties: originAccessControlOriginType, signingBehavior, signingProtocol', () => {
@@ -80,13 +87,19 @@ describe('CloudFrontLowerer', () => {
 
   it('Distribution viewerCertificate defaults to cloudfrontDefaultCertificate=true', () => {
     const resources = lowerer.lower(cfNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const cert = resources[1]?.properties['viewerCertificate'] as Record<string, unknown>;
+    const cert = resources[1]?.properties['viewerCertificate'] as Record<
+      string,
+      unknown
+    >;
     expect(cert?.['cloudfrontDefaultCertificate']).toBe(true);
   });
 
   it('Distribution has restriction type none', () => {
     const resources = lowerer.lower(cfNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const restrictions = resources[1]?.properties['restrictions'] as Record<string, unknown>;
+    const restrictions = resources[1]?.properties['restrictions'] as Record<
+      string,
+      unknown
+    >;
     const geo = restrictions?.['geoRestriction'] as Record<string, unknown>;
     expect(geo?.['restrictionType']).toBe('none');
   });
@@ -112,7 +125,12 @@ describe('CloudFrontLowerer', () => {
     const node = makeNode({
       id: 'platform:my-cdn',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-cloudfront', priceClass: 'PriceClass_All' } },
+      metadata: {
+        properties: {
+          platform: 'aws-cloudfront',
+          priceClass: 'PriceClass_All',
+        },
+      },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[1]?.properties['priceClass']).toBe('PriceClass_All');
@@ -122,7 +140,12 @@ describe('CloudFrontLowerer', () => {
     const node = makeNode({
       id: 'platform:my-cdn',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-cloudfront', defaultRootObject: 'home.html' } },
+      metadata: {
+        properties: {
+          platform: 'aws-cloudfront',
+          defaultRootObject: 'home.html',
+        },
+      },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[1]?.properties['defaultRootObject']).toBe('home.html');
@@ -146,7 +169,9 @@ describe('CloudFrontLowerer', () => {
       adapterConfig: { region: 'us-east-1', serviceName: 'test-svc' },
     };
     const resources = lowerer.lower(cfNode, ctx, DEFAULT_DEPS);
-    const origins = resources[1]?.properties['origins'] as Array<Record<string, unknown>>;
+    const origins = resources[1]?.properties['origins'] as Array<
+      Record<string, unknown>
+    >;
     expect(origins?.[0]?.['domainName']).toEqual({
       ref: 'assets-bucket.bucketRegionalDomainName',
     });
@@ -154,14 +179,22 @@ describe('CloudFrontLowerer', () => {
 
   it('falls back to static domain when no S3 edge', () => {
     const resources = lowerer.lower(cfNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const origins = resources[1]?.properties['origins'] as Array<Record<string, unknown>>;
-    expect(origins?.[0]?.['domainName']).toBe('test-svc-my-cdn.s3.amazonaws.com');
+    const origins = resources[1]?.properties['origins'] as Array<
+      Record<string, unknown>
+    >;
+    expect(origins?.[0]?.['domainName']).toBe(
+      'test-svc-my-cdn.s3.amazonaws.com',
+    );
   });
 
   it('origin references OAC via ref', () => {
     const resources = lowerer.lower(cfNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const origins = resources[1]?.properties['origins'] as Array<Record<string, unknown>>;
-    expect(origins?.[0]?.['originAccessControlId']).toEqual({ ref: 'my-cdn-oac' });
+    const origins = resources[1]?.properties['origins'] as Array<
+      Record<string, unknown>
+    >;
+    expect(origins?.[0]?.['originAccessControlId']).toEqual({
+      ref: 'my-cdn-oac',
+    });
   });
 
   it('sets sourceId to node ID on all resources', () => {
@@ -188,7 +221,10 @@ describe('CloudFrontLowerer', () => {
       },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[1]?.properties['aliases']).toEqual(['cdn.example.com', 'www.example.com']);
+    expect(resources[1]?.properties['aliases']).toEqual([
+      'cdn.example.com',
+      'www.example.com',
+    ]);
   });
 
   it('adds wafAclArn when provided in config', () => {
@@ -253,7 +289,9 @@ describe('WafLowerer', () => {
 
   it('includes 3 default managed rule groups', () => {
     const resources = lowerer.lower(wafNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const rules = resources[0]?.properties['rules'] as Array<Record<string, unknown>>;
+    const rules = resources[0]?.properties['rules'] as Array<
+      Record<string, unknown>
+    >;
     expect(rules).toHaveLength(3);
 
     const ruleNames = rules?.map((r) => r['name']);
@@ -264,7 +302,9 @@ describe('WafLowerer', () => {
 
   it('rules have correct priority ordering (10, 20, 30)', () => {
     const resources = lowerer.lower(wafNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const rules = resources[0]?.properties['rules'] as Array<Record<string, unknown>>;
+    const rules = resources[0]?.properties['rules'] as Array<
+      Record<string, unknown>
+    >;
     expect(rules?.[0]?.['priority']).toBe(10);
     expect(rules?.[1]?.['priority']).toBe(20);
     expect(rules?.[2]?.['priority']).toBe(30);
@@ -272,7 +312,9 @@ describe('WafLowerer', () => {
 
   it('each rule has visibilityConfig with cloudwatch metrics enabled', () => {
     const resources = lowerer.lower(wafNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const rules = resources[0]?.properties['rules'] as Array<Record<string, unknown>>;
+    const rules = resources[0]?.properties['rules'] as Array<
+      Record<string, unknown>
+    >;
     for (const rule of rules ?? []) {
       const vis = rule['visibilityConfig'] as Record<string, unknown>;
       expect(vis?.['cloudwatchMetricsEnabled']).toBe(true);
@@ -282,7 +324,10 @@ describe('WafLowerer', () => {
 
   it('top-level visibilityConfig has cloudwatch metrics enabled', () => {
     const resources = lowerer.lower(wafNode, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const vis = resources[0]?.properties['visibilityConfig'] as Record<string, unknown>;
+    const vis = resources[0]?.properties['visibilityConfig'] as Record<
+      string,
+      unknown
+    >;
     expect(vis?.['cloudwatchMetricsEnabled']).toBe(true);
     expect(vis?.['sampledRequestsEnabled']).toBe(true);
     expect(vis?.['metricName']).toBe('test-svc-site-waf');
@@ -309,7 +354,9 @@ describe('WafLowerer', () => {
     const node = makeNode({
       id: 'platform:strict-waf',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-wafv2', defaultAction: 'block' } },
+      metadata: {
+        properties: { platform: 'aws-wafv2', defaultAction: 'block' },
+      },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0]?.properties['defaultAction']).toEqual({ block: {} });
@@ -373,7 +420,9 @@ describe('AcmLowerer', () => {
     const node = makeNode({
       id: 'platform:site-cert',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-acm', domainName: 'mysite.dev' } },
+      metadata: {
+        properties: { platform: 'aws-acm', domainName: 'mysite.dev' },
+      },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0]?.properties['domainName']).toBe('mysite.dev');
@@ -479,7 +528,9 @@ describe('CloudFrontFunctionLowerer', () => {
     const node = makeNode({
       id: 'platform:redirect-fn',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-cloudfront-function', code: customCode } },
+      metadata: {
+        properties: { platform: 'aws-cloudfront-function', code: customCode },
+      },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0]?.properties['code']).toBe(customCode);
@@ -490,7 +541,10 @@ describe('CloudFrontFunctionLowerer', () => {
       id: 'platform:redirect-fn',
       type: 'platform',
       metadata: {
-        properties: { platform: 'aws-cloudfront-function', comment: 'My redirect function' },
+        properties: {
+          platform: 'aws-cloudfront-function',
+          comment: 'My redirect function',
+        },
       },
     });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

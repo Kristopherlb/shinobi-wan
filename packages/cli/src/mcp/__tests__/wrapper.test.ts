@@ -13,7 +13,17 @@ vi.mock('../../commands/plan', () => ({
     success: true,
     errors: [],
     validation: { success: true, errors: [] },
-    plan: { resources: [{ name: 'r1', resourceType: 'aws:s3:Bucket', properties: {}, dependsOn: [] }], outputs: {} },
+    plan: {
+      resources: [
+        {
+          name: 'r1',
+          resourceType: 'aws:s3:Bucket',
+          properties: {},
+          dependsOn: [],
+        },
+      ],
+      outputs: {},
+    },
   })),
 }));
 
@@ -22,7 +32,11 @@ vi.mock('../../commands/up', () => ({
     success: true,
     deployed: true,
     message: 'ok',
-    plan: { success: true, validation: { success: true, errors: [] }, errors: [] },
+    plan: {
+      success: true,
+      validation: { success: true, errors: [] },
+      errors: [],
+    },
   })),
 }));
 
@@ -44,7 +58,8 @@ describe('harmony wrapper', () => {
     process.env.SHINOBI_HARMONY_WORKFLOW_NAME = 'shinobi-apply-workflow';
     process.env.SHINOBI_HARMONY_TASK_QUEUE = 'shinobi-apply-queue';
     process.env.SHINOBI_HARMONY_STATUS_BASE_URL = 'https://harmony.local';
-    process.env.SHINOBI_HARMONY_DISPATCH_URL = 'https://harmony.local/operations/dispatch';
+    process.env.SHINOBI_HARMONY_DISPATCH_URL =
+      'https://harmony.local/operations/dispatch';
     vi.stubGlobal('fetch', fetchMock);
   });
 
@@ -56,7 +71,9 @@ describe('harmony wrapper', () => {
     });
 
     expect(response.envelope.success).toBe(true);
-    expect(response.envelope.metadata.toolId).toBe('golden.shinobi.validate_plan');
+    expect(response.envelope.metadata.toolId).toBe(
+      'golden.shinobi.validate_plan',
+    );
     expect(response.envelope.metadata.operationClass).toBe('plan');
   });
 
@@ -64,7 +81,11 @@ describe('harmony wrapper', () => {
     const response = await invokeHarmonyTool({
       toolId: 'golden.shinobi.apply_change',
       traceId: 'trace-2',
-      input: { manifestPath: 'examples/lambda-sqs.yaml', planFingerprint: 'x', idempotencyKey: 'k1' },
+      input: {
+        manifestPath: 'examples/lambda-sqs.yaml',
+        planFingerprint: 'x',
+        idempotencyKey: 'k1',
+      },
     });
 
     expect(response.envelope.success).toBe(false);
@@ -73,13 +94,18 @@ describe('harmony wrapper', () => {
 
   it('returns async handle for apply start mode when enabled', async () => {
     process.env.SHINOBI_APPLY_ENABLED = 'true';
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      operationId: 'operation-123',
-      workflowId: 'workflow-123',
-      submittedAt: '2026-02-16T00:00:00.000Z',
-      statusUrl: 'https://harmony.local/operations/operation-123',
-      cancelUrl: 'https://harmony.local/operations/operation-123/cancel',
-    }), { status: 202 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          operationId: 'operation-123',
+          workflowId: 'workflow-123',
+          submittedAt: '2026-02-16T00:00:00.000Z',
+          statusUrl: 'https://harmony.local/operations/operation-123',
+          cancelUrl: 'https://harmony.local/operations/operation-123/cancel',
+        }),
+        { status: 202 },
+      ),
+    );
 
     const planResponse = await invokeHarmonyTool({
       toolId: 'golden.shinobi.plan_change',
@@ -121,12 +147,17 @@ describe('harmony wrapper', () => {
 
   it('keeps plan fingerprint stable when apply manifest path has surrounding whitespace', async () => {
     process.env.SHINOBI_APPLY_ENABLED = 'true';
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      operationId: 'operation-456',
-      workflowId: 'workflow-456',
-      submittedAt: '2026-02-16T00:00:00.000Z',
-      statusUrl: 'https://harmony.local/operations/operation-456',
-    }), { status: 202 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          operationId: 'operation-456',
+          workflowId: 'workflow-456',
+          submittedAt: '2026-02-16T00:00:00.000Z',
+          statusUrl: 'https://harmony.local/operations/operation-456',
+        }),
+        { status: 202 },
+      ),
+    );
 
     const planResponse = await invokeHarmonyTool({
       toolId: 'golden.shinobi.plan_change',
@@ -162,12 +193,17 @@ describe('harmony wrapper', () => {
   });
 
   it('reads operation status from workflow backend', async () => {
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      status: 'running',
-      traceId: 'trace-3',
-      toolId: 'golden.shinobi.apply_change',
-      startedAt: '2026-02-16T00:00:00.000Z',
-    }), { status: 200 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          status: 'running',
+          traceId: 'trace-3',
+          toolId: 'golden.shinobi.apply_change',
+          startedAt: '2026-02-16T00:00:00.000Z',
+        }),
+        { status: 200 },
+      ),
+    );
 
     const status = await getOperationStatus('operation-123');
     expect(status?.status).toBe('running');
@@ -182,7 +218,10 @@ describe('harmony wrapper', () => {
     const response = await invokeHarmonyTool({
       toolId: 'golden.shinobi.apply_change',
       traceId: 'trace-5',
-      input: { manifestPath: 'examples/lambda-sqs.yaml', idempotencyKey: 'apply-2' },
+      input: {
+        manifestPath: 'examples/lambda-sqs.yaml',
+        idempotencyKey: 'apply-2',
+      },
     });
 
     expect(response.envelope.success).toBe(false);
@@ -289,14 +328,21 @@ describe('harmony wrapper', () => {
     expect(response.envelope.success).toBe(false);
     expect(response.envelope.error?.code).toBe('DEPENDENCY_UNAVAILABLE');
     expect(response.envelope.error?.retriable).toBe(true);
-    expect(response.envelope.error?.retriableReason).toBe('dependency_unavailable');
+    expect(response.envelope.error?.retriableReason).toBe(
+      'dependency_unavailable',
+    );
   });
 
   it('fails apply start when workflow dispatch endpoint fails', async () => {
     process.env.SHINOBI_APPLY_ENABLED = 'true';
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      message: 'workflow backend unavailable',
-    }), { status: 503 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          message: 'workflow backend unavailable',
+        }),
+        { status: 503 },
+      ),
+    );
 
     const planResponse = await invokeHarmonyTool({
       toolId: 'golden.shinobi.plan_change',
@@ -333,9 +379,14 @@ describe('harmony wrapper', () => {
 
   it('keeps read and plan operations healthy after apply dispatch failure', async () => {
     process.env.SHINOBI_APPLY_ENABLED = 'true';
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      message: 'workflow backend unavailable',
-    }), { status: 503 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          message: 'workflow backend unavailable',
+        }),
+        { status: 503 },
+      ),
+    );
 
     const planResponse = await invokeHarmonyTool({
       toolId: 'golden.shinobi.plan_change',
@@ -406,6 +457,8 @@ describe('harmony wrapper', () => {
       input: {},
     });
     expect(response.envelope.success).toBe(false);
-    expect(response.envelope.error?.message).toContain('Rollback is not yet a first-class Shinobi operation');
+    expect(response.envelope.error?.message).toContain(
+      'Rollback is not yet a first-class Shinobi operation',
+    );
   });
 });

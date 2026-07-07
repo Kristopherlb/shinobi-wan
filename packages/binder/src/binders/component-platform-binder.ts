@@ -1,6 +1,16 @@
 import type { Intent } from '@shinobi/contracts';
-import type { IBinder, SupportedEdgePattern, BindingContext, BinderOutput, BindingDiagnostic } from '@shinobi/kernel';
-import { createIamIntent, createNetworkIntent, createConfigIntent } from '../intent-factories';
+import type {
+  IBinder,
+  SupportedEdgePattern,
+  BindingContext,
+  BinderOutput,
+  BindingDiagnostic,
+} from '@shinobi/kernel';
+import {
+  createIamIntent,
+  createNetworkIntent,
+  createConfigIntent,
+} from '../intent-factories';
 
 /**
  * Access level → IAM action mapping.
@@ -26,8 +36,13 @@ interface BindingConfig {
   };
   readonly configKeys?: ReadonlyArray<{
     readonly key: string;
-    readonly valueSource: { readonly type: 'literal'; readonly value: string | number | boolean }
-      | { readonly type: 'reference'; readonly nodeRef: string; readonly field: string }
+    readonly valueSource:
+      | { readonly type: 'literal'; readonly value: string | number | boolean }
+      | {
+          readonly type: 'reference';
+          readonly nodeRef: string;
+          readonly field: string;
+        }
       | { readonly type: 'secret'; readonly secretRef: string };
   }>;
 }
@@ -66,7 +81,8 @@ export class ComponentPlatformBinder implements IBinder {
 
     // Resolve access level
     const accessLevel = bindingConfig.accessLevel ?? 'read';
-    const actionNames = bindingConfig.actions ?? ACCESS_LEVEL_ACTIONS[accessLevel];
+    const actionNames =
+      bindingConfig.actions ?? ACCESS_LEVEL_ACTIONS[accessLevel];
 
     if (!actionNames) {
       diagnostics.push({
@@ -93,8 +109,8 @@ export class ComponentPlatformBinder implements IBinder {
           resourceType: bindingConfig.resourceType,
           scope: bindingConfig.scope ?? 'specific',
         },
-        iamActions
-      )
+        iamActions,
+      ),
     );
 
     // Emit network intent if network config present
@@ -107,8 +123,8 @@ export class ComponentPlatformBinder implements IBinder {
           'egress',
           { nodeRef: sourceNode.id, ...(port !== undefined ? { port } : {}) },
           { nodeRef: targetNode.id, ...(port !== undefined ? { port } : {}) },
-          { protocol, ...(port !== undefined ? { ports: [port] } : {}) }
-        )
+          { protocol, ...(port !== undefined ? { ports: [port] } : {}) },
+        ),
       );
     }
 
@@ -120,8 +136,8 @@ export class ComponentPlatformBinder implements IBinder {
             edge.id,
             sourceNode.id,
             configEntry.key,
-            configEntry.valueSource
-          )
+            configEntry.valueSource,
+          ),
         );
       }
     }

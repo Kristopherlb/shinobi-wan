@@ -93,9 +93,14 @@ if (!hasComponents) {
   // triggers edges produce ~3 intents (iam + 2 config), bindsTo edges produce ~3 (iam + network + config)
   const triggersEdges = bindings.filter((b) => {
     const sourceComp = components.find((c) => c.id === b.source);
-    return b.type === 'triggers' || (sourceComp?.type !== 'component' && b.type === 'triggers');
+    return (
+      b.type === 'triggers' ||
+      (sourceComp?.type !== 'component' && b.type === 'triggers')
+    );
   }).length;
-  const bindsToEdges = componentToplatformEdges.filter((b) => b.type === 'bindsTo').length;
+  const bindsToEdges = componentToplatformEdges.filter(
+    (b) => b.type === 'bindsTo',
+  ).length;
   intentCountEstimate = triggersEdges * 3 + bindsToEdges * 3;
   intentComment = `TODO: verify intent count (~${intentCountEstimate} estimated: ~3 per component→platform edge)`;
 }
@@ -121,19 +126,24 @@ function formatValue(value: unknown, indent: number): string {
   const pad = ' '.repeat(indent);
   if (value === null || value === undefined) return 'undefined';
   if (typeof value === 'string') return `'${value.replace(/'/g, "\\'")}'`;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === 'number' || typeof value === 'boolean')
+    return String(value);
   if (Array.isArray(value)) {
     if (value.length === 0) return '[]';
     if (value.every((v) => typeof v === 'string')) {
       return `[${value.map((v) => `'${v}'`).join(', ')}]`;
     }
-    const items = value.map((v) => `${pad}  ${formatValue(v, indent + 2)}`).join(',\n');
+    const items = value
+      .map((v) => `${pad}  ${formatValue(v, indent + 2)}`)
+      .join(',\n');
     return `[\n${items},\n${pad}]`;
   }
   if (typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>);
     if (entries.length === 0) return '{}';
-    const lines = entries.map(([k, v]) => `${pad}  ${k}: ${formatValue(v, indent + 2)}`);
+    const lines = entries.map(
+      ([k, v]) => `${pad}  ${k}: ${formatValue(v, indent + 2)}`,
+    );
     return `{\n${lines.join(',\n')},\n${pad}}`;
   }
   return String(value);

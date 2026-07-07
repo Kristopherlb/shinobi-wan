@@ -34,18 +34,20 @@ describe('SEVERITY_MAP', () => {
 describe('getSeverity', () => {
   it('returns correct severity for known pack and rule', () => {
     expect(getSeverity('Baseline', 'iam-no-wildcard-resource')).toBe('warning');
-    expect(getSeverity('FedRAMP-High', 'iam-no-wildcard-resource')).toBe('error');
+    expect(getSeverity('FedRAMP-High', 'iam-no-wildcard-resource')).toBe(
+      'error',
+    );
   });
 
   it('throws for unknown policy pack', () => {
-    expect(() => getSeverity('NonExistent', 'iam-no-wildcard-resource')).toThrow(
-      'Unknown policy pack'
-    );
+    expect(() =>
+      getSeverity('NonExistent', 'iam-no-wildcard-resource'),
+    ).toThrow('Unknown policy pack');
   });
 
   it('throws for unknown rule ID', () => {
     expect(() => getSeverity('Baseline', 'nonexistent-rule')).toThrow(
-      'not found in severity map'
+      'not found in severity map',
     );
   });
 });

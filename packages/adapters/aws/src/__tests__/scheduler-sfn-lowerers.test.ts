@@ -3,7 +3,9 @@ import { EventBridgeLowerer } from '../lowerers/eventbridge-lowerer';
 import { StepFunctionsLowerer } from '../lowerers/stepfunctions-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 // ---------------------------------------------------------------------------
@@ -16,7 +18,9 @@ describe('EventBridgeLowerer', () => {
     makeNode({
       id: 'platform:scheduled-task',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-eventbridge-scheduler', ...props } },
+      metadata: {
+        properties: { platform: 'aws-eventbridge-scheduler', ...props },
+      },
     });
 
   it('has correct platform', () => {
@@ -88,7 +92,9 @@ describe('EventBridgeLowerer', () => {
   });
 
   it('Schedule uses custom expression from config', () => {
-    const node = makeSchedulerNode({ scheduleExpression: 'cron(0 12 * * ? *)' });
+    const node = makeSchedulerNode({
+      scheduleExpression: 'cron(0 12 * * ? *)',
+    });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const props = resources[1]?.properties;
     expect(props?.['scheduleExpression']).toBe('cron(0 12 * * ? *)');
@@ -231,7 +237,9 @@ describe('StepFunctionsLowerer', () => {
     const node = makeSfnNode();
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const props = resources[0]?.properties;
-    expect(props?.['name']).toBe('/aws/vendedlogs/states/my-service-my-workflow');
+    expect(props?.['name']).toBe(
+      '/aws/vendedlogs/states/my-service-my-workflow',
+    );
   });
 
   it('LogGroup has default retention: 30 days', () => {
@@ -314,7 +322,13 @@ describe('StepFunctionsLowerer', () => {
     const customDef = JSON.stringify({
       Comment: 'Custom workflow',
       StartAt: 'Task1',
-      States: { Task1: { Type: 'Task', Resource: 'arn:aws:lambda:us-east-1:123456789012:function:MyFunction', End: true } },
+      States: {
+        Task1: {
+          Type: 'Task',
+          Resource: 'arn:aws:lambda:us-east-1:123456789012:function:MyFunction',
+          End: true,
+        },
+      },
     });
     const node = makeSfnNode({ definition: customDef });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -326,7 +340,10 @@ describe('StepFunctionsLowerer', () => {
     const node = makeSfnNode();
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const props = resources[1]?.properties;
-    const loggingConfig = props?.['loggingConfiguration'] as Record<string, unknown>;
+    const loggingConfig = props?.['loggingConfiguration'] as Record<
+      string,
+      unknown
+    >;
     expect(loggingConfig).toBeDefined();
     expect(loggingConfig?.['level']).toBe('ALL');
     expect(loggingConfig?.['includeExecutionData']).toBe(true);
@@ -343,7 +360,10 @@ describe('StepFunctionsLowerer', () => {
     const node = makeSfnNode({ logLevel: 'ERROR' });
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const props = resources[1]?.properties;
-    const loggingConfig = props?.['loggingConfiguration'] as Record<string, unknown>;
+    const loggingConfig = props?.['loggingConfiguration'] as Record<
+      string,
+      unknown
+    >;
     expect(loggingConfig?.['level']).toBe('ERROR');
   });
 
@@ -351,14 +371,23 @@ describe('StepFunctionsLowerer', () => {
     const node = makeSfnNode();
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const props = resources[1]?.properties;
-    const loggingConfig = props?.['loggingConfiguration'] as Record<string, unknown>;
-    const logDestination = loggingConfig?.['logDestination'] as Record<string, unknown>;
+    const loggingConfig = props?.['loggingConfiguration'] as Record<
+      string,
+      unknown
+    >;
+    const logDestination = loggingConfig?.['logDestination'] as Record<
+      string,
+      unknown
+    >;
     expect(logDestination?.['ref']).toBe('my-workflow-log-group');
   });
 
   it('StateMachine includes roleArn when resolvedDeps has roleName', () => {
     const node = makeSfnNode();
-    const depsWithRole: ResolvedDeps = { ...DEFAULT_DEPS, roleName: 'my-workflow-role' };
+    const depsWithRole: ResolvedDeps = {
+      ...DEFAULT_DEPS,
+      roleName: 'my-workflow-role',
+    };
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, depsWithRole);
     const props = resources[1]?.properties;
     const roleArn = props?.['roleArn'] as Record<string, unknown>;

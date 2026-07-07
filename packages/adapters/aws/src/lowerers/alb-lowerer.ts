@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -14,7 +19,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class AlbLowerer implements NodeLowerer {
   readonly platform = 'aws-alb';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -30,7 +39,8 @@ export class AlbLowerer implements NodeLowerer {
 
     // Resolve subnet and security group references
     const subnets = (config['subnets'] as string[] | undefined) ?? [];
-    const securityGroups = (config['securityGroups'] as string[] | undefined) ?? [];
+    const securityGroups =
+      (config['securityGroups'] as string[] | undefined) ?? [];
 
     // 1. Load Balancer
     resources.push({
@@ -41,7 +51,9 @@ export class AlbLowerer implements NodeLowerer {
         internal: config['internal'] === true,
         loadBalancerType: 'application',
         subnets: subnets.map((s) => ({ ref: `${shortName(s)}-subnet` })),
-        securityGroups: securityGroups.map((sg) => ({ ref: `${shortName(sg)}-sg` })),
+        securityGroups: securityGroups.map((sg) => ({
+          ref: `${shortName(sg)}-sg`,
+        })),
         tags,
       },
       sourceId: node.id,
@@ -52,7 +64,9 @@ export class AlbLowerer implements NodeLowerer {
     const vpcRef = config['vpcId'] as string | undefined;
 
     // Health check — support custom config or defaults
-    const customHealthCheck = config['healthCheck'] as Record<string, unknown> | undefined;
+    const customHealthCheck = config['healthCheck'] as
+      | Record<string, unknown>
+      | undefined;
     const healthCheck = customHealthCheck ?? {
       path: (config['healthCheckPath'] as string) ?? '/health',
       interval: 30,
@@ -98,7 +112,9 @@ export class AlbLowerer implements NodeLowerer {
             targetGroupArn: { ref: `${tgName}.arn` },
           },
         ],
-        sslPolicy: (config['sslPolicy'] as string) ?? 'ELBSecurityPolicy-TLS13-1-2-2021-06',
+        sslPolicy:
+          (config['sslPolicy'] as string) ??
+          'ELBSecurityPolicy-TLS13-1-2-2021-06',
       },
       sourceId: node.id,
       dependsOn: [albName, tgName],

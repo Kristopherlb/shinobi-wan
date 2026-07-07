@@ -1,25 +1,20 @@
 {
-    "name": "binder",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "packages/binder/src",
-    "projectType": "library",
-    "targets": {
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ]
-        },
-        "test": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "vitest run --config packages/binder/vitest.config.ts",
-                "cwd": "{workspaceRoot}"
-            }
-        }
+  "name": "binder",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/binder/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
-    "tags": [
-        "scope:binder",
-        "type:lib"
-    ]
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config packages/binder/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["scope:binder", "type:lib"]
 }

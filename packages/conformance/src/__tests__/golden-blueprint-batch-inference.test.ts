@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -48,7 +52,8 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
     metadata: {
       properties: {
         platform: 'aws-sagemaker-batch-transform',
-        modelImage: '123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest',
+        modelImage:
+          '123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest',
         modelDataUrl: 's3://models/model.tar.gz',
         vpcConfig: {
           subnetIds: ['subnet-1', 'subnet-2'],
@@ -96,7 +101,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'STATE_MACHINE_ARN', valueSource: { type: 'reference', nodeRef: 'pipeline-workflow', field: 'arn' } },
+          {
+            key: 'STATE_MACHINE_ARN',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'pipeline-workflow',
+              field: 'arn',
+            },
+          },
         ],
       },
     },

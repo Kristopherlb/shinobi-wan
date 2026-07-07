@@ -17,12 +17,17 @@ describe('workflow-client', () => {
       SHINOBI_HARMONY_DISPATCH_URL: 'https://harmony.local/operations/dispatch',
     } as NodeJS.ProcessEnv;
 
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      operationId: 'op-1',
-      workflowId: 'wf-1',
-      submittedAt: '2026-02-16T00:00:00.000Z',
-      statusUrl: 'https://harmony.local/operations/op-1',
-    }), { status: 202 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          operationId: 'op-1',
+          workflowId: 'wf-1',
+          submittedAt: '2026-02-16T00:00:00.000Z',
+          statusUrl: 'https://harmony.local/operations/op-1',
+        }),
+        { status: 202 },
+      ),
+    );
 
     const client = createHttpWorkflowClient(env);
     const result = await client.dispatchApplyWorkflow({
@@ -49,12 +54,17 @@ describe('workflow-client', () => {
       SHINOBI_HARMONY_DISPATCH_URL: 'https://harmony.local/operations/dispatch',
     } as NodeJS.ProcessEnv;
 
-    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({
-      status: 'running',
-      traceId: 'trace-1',
-      toolId: 'golden.shinobi.apply_change',
-      startedAt: '2026-02-16T00:00:00.000Z',
-    }), { status: 200 }));
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          status: 'running',
+          traceId: 'trace-1',
+          toolId: 'golden.shinobi.apply_change',
+          startedAt: '2026-02-16T00:00:00.000Z',
+        }),
+        { status: 200 },
+      ),
+    );
 
     const client = createHttpWorkflowClient(env);
     const status = await client.getOperationStatus('op-1');

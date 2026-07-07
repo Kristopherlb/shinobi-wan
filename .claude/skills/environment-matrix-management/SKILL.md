@@ -1,7 +1,7 @@
 ---
 name: environment-matrix-management
 description: Define and maintain environment behavior matrices for Shinobi (dev/staging/prod), including policy defaults, deploy gates, and promotion controls. Use when release controls or environment expectations change.
-argument-hint: "[environment set] + [policy defaults] + [deploy gates]"
+argument-hint: '[environment set] + [policy defaults] + [deploy gates]'
 ---
 
 # Environment Matrix Management Skill

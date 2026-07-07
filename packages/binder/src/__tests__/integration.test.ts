@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
+import type {
+  IamIntent,
+  NetworkIntent,
+  ConfigIntent,
+} from '@shinobi/contracts';
 import { Kernel } from '@shinobi/kernel';
 import { ComponentPlatformBinder } from '../binders/component-platform-binder';
 import { TriggersBinder } from '../binders/triggers-binder';
@@ -17,7 +21,9 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
     });
   }
 
-  function addComponentPlatformGraph(kernel: ReturnType<typeof createKernelWithBinder>) {
+  function addComponentPlatformGraph(
+    kernel: ReturnType<typeof createKernelWithBinder>,
+  ) {
     const sourceNode = makeNode({ id: 'component:my-svc', type: 'component' });
     const targetNode = makeNode({ id: 'platform:aws-sqs', type: 'platform' });
     const edge = makeEdge({
@@ -76,7 +82,9 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
     ]);
 
     // Verify network intent
-    const net = result.intents.find((i) => i.type === 'network') as NetworkIntent;
+    const net = result.intents.find(
+      (i) => i.type === 'network',
+    ) as NetworkIntent;
     expect(net).toBeDefined();
     expect(net.direction).toBe('egress');
     expect(net.source.nodeRef).toBe('component:my-svc');
@@ -145,7 +153,7 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
     const result = kernel.compile();
 
     const unboundDiag = result.bindingDiagnostics.find(
-      (d) => d.rule === 'unbound-edge'
+      (d) => d.rule === 'unbound-edge',
     );
     expect(unboundDiag).toBeDefined();
     expect(unboundDiag?.severity).toBe('warning');
@@ -178,7 +186,7 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
     const result = kernel.compile();
 
     const diag = result.bindingDiagnostics.find(
-      (d) => d.rule === 'missing-resource-type'
+      (d) => d.rule === 'missing-resource-type',
     );
     expect(diag).toBeDefined();
     expect(diag?.severity).toBe('error');
@@ -238,7 +246,9 @@ describe('Kernel + ComponentPlatformBinder integration', () => {
     expect(iam.resource.nodeRef).toBe('component:handler');
     expect(iam.actions).toEqual([{ level: 'write', action: 'invoke' }]);
 
-    const configs = result.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+    const configs = result.intents.filter(
+      (i) => i.type === 'config',
+    ) as ConfigIntent[];
     expect(configs).toHaveLength(2);
   });
 });

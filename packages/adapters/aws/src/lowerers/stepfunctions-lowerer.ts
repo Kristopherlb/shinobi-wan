@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class StepFunctionsLowerer implements NodeLowerer {
   readonly platform = 'aws-stepfunctions';
 
-  lower(node: Node, context: LoweringContext, resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
 
@@ -31,13 +40,15 @@ export class StepFunctionsLowerer implements NodeLowerer {
 
     // State Machine
     const machineType = (props['type'] as string) ?? 'STANDARD';
-    const definition = (props['definition'] as string) ?? JSON.stringify({
-      Comment: `State machine for ${name}`,
-      StartAt: 'PassState',
-      States: {
-        PassState: { Type: 'Pass', End: true },
-      },
-    });
+    const definition =
+      (props['definition'] as string) ??
+      JSON.stringify({
+        Comment: `State machine for ${name}`,
+        StartAt: 'PassState',
+        States: {
+          PassState: { Type: 'Pass', End: true },
+        },
+      });
 
     const loggingEnabled = props['logging'] !== false;
 
@@ -48,7 +59,9 @@ export class StepFunctionsLowerer implements NodeLowerer {
         name: `${context.adapterConfig.serviceName}-${name}`,
         type: machineType,
         definition,
-        ...(resolvedDeps.roleName ? { roleArn: { ref: `${resolvedDeps.roleName}` } } : {}),
+        ...(resolvedDeps.roleName
+          ? { roleArn: { ref: `${resolvedDeps.roleName}` } }
+          : {}),
         ...(loggingEnabled
           ? {
               loggingConfiguration: {

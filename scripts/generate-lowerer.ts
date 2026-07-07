@@ -28,7 +28,9 @@ const platformIdx = args.indexOf('--platform');
 const resourceTypeIdx = args.indexOf('--resource-type');
 
 if (platformIdx === -1 || resourceTypeIdx === -1) {
-  console.error('Usage: npx tsx scripts/generate-lowerer.ts --platform <aws-xxx> --resource-type <type>');
+  console.error(
+    'Usage: npx tsx scripts/generate-lowerer.ts --platform <aws-xxx> --resource-type <type>',
+  );
   process.exit(1);
 }
 
@@ -209,7 +211,9 @@ console.log(`    admin: ['TODO:*'],`);
 console.log(`  },`);
 console.log('');
 console.log(`// reference-utils.ts PLATFORM_REF_MAP:`);
-console.log(`  '${platform}': { suffix: '${resourceType}', defaultField: 'arn' },`);
+console.log(
+  `  '${platform}': { suffix: '${resourceType}', defaultField: 'arn' },`,
+);
 console.log('');
 console.log(`// program-generator.ts OUTPUT_MAP:`);
 console.log(`  '${pulumiType}': [{ suffix: 'arn', field: 'arn' }],`);

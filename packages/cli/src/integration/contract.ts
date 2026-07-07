@@ -27,7 +27,9 @@ export const TERMINAL_OPERATION_STATES = [
 ] as const;
 export type TerminalOperationState = (typeof TERMINAL_OPERATION_STATES)[number];
 
-export const TERMINAL_STATE_RETRYABLE: Readonly<Record<TerminalOperationState, boolean>> = {
+export const TERMINAL_STATE_RETRYABLE: Readonly<
+  Record<TerminalOperationState, boolean>
+> = {
   succeeded: false,
   failed: true,
   cancelled: true,

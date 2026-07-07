@@ -19,11 +19,11 @@ Validate that apply-path dependency failures stay tool-scoped and do not cascade
 
 ## Result
 
-| Check | Expected | Observed | Status |
-|---|---|---|---|
-| apply failure isolation | `DEPENDENCY_UNAVAILABLE` only on apply request | observed | pass |
-| validate availability after apply failure | success | observed | pass |
-| read availability after apply failure | success | observed | pass |
+| Check                                     | Expected                                       | Observed | Status |
+| ----------------------------------------- | ---------------------------------------------- | -------- | ------ |
+| apply failure isolation                   | `DEPENDENCY_UNAVAILABLE` only on apply request | observed | pass   |
+| validate availability after apply failure | success                                        | observed | pass   |
+| read availability after apply failure     | success                                        | observed | pass   |
 
 ## Residual Risk
 

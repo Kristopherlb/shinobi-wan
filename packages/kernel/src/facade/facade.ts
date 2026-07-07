@@ -4,7 +4,13 @@
  */
 import { createSnapshot } from '@shinobi/ir';
 import type { Node, Edge, DerivedArtifact } from '@shinobi/ir';
-import type { ValidatePlanInput, PlanChangeInput, ApplyChangeInput, ReadEntitiesInput, ReadActivityInput } from './inputs';
+import type {
+  ValidatePlanInput,
+  PlanChangeInput,
+  ApplyChangeInput,
+  ReadEntitiesInput,
+  ReadActivityInput,
+} from './inputs';
 import { buildEnvelope, buildErrorEnvelope } from './build-envelope';
 
 const SOURCE = 'kernel.facade';
@@ -13,7 +19,11 @@ function traceId(input: { traceId?: string }): string {
   return input.traceId ?? 'no-trace';
 }
 
-function toSnapshot(input: Readonly<Record<string, unknown>>): { nodes: Node[]; edges: Edge[]; artifacts: DerivedArtifact[] } {
+function toSnapshot(input: Readonly<Record<string, unknown>>): {
+  nodes: Node[];
+  edges: Edge[];
+  artifacts: DerivedArtifact[];
+} {
   const nodes = (input.nodes as Node[] | undefined) ?? [];
   const edges = (input.edges as Edge[] | undefined) ?? [];
   const artifacts = (input.artifacts as DerivedArtifact[] | undefined) ?? [];
@@ -24,8 +34,10 @@ function toSnapshot(input: Readonly<Record<string, unknown>>): { nodes: Node[]; 
  * Validate a plan (plan mode): validate snapshot only, no side effects.
  */
 export async function validatePlan(
-  input: ValidatePlanInput
-): Promise<import('./envelope-types').ToolResponseEnvelope<{ valid: boolean }>> {
+  input: ValidatePlanInput,
+): Promise<
+  import('./envelope-types').ToolResponseEnvelope<{ valid: boolean }>
+> {
   const tid = traceId(input);
   if (input.mode !== 'plan') {
     return buildEnvelope<{ valid: boolean }>(
@@ -33,14 +45,24 @@ export async function validatePlan(
       tid,
       false,
       undefined,
-      buildErrorEnvelope('MODE_MISMATCH', SOURCE, 'validatePlan requires mode "plan"', tid, { expected: 'plan', received: input.mode })
+      buildErrorEnvelope(
+        'MODE_MISMATCH',
+        SOURCE,
+        'validatePlan requires mode "plan"',
+        tid,
+        { expected: 'plan', received: input.mode },
+      ),
     );
   }
   try {
     const { nodes, edges, artifacts } = toSnapshot(input.snapshot);
     const snapshot = createSnapshot(nodes, edges, artifacts);
     const { validateGraph } = await import('@shinobi/validation');
-    const validation = validateGraph(snapshot, { strict: true, level: 'full', collectAll: true });
+    const validation = validateGraph(snapshot, {
+      strict: true,
+      level: 'full',
+      collectAll: true,
+    });
     return buildEnvelope('plan', tid, true, { valid: validation.valid });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
@@ -49,7 +71,7 @@ export async function validatePlan(
       tid,
       false,
       undefined,
-      buildErrorEnvelope('INPUT_VALIDATION_FAILED', SOURCE, message, tid)
+      buildErrorEnvelope('INPUT_VALIDATION_FAILED', SOURCE, message, tid),
     );
   }
 }
@@ -58,8 +80,10 @@ export async function validatePlan(
  * Plan change (plan mode): compute planned change from snapshot, no apply.
  */
 export async function planChange(
-  input: PlanChangeInput
-): Promise<import('./envelope-types').ToolResponseEnvelope<{ planned: boolean }>> {
+  input: PlanChangeInput,
+): Promise<
+  import('./envelope-types').ToolResponseEnvelope<{ planned: boolean }>
+> {
   const tid = traceId(input);
   if (input.mode !== 'plan') {
     return buildEnvelope<{ planned: boolean }>(
@@ -67,7 +91,13 @@ export async function planChange(
       tid,
       false,
       undefined,
-      buildErrorEnvelope('MODE_MISMATCH', SOURCE, 'planChange requires mode "plan"', tid, { expected: 'plan', received: input.mode })
+      buildErrorEnvelope(
+        'MODE_MISMATCH',
+        SOURCE,
+        'planChange requires mode "plan"',
+        tid,
+        { expected: 'plan', received: input.mode },
+      ),
     );
   }
   return buildEnvelope('plan', tid, true, { planned: true });
@@ -77,8 +107,10 @@ export async function planChange(
  * Apply change (apply mode): apply mutations (stub: no actual mutation in facade-only path).
  */
 export async function applyChange(
-  input: ApplyChangeInput
-): Promise<import('./envelope-types').ToolResponseEnvelope<{ applied: boolean }>> {
+  input: ApplyChangeInput,
+): Promise<
+  import('./envelope-types').ToolResponseEnvelope<{ applied: boolean }>
+> {
   const tid = traceId(input);
   if (input.mode !== 'apply') {
     return buildEnvelope<{ applied: boolean }>(
@@ -86,7 +118,13 @@ export async function applyChange(
       tid,
       false,
       undefined,
-      buildErrorEnvelope('MODE_MISMATCH', SOURCE, 'applyChange requires mode "apply"', tid, { expected: 'apply', received: input.mode })
+      buildErrorEnvelope(
+        'MODE_MISMATCH',
+        SOURCE,
+        'applyChange requires mode "apply"',
+        tid,
+        { expected: 'apply', received: input.mode },
+      ),
     );
   }
   return buildEnvelope('apply', tid, true, { applied: true });
@@ -96,8 +134,10 @@ export async function applyChange(
  * Read entities (read-only).
  */
 export async function readEntities(
-  input: ReadEntitiesInput
-): Promise<import('./envelope-types').ToolResponseEnvelope<{ entities: unknown[] }>> {
+  input: ReadEntitiesInput,
+): Promise<
+  import('./envelope-types').ToolResponseEnvelope<{ entities: unknown[] }>
+> {
   const tid = traceId(input);
   return buildEnvelope('read', tid, true, { entities: [] });
 }
@@ -106,8 +146,10 @@ export async function readEntities(
  * Read activity (read-only).
  */
 export async function readActivity(
-  input: ReadActivityInput
-): Promise<import('./envelope-types').ToolResponseEnvelope<{ activity: unknown[] }>> {
+  input: ReadActivityInput,
+): Promise<
+  import('./envelope-types').ToolResponseEnvelope<{ activity: unknown[] }>
+> {
   const tid = traceId(input);
   return buildEnvelope('read', tid, true, { activity: [] });
 }

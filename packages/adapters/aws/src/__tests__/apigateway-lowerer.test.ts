@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { ApiGatewayLowerer } from '../lowerers/apigateway-lowerer';
-import { makeNode, makeEdge, makeContext, DEFAULT_ADAPTER_CONFIG } from './test-helpers';
+import {
+  makeNode,
+  makeEdge,
+  makeContext,
+  DEFAULT_ADAPTER_CONFIG,
+} from './test-helpers';
 import { lower } from '../adapter';
 import { createSnapshot } from '@shinobi/ir';
 import type { ResolvedDeps, LoweringContext } from '../types';
@@ -94,7 +99,13 @@ describe('API Gateway → Lambda integration (adapter)', () => {
     const lambdaNode = makeNode({
       id: 'component:handler',
       type: 'component',
-      metadata: { properties: { platform: 'aws-lambda', runtime: 'nodejs20.x', handler: 'index.handler' } },
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          runtime: 'nodejs20.x',
+          handler: 'index.handler',
+        },
+      },
     });
     const triggersEdge = makeEdge({
       id: 'edge:triggers:platform:api-gw:component:handler',
@@ -121,19 +132,29 @@ describe('API Gateway → Lambda integration (adapter)', () => {
     const result = lower(context);
 
     // Should have integration, route, and permission resources
-    const integration = result.resources.find((r) => r.resourceType === 'aws:apigatewayv2:Integration');
+    const integration = result.resources.find(
+      (r) => r.resourceType === 'aws:apigatewayv2:Integration',
+    );
     expect(integration).toBeDefined();
     expect(integration?.properties['integrationType']).toBe('AWS_PROXY');
-    expect(integration?.properties['integrationUri']).toEqual({ ref: 'handler-function' });
+    expect(integration?.properties['integrationUri']).toEqual({
+      ref: 'handler-function',
+    });
 
-    const route = result.resources.find((r) => r.resourceType === 'aws:apigatewayv2:Route');
+    const route = result.resources.find(
+      (r) => r.resourceType === 'aws:apigatewayv2:Route',
+    );
     expect(route).toBeDefined();
     expect(route?.properties['routeKey']).toBe('GET /items');
 
-    const permission = result.resources.find((r) => r.resourceType === 'aws:lambda:Permission');
+    const permission = result.resources.find(
+      (r) => r.resourceType === 'aws:lambda:Permission',
+    );
     expect(permission).toBeDefined();
     expect(permission?.properties['action']).toBe('lambda:InvokeFunction');
-    expect(permission?.properties['principal']).toBe('apigateway.amazonaws.com');
+    expect(permission?.properties['principal']).toBe(
+      'apigateway.amazonaws.com',
+    );
   });
 
   it('defaults route to "ANY /" when no route/method specified', () => {
@@ -145,7 +166,13 @@ describe('API Gateway → Lambda integration (adapter)', () => {
     const lambdaNode = makeNode({
       id: 'component:handler',
       type: 'component',
-      metadata: { properties: { platform: 'aws-lambda', runtime: 'nodejs20.x', handler: 'index.handler' } },
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          runtime: 'nodejs20.x',
+          handler: 'index.handler',
+        },
+      },
     });
     const triggersEdge = makeEdge({
       id: 'edge:triggers:platform:api-gw:component:handler',
@@ -158,9 +185,15 @@ describe('API Gateway → Lambda integration (adapter)', () => {
     });
 
     const snapshot = createSnapshot([apiGwNode, lambdaNode], [triggersEdge]);
-    const result = lower({ intents: [], snapshot, adapterConfig: DEFAULT_ADAPTER_CONFIG });
+    const result = lower({
+      intents: [],
+      snapshot,
+      adapterConfig: DEFAULT_ADAPTER_CONFIG,
+    });
 
-    const route = result.resources.find((r) => r.resourceType === 'aws:apigatewayv2:Route');
+    const route = result.resources.find(
+      (r) => r.resourceType === 'aws:apigatewayv2:Route',
+    );
     expect(route?.properties['routeKey']).toBe('$default');
   });
 
@@ -173,20 +206,34 @@ describe('API Gateway → Lambda integration (adapter)', () => {
     const lambdaNode = makeNode({
       id: 'component:handler',
       type: 'component',
-      metadata: { properties: { platform: 'aws-lambda', runtime: 'nodejs20.x', handler: 'index.handler' } },
+      metadata: {
+        properties: {
+          platform: 'aws-lambda',
+          runtime: 'nodejs20.x',
+          handler: 'index.handler',
+        },
+      },
     });
     const triggersEdge = makeEdge({
       id: 'edge:triggers:platform:api-gw:component:handler',
       type: 'triggers',
       source: apiGwNode.id,
       target: lambdaNode.id,
-      metadata: { bindingConfig: { resourceType: 'api', route: '/items', method: 'GET' } },
+      metadata: {
+        bindingConfig: { resourceType: 'api', route: '/items', method: 'GET' },
+      },
     });
 
     const snapshot = createSnapshot([apiGwNode, lambdaNode], [triggersEdge]);
-    const result = lower({ intents: [], snapshot, adapterConfig: DEFAULT_ADAPTER_CONFIG });
+    const result = lower({
+      intents: [],
+      snapshot,
+      adapterConfig: DEFAULT_ADAPTER_CONFIG,
+    });
 
-    const integration = result.resources.find((r) => r.resourceType === 'aws:apigatewayv2:Integration');
+    const integration = result.resources.find(
+      (r) => r.resourceType === 'aws:apigatewayv2:Integration',
+    );
     expect(integration?.dependsOn).toContain('api-gw-api');
     expect(integration?.dependsOn).toContain('handler-function');
   });

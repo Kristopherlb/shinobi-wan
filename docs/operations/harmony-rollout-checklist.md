@@ -54,14 +54,14 @@ No-Go if any are true:
 
 ## Ownership Matrix
 
-| Acceptance Criterion | Owner |
-|---|---|
+| Acceptance Criterion                                            | Owner   |
+| --------------------------------------------------------------- | ------- | ------- | ------- |
 | Canonical envelope contract remains deterministic and versioned | Shinobi |
-| Operation-class policy enforcement (`read|plan|apply`) | Shinobi |
-| Approval role map and decision SLA enforcement | Harmony |
-| Workflow/queue/status endpoint wiring artifacts | Harmony |
-| Isolation and canary rollback drills | Shared |
-| Restricted apply enablement decision | Shared |
+| Operation-class policy enforcement (`read                       | plan    | apply`) | Shinobi |
+| Approval role map and decision SLA enforcement                  | Harmony |
+| Workflow/queue/status endpoint wiring artifacts                 | Harmony |
+| Isolation and canary rollback drills                            | Shared  |
+| Restricted apply enablement decision                            | Shared  |
 
 ## Post-Enablement Verification
 

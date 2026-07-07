@@ -7,9 +7,11 @@
 - Related Artifacts: `packages/cli/src/integration`, `packages/cli/src/mcp`, `docs/operations/harmony-integration.md`
 
 ### Context
+
 Harmony integration requires composable atomic tools with deterministic contracts, strict auditability, and limited blast radius. In-process SDK coupling is not acceptable as the default production path.
 
 ### Decision
+
 Adopt MCP-first integration backed by a Shinobi wrapper/service boundary:
 
 - Atomic tool decomposition: `validate`, `plan`, `apply`.
@@ -18,6 +20,7 @@ Adopt MCP-first integration backed by a Shinobi wrapper/service boundary:
 - Unified deterministic response/error envelopes with operation-class policies.
 
 ### Consequences
+
 - Positive:
   - Strong fault isolation and upgrade safety.
   - Clear composition boundaries for Harmony workflows.
@@ -27,6 +30,7 @@ Adopt MCP-first integration backed by a Shinobi wrapper/service boundary:
   - Rollback remains wrapper-managed compensation until native API exists.
 
 ### TDD / Verification
+
 - Red:
   - Added failing tests for envelope mapping, wrapper tool mapping, async handle behavior, and restricted apply gating.
 - Green:
@@ -38,6 +42,7 @@ Adopt MCP-first integration backed by a Shinobi wrapper/service boundary:
   - `pnpm nx test adapter-aws`
 
 ### Follow-ups
+
 - Request Harmony-owned wiring specifics (approver role map, queue/workflow names, status endpoint shape, final flags/metric names).
 - Promote restricted apply only after rollout checklist gates are green.
 - Replace wrapper-managed rollback with native first-class rollback contract when available.

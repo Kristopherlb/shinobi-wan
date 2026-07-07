@@ -8,22 +8,48 @@ import {
 describe('forbidden-patterns', () => {
   describe('BACKEND_HANDLE_PATTERNS', () => {
     it('matches AWS ARNs', () => {
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('arn:aws:sqs:us-east-1:123456789012:my-queue'))).toBe(true);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('arn:aws:lambda:us-west-2:123456789012:function:my-func'))).toBe(true);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('arn:aws:iam::123456789012:role/my-role'))).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) =>
+          p.test('arn:aws:sqs:us-east-1:123456789012:my-queue'),
+        ),
+      ).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) =>
+          p.test('arn:aws:lambda:us-west-2:123456789012:function:my-func'),
+        ),
+      ).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) =>
+          p.test('arn:aws:iam::123456789012:role/my-role'),
+        ),
+      ).toBe(true);
     });
 
     it('matches AWS resource IDs', () => {
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('sg-0123456789abcdef0'))).toBe(true);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('vpc-0123456789abcdef0'))).toBe(true);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('subnet-0123456789abcdef0'))).toBe(true);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('i-0123456789abcdef0'))).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('sg-0123456789abcdef0')),
+      ).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('vpc-0123456789abcdef0')),
+      ).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('subnet-0123456789abcdef0')),
+      ).toBe(true);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('i-0123456789abcdef0')),
+      ).toBe(true);
     });
 
     it('does not match valid node references', () => {
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('component:my-service'))).toBe(false);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('platform:aws-sqs'))).toBe(false);
-      expect(BACKEND_HANDLE_PATTERNS.some((p) => p.test('node:lambda-function'))).toBe(false);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('component:my-service')),
+      ).toBe(false);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('platform:aws-sqs')),
+      ).toBe(false);
+      expect(
+        BACKEND_HANDLE_PATTERNS.some((p) => p.test('node:lambda-function')),
+      ).toBe(false);
     });
   });
 

@@ -1,14 +1,19 @@
-import { createError, createResult, type ValidationError, type ValidationResult } from '../errors';
+import {
+  createError,
+  createResult,
+  type ValidationError,
+  type ValidationResult,
+} from '../errors';
 
 /**
  * Patterns that indicate wildcard resource access.
  */
 export const WILDCARD_PATTERNS: RegExp[] = [
-  /^\*$/,                    // Standalone asterisk
-  /\/\*$/,                   // Trailing wildcard (e.g., bucket/*)
-  /\/\*\//,                  // Embedded wildcard (e.g., table/*/item)
-  /:\*$/,                    // Action wildcard (e.g., sqs:*)
-  /^Resource:\s*\*$/i,       // Resource: * pattern
+  /^\*$/, // Standalone asterisk
+  /\/\*$/, // Trailing wildcard (e.g., bucket/*)
+  /\/\*\//, // Embedded wildcard (e.g., table/*/item)
+  /:\*$/, // Action wildcard (e.g., sqs:*)
+  /^Resource:\s*\*$/i, // Resource: * pattern
 ];
 
 /**
@@ -17,7 +22,7 @@ export const WILDCARD_PATTERNS: RegExp[] = [
  */
 export function detectWildcardResources(
   value: unknown,
-  path: string
+  path: string,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -30,9 +35,10 @@ export function detectWildcardResources(
             rule: 'wildcard-resource',
             message: `Wildcard resource access detected: '${value}'`,
             severity: 'error',
-            remediation: 'Replace wildcard with specific resource references. Least-privilege principle requires explicit resource targeting.',
+            remediation:
+              'Replace wildcard with specific resource references. Least-privilege principle requires explicit resource targeting.',
             kernelLaw: 'KL-005',
-          })
+          }),
         );
         break;
       }

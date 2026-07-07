@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -8,7 +13,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class EksAddonLowerer implements NodeLowerer {
   readonly platform = 'aws-eks-addon';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -19,9 +28,14 @@ export class EksAddonLowerer implements NodeLowerer {
     const clusterRef = config['clusterRef'] as string | undefined;
     const addonName = config['addonName'] as string | undefined;
     const addonVersion = config['addonVersion'] as string | undefined;
-    const resolveConflicts = (config['resolveConflicts'] as string) ?? 'OVERWRITE';
-    const serviceAccountRoleArn = config['serviceAccountRoleArn'] as string | undefined;
-    const configurationValues = config['configurationValues'] as string | undefined;
+    const resolveConflicts =
+      (config['resolveConflicts'] as string) ?? 'OVERWRITE';
+    const serviceAccountRoleArn = config['serviceAccountRoleArn'] as
+      | string
+      | undefined;
+    const configurationValues = config['configurationValues'] as
+      | string
+      | undefined;
 
     const properties: Record<string, unknown> = {
       addonName,
@@ -33,8 +47,10 @@ export class EksAddonLowerer implements NodeLowerer {
       properties.clusterName = { ref: `${shortName(clusterRef)}-cluster.name` };
     }
     if (addonVersion) properties.addonVersion = addonVersion;
-    if (serviceAccountRoleArn) properties.serviceAccountRoleArn = serviceAccountRoleArn;
-    if (configurationValues) properties.configurationValues = configurationValues;
+    if (serviceAccountRoleArn)
+      properties.serviceAccountRoleArn = serviceAccountRoleArn;
+    if (configurationValues)
+      properties.configurationValues = configurationValues;
 
     return [
       {

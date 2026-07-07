@@ -54,7 +54,10 @@ describe('Kernel', () => {
       target: n2.id,
     });
 
-    kernel.applyMutation([{ type: 'addNode', node: n1 }, { type: 'addNode', node: n2 }]);
+    kernel.applyMutation([
+      { type: 'addNode', node: n1 },
+      { type: 'addNode', node: n2 },
+    ]);
     const result = kernel.applyMutation([{ type: 'addEdge', edge: e1 }]);
     expect(result.success).toBe(true);
     expect(kernel.hasEdge(e1.id)).toBe(true);
@@ -98,13 +101,21 @@ describe('Kernel', () => {
   it('compile invokes binders for matching edges', () => {
     const binder: IBinder = {
       id: 'test-binder',
-      supportedEdgeTypes: [{ edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' }],
+      supportedEdgeTypes: [
+        {
+          edgeType: 'bindsTo',
+          sourceType: 'component',
+          targetType: 'platform',
+        },
+      ],
       compileEdge: (ctx) => ({
-        intents: [{
-          type: 'iam' as const,
-          schemaVersion: '1.0.0' as const,
-          sourceEdgeId: ctx.edge.id,
-        }],
+        intents: [
+          {
+            type: 'iam' as const,
+            schemaVersion: '1.0.0' as const,
+            sourceEdgeId: ctx.edge.id,
+          },
+        ],
         diagnostics: [],
       }),
     };
@@ -152,13 +163,21 @@ describe('Kernel', () => {
   it('compile sets compliant to false when evaluator returns violations', () => {
     const binder: IBinder = {
       id: 'test-binder',
-      supportedEdgeTypes: [{ edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' }],
+      supportedEdgeTypes: [
+        {
+          edgeType: 'bindsTo',
+          sourceType: 'component',
+          targetType: 'platform',
+        },
+      ],
       compileEdge: (ctx) => ({
-        intents: [{
-          type: 'iam' as const,
-          schemaVersion: '1.0.0' as const,
-          sourceEdgeId: ctx.edge.id,
-        }],
+        intents: [
+          {
+            type: 'iam' as const,
+            schemaVersion: '1.0.0' as const,
+            sourceEdgeId: ctx.edge.id,
+          },
+        ],
         diagnostics: [],
       }),
     };
@@ -166,17 +185,19 @@ describe('Kernel', () => {
     const evaluator: IPolicyEvaluator = {
       id: 'violation-eval',
       supportedPacks: ['Baseline'],
-      evaluate: () => [{
-        id: 'violation:test-rule:component:svc',
-        schemaVersion: '1.0.0' as const,
-        ruleId: 'test-rule',
-        ruleName: 'Test Rule',
-        severity: 'error' as const,
-        message: 'Test violation',
-        target: { type: 'node' as const, id: 'component:svc' },
-        policyPack: 'Baseline',
-        remediation: { summary: 'Fix it', autoFixable: false },
-      }],
+      evaluate: () => [
+        {
+          id: 'violation:test-rule:component:svc',
+          schemaVersion: '1.0.0' as const,
+          ruleId: 'test-rule',
+          ruleName: 'Test Rule',
+          severity: 'error' as const,
+          message: 'Test violation',
+          target: { type: 'node' as const, id: 'component:svc' },
+          policyPack: 'Baseline',
+          remediation: { summary: 'Fix it', autoFixable: false },
+        },
+      ],
     };
 
     const kernel = new Kernel({

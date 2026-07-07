@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -8,7 +13,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class EksNodeGroupLowerer implements NodeLowerer {
   readonly platform = 'aws-eks-node-group';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -24,14 +33,18 @@ export class EksNodeGroupLowerer implements NodeLowerer {
 
     // Build subnet refs
     const subnetIds = Array.isArray(config['subnetIds'])
-      ? (config['subnetIds'] as string[]).map((s) => ({ ref: `${shortName(s)}-subnet` }))
+      ? (config['subnetIds'] as string[]).map((s) => ({
+          ref: `${shortName(s)}-subnet`,
+        }))
       : [];
 
     const instanceTypes = Array.isArray(config['instanceTypes'])
       ? (config['instanceTypes'] as string[])
       : ['t3.medium'];
 
-    const scalingConfig = (config['scalingConfig'] as Record<string, number> | undefined) ?? {
+    const scalingConfig = (config['scalingConfig'] as
+      | Record<string, number>
+      | undefined) ?? {
       desiredSize: 2,
       minSize: 1,
       maxSize: 4,
@@ -41,7 +54,10 @@ export class EksNodeGroupLowerer implements NodeLowerer {
     const diskSize = (config['diskSize'] as number | undefined) ?? 20;
 
     const properties: Record<string, unknown> = {
-      nodeGroupName: makeResourceName(node.id, context.adapterConfig.serviceName),
+      nodeGroupName: makeResourceName(
+        node.id,
+        context.adapterConfig.serviceName,
+      ),
       clusterName: clusterRef,
       subnetIds,
       instanceTypes,

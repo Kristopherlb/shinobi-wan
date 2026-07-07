@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -8,7 +13,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class EcsClusterLowerer implements NodeLowerer {
   readonly platform = 'aws-ecs-cluster';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const extraTags = props['tags'] as Record<string, string> | undefined;
@@ -39,7 +48,8 @@ export class EcsClusterLowerer implements NodeLowerer {
 
     // Support explicit default capacity provider strategy
     if (Array.isArray(props['defaultCapacityProviderStrategy'])) {
-      clusterProperties.defaultCapacityProviderStrategy = props['defaultCapacityProviderStrategy'];
+      clusterProperties.defaultCapacityProviderStrategy =
+        props['defaultCapacityProviderStrategy'];
     }
 
     return [

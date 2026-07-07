@@ -2,14 +2,19 @@ import { describe, it, expect } from 'vitest';
 import type { PolicyEvaluationContext } from '@shinobi/kernel';
 import type { ConfigIntent, TelemetryIntent, Intent } from '@shinobi/contracts';
 import { BaselinePolicyEvaluator } from '../../evaluators/baseline-policy-evaluator';
-import { makeSnapshot, makeNode, makeIamIntent, makeNetworkIntent } from '../test-helpers';
+import {
+  makeSnapshot,
+  makeNode,
+  makeIamIntent,
+  makeNetworkIntent,
+} from '../test-helpers';
 
 describe('BaselinePolicyEvaluator', () => {
   const evaluator = new BaselinePolicyEvaluator();
 
   function makeContext(
     intents: ReadonlyArray<Intent>,
-    policyPack = 'Baseline'
+    policyPack = 'Baseline',
   ): PolicyEvaluationContext {
     const nodes = [
       makeNode({ id: 'component:svc', type: 'component' }),
@@ -75,7 +80,9 @@ describe('BaselinePolicyEvaluator', () => {
         },
       });
 
-      const violations = evaluator.evaluate(makeContext([intent], 'FedRAMP-High'));
+      const violations = evaluator.evaluate(
+        makeContext([intent], 'FedRAMP-High'),
+      );
       const v = violations.find((v) => v.ruleId === 'iam-no-wildcard-resource');
       expect(v?.severity).toBe('error');
     });
@@ -114,7 +121,9 @@ describe('BaselinePolicyEvaluator', () => {
         actions: [{ level: 'admin', action: 'admin' }],
       });
 
-      const violations = evaluator.evaluate(makeContext([intent], 'FedRAMP-High'));
+      const violations = evaluator.evaluate(
+        makeContext([intent], 'FedRAMP-High'),
+      );
       const v = violations.find((v) => v.ruleId === 'iam-admin-access-review');
       expect(v?.severity).toBe('error');
     });
@@ -125,7 +134,11 @@ describe('BaselinePolicyEvaluator', () => {
       const intent = makeIamIntent({
         sourceEdgeId: 'edge:bindsTo:component:svc:platform:db',
         principal: { nodeRef: 'component:svc', role: 'service' },
-        resource: { nodeRef: 'platform:db', resourceType: 'table', scope: 'specific' },
+        resource: {
+          nodeRef: 'platform:db',
+          resourceType: 'table',
+          scope: 'specific',
+        },
       });
 
       const violations = evaluator.evaluate(makeContext([intent]));
@@ -138,7 +151,11 @@ describe('BaselinePolicyEvaluator', () => {
       const intent = makeIamIntent({
         sourceEdgeId: 'edge:bindsTo:component:svc:component:svc',
         principal: { nodeRef: 'component:svc', role: 'service' },
-        resource: { nodeRef: 'component:svc', resourceType: 'table', scope: 'specific' },
+        resource: {
+          nodeRef: 'component:svc',
+          resourceType: 'table',
+          scope: 'specific',
+        },
       });
 
       const violations = evaluator.evaluate(makeContext([intent]));
@@ -150,7 +167,11 @@ describe('BaselinePolicyEvaluator', () => {
       const intent = makeIamIntent({
         sourceEdgeId: 'edge:bindsTo:component:svc:platform:db',
         principal: { nodeRef: 'component:svc', role: 'service' },
-        resource: { nodeRef: 'platform:db', resourceType: 'table', scope: 'specific' },
+        resource: {
+          nodeRef: 'platform:db',
+          resourceType: 'table',
+          scope: 'specific',
+        },
         conditions: [{ key: 'env', operator: 'equals', value: 'prod' }],
       });
 
@@ -164,7 +185,9 @@ describe('BaselinePolicyEvaluator', () => {
         sourceEdgeId: 'edge:bindsTo:component:svc:platform:db',
       });
 
-      const violations = evaluator.evaluate(makeContext([intent], 'FedRAMP-High'));
+      const violations = evaluator.evaluate(
+        makeContext([intent], 'FedRAMP-High'),
+      );
       const v = violations.find((v) => v.ruleId === 'iam-missing-conditions');
       expect(v?.severity).toBe('error');
     });
@@ -200,7 +223,9 @@ describe('BaselinePolicyEvaluator', () => {
         protocol: { protocol: 'any' },
       });
 
-      const violations = evaluator.evaluate(makeContext([intent], 'FedRAMP-High'));
+      const violations = evaluator.evaluate(
+        makeContext([intent], 'FedRAMP-High'),
+      );
       const v = violations.find((v) => v.ruleId === 'network-broad-protocol');
       expect(v?.severity).toBe('error');
     });
@@ -210,7 +235,11 @@ describe('BaselinePolicyEvaluator', () => {
     it('produces no violations for a compliant IAM intent', () => {
       const intent = makeIamIntent({
         sourceEdgeId: 'edge:bindsTo:component:svc:platform:db',
-        resource: { nodeRef: 'platform:db', resourceType: 'table', scope: 'specific' },
+        resource: {
+          nodeRef: 'platform:db',
+          resourceType: 'table',
+          scope: 'specific',
+        },
         actions: [{ level: 'read', action: 'read' }],
         conditions: [{ key: 'env', operator: 'equals', value: 'prod' }],
       });
@@ -226,7 +255,11 @@ describe('BaselinePolicyEvaluator', () => {
         sourceEdgeId: 'edge:bindsTo:component:svc:platform:db',
         targetNodeRef: 'component:svc',
         key: 'DB_URL',
-        valueSource: { type: 'reference', nodeRef: 'platform:db', field: 'url' },
+        valueSource: {
+          type: 'reference',
+          nodeRef: 'platform:db',
+          field: 'url',
+        },
       };
 
       const violations = evaluator.evaluate(makeContext([configIntent]));
@@ -261,22 +294,40 @@ describe('BaselinePolicyEvaluator', () => {
         actions: [{ level: 'admin', action: 'admin' }],
       });
 
-      const baselineViolations = evaluator.evaluate(makeContext([intent], 'Baseline'));
-      const moderateViolations = evaluator.evaluate(makeContext([intent], 'FedRAMP-Moderate'));
-      const highViolations = evaluator.evaluate(makeContext([intent], 'FedRAMP-High'));
+      const baselineViolations = evaluator.evaluate(
+        makeContext([intent], 'Baseline'),
+      );
+      const moderateViolations = evaluator.evaluate(
+        makeContext([intent], 'FedRAMP-Moderate'),
+      );
+      const highViolations = evaluator.evaluate(
+        makeContext([intent], 'FedRAMP-High'),
+      );
 
       // iam-no-wildcard-resource
-      const bWild = baselineViolations.find((v) => v.ruleId === 'iam-no-wildcard-resource');
-      const mWild = moderateViolations.find((v) => v.ruleId === 'iam-no-wildcard-resource');
-      const hWild = highViolations.find((v) => v.ruleId === 'iam-no-wildcard-resource');
+      const bWild = baselineViolations.find(
+        (v) => v.ruleId === 'iam-no-wildcard-resource',
+      );
+      const mWild = moderateViolations.find(
+        (v) => v.ruleId === 'iam-no-wildcard-resource',
+      );
+      const hWild = highViolations.find(
+        (v) => v.ruleId === 'iam-no-wildcard-resource',
+      );
       expect(bWild?.severity).toBe('warning');
       expect(mWild?.severity).toBe('error');
       expect(hWild?.severity).toBe('error');
 
       // iam-admin-access-review
-      const bAdmin = baselineViolations.find((v) => v.ruleId === 'iam-admin-access-review');
-      const mAdmin = moderateViolations.find((v) => v.ruleId === 'iam-admin-access-review');
-      const hAdmin = highViolations.find((v) => v.ruleId === 'iam-admin-access-review');
+      const bAdmin = baselineViolations.find(
+        (v) => v.ruleId === 'iam-admin-access-review',
+      );
+      const mAdmin = moderateViolations.find(
+        (v) => v.ruleId === 'iam-admin-access-review',
+      );
+      const hAdmin = highViolations.find(
+        (v) => v.ruleId === 'iam-admin-access-review',
+      );
       expect(bAdmin?.severity).toBe('info');
       expect(mAdmin?.severity).toBe('warning');
       expect(hAdmin?.severity).toBe('error');

@@ -1,7 +1,11 @@
 import { plan } from './plan';
 import type { PlanOptions, PlanResult } from './plan';
 import { deploy, preview } from '@shinobi/adapter-aws';
-import type { DeployResult, PreviewResult, AdapterConfig } from '@shinobi/adapter-aws';
+import type {
+  DeployResult,
+  PreviewResult,
+  AdapterConfig,
+} from '@shinobi/adapter-aws';
 
 export interface UpOptions extends PlanOptions {
   readonly dryRun?: boolean;

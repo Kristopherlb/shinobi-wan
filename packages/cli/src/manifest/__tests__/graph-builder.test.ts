@@ -54,7 +54,10 @@ function createEvaluators(): ReadonlyArray<IPolicyEvaluator> {
 
 function parseOrThrow(yaml: string): ServiceManifest {
   const result = parseManifest(yaml);
-  if (!result.ok) throw new Error(`Parse failed: ${result.errors.map((e) => e.message).join(', ')}`);
+  if (!result.ok)
+    throw new Error(
+      `Parse failed: ${result.errors.map((e) => e.message).join(', ')}`,
+    );
   return result.manifest;
 }
 
@@ -66,7 +69,9 @@ describe('manifestToMutations', () => {
     const nodeMutations = mutations.filter((m) => m.type === 'addNode');
     expect(nodeMutations).toHaveLength(2);
 
-    const nodeIds = nodeMutations.map((m) => m.type === 'addNode' ? m.node.id : '');
+    const nodeIds = nodeMutations.map((m) =>
+      m.type === 'addNode' ? m.node.id : '',
+    );
     expect(nodeIds).toContain('component:api-handler');
     expect(nodeIds).toContain('platform:work-queue');
   });
@@ -78,8 +83,11 @@ describe('manifestToMutations', () => {
     const edgeMutations = mutations.filter((m) => m.type === 'addEdge');
     expect(edgeMutations).toHaveLength(1);
 
-    const edge = edgeMutations[0].type === 'addEdge' ? edgeMutations[0].edge : undefined;
-    expect(edge?.id).toBe('edge:bindsTo:component:api-handler:platform:work-queue');
+    const edge =
+      edgeMutations[0].type === 'addEdge' ? edgeMutations[0].edge : undefined;
+    expect(edge?.id).toBe(
+      'edge:bindsTo:component:api-handler:platform:work-queue',
+    );
     expect(edge?.type).toBe('bindsTo');
     expect(edge?.source).toBe('component:api-handler');
     expect(edge?.target).toBe('platform:work-queue');
@@ -101,7 +109,7 @@ describe('manifestToMutations', () => {
 
     const lambdaNode = mutations
       .filter((m) => m.type === 'addNode')
-      .map((m) => m.type === 'addNode' ? m.node : undefined)
+      .map((m) => (m.type === 'addNode' ? m.node : undefined))
       .find((n) => n?.id === 'component:api-handler');
 
     expect(lambdaNode?.metadata.properties).toEqual({
@@ -118,7 +126,8 @@ describe('manifestToMutations', () => {
     const mutations = manifestToMutations(manifest);
 
     const edgeMutation = mutations.find((m) => m.type === 'addEdge');
-    const edge = edgeMutation?.type === 'addEdge' ? edgeMutation.edge : undefined;
+    const edge =
+      edgeMutation?.type === 'addEdge' ? edgeMutation.edge : undefined;
 
     expect(edge?.metadata.bindingConfig).toEqual({
       resourceType: 'queue',
@@ -127,7 +136,11 @@ describe('manifestToMutations', () => {
       configKeys: [
         {
           key: 'QUEUE_URL',
-          valueSource: { type: 'reference', nodeRef: 'work-queue', field: 'url' },
+          valueSource: {
+            type: 'reference',
+            nodeRef: 'work-queue',
+            field: 'url',
+          },
         },
       ],
     });

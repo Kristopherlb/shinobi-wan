@@ -14,7 +14,10 @@ describe('contract-validators', () => {
     });
 
     it('accepts capability ID with numbers', () => {
-      const result = validateCapabilityIdFormat('core2:http-endpoint3@2.1.0', '$.id');
+      const result = validateCapabilityIdFormat(
+        'core2:http-endpoint3@2.1.0',
+        '$.id',
+      );
       expect(result).toEqual([]);
     });
 
@@ -68,28 +71,45 @@ describe('contract-validators', () => {
     });
 
     it('rejects invalid id format', () => {
-      const result = validateCapabilityContractSchema({ ...validContract, id: 'invalid' });
+      const result = validateCapabilityContractSchema({
+        ...validContract,
+        id: 'invalid',
+      });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-capability-id')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'invalid-capability-id'),
+      ).toBe(true);
     });
 
     it('rejects missing description', () => {
-      const result = validateCapabilityContractSchema({ ...validContract, description: undefined });
+      const result = validateCapabilityContractSchema({
+        ...validContract,
+        description: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing dataShape', () => {
-      const result = validateCapabilityContractSchema({ ...validContract, dataShape: undefined });
+      const result = validateCapabilityContractSchema({
+        ...validContract,
+        dataShape: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing actions', () => {
-      const result = validateCapabilityContractSchema({ ...validContract, actions: undefined });
+      const result = validateCapabilityContractSchema({
+        ...validContract,
+        actions: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects empty actions array', () => {
-      const result = validateCapabilityContractSchema({ ...validContract, actions: [] });
+      const result = validateCapabilityContractSchema({
+        ...validContract,
+        actions: [],
+      });
       expect(result.valid).toBe(false);
       expect(result.errors.some((e) => e.rule === 'empty-array')).toBe(true);
     });
@@ -146,23 +166,37 @@ describe('contract-validators', () => {
     });
 
     it('rejects missing type', () => {
-      const result = validateIntentSchema({ ...validIamIntent, type: undefined });
+      const result = validateIntentSchema({
+        ...validIamIntent,
+        type: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects invalid type', () => {
-      const result = validateIntentSchema({ ...validIamIntent, type: 'invalid' });
+      const result = validateIntentSchema({
+        ...validIamIntent,
+        type: 'invalid',
+      });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-enum-value')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-enum-value')).toBe(
+        true,
+      );
     });
 
     it('rejects missing sourceEdgeId', () => {
-      const result = validateIntentSchema({ ...validIamIntent, sourceEdgeId: undefined });
+      const result = validateIntentSchema({
+        ...validIamIntent,
+        sourceEdgeId: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects invalid schemaVersion', () => {
-      const result = validateIntentSchema({ ...validIamIntent, schemaVersion: '2.0.0' });
+      const result = validateIntentSchema({
+        ...validIamIntent,
+        schemaVersion: '2.0.0',
+      });
       expect(result.valid).toBe(false);
     });
 
@@ -172,7 +206,11 @@ describe('contract-validators', () => {
         schemaVersion: '1.0.0',
         sourceEdgeId: 'edge:binding:a:b',
         key: 'QUEUE_URL',
-        valueSource: { type: 'nodeAttribute', nodeRef: 'node:b', attribute: 'url' },
+        valueSource: {
+          type: 'nodeAttribute',
+          nodeRef: 'node:b',
+          attribute: 'url',
+        },
       });
       expect(result.valid).toBe(true);
     });
@@ -212,43 +250,69 @@ describe('contract-validators', () => {
     });
 
     it('rejects invalid violation id format', () => {
-      const result = validateViolationSchema({ ...validViolation, id: 'not-a-violation' });
+      const result = validateViolationSchema({
+        ...validViolation,
+        id: 'not-a-violation',
+      });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-violation-id')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-violation-id')).toBe(
+        true,
+      );
     });
 
     it('rejects missing ruleId', () => {
-      const result = validateViolationSchema({ ...validViolation, ruleId: undefined });
+      const result = validateViolationSchema({
+        ...validViolation,
+        ruleId: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing ruleName', () => {
-      const result = validateViolationSchema({ ...validViolation, ruleName: undefined });
+      const result = validateViolationSchema({
+        ...validViolation,
+        ruleName: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects invalid severity', () => {
-      const result = validateViolationSchema({ ...validViolation, severity: 'critical' });
+      const result = validateViolationSchema({
+        ...validViolation,
+        severity: 'critical',
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing target', () => {
-      const result = validateViolationSchema({ ...validViolation, target: undefined });
+      const result = validateViolationSchema({
+        ...validViolation,
+        target: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing message', () => {
-      const result = validateViolationSchema({ ...validViolation, message: undefined });
+      const result = validateViolationSchema({
+        ...validViolation,
+        message: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing remediation', () => {
-      const result = validateViolationSchema({ ...validViolation, remediation: undefined });
+      const result = validateViolationSchema({
+        ...validViolation,
+        remediation: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing policyPack', () => {
-      const result = validateViolationSchema({ ...validViolation, policyPack: undefined });
+      const result = validateViolationSchema({
+        ...validViolation,
+        policyPack: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 

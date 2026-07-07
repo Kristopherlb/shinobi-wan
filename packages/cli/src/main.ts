@@ -17,7 +17,9 @@ async function main(): Promise<void> {
     try {
       parsed = JSON.parse(rawPayload) as HarmonyToolCallRequest;
     } catch (err) {
-      process.stderr.write(`Invalid JSON payload for --harmony-call: ${(err as Error).message}\n`);
+      process.stderr.write(
+        `Invalid JSON payload for --harmony-call: ${(err as Error).message}\n`,
+      );
       process.exitCode = 1;
       return;
     }

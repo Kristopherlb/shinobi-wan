@@ -1,9 +1,5 @@
 // Intent contract exports
-export {
-  INTENT_TYPES,
-  type IntentType,
-  type Intent,
-} from './intent-base';
+export { INTENT_TYPES, type IntentType, type Intent } from './intent-base';
 
 export {
   type IamIntent,
@@ -19,12 +15,6 @@ export {
   type NetworkProtocol,
 } from './network-intent';
 
-export {
-  type ConfigIntent,
-  type ConfigValueSource,
-} from './config-intent';
+export { type ConfigIntent, type ConfigValueSource } from './config-intent';
 
-export {
-  type TelemetryIntent,
-  type TelemetryConfig,
-} from './telemetry-intent';
+export { type TelemetryIntent, type TelemetryConfig } from './telemetry-intent';

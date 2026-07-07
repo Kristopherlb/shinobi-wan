@@ -2,7 +2,10 @@ import type { GraphSnapshot } from '@shinobi/ir';
 import { shortName } from './utils';
 
 /** Maps platform → resource suffix and default output field for config references. */
-export const PLATFORM_REF_MAP: Record<string, { suffix: string; defaultField: string }> = {
+export const PLATFORM_REF_MAP: Record<
+  string,
+  { suffix: string; defaultField: string }
+> = {
   'aws-sqs': { suffix: 'queue', defaultField: 'url' },
   'aws-dynamodb': { suffix: 'table', defaultField: 'name' },
   'aws-apigateway': { suffix: 'api', defaultField: '' }, // uses caller-provided field
@@ -26,15 +29,24 @@ export const PLATFORM_REF_MAP: Record<string, { suffix: string; defaultField: st
   'aws-eks-node-group': { suffix: 'node-group', defaultField: 'arn' },
   'aws-secretsmanager': { suffix: 'secret', defaultField: 'arn' },
   'aws-kms': { suffix: 'key', defaultField: 'arn' },
-  'aws-elasticache': { suffix: 'redis', defaultField: 'primaryEndpointAddress' },
+  'aws-elasticache': {
+    suffix: 'redis',
+    defaultField: 'primaryEndpointAddress',
+  },
   'aws-budgets': { suffix: 'budget', defaultField: 'id' },
   'aws-config-rules': { suffix: 'config-rule', defaultField: 'arn' },
   'aws-bedrock': { suffix: 'bedrock-guardrail', defaultField: 'guardrailArn' },
   'aws-sagemaker-batch-transform': { suffix: 'model', defaultField: 'arn' },
   'aws-opensearch': { suffix: 'domain', defaultField: 'endpoint' },
   'aws-kinesis-firehose': { suffix: 'firehose', defaultField: 'arn' },
-  'aws-log-subscription-filter': { suffix: 'log-sub-filter', defaultField: 'name' },
-  'aws-opensearch-serverless': { suffix: 'collection', defaultField: 'collectionEndpoint' },
+  'aws-log-subscription-filter': {
+    suffix: 'log-sub-filter',
+    defaultField: 'name',
+  },
+  'aws-opensearch-serverless': {
+    suffix: 'collection',
+    defaultField: 'collectionEndpoint',
+  },
   'aws-rds-cluster': { suffix: 'rds-cluster', defaultField: 'endpoint' },
   'aws-rds-proxy': { suffix: 'rds-proxy', defaultField: 'endpoint' },
   'aws-sagemaker-endpoint': { suffix: 'sm-endpoint', defaultField: 'arn' },
@@ -47,7 +59,10 @@ export const PLATFORM_REF_MAP: Record<string, { suffix: string; defaultField: st
   'aws-glue-crawler': { suffix: 'crawler', defaultField: 'name' },
   'aws-athena-workgroup': { suffix: 'workgroup', defaultField: 'name' },
   'aws-sagemaker-pipeline': { suffix: 'pipeline', defaultField: 'arn' },
-  'aws-msk-cluster': { suffix: 'msk-cluster', defaultField: 'bootstrapBrokersTls' },
+  'aws-msk-cluster': {
+    suffix: 'msk-cluster',
+    defaultField: 'bootstrapBrokersTls',
+  },
   'aws-msk-configuration': { suffix: 'msk-config', defaultField: 'arn' },
   'aws-transit-gateway': { suffix: 'tgw', defaultField: 'id' },
   'aws-tgw-vpc-attachment': { suffix: 'tgw-attachment', defaultField: 'id' },
@@ -81,7 +96,9 @@ export function resolveConfigReference(
     return { ref: `${nodeRef}.${field}` };
   }
 
-  const platform = targetNode.metadata.properties['platform'] as string | undefined;
+  const platform = targetNode.metadata.properties['platform'] as
+    | string
+    | undefined;
   const name = shortName(targetNode.id);
 
   if (platform) {

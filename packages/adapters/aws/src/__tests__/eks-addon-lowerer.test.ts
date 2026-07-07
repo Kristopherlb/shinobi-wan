@@ -42,7 +42,9 @@ describe('EksAddonLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.clusterName).toEqual({ ref: 'my-cluster-cluster.name' });
+    expect(result[0]?.properties?.clusterName).toEqual({
+      ref: 'my-cluster-cluster.name',
+    });
   });
 
   it('should set addon name', () => {
@@ -65,7 +67,9 @@ describe('EksAddonLowerer', () => {
     const node = createTestNode({
       id: 'platform:addon',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-eks-addon', addonName: 'vpc-cni' } },
+      metadata: {
+        properties: { platform: 'aws-eks-addon', addonName: 'vpc-cni' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -93,7 +97,9 @@ describe('EksAddonLowerer', () => {
     const node = createTestNode({
       id: 'platform:addon',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-eks-addon', addonName: 'coredns' } },
+      metadata: {
+        properties: { platform: 'aws-eks-addon', addonName: 'coredns' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -114,14 +120,18 @@ describe('EksAddonLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.configurationValues).toBe('{"env":{"ENABLE_PREFIX_DELEGATION":"true"}}');
+    expect(result[0]?.properties?.configurationValues).toBe(
+      '{"env":{"ENABLE_PREFIX_DELEGATION":"true"}}',
+    );
   });
 
   it('should include standard tags', () => {
     const node = createTestNode({
       id: 'platform:addon',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-eks-addon', addonName: 'coredns' } },
+      metadata: {
+        properties: { platform: 'aws-eks-addon', addonName: 'coredns' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

@@ -17,7 +17,7 @@ export function hasRequiredField(
   obj: Record<string, unknown>,
   basePath: string,
   fieldName: string,
-  expectedType: FieldType
+  expectedType: FieldType,
 ): ValidationError[] {
   const value = obj[fieldName];
 
@@ -75,7 +75,7 @@ export function hasRequiredField(
 export function hasRequiredFields(
   obj: Record<string, unknown>,
   basePath: string,
-  fields: RequiredFieldDef[]
+  fields: RequiredFieldDef[],
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -93,7 +93,7 @@ export function hasRequiredFields(
 export function rejectUnknownFields(
   obj: Record<string, unknown>,
   basePath: string,
-  knownFields: Set<string>
+  knownFields: Set<string>,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -106,7 +106,7 @@ export function rejectUnknownFields(
           rule: 'unknown-field',
           message: `Unknown field '${key}'`,
           severity: 'error',
-        })
+        }),
       );
     }
   }
@@ -120,7 +120,7 @@ export function rejectUnknownFields(
 export function validateEnumField(
   value: string,
   path: string,
-  allowedValues: readonly string[]
+  allowedValues: readonly string[],
 ): ValidationError[] {
   if (!allowedValues.includes(value)) {
     return [
@@ -140,7 +140,10 @@ export function validateEnumField(
 /**
  * Validates that a value is a non-empty string.
  */
-export function validateStringField(value: string, path: string): ValidationError[] {
+export function validateStringField(
+  value: string,
+  path: string,
+): ValidationError[] {
   if (typeof value !== 'string') {
     return [
       createError({

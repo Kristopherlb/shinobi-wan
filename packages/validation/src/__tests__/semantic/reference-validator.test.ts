@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { validateReferences, validateEdgeReferences, validateArtifactReferences } from '../../semantic/reference-validator';
+import {
+  validateReferences,
+  validateEdgeReferences,
+  validateArtifactReferences,
+} from '../../semantic/reference-validator';
 import type { GraphSnapshot } from '@shinobi/ir';
 
 describe('reference-validator', () => {
@@ -74,7 +78,10 @@ describe('reference-validator', () => {
   describe('validateArtifactReferences', () => {
     it('returns empty array for valid artifact reference', () => {
       const nodeIds = new Set(['component:source']);
-      const artifact = makeArtifact('artifact:iam-policy:source', 'component:source');
+      const artifact = makeArtifact(
+        'artifact:iam-policy:source',
+        'component:source',
+      );
 
       const errors = validateArtifactReferences(artifact, 0, nodeIds);
       expect(errors).toEqual([]);
@@ -82,7 +89,10 @@ describe('reference-validator', () => {
 
     it('returns error for missing source node', () => {
       const nodeIds = new Set<string>();
-      const artifact = makeArtifact('artifact:iam-policy:source', 'component:source');
+      const artifact = makeArtifact(
+        'artifact:iam-policy:source',
+        'component:source',
+      );
 
       const errors = validateArtifactReferences(artifact, 0, nodeIds);
       expect(errors).toHaveLength(1);
@@ -109,13 +119,17 @@ describe('reference-validator', () => {
       const snapshot: GraphSnapshot = {
         schemaVersion: '1.0.0',
         nodes: [makeNode('component:a')],
-        edges: [makeEdge('edge:bindsTo:a:b', 'component:a', 'component:missing')],
+        edges: [
+          makeEdge('edge:bindsTo:a:b', 'component:a', 'component:missing'),
+        ],
         artifacts: [],
       };
 
       const result = validateReferences(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'dangling-edge-target')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'dangling-edge-target')).toBe(
+        true,
+      );
     });
 
     it('returns errors for dangling artifact references', () => {
@@ -123,12 +137,16 @@ describe('reference-validator', () => {
         schemaVersion: '1.0.0',
         nodes: [],
         edges: [],
-        artifacts: [makeArtifact('artifact:iam-policy:missing', 'component:missing')],
+        artifacts: [
+          makeArtifact('artifact:iam-policy:missing', 'component:missing'),
+        ],
       };
 
       const result = validateReferences(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'dangling-artifact-source')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'dangling-artifact-source'),
+      ).toBe(true);
     });
 
     it('collects all referential integrity errors', () => {

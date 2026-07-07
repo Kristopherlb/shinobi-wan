@@ -1,12 +1,7 @@
 // Violation contract exports
-export {
-  SEVERITY_LEVELS,
-  type Severity,
-} from './severity';
+export { SEVERITY_LEVELS, type Severity } from './severity';
 
-export {
-  type RemediationHint,
-} from './remediation';
+export { type RemediationHint } from './remediation';
 
 export {
   type Violation,

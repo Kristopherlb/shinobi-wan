@@ -27,6 +27,12 @@ declare module '@shinobi/validation' {
     readonly collectAll?: boolean;
   }
 
-  export function validateGraph(snapshot: unknown, options?: ValidatorOptions): ValidationResult;
-  export function validateIntent(intent: Intent, options?: ValidatorOptions): ValidationResult;
+  export function validateGraph(
+    snapshot: unknown,
+    options?: ValidatorOptions,
+  ): ValidationResult;
+  export function validateIntent(
+    intent: Intent,
+    options?: ValidatorOptions,
+  ): ValidationResult;
 }

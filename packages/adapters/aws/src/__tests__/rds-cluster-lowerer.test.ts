@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { RdsClusterLowerer } from '../lowerers/rds-cluster-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('RdsClusterLowerer', () => {
@@ -16,7 +18,9 @@ describe('RdsClusterLowerer', () => {
     const node = makeNode({
       id: 'platform:db-cluster',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-rds-cluster', storageEncrypted: true } },
+      metadata: {
+        properties: { platform: 'aws-rds-cluster', storageEncrypted: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -29,7 +33,12 @@ describe('RdsClusterLowerer', () => {
     const node = makeNode({
       id: 'platform:db-cluster',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-rds-cluster', subnetIds: ['subnet-1', 'subnet-2'] } },
+      metadata: {
+        properties: {
+          platform: 'aws-rds-cluster',
+          subnetIds: ['subnet-1', 'subnet-2'],
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -49,7 +58,9 @@ describe('RdsClusterLowerer', () => {
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0].name).toBe('db-cluster-rds-cluster');
     expect(resources[1].name).toBe('db-cluster-rds-instance');
-    expect(resources[0].properties['clusterIdentifier']).toBe('my-service-db-cluster');
+    expect(resources[0].properties['clusterIdentifier']).toBe(
+      'my-service-db-cluster',
+    );
   });
 
   it('sets correct tags', () => {
@@ -88,7 +99,9 @@ describe('RdsClusterLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const scaling = resources[0].properties['serverlessv2ScalingConfiguration'] as Record<string, unknown>;
+    const scaling = resources[0].properties[
+      'serverlessv2ScalingConfiguration'
+    ] as Record<string, unknown>;
     expect(scaling['minCapacity']).toBe(0.5);
     expect(scaling['maxCapacity']).toBe(16);
   });
@@ -102,14 +115,18 @@ describe('RdsClusterLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[1].dependsOn).toContain('db-cluster-rds-cluster');
-    expect(resources[1].properties['clusterIdentifier']).toEqual({ ref: 'db-cluster-rds-cluster' });
+    expect(resources[1].properties['clusterIdentifier']).toEqual({
+      ref: 'db-cluster-rds-cluster',
+    });
   });
 
   it('cluster depends on subnet group when provided', () => {
     const node = makeNode({
       id: 'platform:db-cluster',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-rds-cluster', subnetIds: ['subnet-1'] } },
+      metadata: {
+        properties: { platform: 'aws-rds-cluster', subnetIds: ['subnet-1'] },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -145,7 +162,9 @@ describe('RdsClusterLowerer', () => {
     const node = makeNode({
       id: 'platform:db-cluster',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-rds-cluster', tags: { env: 'prod' } } },
+      metadata: {
+        properties: { platform: 'aws-rds-cluster', tags: { env: 'prod' } },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

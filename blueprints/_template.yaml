@@ -60,15 +60,15 @@ bindings:
     target: my-queue
     type: bindsTo
     config:
-      resourceType: queue       # queue | bucket | table | topic | api
-      accessLevel: write        # read | write | admin
+      resourceType: queue # queue | bucket | table | topic | api
+      accessLevel: write # read | write | admin
       network:
         port: 443
-        protocol: tcp           # tcp | udp | any
+        protocol: tcp # tcp | udp | any
       configKeys:
         - key: QUEUE_URL
           valueSource:
-            type: reference     # reference | literal | secret
+            type: reference # reference | literal | secret
             nodeRef: my-queue
             field: url
 

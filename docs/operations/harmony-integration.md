@@ -21,14 +21,14 @@ flowchart LR
 
 ## Tool Catalog and Mapping
 
-| Harmony Tool ID | Operation Class | Shinobi Mapping | Mode | Restriction |
-|---|---|---|---|---|
-| `golden.shinobi.validate_plan` | `plan` | `shinobi validate <manifest> --json [--policy-pack <pack>]` | `await` | non-restricted |
-| `golden.shinobi.plan_change` | `plan` | `shinobi plan <manifest> --json [--region <r>] [--code-path <p>] [--policy-pack <pack>]` | `await` | non-restricted |
-| `golden.shinobi.read_entities` | `read` | wrapper-derived projection from validate/plan outputs | `await` | non-restricted |
-| `golden.shinobi.read_activity` | `read` | wrapper-derived projection from validate/plan diagnostics | `await` | non-restricted |
-| `golden.shinobi.apply_change` | `apply` | `shinobi up <manifest> --json --no-dry-run ...` | `start` default | restricted |
-| `golden.shinobi.rollback_change` | `apply` | wrapper-managed compensation (native rollback not available) | `start` | restricted |
+| Harmony Tool ID                  | Operation Class | Shinobi Mapping                                                                          | Mode            | Restriction    |
+| -------------------------------- | --------------- | ---------------------------------------------------------------------------------------- | --------------- | -------------- |
+| `golden.shinobi.validate_plan`   | `plan`          | `shinobi validate <manifest> --json [--policy-pack <pack>]`                              | `await`         | non-restricted |
+| `golden.shinobi.plan_change`     | `plan`          | `shinobi plan <manifest> --json [--region <r>] [--code-path <p>] [--policy-pack <pack>]` | `await`         | non-restricted |
+| `golden.shinobi.read_entities`   | `read`          | wrapper-derived projection from validate/plan outputs                                    | `await`         | non-restricted |
+| `golden.shinobi.read_activity`   | `read`          | wrapper-derived projection from validate/plan diagnostics                                | `await`         | non-restricted |
+| `golden.shinobi.apply_change`    | `apply`         | `shinobi up <manifest> --json --no-dry-run ...`                                          | `start` default | restricted     |
+| `golden.shinobi.rollback_change` | `apply`         | wrapper-managed compensation (native rollback not available)                             | `start`         | restricted     |
 
 ## Response Envelope Contract
 
@@ -56,11 +56,11 @@ Error envelope fields:
 
 ## Timeout, Retry, and Idempotency Defaults
 
-| Operation Class | Default Timeout | Max Timeout | Retry Policy | Idempotency |
-|---|---|---|---|---|
-| `read` | 5s | 15s | `2 attempts, 1s initial, x2 backoff` | recommended |
-| `plan` | 10s | 30s | `2 attempts, 2s initial, x2 backoff` | required |
-| `apply` | 30s (await override only) | 120s | `1 attempt (no auto side-effect retry)` | required |
+| Operation Class | Default Timeout           | Max Timeout | Retry Policy                            | Idempotency |
+| --------------- | ------------------------- | ----------- | --------------------------------------- | ----------- |
+| `read`          | 5s                        | 15s         | `2 attempts, 1s initial, x2 backoff`    | recommended |
+| `plan`          | 10s                       | 30s         | `2 attempts, 2s initial, x2 backoff`    | required    |
+| `apply`         | 30s (await override only) | 120s        | `1 attempt (no auto side-effect retry)` | required    |
 
 ## Restricted Operation Policy
 
@@ -89,12 +89,12 @@ For `start` mode operations, wrapper dispatches to external workflow wiring and 
 
 Terminal state semantics:
 
-| State | Meaning | Retryable |
-|---|---|---|
-| `succeeded` | Operation completed and side effects committed | no |
-| `failed` | Operation failed and did not reach success criteria | yes |
-| `cancelled` | Operation cancelled by explicit control path | yes |
-| `timed_out` | Operation exceeded execution timeout budget | yes |
+| State       | Meaning                                             | Retryable |
+| ----------- | --------------------------------------------------- | --------- |
+| `succeeded` | Operation completed and side effects committed      | no        |
+| `failed`    | Operation failed and did not reach success criteria | yes       |
+| `cancelled` | Operation cancelled by explicit control path        | yes       |
+| `timed_out` | Operation exceeded execution timeout budget         | yes       |
 
 ## Plan-to-Apply Linkage
 
@@ -150,15 +150,15 @@ Rules:
 
 ## Feature Flags
 
-| Key | Purpose | Default |
-|---|---|---|
-| `SHINOBI_WRAPPER_MODE_ENABLED` | Enables wrapper tool invocation path | `false` |
-| `SHINOBI_APPLY_ENABLED` | Enables restricted apply tool execution | `false` |
-| `SHINOBI_APPLY_MODE` | Default apply mode (`start` or `await`) | `start` |
-| `SHINOBI_HARMONY_DISPATCH_URL` | External workflow dispatch endpoint for apply start mode | unset |
-| `SHINOBI_CONTRACT_VERSION` | Envelope contract version string | `1.0.0` |
-| `SHINOBI_TOOL_VERSION` | Tool implementation version string | `0.1.0` |
-| `SHINOBI_MAX_CONCURRENCY` | Safety throttle value for wrapper workers | `5` |
+| Key                            | Purpose                                                  | Default |
+| ------------------------------ | -------------------------------------------------------- | ------- |
+| `SHINOBI_WRAPPER_MODE_ENABLED` | Enables wrapper tool invocation path                     | `false` |
+| `SHINOBI_APPLY_ENABLED`        | Enables restricted apply tool execution                  | `false` |
+| `SHINOBI_APPLY_MODE`           | Default apply mode (`start` or `await`)                  | `start` |
+| `SHINOBI_HARMONY_DISPATCH_URL` | External workflow dispatch endpoint for apply start mode | unset   |
+| `SHINOBI_CONTRACT_VERSION`     | Envelope contract version string                         | `1.0.0` |
+| `SHINOBI_TOOL_VERSION`         | Tool implementation version string                       | `0.1.0` |
+| `SHINOBI_MAX_CONCURRENCY`      | Safety throttle value for wrapper workers                | `5`     |
 
 ## Rollout Sequence
 

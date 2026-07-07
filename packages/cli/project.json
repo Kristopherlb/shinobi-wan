@@ -1,32 +1,27 @@
 {
-    "name": "cli",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "packages/cli/src",
-    "projectType": "application",
-    "targets": {
-        "build": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "pnpm --filter @shinobi/cli exec tsup --config packages/cli/tsup.config.ts",
-                "cwd": "{workspaceRoot}"
-            }
-        },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ]
-        },
-        "test": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "vitest run --config packages/cli/vitest.config.ts",
-                "cwd": "{workspaceRoot}"
-            }
-        }
+  "name": "cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/cli/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @shinobi/cli exec tsup --config packages/cli/tsup.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
     },
-    "tags": [
-        "scope:cli",
-        "type:app"
-    ]
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config packages/cli/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["scope:cli", "type:app"]
 }

@@ -178,7 +178,9 @@ bindings: []
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.path === '$.components[0].type')).toBe(true);
+    expect(result.errors.some((e) => e.path === '$.components[0].type')).toBe(
+      true,
+    );
   });
 
   it('rejects missing component id', () => {
@@ -192,7 +194,9 @@ bindings: []
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.path === '$.components[0].id')).toBe(true);
+    expect(result.errors.some((e) => e.path === '$.components[0].id')).toBe(
+      true,
+    );
   });
 
   it('rejects missing component platform', () => {
@@ -206,7 +210,9 @@ bindings: []
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.path === '$.components[0].platform')).toBe(true);
+    expect(
+      result.errors.some((e) => e.path === '$.components[0].platform'),
+    ).toBe(true);
   });
 
   it('rejects duplicate component ids', () => {
@@ -224,7 +230,9 @@ bindings: []
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.message.includes('duplicate'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('duplicate'))).toBe(
+      true,
+    );
   });
 
   it('rejects invalid binding edge type', () => {
@@ -247,7 +255,9 @@ bindings:
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.path === '$.bindings[0].type')).toBe(true);
+    expect(result.errors.some((e) => e.path === '$.bindings[0].type')).toBe(
+      true,
+    );
   });
 
   it('rejects binding with missing resourceType', () => {
@@ -270,7 +280,9 @@ bindings:
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.path === '$.bindings[0].config.resourceType')).toBe(true);
+    expect(
+      result.errors.some((e) => e.path === '$.bindings[0].config.resourceType'),
+    ).toBe(true);
   });
 
   it('rejects binding referencing unknown component', () => {
@@ -290,7 +302,9 @@ bindings:
     const result = parseManifest(yaml);
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.errors.some((e) => e.message.includes("'nonexistent'"))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes("'nonexistent'"))).toBe(
+      true,
+    );
   });
 
   it('determinism: same input produces same output', () => {

@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class KinesisFirehoseLowerer implements NodeLowerer {
   readonly platform = 'aws-kinesis-firehose';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -19,9 +28,12 @@ export class KinesisFirehoseLowerer implements NodeLowerer {
 
     const firehoseName = `${name}-firehose`;
 
-    const destinationType = (props['destinationType'] as string) ?? 'opensearch';
-    const s3BackupMode = (props['s3BackupMode'] as string) ?? 'FailedDocumentsOnly';
-    const bufferingIntervalSeconds = (props['bufferingIntervalSeconds'] as number) ?? 60;
+    const destinationType =
+      (props['destinationType'] as string) ?? 'opensearch';
+    const s3BackupMode =
+      (props['s3BackupMode'] as string) ?? 'FailedDocumentsOnly';
+    const bufferingIntervalSeconds =
+      (props['bufferingIntervalSeconds'] as number) ?? 60;
     const bufferingSizeMBs = (props['bufferingSizeMBs'] as number) ?? 5;
     const encryptionEnabled = props['encryptionEnabled'] === true;
     const indexName = props['indexName'] as string | undefined;

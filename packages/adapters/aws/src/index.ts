@@ -11,11 +11,18 @@
 // Adapter orchestrator
 export { lower, lowerAsync } from './adapter';
 export type { LowerAsyncOptions, LowerOptions } from './adapter';
-export { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
+export {
+  NodeLowererRegistry,
+  createDefaultNodeLowererRegistry,
+} from './lowerer-registry';
 
 // Program generator
 export { generatePlan } from './program-generator';
-export type { PulumiFn, ResourcePlan, PlannedResource } from './program-generator';
+export type {
+  PulumiFn,
+  ResourcePlan,
+  PlannedResource,
+} from './program-generator';
 
 // Pulumi program builder
 export { createPulumiProgram } from './pulumi-program';
@@ -44,5 +51,31 @@ export type {
 } from './types';
 
 // Individual lowerers (for custom adapter composition)
-export { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer, TelemetryIntentLowerer } from './lowerers';
-export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer } from './lowerers';
+export {
+  IamIntentLowerer,
+  NetworkIntentLowerer,
+  ConfigIntentLowerer,
+  TelemetryIntentLowerer,
+} from './lowerers';
+export {
+  LambdaLowerer,
+  SqsLowerer,
+  DynamoDbLowerer,
+  S3Lowerer,
+  ApiGatewayLowerer,
+  SnsLowerer,
+  CloudFrontLowerer,
+  WafLowerer,
+  AcmLowerer,
+  CloudFrontFunctionLowerer,
+  EventBridgeLowerer,
+  StepFunctionsLowerer,
+  VpcLowerer,
+  SubnetLowerer,
+  SecurityGroupLowerer,
+  EcrLowerer,
+  EcsClusterLowerer,
+  EcsTaskDefinitionLowerer,
+  EcsServiceLowerer,
+  AlbLowerer,
+} from './lowerers';

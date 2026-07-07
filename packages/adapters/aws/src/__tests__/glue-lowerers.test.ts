@@ -15,7 +15,9 @@ describe('GlueCatalogLowerer', () => {
     const node = createTestNode({
       id: 'platform:data-catalog',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-glue-catalog', databaseName: 'my_db' } },
+      metadata: {
+        properties: { platform: 'aws-glue-catalog', databaseName: 'my_db' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -70,11 +72,19 @@ describe('GlueCatalogLowerer', () => {
     const node = createTestNode({
       id: 'platform:catalog',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-glue-catalog', databaseName: 'my_catalog' } },
+      metadata: {
+        properties: {
+          platform: 'aws-glue-catalog',
+          databaseName: 'my_catalog',
+        },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const dbInput = result[0]?.properties?.databaseInput as Record<string, unknown>;
+    const dbInput = result[0]?.properties?.databaseInput as Record<
+      string,
+      unknown
+    >;
     expect(dbInput?.name).toBe('my_catalog');
   });
 
@@ -93,7 +103,10 @@ describe('GlueCatalogLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const dbInput = result[0]?.properties?.databaseInput as Record<string, unknown>;
+    const dbInput = result[0]?.properties?.databaseInput as Record<
+      string,
+      unknown
+    >;
     expect(dbInput?.description).toBe('Test database');
     expect(dbInput?.locationUri).toBe('s3://my-bucket/data/');
   });
@@ -110,9 +123,12 @@ describe('GlueCatalogLowerer', () => {
             {
               name: 'parquet_table',
               columns: [{ name: 'col1', type: 'string' }],
-              inputFormat: 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat',
-              outputFormat: 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat',
-              serializationLibrary: 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe',
+              inputFormat:
+                'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat',
+              outputFormat:
+                'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat',
+              serializationLibrary:
+                'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe',
               location: 's3://bucket/data/',
             },
           ],
@@ -121,18 +137,28 @@ describe('GlueCatalogLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const tableInput = result[1]?.properties?.tableInput as Record<string, unknown>;
-    const sd = (tableInput?.storageDescriptor) as Record<string, unknown>;
-    expect(sd?.inputFormat).toBe('org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat');
+    const tableInput = result[1]?.properties?.tableInput as Record<
+      string,
+      unknown
+    >;
+    const sd = tableInput?.storageDescriptor as Record<string, unknown>;
+    expect(sd?.inputFormat).toBe(
+      'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat',
+    );
     expect(sd?.location).toBe('s3://bucket/data/');
-    expect(sd?.serDeInfo).toEqual({ serializationLibrary: 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe' });
+    expect(sd?.serDeInfo).toEqual({
+      serializationLibrary:
+        'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe',
+    });
   });
 
   it('should include standard tags', () => {
     const node = createTestNode({
       id: 'platform:catalog',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-glue-catalog', databaseName: 'db' } },
+      metadata: {
+        properties: { platform: 'aws-glue-catalog', databaseName: 'db' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -264,7 +290,9 @@ describe('GlueJobLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.defaultArguments).toEqual({ '--enable-spark-ui': 'true' });
+    expect(result[0]?.properties?.defaultArguments).toEqual({
+      '--enable-spark-ui': 'true',
+    });
   });
 
   it('should include standard tags', () => {
@@ -317,7 +345,9 @@ describe('GlueCrawlerLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(result[0]?.properties?.databaseName).toBe('analytics_db');
-    expect(result[0]?.properties?.s3Targets).toEqual([{ path: 's3://raw-data/', exclusions: ['temp/**'] }]);
+    expect(result[0]?.properties?.s3Targets).toEqual([
+      { path: 's3://raw-data/', exclusions: ['temp/**'] },
+    ]);
   });
 
   it('should use default schema change policy', () => {

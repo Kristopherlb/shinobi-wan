@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -8,7 +13,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class EcrLowerer implements NodeLowerer {
   readonly platform = 'aws-ecr';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const extraTags = props['tags'] as Record<string, string> | undefined;
@@ -23,9 +32,13 @@ export class EcrLowerer implements NodeLowerer {
       resourceType: 'aws:ecr:Repository',
       properties: {
         name: makeResourceName(node.id, context.adapterConfig.serviceName),
-        imageTagMutability: (props['imageTagMutability'] as string) ?? 'IMMUTABLE',
+        imageTagMutability:
+          (props['imageTagMutability'] as string) ?? 'IMMUTABLE',
         imageScanningConfiguration: {
-          scanOnPush: props['scanOnPush'] !== undefined ? (props['scanOnPush'] as boolean) : true,
+          scanOnPush:
+            props['scanOnPush'] !== undefined
+              ? (props['scanOnPush'] as boolean)
+              : true,
         },
         tags: createStandardTags(node.id, 'aws-ecr', extraTags),
       },
@@ -35,7 +48,8 @@ export class EcrLowerer implements NodeLowerer {
 
     // Optional lifecycle policy
     if (props['lifecyclePolicy'] !== false) {
-      const imageCount = (props['lifecycleImageCount'] as number | undefined) ?? 10;
+      const imageCount =
+        (props['lifecycleImageCount'] as number | undefined) ?? 10;
       const lifecyclePolicy = {
         rules: [
           {

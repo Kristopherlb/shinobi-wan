@@ -2,13 +2,16 @@ import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import { up } from '../up';
 
-const MANIFEST_PATH = path.resolve(__dirname, '../../../../../examples/lambda-sqs.yaml');
+const MANIFEST_PATH = path.resolve(
+  __dirname,
+  '../../../../../examples/lambda-sqs.yaml',
+);
 
 function hasAwsCredentials(): boolean {
   return Boolean(
     process.env['AWS_ACCESS_KEY_ID'] &&
-      process.env['AWS_SECRET_ACCESS_KEY'] &&
-      process.env['AWS_REGION'],
+    process.env['AWS_SECRET_ACCESS_KEY'] &&
+    process.env['AWS_REGION'],
   );
 }
 

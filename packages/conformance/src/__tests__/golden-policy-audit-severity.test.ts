@@ -10,7 +10,8 @@ import type { GoldenCase } from '../types';
 
 const CASE_SCHEMA: GoldenCase = {
   id: 'golden:policy:audit-severity-matrix',
-  description: 'Violation schema and severity escalation remain stable across policy packs',
+  description:
+    'Violation schema and severity escalation remain stable across policy packs',
   gates: ['G-042'],
 };
 
@@ -27,8 +28,14 @@ function createEvaluatorList(): ReadonlyArray<IPolicyEvaluator> {
 }
 
 function wildcardResourceSetup(): ReadonlyArray<GraphMutation> {
-  const source = createTestNode({ id: 'component:wildcard-svc', type: 'component' });
-  const target = createTestNode({ id: 'platform:wildcard-db', type: 'platform' });
+  const source = createTestNode({
+    id: 'component:wildcard-svc',
+    type: 'component',
+  });
+  const target = createTestNode({
+    id: 'platform:wildcard-db',
+    type: 'platform',
+  });
   const edge = createTestEdge({
     id: 'edge:bindsTo:component:wildcard-svc:platform:wildcard-db',
     type: 'bindsTo',
@@ -78,7 +85,9 @@ describe(`Golden: Policy Audit Severity Matrix (G-042)`, () => {
           evaluators: createEvaluatorList(),
         });
 
-        return compilation.policy?.violations.find((v) => v.ruleId === 'iam-no-wildcard-resource')?.severity;
+        return compilation.policy?.violations.find(
+          (v) => v.ruleId === 'iam-no-wildcard-resource',
+        )?.severity;
       });
 
       expect(severities).toEqual(['warning', 'error', 'error']);

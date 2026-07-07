@@ -9,6 +9,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ### 🔴 Friction
 
 #### PAT-001: TypeScript Type-Only Imports Create False-Positive Tests
+
 **Occurrences:** 2
 **Sessions:** 2026-02-07-kernel-graph-core-implementation, 2026-02-07-contract-layer-implementation
 
@@ -21,6 +22,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-002: Test Framework Preference Not Captured
+
 **Occurrences:** 1
 **Sessions:** 2026-02-07-kernel-graph-core-implementation
 
@@ -33,6 +35,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-004: Barrel Export Drift
+
 **Occurrences:** 1
 **Sessions:** 2026-02-07-contract-layer-implementation
 
@@ -45,6 +48,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-005: Vitest Path Alias Resolution
+
 **Occurrences:** 1
 **Sessions:** 2026-02-09-validation-pipeline-implementation
 
@@ -59,6 +63,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-007: Module Boundary Missing for Test-Only Dependencies
+
 **Occurrences:** 1
 **Sessions:** 2026-02-10-policy-evaluator-implementation
 
@@ -71,6 +76,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-008: Non-Null Assertions in Rule/Catalog Lookups
+
 **Occurrences:** 1
 **Sessions:** 2026-02-10-policy-evaluator-implementation
 
@@ -83,6 +89,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-009: Plan Assumes Policy Rules Fire Without Verifying Binder Output
+
 **Occurrences:** 1
 **Sessions:** 2026-02-11-conformance-golden-tests-implementation
 
@@ -95,6 +102,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-013: Nx Cache Masks Test Failures After Source Changes
+
 **Occurrences:** 1
 **Sessions:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
 
@@ -107,6 +115,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-014: Hardcoded Rule Counts Break When Adding Policy Rules
+
 **Occurrences:** 2
 **Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint
 
@@ -119,6 +128,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-015: New Policy Rules Ripple Through Conformance Golden Tests
+
 **Occurrences:** 1
 **Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint
 
@@ -133,6 +143,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-018: Triggers Edges Require bindingConfig (Not Empty Metadata)
+
 **Occurrences:** 1
 **Sessions:** 2026-03-01-wave-a-complete
 
@@ -147,6 +158,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ### 🟢 Success
 
 #### PAT-012: Pattern-Following Lowerer Implementation
+
 **Occurrences:** 38
 **Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns, 2026-02-28-compute-blueprints-phases-2-3-4-5, 2026-03-01-wave-a-complete, 2026-03-01-wave-b-complete, 2026-03-02-wave-c-complete
 
@@ -159,6 +171,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-016: Node-Level Policy Checks Scale Cleanly
+
 **Occurrences:** 30
 **Sessions:** 2026-02-28-compute-blueprints-phase1-checkpoint, 2026-02-28-compute-blueprints-phase2-checkpoint, 2026-02-28-compute-blueprints-phases-3-4-5, 2026-03-01-wave-a-complete, 2026-03-01-wave-b-complete, 2026-03-02-wave-c-complete
 
@@ -171,6 +184,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-019: Policy Rule Reuse Across Platforms via NODE_RULE_CHECKS
+
 **Occurrences:** 2
 **Sessions:** 2026-03-01-wave-b-complete
 
@@ -181,6 +195,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-020: Zero-Friction Phase Execution via Established Patterns
+
 **Occurrences:** 2
 **Sessions:** 2026-03-01-wave-b-complete, 2026-03-02-wave-c-complete
 
@@ -191,6 +206,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ---
 
 #### PAT-021: Context Continuation Preserves Cross-Cutting State
+
 **Occurrences:** 1
 **Sessions:** 2026-03-02-wave-c-complete
 
@@ -203,6 +219,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 ### 🔵 Tooling Gap
 
 #### PAT-003: Missing Nx ESLint Plugin
+
 **Occurrences:** 1
 **Sessions:** 2026-02-07-kernel-graph-core-implementation
 
@@ -219,6 +236,7 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 _Patterns that have been resolved with formal solutions._
 
 ### PAT-006: Test Snapshots Without Canonical Ordering (GRADUATED)
+
 **Occurrences:** 4 (3 friction, 1 zero-impact)
 **Sessions:** 2026-02-07 through 2026-02-11
 
@@ -227,6 +245,7 @@ _Patterns that have been resolved with formal solutions._
 ---
 
 ### PAT-010: Utility Function Duplication Across Lowerers (GRADUATED)
+
 **Occurrences:** 2
 **Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
 
@@ -235,6 +254,7 @@ _Patterns that have been resolved with formal solutions._
 ---
 
 ### PAT-011: Platform-Specific If-Chain in resolveConfigValue (GRADUATED)
+
 **Occurrences:** 2
 **Sessions:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway, 2026-02-15-phase-8a-utility-extraction-conformance-sns
 
@@ -243,6 +263,7 @@ _Patterns that have been resolved with formal solutions._
 ---
 
 ### PAT-017: Platform-to-Platform Edges Produce Zero Intents (GRADUATED)
+
 **Occurrences:** 3
 **Sessions:** 2026-02-28-compute-blueprints-phase2-checkpoint, 2026-02-28-compute-blueprints-phase4 (BP-006), 2026-02-28-compute-blueprints-phase5 (BP-005)
 
@@ -253,6 +274,7 @@ _Patterns that have been resolved with formal solutions._
 ## Pattern Graduation Criteria
 
 A pattern is ready for graduation when:
+
 1. Occurrences ≥ 3
 2. Impact is quantifiable
 3. Resolution is actionable and testable

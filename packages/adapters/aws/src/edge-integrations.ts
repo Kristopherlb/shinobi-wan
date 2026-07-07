@@ -45,7 +45,9 @@ const EDGE_INTEGRATION_TEMPLATES: ReadonlyArray<EdgeIntegrationTemplate> = [
  * Generates all edge integration resources by walking snapshot edges
  * and dispatching to the appropriate resource generator.
  */
-export function generateEdgeIntegrations(context: LoweringContext): LoweredResource[] {
+export function generateEdgeIntegrations(
+  context: LoweringContext,
+): LoweredResource[] {
   const resources: LoweredResource[] = [];
 
   for (const edge of context.snapshot.edges) {
@@ -53,8 +55,12 @@ export function generateEdgeIntegrations(context: LoweringContext): LoweredResou
     const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
     if (!sourceNode || !targetNode) continue;
 
-    const sourcePlatform = sourceNode.metadata.properties['platform'] as string | undefined;
-    const targetPlatform = targetNode.metadata.properties['platform'] as string | undefined;
+    const sourcePlatform = sourceNode.metadata.properties['platform'] as
+      | string
+      | undefined;
+    const targetPlatform = targetNode.metadata.properties['platform'] as
+      | string
+      | undefined;
     if (!sourcePlatform || !targetPlatform) continue;
 
     for (const template of EDGE_INTEGRATION_TEMPLATES) {
@@ -65,7 +71,9 @@ export function generateEdgeIntegrations(context: LoweringContext): LoweredResou
       ) {
         const sourceName = shortName(sourceNode.id);
         const targetName = shortName(targetNode.id);
-        resources.push(...template.generate(edge, sourceName, targetName, context));
+        resources.push(
+          ...template.generate(edge, sourceName, targetName, context),
+        );
       }
     }
   }

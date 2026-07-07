@@ -3,6 +3,7 @@
 Purpose: capture **binder strategy semantics** as backend-neutral “edge → derived intents/diagnostics” behaviors.
 
 Related canonical laws/patterns (see `README.md`):
+
 - Kernel Laws: **KL-004** (DerivedIntentBoundary), **KL-005** (LeastPrivilegeByConstruction), **KL-006** (ExplainableDiagnostics), **KL-001** (DeterministicCompilation), **KL-003** (CapabilityCompatibilityMatrix)
 - Patterns: **P-001** (AccessLevelToActions), **P-002** (CustomActionsOverride), **P-003** (SecureAccessAugmentation), **P-007** (CrossServiceNetworkRuleAggregation)
 
@@ -80,4 +81,3 @@ TODO: Capture exact deny rules and exception pathways (if any), as testable laws
   - intent bundles (stable ordering)
   - IDs/keys for derived artifacts
   - diagnostic ordering and contents
-

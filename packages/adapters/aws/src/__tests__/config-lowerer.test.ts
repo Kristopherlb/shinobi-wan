@@ -24,7 +24,9 @@ describe('ConfigIntentLowerer', () => {
     const intent = makeConfigIntent();
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['name']).toBe('/my-lambda-sqs/api-handler/QUEUE_URL');
+    expect(resources[0].properties['name']).toBe(
+      '/my-lambda-sqs/api-handler/QUEUE_URL',
+    );
   });
 
   it('resolves reference value source to ref', () => {
@@ -33,7 +35,9 @@ describe('ConfigIntentLowerer', () => {
     });
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['value']).toEqual({ ref: 'work-queue-queue.url' });
+    expect(resources[0].properties['value']).toEqual({
+      ref: 'work-queue-queue.url',
+    });
   });
 
   it('resolves literal value source to string', () => {
@@ -51,7 +55,9 @@ describe('ConfigIntentLowerer', () => {
     });
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['value']).toEqual({ secretRef: 'my-secret' });
+    expect(resources[0].properties['value']).toEqual({
+      secretRef: 'my-secret',
+    });
   });
 
   it('carries tags with shinobi metadata', () => {

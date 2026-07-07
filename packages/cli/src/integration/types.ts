@@ -4,7 +4,11 @@ import type {
   TerminalOperationState,
 } from './contract';
 
-export type { OperationClass, RetriableReason, TerminalOperationState } from './contract';
+export type {
+  OperationClass,
+  RetriableReason,
+  TerminalOperationState,
+} from './contract';
 
 export interface RetryPolicy {
   readonly maxAttempts: number;
@@ -23,7 +27,13 @@ export interface OperationPolicy {
 
 export type ToolErrorEnvelope = {
   readonly code: string;
-  readonly category: 'validation' | 'authorization' | 'upstream' | 'runtime' | 'conflict' | 'unknown';
+  readonly category:
+    | 'validation'
+    | 'authorization'
+    | 'upstream'
+    | 'runtime'
+    | 'conflict'
+    | 'unknown';
   readonly source: string;
   readonly traceId: string;
   readonly message: string;
@@ -57,7 +67,9 @@ export interface AsyncOperationHandle {
   readonly submittedAt: string;
   readonly statusUrl: string;
   readonly terminalStates: ReadonlyArray<TerminalOperationState>;
-  readonly terminalStateRetryable: Readonly<Record<TerminalOperationState, boolean>>;
+  readonly terminalStateRetryable: Readonly<
+    Record<TerminalOperationState, boolean>
+  >;
   readonly cancelUrl?: string;
 }
 

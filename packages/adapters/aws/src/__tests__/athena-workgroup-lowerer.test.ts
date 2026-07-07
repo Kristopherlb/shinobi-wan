@@ -35,9 +35,15 @@ describe('AthenaWorkgroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const config = result[0]?.properties?.configuration as Record<string, unknown>;
+    const config = result[0]?.properties?.configuration as Record<
+      string,
+      unknown
+    >;
     const resultConfig = config?.resultConfiguration as Record<string, unknown>;
-    const encryption = resultConfig?.encryptionConfiguration as Record<string, unknown>;
+    const encryption = resultConfig?.encryptionConfiguration as Record<
+      string,
+      unknown
+    >;
     expect(encryption?.encryptionOption).toBe('SSE_S3');
   });
 
@@ -55,11 +61,19 @@ describe('AthenaWorkgroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const config = result[0]?.properties?.configuration as Record<string, unknown>;
+    const config = result[0]?.properties?.configuration as Record<
+      string,
+      unknown
+    >;
     const resultConfig = config?.resultConfiguration as Record<string, unknown>;
-    const encryption = resultConfig?.encryptionConfiguration as Record<string, unknown>;
+    const encryption = resultConfig?.encryptionConfiguration as Record<
+      string,
+      unknown
+    >;
     expect(encryption?.encryptionOption).toBe('SSE_KMS');
-    expect(encryption?.kmsKeyArn).toBe('arn:aws:kms:us-east-1:123456789012:key/12345');
+    expect(encryption?.kmsKeyArn).toBe(
+      'arn:aws:kms:us-east-1:123456789012:key/12345',
+    );
   });
 
   it('should default to enforcing workgroup configuration', () => {
@@ -70,7 +84,10 @@ describe('AthenaWorkgroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const config = result[0]?.properties?.configuration as Record<string, unknown>;
+    const config = result[0]?.properties?.configuration as Record<
+      string,
+      unknown
+    >;
     expect(config?.enforceWorkgroupConfiguration).toBe(true);
     expect(config?.publishCloudWatchMetricsEnabled).toBe(true);
     expect(config?.requesterPaysEnabled).toBe(false);
@@ -89,7 +106,10 @@ describe('AthenaWorkgroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const config = result[0]?.properties?.configuration as Record<string, unknown>;
+    const config = result[0]?.properties?.configuration as Record<
+      string,
+      unknown
+    >;
     expect(config?.bytesScannedCutoffPerQuery).toBe(1073741824);
   });
 
@@ -101,7 +121,10 @@ describe('AthenaWorkgroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const config = result[0]?.properties?.configuration as Record<string, unknown>;
+    const config = result[0]?.properties?.configuration as Record<
+      string,
+      unknown
+    >;
     expect(config?.bytesScannedCutoffPerQuery).toBeUndefined();
   });
 
@@ -118,7 +141,10 @@ describe('AthenaWorkgroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const config = result[0]?.properties?.configuration as Record<string, unknown>;
+    const config = result[0]?.properties?.configuration as Record<
+      string,
+      unknown
+    >;
     const resultConfig = config?.resultConfiguration as Record<string, unknown>;
     expect(resultConfig?.outputLocation).toBe('s3://my-bucket/athena-results/');
   });

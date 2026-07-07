@@ -1,6 +1,10 @@
 import { ValidationError } from './errors';
 import { NODE_TYPES, EDGE_TYPES, ARTIFACT_TYPES } from './types';
-import { isValidNodeId, isValidEdgeId, isValidArtifactId } from './id-generation';
+import {
+  isValidNodeId,
+  isValidEdgeId,
+  isValidArtifactId,
+} from './id-generation';
 
 /**
  * Result of a validation operation.
@@ -63,7 +67,7 @@ const SNAPSHOT_KNOWN_FIELDS = new Set([
  */
 export function validateNode(
   node: unknown,
-  options: ValidationOptions = DEFAULT_OPTIONS
+  options: ValidationOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -85,8 +89,13 @@ export function validateNode(
     errors.push(new ValidationError('$.semanticHash', 'required string'));
   }
 
-  if (typeof n.type !== 'string' || !(NODE_TYPES as readonly string[]).includes(n.type)) {
-    errors.push(new ValidationError('$.type', `must be one of: ${NODE_TYPES.join(', ')}`));
+  if (
+    typeof n.type !== 'string' ||
+    !(NODE_TYPES as readonly string[]).includes(n.type)
+  ) {
+    errors.push(
+      new ValidationError('$.type', `must be one of: ${NODE_TYPES.join(', ')}`),
+    );
   }
 
   if (n.schemaVersion !== '1.0.0') {
@@ -118,7 +127,7 @@ export function validateNode(
  */
 export function validateEdge(
   edge: unknown,
-  options: ValidationOptions = DEFAULT_OPTIONS
+  options: ValidationOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -140,8 +149,13 @@ export function validateEdge(
     errors.push(new ValidationError('$.semanticHash', 'required string'));
   }
 
-  if (typeof e.type !== 'string' || !(EDGE_TYPES as readonly string[]).includes(e.type)) {
-    errors.push(new ValidationError('$.type', `must be one of: ${EDGE_TYPES.join(', ')}`));
+  if (
+    typeof e.type !== 'string' ||
+    !(EDGE_TYPES as readonly string[]).includes(e.type)
+  ) {
+    errors.push(
+      new ValidationError('$.type', `must be one of: ${EDGE_TYPES.join(', ')}`),
+    );
   }
 
   if (typeof e.source !== 'string') {
@@ -181,7 +195,7 @@ export function validateEdge(
  */
 export function validateArtifact(
   artifact: unknown,
-  options: ValidationOptions = DEFAULT_OPTIONS
+  options: ValidationOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -203,15 +217,27 @@ export function validateArtifact(
     errors.push(new ValidationError('$.semanticHash', 'required string'));
   }
 
-  if (typeof a.type !== 'string' || !(ARTIFACT_TYPES as readonly string[]).includes(a.type)) {
-    errors.push(new ValidationError('$.type', `must be one of: ${ARTIFACT_TYPES.join(', ')}`));
+  if (
+    typeof a.type !== 'string' ||
+    !(ARTIFACT_TYPES as readonly string[]).includes(a.type)
+  ) {
+    errors.push(
+      new ValidationError(
+        '$.type',
+        `must be one of: ${ARTIFACT_TYPES.join(', ')}`,
+      ),
+    );
   }
 
   if (typeof a.sourceNodeId !== 'string') {
     errors.push(new ValidationError('$.sourceNodeId', 'required string'));
   }
 
-  if (a.content === undefined || a.content === null || typeof a.content !== 'object') {
+  if (
+    a.content === undefined ||
+    a.content === null ||
+    typeof a.content !== 'object'
+  ) {
     errors.push(new ValidationError('$.content', 'required object'));
   }
 
@@ -240,7 +266,7 @@ export function validateArtifact(
  */
 export function validateSnapshot(
   snapshot: unknown,
-  options: ValidationOptions = DEFAULT_OPTIONS
+  options: ValidationOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -263,7 +289,9 @@ export function validateSnapshot(
     for (let i = 0; i < s.nodes.length; i++) {
       const nodeResult = validateNode(s.nodes[i], options);
       for (const err of nodeResult.errors) {
-        errors.push(new ValidationError(`$.nodes[${i}]${err.path.slice(1)}`, err.rule));
+        errors.push(
+          new ValidationError(`$.nodes[${i}]${err.path.slice(1)}`, err.rule),
+        );
       }
     }
   }
@@ -275,7 +303,9 @@ export function validateSnapshot(
     for (let i = 0; i < s.edges.length; i++) {
       const edgeResult = validateEdge(s.edges[i], options);
       for (const err of edgeResult.errors) {
-        errors.push(new ValidationError(`$.edges[${i}]${err.path.slice(1)}`, err.rule));
+        errors.push(
+          new ValidationError(`$.edges[${i}]${err.path.slice(1)}`, err.rule),
+        );
       }
     }
   }
@@ -287,7 +317,12 @@ export function validateSnapshot(
     for (let i = 0; i < s.artifacts.length; i++) {
       const artifactResult = validateArtifact(s.artifacts[i], options);
       for (const err of artifactResult.errors) {
-        errors.push(new ValidationError(`$.artifacts[${i}]${err.path.slice(1)}`, err.rule));
+        errors.push(
+          new ValidationError(
+            `$.artifacts[${i}]${err.path.slice(1)}`,
+            err.rule,
+          ),
+        );
       }
     }
   }

@@ -24,7 +24,12 @@ export function createNode(
  * Creates an Edge for runtime code paths with auto-computed semanticHash.
  */
 export function createEdge(
-  overrides: { id: string; type: Edge['type']; source: string; target: string } & Partial<Edge>,
+  overrides: {
+    id: string;
+    type: Edge['type'];
+    source: string;
+    target: string;
+  } & Partial<Edge>,
 ): Edge {
   const base = {
     schemaVersion: '1.0.0' as const,

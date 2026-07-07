@@ -66,6 +66,7 @@ List and inspect the target stack resources with Pulumi tooling in the appropria
 Use Pulumi stack destroy for the selected stack.
 
 Note:
+
 - Use non-interactive mode in automation contexts.
 - Capture command output in CI/job logs for audit.
 
@@ -77,11 +78,11 @@ Note:
 
 ## Environment Policy
 
-| Environment | Destroy Policy |
-|---|---|
-| development | Allowed with operator confirmation |
-| staging | Allowed with release owner approval |
-| production | Exception-only with explicit approval and backup proof |
+| Environment | Destroy Policy                                         |
+| ----------- | ------------------------------------------------------ |
+| development | Allowed with operator confirmation                     |
+| staging     | Allowed with release owner approval                    |
+| production  | Exception-only with explicit approval and backup proof |
 
 ## Data Safety Checklist
 
@@ -99,6 +100,7 @@ If a native Shinobi `destroy` command is implemented:
 3. **Refactor**: improve UX/logging without changing behavior.
 
 Required tests:
+
 - safe default behavior
 - explicit confirmation requirements
 - environment policy enforcement

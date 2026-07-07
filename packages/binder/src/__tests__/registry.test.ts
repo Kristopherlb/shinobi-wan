@@ -4,7 +4,7 @@ import { BinderRegistry } from '../registry';
 
 function makeBinder(
   id: string,
-  patterns: IBinder['supportedEdgeTypes']
+  patterns: IBinder['supportedEdgeTypes'],
 ): IBinder {
   return {
     id,
@@ -59,7 +59,7 @@ describe('BinderRegistry', () => {
 
     registry.register(b1);
     expect(() => registry.register(b2)).toThrow(
-      /Duplicate edge pattern.*b2.*b1.*bindsTo:component:platform/
+      /Duplicate edge pattern.*b2.*b1.*bindsTo:component:platform/,
     );
   });
 
@@ -69,14 +69,22 @@ describe('BinderRegistry', () => {
       { edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' },
     ]);
     const b2 = makeBinder('b2', [
-      { edgeType: 'triggers', sourceType: 'component', targetType: 'component' },
+      {
+        edgeType: 'triggers',
+        sourceType: 'component',
+        targetType: 'component',
+      },
     ]);
 
     registry.register(b1);
     registry.register(b2);
     expect(registry.getBinders()).toHaveLength(2);
-    expect(registry.findBinder('bindsTo', 'component', 'platform')?.id).toBe('b1');
-    expect(registry.findBinder('triggers', 'component', 'component')?.id).toBe('b2');
+    expect(registry.findBinder('bindsTo', 'component', 'platform')?.id).toBe(
+      'b1',
+    );
+    expect(registry.findBinder('triggers', 'component', 'component')?.id).toBe(
+      'b2',
+    );
   });
 
   it('supports binders with multiple patterns', () => {
@@ -87,13 +95,19 @@ describe('BinderRegistry', () => {
     ]);
 
     registry.register(binder);
-    expect(registry.findBinder('bindsTo', 'component', 'platform')?.id).toBe('multi');
-    expect(registry.findBinder('bindsTo', 'component', 'config')?.id).toBe('multi');
+    expect(registry.findBinder('bindsTo', 'component', 'platform')?.id).toBe(
+      'multi',
+    );
+    expect(registry.findBinder('bindsTo', 'component', 'config')?.id).toBe(
+      'multi',
+    );
   });
 
   it('returns empty array when no binders registered', () => {
     const registry = new BinderRegistry();
     expect(registry.getBinders()).toHaveLength(0);
-    expect(registry.findBinder('bindsTo', 'component', 'platform')).toBeUndefined();
+    expect(
+      registry.findBinder('bindsTo', 'component', 'platform'),
+    ).toBeUndefined();
   });
 });

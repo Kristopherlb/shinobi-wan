@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import { validate } from '../validate';
 
-const MANIFEST_PATH = path.resolve(__dirname, '../../../../../examples/lambda-sqs.yaml');
+const MANIFEST_PATH = path.resolve(
+  __dirname,
+  '../../../../../examples/lambda-sqs.yaml',
+);
 
 describe('validate command', () => {
   it('succeeds with the example Lambda+SQS manifest', () => {
@@ -57,7 +60,10 @@ describe('validate command', () => {
   it('fails for invalid YAML content', () => {
     // We need a temp file with invalid content
     const fs = require('fs');
-    const tmpPath = path.resolve(__dirname, '../../../../../examples/__test-invalid.yaml');
+    const tmpPath = path.resolve(
+      __dirname,
+      '../../../../../examples/__test-invalid.yaml',
+    );
     fs.writeFileSync(tmpPath, 'service: \n  invalid: {[}');
     try {
       const result = validate({ manifestPath: tmpPath });
@@ -68,13 +74,19 @@ describe('validate command', () => {
   });
 
   it('--policy-pack overrides manifest value', () => {
-    const result = validate({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-High' });
+    const result = validate({
+      manifestPath: MANIFEST_PATH,
+      policyPack: 'FedRAMP-High',
+    });
 
     expect(result.policy?.policyPack).toBe('FedRAMP-High');
   });
 
   it('FedRAMP-High flags iam-missing-conditions as error', () => {
-    const result = validate({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-High' });
+    const result = validate({
+      manifestPath: MANIFEST_PATH,
+      policyPack: 'FedRAMP-High',
+    });
 
     expect(result.policy?.compliant).toBe(false);
   });

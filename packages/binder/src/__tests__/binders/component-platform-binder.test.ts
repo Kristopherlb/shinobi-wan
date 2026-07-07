@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
+import type {
+  IamIntent,
+  NetworkIntent,
+  ConfigIntent,
+} from '@shinobi/contracts';
 import type { BindingContext } from '@shinobi/kernel';
 import { ComponentPlatformBinder } from '../../binders/component-platform-binder';
 import { makeNode, makeEdge } from '../test-helpers';
@@ -27,7 +31,11 @@ describe('ComponentPlatformBinder', () => {
 
     it('supports bindsTo from component to platform', () => {
       expect(binder.supportedEdgeTypes).toEqual([
-        { edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' },
+        {
+          edgeType: 'bindsTo',
+          sourceType: 'component',
+          targetType: 'platform',
+        },
       ]);
     });
   });
@@ -114,7 +122,9 @@ describe('ComponentPlatformBinder', () => {
       const result = binder.compileEdge(ctx);
 
       expect(result.intents).toHaveLength(2);
-      const net = result.intents.find((i) => i.type === 'network') as NetworkIntent;
+      const net = result.intents.find(
+        (i) => i.type === 'network',
+      ) as NetworkIntent;
       expect(net).toBeDefined();
       expect(net.direction).toBe('egress');
       expect(net.source.nodeRef).toBe('component:svc-a');
@@ -132,7 +142,9 @@ describe('ComponentPlatformBinder', () => {
       });
       const result = binder.compileEdge(ctx);
 
-      const net = result.intents.find((i) => i.type === 'network') as NetworkIntent;
+      const net = result.intents.find(
+        (i) => i.type === 'network',
+      ) as NetworkIntent;
       expect(net.protocol.protocol).toBe('tcp');
     });
 
@@ -149,13 +161,25 @@ describe('ComponentPlatformBinder', () => {
       const ctx = makeContext({
         resourceType: 'queue',
         configKeys: [
-          { key: 'QUEUE_URL', valueSource: { type: 'reference', nodeRef: 'platform:aws-sqs', field: 'url' } },
-          { key: 'QUEUE_REGION', valueSource: { type: 'literal', value: 'us-east-1' } },
+          {
+            key: 'QUEUE_URL',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'platform:aws-sqs',
+              field: 'url',
+            },
+          },
+          {
+            key: 'QUEUE_REGION',
+            valueSource: { type: 'literal', value: 'us-east-1' },
+          },
         ],
       });
       const result = binder.compileEdge(ctx);
 
-      const configs = result.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+      const configs = result.intents.filter(
+        (i) => i.type === 'config',
+      ) as ConfigIntent[];
       expect(configs).toHaveLength(2);
       expect(configs[0].targetNodeRef).toBe('component:svc-a');
       expect(configs[0].key).toBe('QUEUE_URL');
@@ -165,7 +189,10 @@ describe('ComponentPlatformBinder', () => {
         field: 'url',
       });
       expect(configs[1].key).toBe('QUEUE_REGION');
-      expect(configs[1].valueSource).toEqual({ type: 'literal', value: 'us-east-1' });
+      expect(configs[1].valueSource).toEqual({
+        type: 'literal',
+        value: 'us-east-1',
+      });
     });
 
     it('does not emit config intents when configKeys absent', () => {
@@ -189,7 +216,10 @@ describe('ComponentPlatformBinder', () => {
     });
 
     it('emits warning diagnostic for unknown access level', () => {
-      const ctx = makeContext({ resourceType: 'queue', accessLevel: 'superadmin' });
+      const ctx = makeContext({
+        resourceType: 'queue',
+        accessLevel: 'superadmin',
+      });
       const result = binder.compileEdge(ctx);
 
       expect(result.intents).toHaveLength(0);
@@ -208,7 +238,10 @@ describe('ComponentPlatformBinder', () => {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'URL', valueSource: { type: 'literal', value: 'https://sqs' } },
+          {
+            key: 'URL',
+            valueSource: { type: 'literal', value: 'https://sqs' },
+          },
         ],
       });
 
@@ -225,7 +258,10 @@ describe('ComponentPlatformBinder', () => {
         accessLevel: 'admin',
         network: { port: 443 },
         configKeys: [
-          { key: 'URL', valueSource: { type: 'literal', value: 'sqs-endpoint' } },
+          {
+            key: 'URL',
+            valueSource: { type: 'literal', value: 'sqs-endpoint' },
+          },
         ],
       });
       const result = binder.compileEdge(ctx);

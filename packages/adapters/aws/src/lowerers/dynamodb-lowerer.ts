@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -8,7 +13,11 @@ import { shortName, createStandardTags } from './utils';
 export class DynamoDbLowerer implements NodeLowerer {
   readonly platform = 'aws-dynamodb';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
 
@@ -16,7 +25,10 @@ export class DynamoDbLowerer implements NodeLowerer {
 
     // Build key schema
     const keySchema = props['keySchema'] as
-      | { hashKey: { name: string; type: string }; rangeKey?: { name: string; type: string } }
+      | {
+          hashKey: { name: string; type: string };
+          rangeKey?: { name: string; type: string };
+        }
       | undefined;
 
     const hashKey = keySchema?.hashKey ?? { name: 'id', type: 'S' };
@@ -26,7 +38,10 @@ export class DynamoDbLowerer implements NodeLowerer {
     attributes.push({ name: hashKey.name, type: hashKey.type });
 
     if (keySchema?.rangeKey) {
-      attributes.push({ name: keySchema.rangeKey.name, type: keySchema.rangeKey.type });
+      attributes.push({
+        name: keySchema.rangeKey.name,
+        type: keySchema.rangeKey.type,
+      });
     }
 
     // DynamoDB Table

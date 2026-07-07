@@ -1,5 +1,11 @@
 import * as yaml from 'js-yaml';
-import type { ServiceManifest, ManifestComponent, ManifestBinding, ManifestError, ManifestParseResult } from './types';
+import type {
+  ServiceManifest,
+  ManifestComponent,
+  ManifestBinding,
+  ManifestError,
+  ManifestParseResult,
+} from './types';
 import { NODE_TYPES, EDGE_TYPES } from '@shinobi/ir';
 
 const VALID_NODE_TYPES = new Set<string>(NODE_TYPES);
@@ -18,7 +24,9 @@ export function parseManifest(yamlContent: string): ManifestParseResult {
   } catch (e) {
     return {
       ok: false,
-      errors: [{ path: '$', message: `YAML parse error: ${(e as Error).message}` }],
+      errors: [
+        { path: '$', message: `YAML parse error: ${(e as Error).message}` },
+      ],
     };
   }
 
@@ -34,19 +42,34 @@ export function parseManifest(yamlContent: string): ManifestParseResult {
 
   // Validate top-level fields
   if (typeof obj['service'] !== 'string' || obj['service'].length === 0) {
-    errors.push({ path: '$.service', message: 'service is required and must be a non-empty string' });
+    errors.push({
+      path: '$.service',
+      message: 'service is required and must be a non-empty string',
+    });
   }
 
   if (!Array.isArray(obj['components'])) {
-    errors.push({ path: '$.components', message: 'components is required and must be an array' });
+    errors.push({
+      path: '$.components',
+      message: 'components is required and must be an array',
+    });
   }
 
   if (!Array.isArray(obj['bindings'])) {
-    errors.push({ path: '$.bindings', message: 'bindings is required and must be an array' });
+    errors.push({
+      path: '$.bindings',
+      message: 'bindings is required and must be an array',
+    });
   }
 
-  if (obj['policyPack'] !== undefined && typeof obj['policyPack'] !== 'string') {
-    errors.push({ path: '$.policyPack', message: 'policyPack must be a string if provided' });
+  if (
+    obj['policyPack'] !== undefined &&
+    typeof obj['policyPack'] !== 'string'
+  ) {
+    errors.push({
+      path: '$.policyPack',
+      message: 'policyPack must be a string if provided',
+    });
   }
 
   // If top-level structure is invalid, return early
@@ -89,13 +112,18 @@ export function parseManifest(yamlContent: string): ManifestParseResult {
     service: obj['service'] as string,
     components: components.items,
     bindings: bindings.items,
-    ...(typeof obj['policyPack'] === 'string' ? { policyPack: obj['policyPack'] } : {}),
+    ...(typeof obj['policyPack'] === 'string'
+      ? { policyPack: obj['policyPack'] }
+      : {}),
   };
 
   return { ok: true, manifest };
 }
 
-function validateComponents(raw: unknown[]): { items: ManifestComponent[]; errors: ManifestError[] } {
+function validateComponents(raw: unknown[]): {
+  items: ManifestComponent[];
+  errors: ManifestError[];
+} {
   const items: ManifestComponent[] = [];
   const errors: ManifestError[] = [];
   const seenIds = new Set<string>();
@@ -112,12 +140,18 @@ function validateComponents(raw: unknown[]): { items: ManifestComponent[]; error
     const c = entry as Record<string, unknown>;
 
     if (typeof c['id'] !== 'string' || c['id'].length === 0) {
-      errors.push({ path: `${path}.id`, message: 'id is required and must be a non-empty string' });
+      errors.push({
+        path: `${path}.id`,
+        message: 'id is required and must be a non-empty string',
+      });
       continue;
     }
 
     if (seenIds.has(c['id'] as string)) {
-      errors.push({ path: `${path}.id`, message: `duplicate component id '${c['id']}'` });
+      errors.push({
+        path: `${path}.id`,
+        message: `duplicate component id '${c['id']}'`,
+      });
       continue;
     }
     seenIds.add(c['id'] as string);
@@ -131,13 +165,19 @@ function validateComponents(raw: unknown[]): { items: ManifestComponent[]; error
     }
 
     if (typeof c['platform'] !== 'string' || c['platform'].length === 0) {
-      errors.push({ path: `${path}.platform`, message: 'platform is required and must be a non-empty string' });
+      errors.push({
+        path: `${path}.platform`,
+        message: 'platform is required and must be a non-empty string',
+      });
       continue;
     }
 
-    const config = c['config'] !== undefined && typeof c['config'] === 'object' && c['config'] !== null
-      ? (c['config'] as Record<string, unknown>)
-      : undefined;
+    const config =
+      c['config'] !== undefined &&
+      typeof c['config'] === 'object' &&
+      c['config'] !== null
+        ? (c['config'] as Record<string, unknown>)
+        : undefined;
 
     items.push({
       id: c['id'] as string,
@@ -150,7 +190,10 @@ function validateComponents(raw: unknown[]): { items: ManifestComponent[]; error
   return { items, errors };
 }
 
-function validateBindings(raw: unknown[]): { items: ManifestBinding[]; errors: ManifestError[] } {
+function validateBindings(raw: unknown[]): {
+  items: ManifestBinding[];
+  errors: ManifestError[];
+} {
   const items: ManifestBinding[] = [];
   const errors: ManifestError[] = [];
 
@@ -166,12 +209,18 @@ function validateBindings(raw: unknown[]): { items: ManifestBinding[]; errors: M
     const b = entry as Record<string, unknown>;
 
     if (typeof b['source'] !== 'string' || b['source'].length === 0) {
-      errors.push({ path: `${path}.source`, message: 'source is required and must be a non-empty string' });
+      errors.push({
+        path: `${path}.source`,
+        message: 'source is required and must be a non-empty string',
+      });
       continue;
     }
 
     if (typeof b['target'] !== 'string' || b['target'].length === 0) {
-      errors.push({ path: `${path}.target`, message: 'target is required and must be a non-empty string' });
+      errors.push({
+        path: `${path}.target`,
+        message: 'target is required and must be a non-empty string',
+      });
       continue;
     }
 
@@ -184,14 +233,23 @@ function validateBindings(raw: unknown[]): { items: ManifestBinding[]; errors: M
     }
 
     if (typeof b['config'] !== 'object' || b['config'] === null) {
-      errors.push({ path: `${path}.config`, message: 'config is required and must be an object' });
+      errors.push({
+        path: `${path}.config`,
+        message: 'config is required and must be an object',
+      });
       continue;
     }
 
     const config = b['config'] as Record<string, unknown>;
 
-    if (typeof config['resourceType'] !== 'string' || config['resourceType'].length === 0) {
-      errors.push({ path: `${path}.config.resourceType`, message: 'resourceType is required' });
+    if (
+      typeof config['resourceType'] !== 'string' ||
+      config['resourceType'].length === 0
+    ) {
+      errors.push({
+        path: `${path}.config.resourceType`,
+        message: 'resourceType is required',
+      });
       continue;
     }
 

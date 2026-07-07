@@ -46,7 +46,11 @@ describe('canonicalize', () => {
     it('sorts keys lexicographically', () => {
       const input = { zebra: 1, apple: 2, banana: 3 };
       const result = canonicalize(input);
-      expect(Object.keys(result as object)).toEqual(['apple', 'banana', 'zebra']);
+      expect(Object.keys(result as object)).toEqual([
+        'apple',
+        'banana',
+        'zebra',
+      ]);
     });
 
     it('sorts keys at every nesting level', () => {
@@ -54,7 +58,10 @@ describe('canonicalize', () => {
         z: { b: 1, a: 2 },
         a: { d: 3, c: 4 },
       };
-      const result = canonicalize(input) as Record<string, Record<string, number>>;
+      const result = canonicalize(input) as Record<
+        string,
+        Record<string, number>
+      >;
 
       expect(Object.keys(result)).toEqual(['a', 'z']);
       expect(Object.keys(result.a)).toEqual(['c', 'd']);

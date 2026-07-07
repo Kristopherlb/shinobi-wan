@@ -4,7 +4,10 @@ import { runGoldenCase } from '../golden-runner';
 
 describe('runGoldenCase', () => {
   it('throws when setup mutation batch fails', () => {
-    const component = createTestNode({ id: 'component:orphan', type: 'component' });
+    const component = createTestNode({
+      id: 'component:orphan',
+      type: 'component',
+    });
     const edge = createTestEdge({
       id: 'edge:bindsTo:component:orphan:platform:missing',
       type: 'bindsTo',
@@ -23,7 +26,10 @@ describe('runGoldenCase', () => {
   });
 
   it('returns compilation and serialized output when setup succeeds', () => {
-    const component = createTestNode({ id: 'component:web', type: 'component' });
+    const component = createTestNode({
+      id: 'component:web',
+      type: 'component',
+    });
     const platform = createTestNode({ id: 'platform:db', type: 'platform' });
     const edge = createTestEdge({
       id: 'edge:bindsTo:component:web:platform:db',

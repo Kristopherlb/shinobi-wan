@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class EventBridgeLowerer implements NodeLowerer {
   readonly platform = 'aws-eventbridge-scheduler';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
 
@@ -29,9 +38,11 @@ export class EventBridgeLowerer implements NodeLowerer {
     });
 
     // Schedule
-    const scheduleExpression = (props['scheduleExpression'] as string) ?? 'rate(1 hour)';
+    const scheduleExpression =
+      (props['scheduleExpression'] as string) ?? 'rate(1 hour)';
     const flexibleTimeWindow = (props['flexibleTimeWindow'] as string) ?? 'OFF';
-    const state = (props['enabled'] as boolean) === false ? 'DISABLED' : 'ENABLED';
+    const state =
+      (props['enabled'] as boolean) === false ? 'DISABLED' : 'ENABLED';
 
     resources.push({
       name: `${name}-schedule`,
@@ -45,8 +56,14 @@ export class EventBridgeLowerer implements NodeLowerer {
         ...(props['retryPolicy'] !== undefined
           ? {
               retryPolicy: {
-                maximumRetryAttempts: (props['retryPolicy'] as Record<string, unknown>)?.['maximumRetryAttempts'] ?? 2,
-                maximumEventAgeInSeconds: (props['retryPolicy'] as Record<string, unknown>)?.['maximumEventAgeInSeconds'] ?? 3600,
+                maximumRetryAttempts:
+                  (props['retryPolicy'] as Record<string, unknown>)?.[
+                    'maximumRetryAttempts'
+                  ] ?? 2,
+                maximumEventAgeInSeconds:
+                  (props['retryPolicy'] as Record<string, unknown>)?.[
+                    'maximumEventAgeInSeconds'
+                  ] ?? 3600,
               },
             }
           : {}),

@@ -70,13 +70,20 @@ describe('MskClusterLowerer', () => {
       metadata: {
         properties: {
           platform: 'aws-msk-cluster',
-          subnetIds: ['platform:subnet-1', 'platform:subnet-2', 'platform:subnet-3'],
+          subnetIds: [
+            'platform:subnet-1',
+            'platform:subnet-2',
+            'platform:subnet-3',
+          ],
         },
       },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const brokerInfo = result[1]?.properties?.brokerNodeGroupInfo as Record<string, unknown>;
+    const brokerInfo = result[1]?.properties?.brokerNodeGroupInfo as Record<
+      string,
+      unknown
+    >;
     expect(brokerInfo?.clientSubnets).toEqual([
       { ref: 'subnet-1-subnet' },
       { ref: 'subnet-2-subnet' },
@@ -97,7 +104,9 @@ describe('MskClusterLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[1]?.properties?.clientAuthentication).toEqual({ sasl: { iam: true } });
+    expect(result[1]?.properties?.clientAuthentication).toEqual({
+      sasl: { iam: true },
+    });
   });
 
   it('should default to TLS encryption in transit', () => {
@@ -108,8 +117,14 @@ describe('MskClusterLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const encryptionInfo = result[1]?.properties?.encryptionInfo as Record<string, unknown>;
-    const inTransit = encryptionInfo?.encryptionInTransit as Record<string, unknown>;
+    const encryptionInfo = result[1]?.properties?.encryptionInfo as Record<
+      string,
+      unknown
+    >;
+    const inTransit = encryptionInfo?.encryptionInTransit as Record<
+      string,
+      unknown
+    >;
     expect(inTransit?.clientBroker).toBe('TLS');
   });
 
@@ -147,7 +162,8 @@ describe('MskConfigurationLowerer', () => {
       metadata: {
         properties: {
           platform: 'aws-msk-configuration',
-          serverProperties: 'auto.create.topics.enable=false\nlog.retention.hours=168',
+          serverProperties:
+            'auto.create.topics.enable=false\nlog.retention.hours=168',
         },
       },
     });
@@ -162,7 +178,9 @@ describe('MskConfigurationLowerer', () => {
     const node = createTestNode({
       id: 'platform:config',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-msk-configuration', serverProperties: '' } },
+      metadata: {
+        properties: { platform: 'aws-msk-configuration', serverProperties: '' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -170,11 +188,17 @@ describe('MskConfigurationLowerer', () => {
   });
 
   it('should pass through server properties', () => {
-    const serverProps = 'auto.create.topics.enable=false\nlog.retention.hours=168';
+    const serverProps =
+      'auto.create.topics.enable=false\nlog.retention.hours=168';
     const node = createTestNode({
       id: 'platform:config',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-msk-configuration', serverProperties: serverProps } },
+      metadata: {
+        properties: {
+          platform: 'aws-msk-configuration',
+          serverProperties: serverProps,
+        },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -185,7 +209,9 @@ describe('MskConfigurationLowerer', () => {
     const node = createTestNode({
       id: 'platform:config',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-msk-configuration', serverProperties: '' } },
+      metadata: {
+        properties: { platform: 'aws-msk-configuration', serverProperties: '' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

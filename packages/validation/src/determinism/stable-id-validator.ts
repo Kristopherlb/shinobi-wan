@@ -1,11 +1,19 @@
 import type { GraphSnapshot, Node, Edge, DerivedArtifact } from '@shinobi/ir';
-import { createError, createResult, type ValidationError, type ValidationResult } from '../errors';
+import {
+  createError,
+  createResult,
+  type ValidationError,
+  type ValidationResult,
+} from '../errors';
 
 /**
  * Validates that a node's ID is consistent with its type.
  * Node ID format: {type}:{path}
  */
-export function validateStableNodeId(node: Node, index: number): ValidationError[] {
+export function validateStableNodeId(
+  node: Node,
+  index: number,
+): ValidationError[] {
   const colonIndex = node.id.indexOf(':');
 
   if (colonIndex === -1) {
@@ -30,7 +38,8 @@ export function validateStableNodeId(node: Node, index: number): ValidationError
         rule: 'id-type-mismatch',
         message: `Node ID type '${idType}' does not match node type '${node.type}'`,
         severity: 'error',
-        remediation: 'Node ID must start with the node type. Use createNodeId(type, path) to ensure consistency.',
+        remediation:
+          'Node ID must start with the node type. Use createNodeId(type, path) to ensure consistency.',
         kernelLaw: 'KL-001',
       }),
     ];
@@ -43,7 +52,10 @@ export function validateStableNodeId(node: Node, index: number): ValidationError
  * Validates that an edge's ID is consistent with its type, source, and target.
  * Edge ID format: edge:{type}:{source}:{target}
  */
-export function validateStableEdgeId(edge: Edge, index: number): ValidationError[] {
+export function validateStableEdgeId(
+  edge: Edge,
+  index: number,
+): ValidationError[] {
   const errors: ValidationError[] = [];
 
   if (!edge.id.startsWith('edge:')) {
@@ -53,7 +65,8 @@ export function validateStableEdgeId(edge: Edge, index: number): ValidationError
         rule: 'invalid-id-format',
         message: `Edge ID '${edge.id}' must start with 'edge:'`,
         severity: 'error',
-        remediation: 'Use createEdgeId(type, source, target) to generate stable edge IDs',
+        remediation:
+          'Use createEdgeId(type, source, target) to generate stable edge IDs',
         kernelLaw: 'KL-001',
       }),
     ];
@@ -70,7 +83,8 @@ export function validateStableEdgeId(edge: Edge, index: number): ValidationError
         rule: 'invalid-id-format',
         message: `Edge ID '${edge.id}' has invalid format (expected: edge:{type}:{source}:{target})`,
         severity: 'error',
-        remediation: 'Use createEdgeId(type, source, target) to generate stable edge IDs',
+        remediation:
+          'Use createEdgeId(type, source, target) to generate stable edge IDs',
         kernelLaw: 'KL-001',
       }),
     ];
@@ -87,9 +101,10 @@ export function validateStableEdgeId(edge: Edge, index: number): ValidationError
         rule: 'id-type-mismatch',
         message: `Edge ID type '${idType}' does not match edge type '${edge.type}'`,
         severity: 'error',
-        remediation: 'Edge ID must contain the correct edge type. Use createEdgeId(type, source, target).',
+        remediation:
+          'Edge ID must contain the correct edge type. Use createEdgeId(type, source, target).',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
@@ -103,9 +118,10 @@ export function validateStableEdgeId(edge: Edge, index: number): ValidationError
         rule: 'id-source-mismatch',
         message: `Edge ID source does not match edge source '${edge.source}'`,
         severity: 'error',
-        remediation: 'Edge ID must contain the correct source. Use createEdgeId(type, source, target).',
+        remediation:
+          'Edge ID must contain the correct source. Use createEdgeId(type, source, target).',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
@@ -118,9 +134,10 @@ export function validateStableEdgeId(edge: Edge, index: number): ValidationError
         rule: 'id-target-mismatch',
         message: `Edge ID target does not match edge target '${edge.target}'`,
         severity: 'error',
-        remediation: 'Edge ID must contain the correct target. Use createEdgeId(type, source, target).',
+        remediation:
+          'Edge ID must contain the correct target. Use createEdgeId(type, source, target).',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
@@ -131,7 +148,10 @@ export function validateStableEdgeId(edge: Edge, index: number): ValidationError
  * Validates that an artifact's ID is consistent with its type and source node.
  * Artifact ID format: artifact:{type}:{sourceNodeId}
  */
-export function validateStableArtifactId(artifact: DerivedArtifact, index: number): ValidationError[] {
+export function validateStableArtifactId(
+  artifact: DerivedArtifact,
+  index: number,
+): ValidationError[] {
   const errors: ValidationError[] = [];
 
   if (!artifact.id.startsWith('artifact:')) {
@@ -141,7 +161,8 @@ export function validateStableArtifactId(artifact: DerivedArtifact, index: numbe
         rule: 'invalid-id-format',
         message: `Artifact ID '${artifact.id}' must start with 'artifact:'`,
         severity: 'error',
-        remediation: 'Use createArtifactId(type, sourceNodeId) to generate stable artifact IDs',
+        remediation:
+          'Use createArtifactId(type, sourceNodeId) to generate stable artifact IDs',
         kernelLaw: 'KL-001',
       }),
     ];
@@ -158,7 +179,8 @@ export function validateStableArtifactId(artifact: DerivedArtifact, index: numbe
         rule: 'invalid-id-format',
         message: `Artifact ID '${artifact.id}' has invalid format (expected: artifact:{type}:{sourceNodeId})`,
         severity: 'error',
-        remediation: 'Use createArtifactId(type, sourceNodeId) to generate stable artifact IDs',
+        remediation:
+          'Use createArtifactId(type, sourceNodeId) to generate stable artifact IDs',
         kernelLaw: 'KL-001',
       }),
     ];
@@ -175,9 +197,10 @@ export function validateStableArtifactId(artifact: DerivedArtifact, index: numbe
         rule: 'id-type-mismatch',
         message: `Artifact ID type '${idType}' does not match artifact type '${artifact.type}'`,
         severity: 'error',
-        remediation: 'Artifact ID must contain the correct artifact type. Use createArtifactId(type, sourceNodeId).',
+        remediation:
+          'Artifact ID must contain the correct artifact type. Use createArtifactId(type, sourceNodeId).',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
@@ -189,9 +212,10 @@ export function validateStableArtifactId(artifact: DerivedArtifact, index: numbe
         rule: 'id-source-mismatch',
         message: `Artifact ID sourceNodeId '${idSourceNodeId}' does not match artifact sourceNodeId '${artifact.sourceNodeId}'`,
         severity: 'error',
-        remediation: 'Artifact ID must contain the correct sourceNodeId. Use createArtifactId(type, sourceNodeId).',
+        remediation:
+          'Artifact ID must contain the correct sourceNodeId. Use createArtifactId(type, sourceNodeId).',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 

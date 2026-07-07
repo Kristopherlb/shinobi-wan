@@ -6,11 +6,11 @@ Verify release pin discipline and rollback posture for restricted apply rollout.
 
 ## Drill Matrix
 
-| Version Pin | Expected Behavior | Result |
-|---|---|---|
-| N-1 | known-good contract compatibility | pass |
-| N | current candidate behavior | pass |
-| N+1 (simulated) | no breaking envelope behavior introduced | pass |
+| Version Pin     | Expected Behavior                        | Result |
+| --------------- | ---------------------------------------- | ------ |
+| N-1             | known-good contract compatibility        | pass   |
+| N               | current candidate behavior               | pass   |
+| N+1 (simulated) | no breaking envelope behavior introduced | pass   |
 
 ## Rollback Exercise
 

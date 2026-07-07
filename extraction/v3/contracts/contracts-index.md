@@ -3,6 +3,7 @@
 This index inventories **machine-checkable contract surfaces** in this repo: schemas, typed envelopes, structured outputs, artifact layouts, and other deterministic data shapes that are intended to be validated by code (AJV/JSON Schema/TypeScript) or by audit rule engines.
 
 For each contract, this index captures:
+
 - **Contract name**
 - **File path(s)**
 - **Versioning signals** (if any)
@@ -14,6 +15,7 @@ For each contract, this index captures:
 ## JSON Schemas
 
 ### Platform service manifest schema (base)
+
 - **Contract name**: Platform Service Manifest (base schema)
 - **File path(s)**:
   - `packages/core/src/services/service-manifest.schema.json`
@@ -30,6 +32,7 @@ For each contract, this index captures:
   - Couples to repo component schema layout via schema composition (see “Manifest schema composition”).
 
 ### Component configuration schemas (`Config.schema.json`)
+
 These schemas define the **machine-checkable** shape of `components[].config` per component type. They are discovered and composed into a master schema by `ManifestSchemaComposer`.
 
 - **Contract name**: Component Config Schema Family (`Config.schema.json`)
@@ -93,6 +96,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Schema validation is offline, but the **meaning** of fields is coupled to component implementations (CDK constructs, AWS services) in each component package.
 
 ### Universal Capability Manifest (UCM) schema
+
 - **Contract name**: Universal Capability Manifest (UCM)
 - **File path(s)**:
   - `packages/api/src/schemas/capability.schema.json`
@@ -110,6 +114,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Decouples tool callers from providers; no direct backend calls required to validate the schema itself.
 
 ### Governance audit record schema
+
 - **Contract name**: Audit Record (immutable governance record)
 - **File path(s)**:
   - `packages/governance/src/schemas/audit-record.schema.json`
@@ -125,6 +130,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Designed to record tool/governance actions; links conceptually to tool envelope via `action.tool_name` and `context.trace_id`.
 
 ### Test metadata schema (Platform Testing Standard)
+
 - **Contract name**: Test Metadata Schema (PTS-1.0)
 - **File path(s)**:
   - `packages/core/src/services/tests/test-metadata-schema.json`
@@ -142,6 +148,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - No backend calls required; enforcement is CI/local validation.
 
 ### Nx generator option schemas
+
 - **Contract name**: Nx generator input schema: `new-binder`
 - **File path(s)**:
   - `packages/generators/src/generators/new-binder/schema.json`
@@ -171,6 +178,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
 ## Manifest schema composition & validation pipeline (schema “consumers”)
 
 ### Service manifest file naming & discovery (instance contract surface)
+
 - **Contract name**: Service manifest file discovery (`service.yml` / `service.yaml`)
 - **File path(s)**:
   - Discovery logic is used in multiple CLI commands, including:
@@ -187,6 +195,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Validation/parsing is offline; synthesis/deploy/diff/destroy may couple to AWS depending on command.
 
 ### Base schema loader
+
 - **Contract name**: Base schema discovery contract (manifest base schema path resolution)
 - **File path(s)**:
   - `packages/core/src/services/schema-manager.ts`
@@ -198,6 +207,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Couples to build output layout (`dist/services/service-manifest.schema.json`) and repo structure.
 
 ### Master schema composer (base + component schemas → composed schema)
+
 - **Contract name**: Master manifest schema composition contract
 - **File path(s)**:
   - `packages/core/src/services/manifest-schema-composer.ts`
@@ -213,6 +223,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Explicitly relaxes `additionalProperties` for platform-injected fields and test fixtures.
 
 ### Schema validation entrypoint (Stage 2)
+
 - **Contract name**: Manifest schema validation service contract
 - **File path(s)**:
   - `packages/core/src/services/schema-validator.ts`
@@ -231,6 +242,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
 ## Binding/trigger directive contracts & schema-locked directive options
 
 ### Platform binding & trigger spec (TypeScript contract)
+
 - **Contract name**: Platform Binding & Trigger Specification v1.0
 - **File path(s)**:
   - `packages/core/src/platform/contracts/platform-binding-trigger-spec.ts`
@@ -244,6 +256,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - This is a core “in-process” contract; backend coupling depends on binder implementations (CDK/AWS).
 
 ### Directive options schema registry (per capability)
+
 - **Contract name**: Directive `options` JSON Schema registry (capability-keyed)
 - **File path(s)**:
   - `packages/core/src/platform/contracts/schemas/directive-schemas.ts`
@@ -256,6 +269,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - No backend calls for validation; designed as a security boundary against injection.
 
 ### Directive schema validator (AJV runtime validation)
+
 - **Contract name**: Directive validation contract (options/env allow-list + deep-freeze)
 - **File path(s)**:
   - `packages/core/src/platform/contracts/directive-schema-validator.ts`
@@ -271,6 +285,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
 ## Tool protocol & structured tool envelopes
 
 ### Tool call envelope (structured tool invocation)
+
 - **Contract name**: Tool Call Envelope (`ToolCallEnvelope<T>`)
 - **File path(s)**:
   - `packages/api/src/contracts/tool-envelope.ts`
@@ -285,6 +300,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
   - Semantic coupling: `tool_name` is intended to match a capability manifest id (UCM).
 
 ### Frozen plan (immutable plan steps)
+
 - **Contract name**: Frozen Plan (`FrozenPlan`)
 - **File path(s)**:
   - `packages/orchestration/src/contracts/frozen-plan.ts`
@@ -302,6 +318,7 @@ These schemas define the **machine-checkable** shape of `components[].config` pe
 These are machine-checkable **structured outputs** emitted by CLI commands when `--json` is used. They are designed for CI/CD and programmatic consumption.
 
 ### `shinobi plan` result contract
+
 - **Contract name**: PlanResult (CLI structured output)
 - **File path(s)**:
   - `apps/svc/src/cli/plan-command.ts`
@@ -314,6 +331,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - Explicitly **no AWS calls** (offline planning/validation).
 
 ### `shinobi validate` result contract
+
 - **Contract name**: ValidateResult (CLI structured output)
 - **File path(s)**:
   - `apps/svc/src/cli/validate-command.ts`
@@ -326,6 +344,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - Explicitly **no AWS calls**; validates file content and references.
 
 ### `shinobi synth` result contract
+
 - **Contract name**: SynthResult (CLI structured output)
 - **File path(s)**:
   - `apps/svc/src/cli/synth-command.ts`
@@ -338,6 +357,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - Synthesizes CDK locally; does not deploy. Coupled to CDK output conventions (`cdk.out`).
 
 ### `shinobi diff` result contract + template diff shape
+
 - **Contract name**: DiffResult + TemplateDiff (structured diff)
 - **File path(s)**:
   - `apps/svc/src/cli/diff-command.ts` (`DiffResult`)
@@ -351,6 +371,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - **Coupled to AWS** CloudFormation APIs (fetches deployed template).
 
 ### `shinobi up` result contract
+
 - **Contract name**: UpResult (deployment structured output)
 - **File path(s)**:
   - `apps/svc/src/cli/up-command.ts`
@@ -363,6 +384,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - **Coupled to AWS** via CDK deploy and service calls (deployment is a side-effecting command).
 
 ### `shinobi destroy` result contract
+
 - **Contract name**: DestroyResult (destructive command output)
 - **File path(s)**:
   - `apps/svc/src/cli/destroy-command.ts`
@@ -374,6 +396,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - **Coupled to AWS** CloudFormation delete operations.
 
 ### `shinobi catalog` result contract
+
 - **Contract name**: CatalogResult (component catalog output)
 - **File path(s)**:
   - `apps/svc/src/cli/catalog.ts`
@@ -386,6 +409,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - Offline; coupled to local registry/catalog loading.
 
 ### `shinobi network-rules` result contract
+
 - **Contract name**: NetworkRulesResult
 - **File path(s)**:
   - `apps/svc/src/cli/network-rules-command.ts`
@@ -401,6 +425,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
 ## Artifact contracts (plan/deploy/migrate) + on-disk layouts
 
 ### Artifact interfaces (machine-readable artifact types)
+
 - **Contract name**: CLI Artifact Contracts (`PlanArtifact`, `DeploymentArtifact`, `MigrationArtifact`)
 - **File path(s)**:
   - `packages/core/src/platform/contracts/artifacts.ts`
@@ -413,6 +438,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - Pure data contracts; writing/reading is local filesystem.
 
 ### Artifact serializer (JSON/YAML)
+
 - **Contract name**: Artifact serialization formats
 - **File path(s)**:
   - `packages/core/src/platform/services/artifact-serializer.ts`
@@ -424,6 +450,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - None.
 
 ### Artifact writer (file layout contract)
+
 - **Contract name**: Artifact filesystem layout (file names & directory structure)
 - **File path(s)**:
   - `packages/core/src/platform/services/artifact-writer.ts` (`StandardArtifactWriter`)
@@ -466,6 +493,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
 ## Validation & error/diagnostic contracts
 
 ### Standard error envelope
+
 - **Contract name**: Platform Error Standard v1.0 (`StandardError`)
 - **File path(s)**:
   - `packages/core/src/services/error-message-utils.ts`
@@ -479,6 +507,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
   - None.
 
 ### Enhanced schema validation result types
+
 - **Contract name**: Enhanced schema validation result contracts (`ValidationResult`, `ValidationError`)
 - **File path(s)**:
   - `packages/core/src/services/enhanced-schema-validator.ts`
@@ -497,6 +526,7 @@ These are machine-checkable **structured outputs** emitted by CLI commands when 
 Even though the schema is centralized, the **file naming/layout convention** is itself a contract surface enforced by audit rules.
 
 ### Metadata sidecar convention
+
 - **Contract name**: Test metadata sidecar convention
 - **File path(s)**:
   - Audit ruleset: `.cursor/audit/platform-testing.yaml`
@@ -516,6 +546,7 @@ Even though the schema is centralized, the **file naming/layout convention** is 
 ## Audit/evidence artifacts
 
 ### OSCAL component audit artifacts
+
 - **Contract name**: OSCAL assessment results artifacts (static JSON snapshots)
 - **File path(s)** (11 discovered):
   - `packages/components/waf-web-acl/audit/waf-web-acl.oscal.json`
@@ -543,6 +574,7 @@ Even though the schema is centralized, the **file naming/layout convention** is 
 ## Other machine-checkable contracts (non-schema, typed structures)
 
 ### Cross-stack network rule spec (SSM JSON contract)
+
 - **Contract name**: Cross-stack security group rule specification (`CrossStackRuleSpec`)
 - **File path(s)**:
   - `packages/core/src/platform/networking/cross-stack-rule-manager.ts` (`CrossStackRuleSpec`)
@@ -554,4 +586,3 @@ Even though the schema is centralized, the **file naming/layout convention** is 
   - `shinobi network-rules` parses JSON to synthesize a rules stack
 - **Backend coupling notes**:
   - **Coupled to AWS SSM** storage and to CDK constructs for security group rules.
-

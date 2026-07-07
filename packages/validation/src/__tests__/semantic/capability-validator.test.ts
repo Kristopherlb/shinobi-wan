@@ -8,7 +8,7 @@ import type { CapabilityContract, CapabilityAction } from '@shinobi/contracts';
 describe('capability-validator', () => {
   const makeContract = (
     id: string,
-    actions: CapabilityAction[] = ['read', 'write']
+    actions: CapabilityAction[] = ['read', 'write'],
   ): CapabilityContract => ({
     id: id as `${string}:${string}@${string}`,
     schemaVersion: '1.0.0',
@@ -23,7 +23,7 @@ describe('capability-validator', () => {
         'aws:sqs@1.0.0',
         ['read', 'write'],
         ['read'],
-        '$.bindings[0]'
+        '$.bindings[0]',
       );
       expect(errors).toEqual([]);
     });
@@ -33,7 +33,7 @@ describe('capability-validator', () => {
         'aws:sqs@1.0.0',
         ['read'],
         ['write'],
-        '$.bindings[0]'
+        '$.bindings[0]',
       );
       expect(errors).toHaveLength(1);
       expect(errors[0].rule).toBe('incompatible-capability-action');
@@ -45,7 +45,7 @@ describe('capability-validator', () => {
         'aws:sqs@1.0.0',
         ['read'],
         ['write', 'admin'],
-        '$.bindings[0]'
+        '$.bindings[0]',
       );
       expect(errors).toHaveLength(2);
     });
@@ -55,7 +55,7 @@ describe('capability-validator', () => {
         'aws:sqs@1.0.0',
         ['read', 'invoke'],
         ['write'],
-        '$.bindings[0]'
+        '$.bindings[0]',
       );
       expect(errors[0].allowedValues).toEqual(['read', 'invoke']);
     });
@@ -72,11 +72,16 @@ describe('capability-validator', () => {
 
     it('returns error when consumer requires unavailable action', () => {
       const provider = makeContract('aws:sqs-queue@1.0.0', ['read']);
-      const consumer = makeContract('core:queue-consumer@1.0.0', ['read', 'write']);
+      const consumer = makeContract('core:queue-consumer@1.0.0', [
+        'read',
+        'write',
+      ]);
 
       const result = validateCapabilityCompatibility(provider, consumer, '$');
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'incompatible-capability-action')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'incompatible-capability-action'),
+      ).toBe(true);
     });
 
     it('returns error when consumer requires admin but provider only has read/write', () => {
@@ -107,7 +112,12 @@ describe('capability-validator', () => {
     });
 
     it('handles provider with all actions', () => {
-      const provider = makeContract('aws:sqs-queue@1.0.0', ['read', 'write', 'admin', 'invoke']);
+      const provider = makeContract('aws:sqs-queue@1.0.0', [
+        'read',
+        'write',
+        'admin',
+        'invoke',
+      ]);
       const consumer = makeContract('core:admin@1.0.0', ['admin', 'invoke']);
 
       const result = validateCapabilityCompatibility(provider, consumer, '$');

@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class GlueJobLowerer implements NodeLowerer {
   readonly platform = 'aws-glue-job';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -25,8 +34,12 @@ export class GlueJobLowerer implements NodeLowerer {
     const maxRetries = (config['maxRetries'] as number) ?? 0;
     const timeout = (config['timeout'] as number) ?? 2880;
     const maxConcurrentRuns = (config['maxConcurrentRuns'] as number) ?? 1;
-    const defaultArguments = config['defaultArguments'] as Record<string, string> | undefined;
-    const securityConfiguration = config['securityConfiguration'] as string | undefined;
+    const defaultArguments = config['defaultArguments'] as
+      | Record<string, string>
+      | undefined;
+    const securityConfiguration = config['securityConfiguration'] as
+      | string
+      | undefined;
     const connections = config['connections'] as string[] | undefined;
     const roleArn = config['roleArn'] as string | undefined;
 
@@ -45,7 +58,8 @@ export class GlueJobLowerer implements NodeLowerer {
     };
 
     if (defaultArguments) jobProperties.defaultArguments = defaultArguments;
-    if (securityConfiguration) jobProperties.securityConfiguration = securityConfiguration;
+    if (securityConfiguration)
+      jobProperties.securityConfiguration = securityConfiguration;
     if (connections) jobProperties.connections = connections;
     if (roleArn) jobProperties.roleArn = roleArn;
 

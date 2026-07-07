@@ -10,7 +10,7 @@ import { compareNodes, compareEdges, compareArtifacts } from './ordering';
 export function createSnapshot(
   nodes: ReadonlyArray<Node>,
   edges: ReadonlyArray<Edge>,
-  artifacts: ReadonlyArray<DerivedArtifact> = []
+  artifacts: ReadonlyArray<DerivedArtifact> = [],
 ): GraphSnapshot {
   return {
     schemaVersion: '1.0.0',

@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -13,7 +18,11 @@ import { shortName, createStandardTags } from './utils';
 export class SageMakerBatchTransformLowerer implements NodeLowerer {
   readonly platform = 'aws-sagemaker-batch-transform';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -25,8 +34,14 @@ export class SageMakerBatchTransformLowerer implements NodeLowerer {
 
     const modelProperties: Record<string, unknown> = {
       name: `${serviceName}-${name}`,
-      executionRoleArn: props['executionRoleArn'] ?? { ref: `${name}-exec-role` },
-      tags: createStandardTags(node.id, 'aws-sagemaker-batch-transform', extraTags),
+      executionRoleArn: props['executionRoleArn'] ?? {
+        ref: `${name}-exec-role`,
+      },
+      tags: createStandardTags(
+        node.id,
+        'aws-sagemaker-batch-transform',
+        extraTags,
+      ),
     };
 
     // Primary container configuration

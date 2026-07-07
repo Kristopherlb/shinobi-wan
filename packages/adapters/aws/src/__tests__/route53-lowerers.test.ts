@@ -116,7 +116,9 @@ describe('Route53ZoneLowerer', () => {
     const node = createTestNode({
       id: 'platform:zone',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-route53-zone', zoneName: 'example.com' } },
+      metadata: {
+        properties: { platform: 'aws-route53-zone', zoneName: 'example.com' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -165,7 +167,9 @@ describe('Route53RecordLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.zoneId).toEqual({ ref: 'dns-zone-zone.zoneId' });
+    expect(result[0]?.properties?.zoneId).toEqual({
+      ref: 'dns-zone-zone.zoneId',
+    });
   });
 
   it('should use default TTL of 300', () => {
@@ -196,7 +200,11 @@ describe('Route53RecordLowerer', () => {
           zoneRef: 'platform:dns-zone',
           recordName: 'api.example.com',
           recordType: 'A',
-          alias: { name: 'dualstack.my-alb.us-east-1.elb.amazonaws.com', zoneId: 'Z35SXDOTRQ7X7K', evaluateTargetHealth: true },
+          alias: {
+            name: 'dualstack.my-alb.us-east-1.elb.amazonaws.com',
+            zoneId: 'Z35SXDOTRQ7X7K',
+            evaluateTargetHealth: true,
+          },
         },
       },
     });

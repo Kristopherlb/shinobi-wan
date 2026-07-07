@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class Route53ZoneLowerer implements NodeLowerer {
   readonly platform = 'aws-route53-zone';
 
-  lower(node: Node, _context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    _context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -21,7 +30,9 @@ export class Route53ZoneLowerer implements NodeLowerer {
     const isPrivate = config['isPrivate'] === true;
     const vpcId = config['vpcId'] as string | undefined;
     const comment = config['comment'] as string | undefined;
-    const healthCheck = config['healthCheck'] as Record<string, unknown> | undefined;
+    const healthCheck = config['healthCheck'] as
+      | Record<string, unknown>
+      | undefined;
 
     const resources: LoweredResource[] = [];
 
@@ -53,8 +64,10 @@ export class Route53ZoneLowerer implements NodeLowerer {
 
       if (healthCheck['fqdn']) hcProperties.fqdn = healthCheck['fqdn'];
       if (healthCheck['port']) hcProperties.port = healthCheck['port'];
-      if (healthCheck['requestInterval']) hcProperties.requestInterval = healthCheck['requestInterval'];
-      if (healthCheck['failureThreshold']) hcProperties.failureThreshold = healthCheck['failureThreshold'];
+      if (healthCheck['requestInterval'])
+        hcProperties.requestInterval = healthCheck['requestInterval'];
+      if (healthCheck['failureThreshold'])
+        hcProperties.failureThreshold = healthCheck['failureThreshold'];
 
       resources.push({
         name: healthCheckName,

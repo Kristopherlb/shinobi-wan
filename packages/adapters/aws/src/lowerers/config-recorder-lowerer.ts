@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class ConfigRecorderLowerer implements NodeLowerer {
   readonly platform = 'aws-config-recorder';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -22,8 +31,10 @@ export class ConfigRecorderLowerer implements NodeLowerer {
     const channelName = `${name}-config-delivery-channel`;
 
     const allSupported = props['allSupported'] !== false;
-    const includeGlobalResourceTypes = props['includeGlobalResourceTypes'] !== false;
-    const deliveryFrequency = (props['deliveryFrequency'] as string) ?? 'TwentyFour_Hours';
+    const includeGlobalResourceTypes =
+      props['includeGlobalResourceTypes'] !== false;
+    const deliveryFrequency =
+      (props['deliveryFrequency'] as string) ?? 'TwentyFour_Hours';
 
     // Config Recorder
     const recorderProperties: Record<string, unknown> = {

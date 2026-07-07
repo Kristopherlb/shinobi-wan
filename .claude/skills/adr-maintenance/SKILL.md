@@ -1,7 +1,7 @@
 ---
 name: adr-maintenance
 description: Create and maintain architecture decision records for Shinobi with clear context, tradeoffs, verification evidence, and follow-ups. Use when architectural boundaries or behavior contracts are introduced or changed.
-argument-hint: "[decision title] + [affected packages] + [status]"
+argument-hint: '[decision title] + [affected packages] + [status]'
 ---
 
 # ADR Maintenance Skill

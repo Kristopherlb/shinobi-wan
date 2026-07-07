@@ -18,7 +18,11 @@ import { parse as parseYaml } from 'yaml';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
 import { Kernel } from '@shinobi/kernel';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import type { Severity } from '@shinobi/contracts';
 
@@ -82,7 +86,9 @@ function manifestToMutations(manifest: ServiceManifest): GraphMutation[] {
     const sourceComp = manifest.components.find((c) => c.id === binding.source);
     const targetComp = manifest.components.find((c) => c.id === binding.target);
     if (!sourceComp || !targetComp) {
-      console.error(`  WARNING: binding references unknown component: ${binding.source} → ${binding.target}`);
+      console.error(
+        `  WARNING: binding references unknown component: ${binding.source} → ${binding.target}`,
+      );
       continue;
     }
     const sourceId = `${sourceComp.type}:${sourceComp.id}`;
@@ -123,7 +129,9 @@ function auditBlueprint(blueprintPath: string): BlueprintAuditResult {
     kernel.applyMutation(mutations);
     const compilation = kernel.compile();
 
-    const violations: AuditViolation[] = (compilation.policy?.violations ?? []).map((v) => ({
+    const violations: AuditViolation[] = (
+      compilation.policy?.violations ?? []
+    ).map((v) => ({
       ruleId: v.ruleId,
       severity: v.severity,
       message: v.message,
@@ -175,24 +183,33 @@ function printReport(results: BlueprintAuditResult[]): void {
     console.log();
     console.log(`Blueprint: ${result.blueprintPath}`);
     console.log(`  Service: ${result.service}`);
-    console.log(`  Nodes: ${result.nodeCount}  Edges: ${result.edgeCount}  Intents: ${result.intentCount}`);
+    console.log(
+      `  Nodes: ${result.nodeCount}  Edges: ${result.edgeCount}  Intents: ${result.intentCount}`,
+    );
     console.log();
 
     for (const pack of result.packs) {
       const status = pack.compliant ? 'COMPLIANT' : 'NON-COMPLIANT';
       const marker = pack.compliant ? '[PASS]' : '[FAIL]';
-      console.log(`  ${marker} ${pack.policyPack}: ${status} (${pack.violations.length} violations)`);
+      console.log(
+        `  ${marker} ${pack.policyPack}: ${status} (${pack.violations.length} violations)`,
+      );
 
       if (pack.violations.length > 0) {
         const bySeverity = { error: 0, warning: 0, info: 0 };
         for (const v of pack.violations) {
           bySeverity[v.severity]++;
         }
-        console.log(`    Breakdown: ${bySeverity.error} errors, ${bySeverity.warning} warnings, ${bySeverity.info} info`);
+        console.log(
+          `    Breakdown: ${bySeverity.error} errors, ${bySeverity.warning} warnings, ${bySeverity.info} info`,
+        );
 
         for (const v of pack.violations) {
-          const icon = v.severity === 'error' ? 'X' : v.severity === 'warning' ? '!' : '.';
-          console.log(`    [${icon}] ${v.severity.padEnd(7)} ${v.ruleId} → ${v.targetId}`);
+          const icon =
+            v.severity === 'error' ? 'X' : v.severity === 'warning' ? '!' : '.';
+          console.log(
+            `    [${icon}] ${v.severity.padEnd(7)} ${v.ruleId} → ${v.targetId}`,
+          );
         }
       }
     }
@@ -200,14 +217,18 @@ function printReport(results: BlueprintAuditResult[]): void {
     if (!result.baselineClean) {
       allBaselineClean = false;
       console.log();
-      console.log(`  ** BASELINE HAS ERRORS — this blueprint needs remediation **`);
+      console.log(
+        `  ** BASELINE HAS ERRORS — this blueprint needs remediation **`,
+      );
     }
   }
 
   console.log();
   console.log('='.repeat(72));
   console.log(`  Summary: ${results.length} blueprint(s) audited`);
-  console.log(`  Baseline clean: ${allBaselineClean ? 'YES' : 'NO — action required'}`);
+  console.log(
+    `  Baseline clean: ${allBaselineClean ? 'YES' : 'NO — action required'}`,
+  );
   console.log('='.repeat(72));
 
   // JSON output for CI

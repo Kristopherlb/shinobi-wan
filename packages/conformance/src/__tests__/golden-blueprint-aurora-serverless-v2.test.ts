@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -30,19 +34,39 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const dbSubnet1 = createTestNode({
     id: 'platform:db-subnet-1',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-subnet', vpcId: 'platform:app-vpc', cidrBlock: '10.0.10.0/24', availabilityZone: 'us-east-1a' } },
+    metadata: {
+      properties: {
+        platform: 'aws-subnet',
+        vpcId: 'platform:app-vpc',
+        cidrBlock: '10.0.10.0/24',
+        availabilityZone: 'us-east-1a',
+      },
+    },
   });
 
   const dbSubnet2 = createTestNode({
     id: 'platform:db-subnet-2',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-subnet', vpcId: 'platform:app-vpc', cidrBlock: '10.0.11.0/24', availabilityZone: 'us-east-1b' } },
+    metadata: {
+      properties: {
+        platform: 'aws-subnet',
+        vpcId: 'platform:app-vpc',
+        cidrBlock: '10.0.11.0/24',
+        availabilityZone: 'us-east-1b',
+      },
+    },
   });
 
   const dbSg = createTestNode({
     id: 'platform:db-sg',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-security-group', vpcId: 'platform:app-vpc', description: 'Aurora Serverless v2 security group' } },
+    metadata: {
+      properties: {
+        platform: 'aws-security-group',
+        vpcId: 'platform:app-vpc',
+        description: 'Aurora Serverless v2 security group',
+      },
+    },
   });
 
   const dbKey = createTestNode({
@@ -54,7 +78,13 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const dbSecret = createTestNode({
     id: 'platform:db-secret',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-secretsmanager', rotationEnabled: true, rotationDays: 30 } },
+    metadata: {
+      properties: {
+        platform: 'aws-secretsmanager',
+        rotationEnabled: true,
+        rotationDays: 30,
+      },
+    },
   });
 
   const dbCluster = createTestNode({

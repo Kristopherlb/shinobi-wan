@@ -12,7 +12,10 @@ import type { GoldenCase } from '../types';
  *────────────────────────────────────────────────────────────────────────────*/
 
 function validGraphSetup(): ReadonlyArray<GraphMutation> {
-  const component = createTestNode({ id: 'component:web-app', type: 'component' });
+  const component = createTestNode({
+    id: 'component:web-app',
+    type: 'component',
+  });
   const platform = createTestNode({ id: 'platform:aws-rds', type: 'platform' });
   const edge = createTestEdge({
     id: 'edge:bindsTo:component:web-app:platform:aws-rds',
@@ -50,7 +53,8 @@ describe('Golden: Graph IR (G-001, G-002, G-003)', () => {
 
   const CASE_INVALID: GoldenCase = {
     id: 'golden:graph:invalid-dangling-edge',
-    description: 'Graph with dangling edge reference is rejected at mutation time',
+    description:
+      'Graph with dangling edge reference is rejected at mutation time',
     gates: ['G-003'],
   };
 
@@ -101,7 +105,10 @@ describe('Golden: Graph IR (G-001, G-002, G-003)', () => {
     it('G-003: dangling edge reference rejected by mutation batch', () => {
       const kernel = new Kernel();
 
-      const component = createTestNode({ id: 'component:orphan', type: 'component' });
+      const component = createTestNode({
+        id: 'component:orphan',
+        type: 'component',
+      });
       const edge = createTestEdge({
         id: 'edge:bindsTo:component:orphan:platform:missing',
         type: 'bindsTo',
@@ -122,7 +129,10 @@ describe('Golden: Graph IR (G-001, G-002, G-003)', () => {
     });
 
     it('G-003: rejected mutation produces deterministic error', () => {
-      const component = createTestNode({ id: 'component:orphan', type: 'component' });
+      const component = createTestNode({
+        id: 'component:orphan',
+        type: 'component',
+      });
       const edge = createTestEdge({
         id: 'edge:bindsTo:component:orphan:platform:missing',
         type: 'bindsTo',

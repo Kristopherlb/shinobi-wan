@@ -3,6 +3,7 @@
 Purpose: capture **resolver/event-source scanning semantics** and **diagnostics contracts** from the Shinobi test suite, reframed for V3 as graph-native, backend-neutral expectations.
 
 Related canonical laws/patterns (see `README.md`):
+
 - Kernel Laws: **KL-006** (ExplainableDiagnostics), **KL-003** (CapabilityCompatibilityMatrix), **KL-001** (DeterministicCompilation)
 - Patterns: **P-004** (EventSourceAutoBinding)
 
@@ -63,4 +64,3 @@ TODO: Extract the exact opt-out flag(s) and external reference validation rules 
 
 - Post-processing behavior that directly mutates backend objects/resources (CDK/CloudFormation).
 - Any end-to-end synthesis assertions; port only the semantics as graph→intent tests.
-

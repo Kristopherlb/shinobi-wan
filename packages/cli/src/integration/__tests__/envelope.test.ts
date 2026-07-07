@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { envelopePlanResult, envelopeUpResult, envelopeValidateResult, getOperationPolicy } from '../index';
+import {
+  envelopePlanResult,
+  envelopeUpResult,
+  envelopeValidateResult,
+  getOperationPolicy,
+} from '../index';
 import type { PlanResult } from '../../commands/plan';
 import type { UpResult } from '../../commands/up';
 import type { ValidateResult } from '../../commands/validate';

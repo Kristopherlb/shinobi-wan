@@ -6,26 +6,28 @@ Tracked recommendations from retrospectives. Each improvement has an ID, status,
 
 ## Status Legend
 
-| Status | Meaning |
-|--------|---------|
-| 🟡 Proposed | Identified, not yet started |
-| 🔵 In Progress | Work has begun |
+| Status         | Meaning                       |
+| -------------- | ----------------------------- |
+| 🟡 Proposed    | Identified, not yet started   |
+| 🔵 In Progress | Work has begun                |
 | 🟢 Implemented | Complete, awaiting validation |
-| ✅ Validated | Confirmed effective |
-| ⚪ Declined | Decided not to implement |
-| 🗄️ Archived | Obsolete or superseded |
+| ✅ Validated   | Confirmed effective           |
+| ⚪ Declined    | Decided not to implement      |
+| 🗄️ Archived    | Obsolete or superseded        |
 
 ---
 
 ## Active Improvements
 
 ### IMP-001: Install @nx/eslint-plugin
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-07-kernel-graph-core-implementation
 **Effort:** 5 min (actual: 10 min - also needed @typescript-eslint/eslint-plugin, @typescript-eslint/parser, @types/node)
 **Impact:** Enables lint checks on all packages
 
 **Action:**
+
 ```bash
 pnpm add -wD @nx/eslint-plugin @typescript-eslint/eslint-plugin @typescript-eslint/parser @types/node
 ```
@@ -33,6 +35,7 @@ pnpm add -wD @nx/eslint-plugin @typescript-eslint/eslint-plugin @typescript-esli
 ---
 
 ### IMP-002: Add tsconfig.json and .eslintrc.json for IR package
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-07-kernel-graph-core-implementation
 **Effort:** 5 min
@@ -43,12 +46,14 @@ pnpm add -wD @nx/eslint-plugin @typescript-eslint/eslint-plugin @typescript-esli
 ---
 
 ### IMP-003: Package Generator with Vitest Config
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-07-kernel-graph-core-implementation
 **Effort:** 2 hours
 **Impact:** Consistent package scaffolding, eliminates test framework setup friction
 
 **Action:** Create Nx generator or template that includes:
+
 - `vitest.config.ts`
 - `tsconfig.json`
 - `tsconfig.spec.json`
@@ -57,13 +62,15 @@ pnpm add -wD @nx/eslint-plugin @typescript-eslint/eslint-plugin @typescript-esli
 ---
 
 ### IMP-004: Update TDD Skill with Type-Only Import Guidance
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-07-kernel-graph-core-implementation
 **Effort:** 30 min
 **Impact:** Prevents false-positive tests in TypeScript projects
 
 **Action:** Add section to `.claude/skills/test-driven-development/SKILL.md`:
-```markdown
+
+````markdown
 ## TypeScript-Specific Guidance
 
 When testing TypeScript modules, always include at least one runtime import
@@ -71,15 +78,19 @@ When testing TypeScript modules, always include at least one runtime import
 elided by the compiler and won't cause test failures if the module is missing.
 
 ❌ Bad (test passes even if module doesn't exist):
+
 ```typescript
 import type { Node } from '../types';
 ```
+````
 
 ✅ Good (test fails if module is missing):
+
 ```typescript
 import { NODE_TYPES, type Node } from '../types';
 ```
-```
+
+````
 
 ---
 
@@ -153,17 +164,19 @@ export default defineConfig({
   },
   // ...
 });
-```
+````
 
 ---
 
 ### IMP-010: Validation Pattern Skill
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-09-validation-pipeline-implementation
 **Effort:** 1 hour
 **Impact:** Standardizes 3-layer validation approach (schema → semantic → determinism)
 
 **Action:** Create `.claude/skills/validation-patterns/` documenting:
+
 - Error model with deterministic sorting
 - Schema validation layer (field validators, type validators)
 - Semantic validation layer (references, forbidden patterns, least-privilege)
@@ -173,12 +186,14 @@ export default defineConfig({
 ---
 
 ### IMP-011: IR Test Fixture Generators
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-09-validation-pipeline-implementation
 **Effort:** 2 hours
 **Impact:** Type-safe test data creation, reduces boilerplate
 
 **Action:** Create `packages/ir/src/__tests__/fixtures/` with factory functions:
+
 ```typescript
 export function createTestNode(overrides?: Partial<Node>): Node { ... }
 export function createTestEdge(source: string, target: string, overrides?: Partial<Edge>): Edge { ... }
@@ -186,12 +201,14 @@ export function createTestArtifact(sourceNodeId: string, overrides?: Partial<Der
 ```
 
 ### IMP-012: Shared Test Factory for Graph Fixtures
+
 **Status:** 🟡 Proposed (validated by conformance — direct @shinobi/ir imports work well)
 **Source:** 2026-02-09-kernel-orchestrator-implementation
 **Effort:** 1 hour
 **Impact:** Eliminates duplicate `makeNode`/`makeEdge`/`makeSnapshot` helpers across packages; auto-applies canonical ordering (PAT-006 graduation)
 
 **Action:** Create shared test utilities (either in `@shinobi/ir` or as a separate `@shinobi/test-utils` package):
+
 ```typescript
 export function createTestNode(overrides: { id: string; type: NodeType } & Partial<Node>): Node { ... }
 export function createTestEdge(overrides: { id: string; type: EdgeType; source: string; target: string } & Partial<Edge>): Edge { ... }
@@ -208,6 +225,7 @@ export function createTestSnapshot(nodes: Node[], edges: Edge[], artifacts?: Der
 ---
 
 ### IMP-013: Workspace Dependency Linter
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-09-kernel-orchestrator-implementation
 **Effort:** 30 min
@@ -216,15 +234,19 @@ export function createTestSnapshot(nodes: Node[], edges: Edge[], artifacts?: Der
 **Action:** Create a script or CI check that scans all `packages/*/package.json` files and verifies that any dependency matching `@shinobi/*` uses `workspace:*` rather than a hardcoded version.
 
 ### IMP-014: Module Boundary Checklist in Plan Template
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-10-policy-evaluator-implementation
 **Effort:** 15 min
 **Impact:** Prevents lint failures from missing module boundary scope tags for test-only dependencies
 
 **Action:** Add to plan template:
+
 ```markdown
 ## Module Boundary Checklist
+
 For each dependency (including devDeps used in tests):
+
 - [ ] Added to package.json (dependencies or devDependencies)
 - [ ] Scope tag added to root .eslintrc.json module boundary
 - [ ] Verified with `pnpm nx lint <package>`
@@ -233,27 +255,33 @@ For each dependency (including devDeps used in tests):
 ---
 
 ### IMP-015: Lint-Safe Patterns Skill
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-10-policy-evaluator-implementation
 **Effort:** 30 min
 **Impact:** Eliminates recurring lint cleanup from non-null assertions and unused imports
 
 **Action:** Document patterns in memory/skills:
+
 - Pre-resolve catalog lookups at module level instead of using `!`
 - Guard with `&& RULE_X` in conditional logic
 - Remove unused type imports before running lint
 - Run `pnpm nx lint <package>` early (before tests) to catch issues
 
 ### IMP-016: Document Binder Scope → Policy Rule Mapping
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-11-conformance-golden-tests-implementation
 **Effort:** 15 min
 **Impact:** Prevents incorrect policy rule expectations in conformance plans
 
 **Action:** Add a conformance test design checklist to plan templates:
+
 ```markdown
 ## Conformance Test Design Checklist
+
 Before specifying expected violation counts:
+
 1. Check which IAM scope the binder emits (scope: 'specific' vs 'pattern')
 2. iam-no-wildcard-resource only fires for scope: 'pattern' — ComponentPlatformBinder never emits this
 3. Verify compliant semantics: violations.every(v => v.severity !== 'error')
@@ -263,6 +291,7 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-017: Conformance Gate Coverage Report Script
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-11-conformance-golden-tests-implementation
 **Implemented:** 2026-02-28
@@ -272,6 +301,7 @@ Before specifying expected violation counts:
 **Action:** Created `scripts/audit-gate-coverage.ts`. Parses `docs/conformance/gates.md` for gate IDs, scans conformance test files for references, reports covered vs uncovered gates. Outputs both console report and `gate-coverage-report.json` for CI.
 
 ### IMP-018: Extract `shortName()` to Shared Lowerer Utility
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
 **Implemented:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
@@ -283,6 +313,7 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-019: Data-Driven resolveConfigValue with PLATFORM_REF_MAP
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
 **Implemented:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
@@ -292,6 +323,7 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-020: Conformance Golden Tests for New Resources
+
 **Status:** 🟢 Implemented (adapter-level)
 **Source:** 2026-02-13-resource-expansion-dynamodb-s3-apigateway
 **Implemented:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
@@ -303,6 +335,7 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-021: Skip Nx Cache After Deployer Source Changes
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
 **Effort:** 0 min (process change)
@@ -313,6 +346,7 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-022: Conformance Gate G-005 — Component Capability Schema
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
 **Effort:** 1 hour
@@ -323,6 +357,7 @@ Before specifying expected violation counts:
 ---
 
 ### IMP-023: Conformance Gate G-042 — Policy Severity Escalation Matrix
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-15-phase-8a-utility-extraction-conformance-sns
 **Effort:** 1 hour
@@ -336,24 +371,25 @@ Before specifying expected violation counts:
 
 _Record actual impact after implementation._
 
-| ID | Expected Impact | Actual Impact | Validated |
-|----|-----------------|---------------|-----------|
-| IMP-001 | Enables lint checks | Lint now runs on ir (15 warnings) and contracts (8 warnings) | ✅ |
-| IMP-002 | TypeScript compilation | IR package type-checks; lint and test pass | ✅ |
-| IMP-018 | Eliminates 6-way shortName duplication | Eliminated 9 copies → 1. SNS lowerer used shared utility directly. | ✅ |
-| IMP-019 | O(1) platform addition | SNS required 1-line per data map. No if-branch or switch case needed. | ✅ |
-| IMP-020 | E2E determinism for new resources | 14 adapter golden tests verify DynamoDB, S3, API GW, multi-resource plans are byte-stable. | ✅ |
-| IMP-024 | Blueprint FedRAMP compliance auditing | BP-004 validates clean under Baseline (0 errors), expected escalation under FedRAMP-High. | ✅ |
-| IMP-025 | RULE_CATALOG/SEVERITY_MAP drift prevention | Already covered by consistency tests in rules.test.ts (catalog↔severity, all packs identical). | ✅ |
-| IMP-031 | Batch cross-cutting updates faster/safer | Wave A: 7 rules added atomically, consistency tests caught drift immediately. | ✅ |
-| IMP-032 | Dual-platform rule pattern documented | opensearch-public-access + sagemaker-vpc-disabled each span 2 platforms via NODE_RULE_CHECKS. | ✅ |
-| IMP-033 | Zero-edge blueprint support | BP-I01 (10 nodes, 0 edges) compiles and tests cleanly. | ✅ |
-| IMP-034 | Variable-count resource lowerer | GlueCatalog: 1 + N resources from config array. Indexed naming works. | ✅ |
-| IMP-035 | Max-resource lowerer (4 resources) | NetworkFirewall: 4-resource serial chain. Topological sort handles it. | ✅ |
+| ID      | Expected Impact                            | Actual Impact                                                                                  | Validated |
+| ------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------- |
+| IMP-001 | Enables lint checks                        | Lint now runs on ir (15 warnings) and contracts (8 warnings)                                   | ✅        |
+| IMP-002 | TypeScript compilation                     | IR package type-checks; lint and test pass                                                     | ✅        |
+| IMP-018 | Eliminates 6-way shortName duplication     | Eliminated 9 copies → 1. SNS lowerer used shared utility directly.                             | ✅        |
+| IMP-019 | O(1) platform addition                     | SNS required 1-line per data map. No if-branch or switch case needed.                          | ✅        |
+| IMP-020 | E2E determinism for new resources          | 14 adapter golden tests verify DynamoDB, S3, API GW, multi-resource plans are byte-stable.     | ✅        |
+| IMP-024 | Blueprint FedRAMP compliance auditing      | BP-004 validates clean under Baseline (0 errors), expected escalation under FedRAMP-High.      | ✅        |
+| IMP-025 | RULE_CATALOG/SEVERITY_MAP drift prevention | Already covered by consistency tests in rules.test.ts (catalog↔severity, all packs identical). | ✅        |
+| IMP-031 | Batch cross-cutting updates faster/safer   | Wave A: 7 rules added atomically, consistency tests caught drift immediately.                  | ✅        |
+| IMP-032 | Dual-platform rule pattern documented      | opensearch-public-access + sagemaker-vpc-disabled each span 2 platforms via NODE_RULE_CHECKS.  | ✅        |
+| IMP-033 | Zero-edge blueprint support                | BP-I01 (10 nodes, 0 edges) compiles and tests cleanly.                                         | ✅        |
+| IMP-034 | Variable-count resource lowerer            | GlueCatalog: 1 + N resources from config array. Indexed naming works.                          | ✅        |
+| IMP-035 | Max-resource lowerer (4 resources)         | NetworkFirewall: 4-resource serial chain. Topological sort handles it.                         | ✅        |
 
 ---
 
 ### IMP-024: FedRAMP Audit Script
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
 **Effort:** 15 min
@@ -364,12 +400,14 @@ _Record actual impact after implementation._
 ---
 
 ### IMP-025: Rule Catalog Completeness Helper
+
 **Status:** ✅ Validated
 **Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
 **Effort:** 0 min (already covered)
 **Impact:** Prevents RULE_CATALOG / SEVERITY_MAP drift — ensures every rule has severity entries for all 3 packs
 
 **Action:** Already implemented by consistency tests in `packages/policy/src/__tests__/rules.test.ts` (lines 42-65):
+
 - Every RULE_CATALOG entry has severity in each pack
 - Every SEVERITY_MAP entry maps to a catalog rule (no orphans)
 - All packs have identical rule sets
@@ -377,6 +415,7 @@ _Record actual impact after implementation._
 ---
 
 ### IMP-026: Generator Scripts Auto-Modify Source Files
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
 **Effort:** 2 hours
@@ -387,6 +426,7 @@ _Record actual impact after implementation._
 ---
 
 ### IMP-027: Document Node-Level Policy Check Pattern
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-28-compute-blueprints-phase1-checkpoint
 **Effort:** 10 min
@@ -397,6 +437,7 @@ _Record actual impact after implementation._
 ---
 
 ### IMP-028: Blueprint Golden Test Generator
+
 **Status:** 🟢 Implemented
 **Source:** 2026-02-28-compute-blueprints-phase2-checkpoint
 **Implemented:** 2026-02-28
@@ -408,6 +449,7 @@ _Record actual impact after implementation._
 ---
 
 ### IMP-029: WAF Attachment via Binder
+
 **Status:** 🟡 Proposed
 **Source:** 2026-02-28-compute-blueprints-phase2-checkpoint
 **Effort:** 1 hour
@@ -418,21 +460,26 @@ _Record actual impact after implementation._
 ---
 
 ### IMP-030: TriggersBinder Input Validation for Missing bindingConfig
+
 **Status:** 🟡 Proposed
 **Source:** 2026-03-01-wave-a-complete
 **Effort:** 15 min
 **Impact:** Prevents cryptic `TypeError: Cannot read properties of undefined` when triggers edges lack bindingConfig
 
 **Action:** Add a guard at the top of `TriggersBinder.compileEdge()`:
+
 ```typescript
 if (!edge.metadata?.bindingConfig?.resourceType) {
-  throw new Error(`Triggers edge ${edge.id} missing metadata.bindingConfig.resourceType`);
+  throw new Error(
+    `Triggers edge ${edge.id} missing metadata.bindingConfig.resourceType`,
+  );
 }
 ```
 
 ---
 
 ### IMP-031: Batch Cross-Cutting File Updates Pattern
+
 **Status:** ✅ Validated
 **Source:** 2026-03-01-wave-a-complete
 **Effort:** 0 min (process observation)
@@ -443,6 +490,7 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 ---
 
 ### IMP-032: Document Dual-Platform Rule Pattern
+
 **Status:** 🟢 Implemented (documented in PAT-019 + memory)
 **Source:** 2026-03-01-wave-b-complete
 **Effort:** 0 min (process observation)
@@ -451,6 +499,7 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 ---
 
 ### IMP-033: Zero-Edge Blueprint Support Confirmed
+
 **Status:** ✅ Validated
 **Source:** 2026-03-01-wave-b-complete
 **Effort:** 0 min (architectural validation)
@@ -459,6 +508,7 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 ---
 
 ### IMP-034: Variable-Count Resource Lowerer Pattern
+
 **Status:** ✅ Validated
 **Source:** 2026-03-02-wave-c-complete
 **Effort:** 0 min (pattern observation)
@@ -467,6 +517,7 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 ---
 
 ### IMP-035: Max-Resource Lowerer Pattern (4 resources)
+
 **Status:** ✅ Validated
 **Source:** 2026-03-02-wave-c-complete
 **Effort:** 0 min (pattern observation)
@@ -475,6 +526,7 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 ---
 
 ### IMP-036: Update Blueprint Catalog After Wave C
+
 **Status:** 🟢 Implemented
 **Source:** 2026-03-02-wave-c-complete
 **Implemented:** 2026-03-03
@@ -486,6 +538,7 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 ---
 
 ### IMP-037: Wave D Planning
+
 **Status:** 🟡 Proposed
 **Source:** 2026-03-02-wave-c-complete
 **Effort:** 1-2 hours

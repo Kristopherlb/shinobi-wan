@@ -18,23 +18,29 @@ const ENV_TOKEN_PATTERN = /\$\{env:([^:}]+)(?::([^}]*))?\}/g;
  */
 export function interpolateEnvTokens(
   value: unknown,
-  environment: Readonly<Record<string, string>>
+  environment: Readonly<Record<string, string>>,
 ): unknown {
   if (value === null || value === undefined) {
     return value;
   }
 
   if (typeof value === 'string') {
-    return value.replace(ENV_TOKEN_PATTERN, (_match, key: string, fallback?: string) => {
-      const envValue = environment[key];
-      if (envValue !== undefined) {
-        return envValue;
-      }
-      if (fallback !== undefined) {
-        return fallback;
-      }
-      throw new ConfigError(key, `Environment variable "${key}" is not defined and no fallback provided`);
-    });
+    return value.replace(
+      ENV_TOKEN_PATTERN,
+      (_match, key: string, fallback?: string) => {
+        const envValue = environment[key];
+        if (envValue !== undefined) {
+          return envValue;
+        }
+        if (fallback !== undefined) {
+          return fallback;
+        }
+        throw new ConfigError(
+          key,
+          `Environment variable "${key}" is not defined and no fallback provided`,
+        );
+      },
+    );
   }
 
   if (Array.isArray(value)) {
@@ -61,7 +67,9 @@ export function interpolateEnvTokens(
  *
  * Returns a deep-frozen resolved config object.
  */
-export function resolveConfig(config: KernelConfig): Readonly<Record<string, unknown>> {
+export function resolveConfig(
+  config: KernelConfig,
+): Readonly<Record<string, unknown>> {
   const layers = config.layers ?? [];
   const environment = config.environment ?? {};
 
@@ -72,7 +80,10 @@ export function resolveConfig(config: KernelConfig): Readonly<Record<string, unk
   }
 
   // Interpolate env tokens
-  const interpolated = interpolateEnvTokens(merged, environment) as Record<string, unknown>;
+  const interpolated = interpolateEnvTokens(merged, environment) as Record<
+    string,
+    unknown
+  >;
 
   return deepFreeze(interpolated);
 }
@@ -83,7 +94,7 @@ export function resolveConfig(config: KernelConfig): Readonly<Record<string, unk
  */
 function deepMerge(
   base: Record<string, unknown>,
-  override: Readonly<Record<string, unknown>>
+  override: Readonly<Record<string, unknown>>,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = { ...base };
 
@@ -101,7 +112,7 @@ function deepMerge(
     ) {
       result[key] = deepMerge(
         existing as Record<string, unknown>,
-        value as Record<string, unknown>
+        value as Record<string, unknown>,
       );
     } else {
       result[key] = value;

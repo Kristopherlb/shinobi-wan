@@ -31,7 +31,9 @@ function createEdge(overrides: Partial<Edge> = {}): Edge {
   };
 }
 
-function createArtifact(overrides: Partial<DerivedArtifact> = {}): DerivedArtifact {
+function createArtifact(
+  overrides: Partial<DerivedArtifact> = {},
+): DerivedArtifact {
   return {
     id: 'artifact:iam-policy:component:test',
     semanticHash: 'sha256:ghi789',
@@ -152,7 +154,9 @@ describe('deserializeGraph', () => {
       artifacts: [],
     });
 
-    expect(() => deserializeGraph(jsonWithInvalidNode)).toThrow(ValidationError);
+    expect(() => deserializeGraph(jsonWithInvalidNode)).toThrow(
+      ValidationError,
+    );
   });
 
   it('restores edges with integrity checks', () => {
@@ -215,7 +219,12 @@ describe('round-trip serialization', () => {
 describe('determinism (golden test behavior)', () => {
   it('produces identical output when run twice', () => {
     const graph = new Graph();
-    graph.addNode(createNode({ id: 'component:api', metadata: { properties: { port: 8080 } } }));
+    graph.addNode(
+      createNode({
+        id: 'component:api',
+        metadata: { properties: { port: 8080 } },
+      }),
+    );
     graph.addNode(createNode({ id: 'capability:queue', type: 'capability' }));
 
     const run1 = serializeGraph(graph);
@@ -249,7 +258,9 @@ describe('determinism (golden test behavior)', () => {
     const json = serializeGraph(graph);
 
     // UUID pattern
-    expect(json).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+    expect(json).not.toMatch(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+    );
     // ISO timestamp pattern
     expect(json).not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
   });

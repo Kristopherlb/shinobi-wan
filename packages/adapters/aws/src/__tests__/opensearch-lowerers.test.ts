@@ -3,7 +3,9 @@ import { OpenSearchDomainLowerer } from '../lowerers/opensearch-domain-lowerer';
 import { OpenSearchServerlessLowerer } from '../lowerers/opensearch-serverless-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('OpenSearchDomainLowerer', () => {
@@ -17,7 +19,13 @@ describe('OpenSearchDomainLowerer', () => {
     const node = makeNode({
       id: 'platform:search',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-opensearch', encryptionAtRest: true, nodeToNodeEncryption: true } },
+      metadata: {
+        properties: {
+          platform: 'aws-opensearch',
+          encryptionAtRest: true,
+          nodeToNodeEncryption: true,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -107,7 +115,10 @@ describe('OpenSearchDomainLowerer', () => {
     const domain = resources[1].properties;
     const ear = domain['encryptAtRestOptions'] as Record<string, unknown>;
     expect(ear['enabled']).toBe(true);
-    const n2n = domain['nodeToNodeEncryptionOptions'] as Record<string, unknown>;
+    const n2n = domain['nodeToNodeEncryptionOptions'] as Record<
+      string,
+      unknown
+    >;
     expect(n2n['enabled']).toBe(true);
   });
 
@@ -151,7 +162,9 @@ describe('OpenSearchDomainLowerer', () => {
     const node = makeNode({
       id: 'platform:search',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-opensearch', tags: { env: 'prod' } } },
+      metadata: {
+        properties: { platform: 'aws-opensearch', tags: { env: 'prod' } },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -197,9 +210,15 @@ describe('OpenSearchServerlessLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(3);
-    expect(resources[0].resourceType).toBe('aws:opensearchserverless:SecurityPolicy');
-    expect(resources[1].resourceType).toBe('aws:opensearchserverless:AccessPolicy');
-    expect(resources[2].resourceType).toBe('aws:opensearchserverless:Collection');
+    expect(resources[0].resourceType).toBe(
+      'aws:opensearchserverless:SecurityPolicy',
+    );
+    expect(resources[1].resourceType).toBe(
+      'aws:opensearchserverless:AccessPolicy',
+    );
+    expect(resources[2].resourceType).toBe(
+      'aws:opensearchserverless:Collection',
+    );
   });
 
   it('uses correct naming convention', () => {
@@ -223,8 +242,12 @@ describe('OpenSearchServerlessLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[2].dependsOn).toContain('vectors-collection-security-policy');
-    expect(resources[2].dependsOn).toContain('vectors-collection-access-policy');
+    expect(resources[2].dependsOn).toContain(
+      'vectors-collection-security-policy',
+    );
+    expect(resources[2].dependsOn).toContain(
+      'vectors-collection-access-policy',
+    );
   });
 
   it('defaults to VECTORSEARCH type', () => {
@@ -267,7 +290,12 @@ describe('OpenSearchServerlessLowerer', () => {
     const node = makeNode({
       id: 'platform:vectors',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-opensearch-serverless', tags: { env: 'staging' } } },
+      metadata: {
+        properties: {
+          platform: 'aws-opensearch-serverless',
+          tags: { env: 'staging' },
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

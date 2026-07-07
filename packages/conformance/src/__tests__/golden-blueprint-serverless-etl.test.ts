@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -96,7 +100,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'QUEUE_URL', valueSource: { type: 'reference', nodeRef: 'work-queue', field: 'url' } },
+          {
+            key: 'QUEUE_URL',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'work-queue',
+              field: 'url',
+            },
+          },
         ],
       },
     },
@@ -113,7 +124,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'read',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'QUEUE_URL', valueSource: { type: 'reference', nodeRef: 'work-queue', field: 'url' } },
+          {
+            key: 'QUEUE_URL',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'work-queue',
+              field: 'url',
+            },
+          },
         ],
       },
     },
@@ -130,7 +148,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'OUTPUT_BUCKET', valueSource: { type: 'reference', nodeRef: 'output-bucket', field: 'bucket' } },
+          {
+            key: 'OUTPUT_BUCKET',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'output-bucket',
+              field: 'bucket',
+            },
+          },
         ],
       },
     },
@@ -248,7 +273,9 @@ describe('Golden: Blueprint BP-004 — Serverless API ETL', () => {
       });
 
       // DLQ is configured, so sqs-dlq-missing should not fire
-      const dlqViolations = compilation.policy?.violations.filter((v) => v.ruleId === 'sqs-dlq-missing');
+      const dlqViolations = compilation.policy?.violations.filter(
+        (v) => v.ruleId === 'sqs-dlq-missing',
+      );
       expect(dlqViolations).toHaveLength(0);
     });
 
@@ -260,7 +287,9 @@ describe('Golden: Blueprint BP-004 — Serverless API ETL', () => {
         evaluators: [evaluator],
       });
 
-      const tracingViolations = compilation.policy?.violations.filter((v) => v.ruleId === 'telemetry-tracing-disabled');
+      const tracingViolations = compilation.policy?.violations.filter(
+        (v) => v.ruleId === 'telemetry-tracing-disabled',
+      );
       expect(tracingViolations).toHaveLength(0);
     });
 
@@ -272,7 +301,9 @@ describe('Golden: Blueprint BP-004 — Serverless API ETL', () => {
         evaluators: [evaluator],
       });
 
-      const iamViolations = compilation.policy?.violations.filter((v) => v.ruleId === 'iam-missing-conditions');
+      const iamViolations = compilation.policy?.violations.filter(
+        (v) => v.ruleId === 'iam-missing-conditions',
+      );
       for (const v of iamViolations) {
         expect(v.severity).toBe('error');
       }

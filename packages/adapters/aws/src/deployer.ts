@@ -37,7 +37,11 @@ export function classifyError(err: unknown): DeployerError {
   const message = err instanceof Error ? err.message : String(err);
   const originalError = err instanceof Error ? err : undefined;
 
-  if (/NoCredentialProviders|ExpiredToken|InvalidClientTokenId|security token/i.test(message)) {
+  if (
+    /NoCredentialProviders|ExpiredToken|InvalidClientTokenId|security token/i.test(
+      message,
+    )
+  ) {
     return {
       code: 'AUTH_FAILURE',
       category: 'aws-credentials',
@@ -148,20 +152,35 @@ export interface DeployOptions {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function buildStackName(config: AdapterConfig, options?: DeployOptions): string {
+function buildStackName(
+  config: AdapterConfig,
+  options?: DeployOptions,
+): string {
   return options?.stackName ?? `${config.serviceName}-${config.region}`;
 }
 
-function buildProjectName(config: AdapterConfig, options?: DeployOptions): string {
+function buildProjectName(
+  config: AdapterConfig,
+  options?: DeployOptions,
+): string {
   return options?.projectName ?? config.serviceName;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('Operation timed out')), ms);
+    const timer = setTimeout(
+      () => reject(new Error('Operation timed out')),
+      ms,
+    );
     promise.then(
-      (value) => { clearTimeout(timer); resolve(value); },
-      (err) => { clearTimeout(timer); reject(err); },
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
     );
   });
 }

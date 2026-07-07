@@ -14,7 +14,10 @@ describe('ValidationError', () => {
   });
 
   it('produces actionable error messages', () => {
-    const error = new ValidationError('$.metadata.properties', 'must be object');
+    const error = new ValidationError(
+      '$.metadata.properties',
+      'must be object',
+    );
 
     expect(error.message).toMatch(/metadata\.properties.*must be object/i);
   });
@@ -25,7 +28,7 @@ describe('ConflictError', () => {
     const error = new ConflictError(
       'component:services/api',
       'abc123',
-      'def456'
+      'def456',
     );
 
     expect(error).toBeInstanceOf(Error);
@@ -47,13 +50,15 @@ describe('IntegrityError', () => {
   it('captures missing reference and referring entity', () => {
     const error = new IntegrityError(
       'component:missing',
-      'edge:bindsTo:component:a:component:missing'
+      'edge:bindsTo:component:a:component:missing',
     );
 
     expect(error).toBeInstanceOf(Error);
     expect(error.name).toBe('IntegrityError');
     expect(error.missingRef).toBe('component:missing');
-    expect(error.referencedBy).toBe('edge:bindsTo:component:a:component:missing');
+    expect(error.referencedBy).toBe(
+      'edge:bindsTo:component:a:component:missing',
+    );
   });
 
   it('produces actionable error message for missing references', () => {

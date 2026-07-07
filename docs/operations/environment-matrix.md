@@ -10,18 +10,18 @@ This matrix defines how Shinobi should be operated across development, staging, 
 
 ## Environment Overview
 
-| Dimension | development | staging | production |
-|---|---|---|---|
-| Goal | Fast iteration | Release candidate validation | Stable customer-facing runtime |
-| Manifest source | feature branch/local | release branch | main/release tag |
-| Policy pack default | Baseline | FedRAMP-Moderate | FedRAMP-High (or approved policy) |
-| Apply mode | frequent, controlled | scheduled or gated | strictly gated |
-| Preview required | yes | yes | yes (mandatory) |
-| Manual approval | optional | required | required |
-| Test gate | package tests touched by change | full test matrix | full test matrix + smoke |
-| Rollback expectation | quick re-apply known good | re-apply known good | controlled rollback plan |
-| Harmony apply flag | disabled | disabled (unless gated trial) | disabled by default; gated enable only |
-| Harmony wrapper mode | enabled for integration testing | enabled | enabled |
+| Dimension            | development                     | staging                       | production                             |
+| -------------------- | ------------------------------- | ----------------------------- | -------------------------------------- |
+| Goal                 | Fast iteration                  | Release candidate validation  | Stable customer-facing runtime         |
+| Manifest source      | feature branch/local            | release branch                | main/release tag                       |
+| Policy pack default  | Baseline                        | FedRAMP-Moderate              | FedRAMP-High (or approved policy)      |
+| Apply mode           | frequent, controlled            | scheduled or gated            | strictly gated                         |
+| Preview required     | yes                             | yes                           | yes (mandatory)                        |
+| Manual approval      | optional                        | required                      | required                               |
+| Test gate            | package tests touched by change | full test matrix              | full test matrix + smoke               |
+| Rollback expectation | quick re-apply known good       | re-apply known good           | controlled rollback plan               |
+| Harmony apply flag   | disabled                        | disabled (unless gated trial) | disabled by default; gated enable only |
+| Harmony wrapper mode | enabled for integration testing | enabled                       | enabled                                |
 
 ## Promotion Flow
 
@@ -87,11 +87,11 @@ Promotion to restricted apply also requires passing `docs/operations/harmony-rol
 
 ## Recommended Environment Variables
 
-| Variable | Use |
-|---|---|
-| `AWS_REGION` | Region selection |
-| `AWS_ACCESS_KEY_ID` | AWS auth |
-| `AWS_SECRET_ACCESS_KEY` | AWS auth |
+| Variable                   | Use                                                        |
+| -------------------------- | ---------------------------------------------------------- |
+| `AWS_REGION`               | Region selection                                           |
+| `AWS_ACCESS_KEY_ID`        | AWS auth                                                   |
+| `AWS_SECRET_ACCESS_KEY`    | AWS auth                                                   |
 | `SHINOBI_RUN_PULUMI_SMOKE` | Enables optional non-mocked smoke tests when set to `true` |
 
 ## Ownership and Controls

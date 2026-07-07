@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -12,7 +17,11 @@ import { shortName, createStandardTags } from './utils';
 export class BedrockLowerer implements NodeLowerer {
   readonly platform = 'aws-bedrock';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -26,14 +35,17 @@ export class BedrockLowerer implements NodeLowerer {
 
       const guardrailProperties: Record<string, unknown> = {
         name: `${serviceName}-${name}-guardrail`,
-        blockedInputMessaging: 'This input is not allowed by the guardrail policy.',
-        blockedOutputsMessaging: 'This output has been blocked by the guardrail policy.',
+        blockedInputMessaging:
+          'This input is not allowed by the guardrail policy.',
+        blockedOutputsMessaging:
+          'This output has been blocked by the guardrail policy.',
         tags: createStandardTags(node.id, 'aws-bedrock', extraTags),
       };
 
       // Content filter configuration
       if (props['contentFilterConfig']) {
-        guardrailProperties['contentPolicyConfig'] = props['contentFilterConfig'];
+        guardrailProperties['contentPolicyConfig'] =
+          props['contentFilterConfig'];
       }
 
       resources.push({

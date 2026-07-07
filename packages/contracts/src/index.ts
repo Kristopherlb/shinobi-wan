@@ -2,7 +2,10 @@
 // Zero dependencies, versioned from day one
 
 // Version constants
-export { CONTRACT_SCHEMA_VERSION, type ContractSchemaVersion } from './versions';
+export {
+  CONTRACT_SCHEMA_VERSION,
+  type ContractSchemaVersion,
+} from './versions';
 
 // Capability contracts
 export {
@@ -11,7 +14,10 @@ export {
   isValidCapabilityId,
 } from './capability/capability-id';
 
-export { type CapabilityFieldType, type CapabilityDataShape } from './capability/capability-data';
+export {
+  type CapabilityFieldType,
+  type CapabilityDataShape,
+} from './capability/capability-data';
 
 export {
   CAPABILITY_ACTIONS,
@@ -20,7 +26,11 @@ export {
 } from './capability/capability-contract';
 
 // Intent contracts
-export { INTENT_TYPES, type IntentType, type Intent } from './intent/intent-base';
+export {
+  INTENT_TYPES,
+  type IntentType,
+  type Intent,
+} from './intent/intent-base';
 
 export {
   type IamPrincipal,
@@ -36,9 +46,15 @@ export {
   type NetworkIntent,
 } from './intent/network-intent';
 
-export { type ConfigValueSource, type ConfigIntent } from './intent/config-intent';
+export {
+  type ConfigValueSource,
+  type ConfigIntent,
+} from './intent/config-intent';
 
-export { type TelemetryConfig, type TelemetryIntent } from './intent/telemetry-intent';
+export {
+  type TelemetryConfig,
+  type TelemetryIntent,
+} from './intent/telemetry-intent';
 
 // Violation contracts
 export { SEVERITY_LEVELS, type Severity } from './violation/severity';

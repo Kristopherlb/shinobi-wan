@@ -17,7 +17,13 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
   },
   table: {
     read: ['dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:Scan'],
-    write: ['dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem', 'dynamodb:GetItem', 'dynamodb:Query'],
+    write: [
+      'dynamodb:PutItem',
+      'dynamodb:UpdateItem',
+      'dynamodb:DeleteItem',
+      'dynamodb:GetItem',
+      'dynamodb:Query',
+    ],
     admin: ['dynamodb:*'],
   },
   api: {
@@ -32,13 +38,26 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     admin: ['sns:*'],
   },
   xray: {
-    read: ['xray:GetSamplingRules', 'xray:GetSamplingTargets', 'xray:GetTraceGraph'],
-    write: ['xray:PutTraceSegments', 'xray:PutTelemetryRecords', 'xray:GetSamplingRules', 'xray:GetSamplingTargets'],
+    read: [
+      'xray:GetSamplingRules',
+      'xray:GetSamplingTargets',
+      'xray:GetTraceGraph',
+    ],
+    write: [
+      'xray:PutTraceSegments',
+      'xray:PutTelemetryRecords',
+      'xray:GetSamplingRules',
+      'xray:GetSamplingTargets',
+    ],
     admin: ['xray:*'],
   },
   distribution: {
     read: ['cloudfront:GetDistribution', 'cloudfront:ListDistributions'],
-    write: ['cloudfront:CreateInvalidation', 'cloudfront:GetDistribution', 'cloudfront:ListDistributions'],
+    write: [
+      'cloudfront:CreateInvalidation',
+      'cloudfront:GetDistribution',
+      'cloudfront:ListDistributions',
+    ],
     admin: ['cloudfront:*'],
   },
   webacl: {
@@ -53,17 +72,34 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
   },
   scheduler: {
     read: ['scheduler:GetSchedule', 'scheduler:ListSchedules'],
-    write: ['scheduler:CreateSchedule', 'scheduler:UpdateSchedule', 'scheduler:GetSchedule'],
+    write: [
+      'scheduler:CreateSchedule',
+      'scheduler:UpdateSchedule',
+      'scheduler:GetSchedule',
+    ],
     admin: ['scheduler:*'],
   },
   statemachine: {
-    read: ['states:DescribeStateMachine', 'states:ListStateMachines', 'states:ListExecutions'],
-    write: ['states:StartExecution', 'states:StopExecution', 'states:DescribeStateMachine'],
+    read: [
+      'states:DescribeStateMachine',
+      'states:ListStateMachines',
+      'states:ListExecutions',
+    ],
+    write: [
+      'states:StartExecution',
+      'states:StopExecution',
+      'states:DescribeStateMachine',
+    ],
     admin: ['states:*'],
   },
   cluster: {
     read: ['ecs:DescribeClusters', 'ecs:ListClusters'],
-    write: ['ecs:RunTask', 'ecs:StopTask', 'ecs:DescribeTasks', 'ecs:ListTasks'],
+    write: [
+      'ecs:RunTask',
+      'ecs:StopTask',
+      'ecs:DescribeTasks',
+      'ecs:ListTasks',
+    ],
     admin: ['ecs:*'],
   },
   'task-definition': {
@@ -72,48 +108,99 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     admin: ['ecs:*'],
   },
   repository: {
-    read: ['ecr:GetAuthorizationToken', 'ecr:BatchCheckLayerAvailability', 'ecr:GetDownloadUrlForLayer', 'ecr:BatchGetImage'],
-    write: ['ecr:PutImage', 'ecr:InitiateLayerUpload', 'ecr:UploadLayerPart', 'ecr:CompleteLayerUpload'],
+    read: [
+      'ecr:GetAuthorizationToken',
+      'ecr:BatchCheckLayerAvailability',
+      'ecr:GetDownloadUrlForLayer',
+      'ecr:BatchGetImage',
+    ],
+    write: [
+      'ecr:PutImage',
+      'ecr:InitiateLayerUpload',
+      'ecr:UploadLayerPart',
+      'ecr:CompleteLayerUpload',
+    ],
     admin: ['ecr:*'],
   },
   'load-balancer': {
-    read: ['elasticloadbalancing:DescribeLoadBalancers', 'elasticloadbalancing:DescribeTargetGroups', 'elasticloadbalancing:DescribeListeners'],
-    write: ['elasticloadbalancing:RegisterTargets', 'elasticloadbalancing:DeregisterTargets'],
+    read: [
+      'elasticloadbalancing:DescribeLoadBalancers',
+      'elasticloadbalancing:DescribeTargetGroups',
+      'elasticloadbalancing:DescribeListeners',
+    ],
+    write: [
+      'elasticloadbalancing:RegisterTargets',
+      'elasticloadbalancing:DeregisterTargets',
+    ],
     admin: ['elasticloadbalancing:*'],
   },
   secret: {
     read: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
-    write: ['secretsmanager:PutSecretValue', 'secretsmanager:UpdateSecret', 'secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
+    write: [
+      'secretsmanager:PutSecretValue',
+      'secretsmanager:UpdateSecret',
+      'secretsmanager:GetSecretValue',
+      'secretsmanager:DescribeSecret',
+    ],
     admin: ['secretsmanager:*'],
   },
   key: {
     read: ['kms:Decrypt', 'kms:DescribeKey'],
-    write: ['kms:Encrypt', 'kms:Decrypt', 'kms:GenerateDataKey', 'kms:DescribeKey'],
+    write: [
+      'kms:Encrypt',
+      'kms:Decrypt',
+      'kms:GenerateDataKey',
+      'kms:DescribeKey',
+    ],
     admin: ['kms:*'],
   },
   redis: {
-    read: ['elasticache:DescribeReplicationGroups', 'elasticache:DescribeCacheClusters'],
-    write: ['elasticache:ModifyReplicationGroup', 'elasticache:DescribeReplicationGroups'],
+    read: [
+      'elasticache:DescribeReplicationGroups',
+      'elasticache:DescribeCacheClusters',
+    ],
+    write: [
+      'elasticache:ModifyReplicationGroup',
+      'elasticache:DescribeReplicationGroups',
+    ],
     admin: ['elasticache:*'],
   },
   bedrock: {
     read: ['bedrock:InvokeModel', 'bedrock:GetFoundationModel'],
-    write: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream', 'bedrock:GetFoundationModel'],
+    write: [
+      'bedrock:InvokeModel',
+      'bedrock:InvokeModelWithResponseStream',
+      'bedrock:GetFoundationModel',
+    ],
     admin: ['bedrock:*'],
   },
   model: {
     read: ['sagemaker:DescribeModel', 'sagemaker:ListModels'],
-    write: ['sagemaker:CreateTransformJob', 'sagemaker:DescribeTransformJob', 'sagemaker:StopTransformJob', 'sagemaker:DescribeModel'],
+    write: [
+      'sagemaker:CreateTransformJob',
+      'sagemaker:DescribeTransformJob',
+      'sagemaker:StopTransformJob',
+      'sagemaker:DescribeModel',
+    ],
     admin: ['sagemaker:*'],
   },
   domain: {
     read: ['es:ESHttpGet', 'es:DescribeElasticsearchDomain'],
-    write: ['es:ESHttpGet', 'es:ESHttpPost', 'es:ESHttpPut', 'es:DescribeElasticsearchDomain'],
+    write: [
+      'es:ESHttpGet',
+      'es:ESHttpPost',
+      'es:ESHttpPut',
+      'es:DescribeElasticsearchDomain',
+    ],
     admin: ['es:*'],
   },
   firehose: {
     read: ['firehose:DescribeDeliveryStream', 'firehose:ListDeliveryStreams'],
-    write: ['firehose:PutRecord', 'firehose:PutRecordBatch', 'firehose:DescribeDeliveryStream'],
+    write: [
+      'firehose:PutRecord',
+      'firehose:PutRecordBatch',
+      'firehose:DescribeDeliveryStream',
+    ],
     admin: ['firehose:*'],
   },
   collection: {
@@ -123,27 +210,50 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
   },
   'rds-cluster': {
     read: ['rds:DescribeDBClusters', 'rds:DescribeDBInstances'],
-    write: ['rds:ModifyDBCluster', 'rds:DescribeDBClusters', 'rds:DescribeDBInstances'],
+    write: [
+      'rds:ModifyDBCluster',
+      'rds:DescribeDBClusters',
+      'rds:DescribeDBInstances',
+    ],
     admin: ['rds:*'],
   },
   'rds-proxy': {
     read: ['rds:DescribeDBProxies', 'rds:DescribeDBProxyTargets'],
-    write: ['rds:ModifyDBProxy', 'rds:DescribeDBProxies', 'rds:DescribeDBProxyTargets'],
+    write: [
+      'rds:ModifyDBProxy',
+      'rds:DescribeDBProxies',
+      'rds:DescribeDBProxyTargets',
+    ],
     admin: ['rds:*'],
   },
   endpoint: {
     read: ['sagemaker:DescribeEndpoint', 'sagemaker:DescribeEndpointConfig'],
-    write: ['sagemaker:InvokeEndpoint', 'sagemaker:DescribeEndpoint', 'sagemaker:DescribeEndpointConfig'],
+    write: [
+      'sagemaker:InvokeEndpoint',
+      'sagemaker:DescribeEndpoint',
+      'sagemaker:DescribeEndpointConfig',
+    ],
     admin: ['sagemaker:*'],
   },
   'glue-catalog': {
     read: ['glue:GetDatabase', 'glue:GetTable', 'glue:GetTables'],
-    write: ['glue:CreateTable', 'glue:UpdateTable', 'glue:GetDatabase', 'glue:GetTable', 'glue:GetTables'],
+    write: [
+      'glue:CreateTable',
+      'glue:UpdateTable',
+      'glue:GetDatabase',
+      'glue:GetTable',
+      'glue:GetTables',
+    ],
     admin: ['glue:*'],
   },
   'glue-job': {
     read: ['glue:GetJob', 'glue:GetJobRun', 'glue:GetJobRuns'],
-    write: ['glue:StartJobRun', 'glue:BatchStopJobRun', 'glue:GetJob', 'glue:GetJobRun'],
+    write: [
+      'glue:StartJobRun',
+      'glue:BatchStopJobRun',
+      'glue:GetJob',
+      'glue:GetJobRun',
+    ],
     admin: ['glue:*'],
   },
   'glue-crawler': {
@@ -152,33 +262,72 @@ const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
     admin: ['glue:*'],
   },
   'athena-workgroup': {
-    read: ['athena:GetWorkGroup', 'athena:GetQueryResults', 'athena:ListQueryExecutions'],
-    write: ['athena:StartQueryExecution', 'athena:GetWorkGroup', 'athena:GetQueryResults'],
+    read: [
+      'athena:GetWorkGroup',
+      'athena:GetQueryResults',
+      'athena:ListQueryExecutions',
+    ],
+    write: [
+      'athena:StartQueryExecution',
+      'athena:GetWorkGroup',
+      'athena:GetQueryResults',
+    ],
     admin: ['athena:*'],
   },
   'sagemaker-pipeline': {
     read: ['sagemaker:DescribePipeline', 'sagemaker:ListPipelineExecutions'],
-    write: ['sagemaker:StartPipelineExecution', 'sagemaker:StopPipelineExecution', 'sagemaker:DescribePipeline'],
+    write: [
+      'sagemaker:StartPipelineExecution',
+      'sagemaker:StopPipelineExecution',
+      'sagemaker:DescribePipeline',
+    ],
     admin: ['sagemaker:*'],
   },
   'msk-cluster': {
-    read: ['kafka:DescribeCluster', 'kafka:GetBootstrapBrokers', 'kafka-cluster:Connect', 'kafka-cluster:ReadData'],
-    write: ['kafka:DescribeCluster', 'kafka:GetBootstrapBrokers', 'kafka-cluster:Connect', 'kafka-cluster:ReadData', 'kafka-cluster:WriteData'],
+    read: [
+      'kafka:DescribeCluster',
+      'kafka:GetBootstrapBrokers',
+      'kafka-cluster:Connect',
+      'kafka-cluster:ReadData',
+    ],
+    write: [
+      'kafka:DescribeCluster',
+      'kafka:GetBootstrapBrokers',
+      'kafka-cluster:Connect',
+      'kafka-cluster:ReadData',
+      'kafka-cluster:WriteData',
+    ],
     admin: ['kafka:*', 'kafka-cluster:*'],
   },
   'transit-gateway': {
-    read: ['ec2:DescribeTransitGateways', 'ec2:DescribeTransitGatewayAttachments'],
-    write: ['ec2:CreateTransitGatewayVpcAttachment', 'ec2:CreateTransitGatewayRoute', 'ec2:DescribeTransitGateways'],
+    read: [
+      'ec2:DescribeTransitGateways',
+      'ec2:DescribeTransitGatewayAttachments',
+    ],
+    write: [
+      'ec2:CreateTransitGatewayVpcAttachment',
+      'ec2:CreateTransitGatewayRoute',
+      'ec2:DescribeTransitGateways',
+    ],
     admin: ['ec2:*'],
   },
   'route53-zone': {
     read: ['route53:GetHostedZone', 'route53:ListResourceRecordSets'],
-    write: ['route53:ChangeResourceRecordSets', 'route53:GetHostedZone', 'route53:ListResourceRecordSets'],
+    write: [
+      'route53:ChangeResourceRecordSets',
+      'route53:GetHostedZone',
+      'route53:ListResourceRecordSets',
+    ],
     admin: ['route53:*'],
   },
   'eks-addon': {
     read: ['eks:DescribeAddon', 'eks:ListAddons'],
-    write: ['eks:CreateAddon', 'eks:UpdateAddon', 'eks:DeleteAddon', 'eks:DescribeAddon'],
+    write: [
+      'eks:CreateAddon',
+      'eks:UpdateAddon',
+      'eks:DeleteAddon',
+      'eks:DescribeAddon',
+    ],
     admin: ['eks:*'],
   },
 };
@@ -195,7 +344,10 @@ const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
 export class IamIntentLowerer implements IntentLowerer<IamIntent> {
   readonly intentType = 'iam' as const;
 
-  lower(intent: IamIntent, context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    intent: IamIntent,
+    context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     const principalName = shortName(intent.principal.nodeRef);
     const roleName = `${principalName}-exec-role`;
     const policyName = `${principalName}-${shortName(intent.resource.nodeRef)}-policy`;
@@ -273,7 +425,8 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
       resourceType: 'aws:iam:RolePolicyAttachment',
       properties: {
         role: { ref: roleName },
-        policyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+        policyArn:
+          'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
       },
       sourceId: intent.sourceEdgeId,
       dependsOn: [roleName],
@@ -282,7 +435,10 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     return resources;
   }
 
-  private resolvePolicyResource(intent: IamIntent, context: LoweringContext): string {
+  private resolvePolicyResource(
+    intent: IamIntent,
+    context: LoweringContext,
+  ): string {
     if (intent.resource.scope === 'pattern') {
       if (!intent.resource.pattern) {
         throw new Error(
@@ -296,7 +452,9 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
       return intent.resource.pattern;
     }
 
-    const target = context.snapshot.nodes.find((n) => n.id === intent.resource.nodeRef);
+    const target = context.snapshot.nodes.find(
+      (n) => n.id === intent.resource.nodeRef,
+    );
     if (!target) {
       throw new Error(
         `IAM intent "${intent.sourceEdgeId}" references unknown resource node "${intent.resource.nodeRef}"`,
@@ -314,7 +472,10 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     return resolved;
   }
 
-  private resolveArnPatternFromNode(node: Node, context: LoweringContext): string | undefined {
+  private resolveArnPatternFromNode(
+    node: Node,
+    context: LoweringContext,
+  ): string | undefined {
     const platform = node.metadata.properties['platform'] as string | undefined;
     const name = `${context.adapterConfig.serviceName}-${shortName(node.id)}`;
 
@@ -414,7 +575,9 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     return [...new Set(actions)];
   }
 
-  private buildConditions(intent: IamIntent): Record<string, Record<string, string>> {
+  private buildConditions(
+    intent: IamIntent,
+  ): Record<string, Record<string, string>> {
     const conditions: Record<string, Record<string, string>> = {};
     for (const cond of intent.conditions ?? []) {
       const op = this.mapOperator(cond.operator);
@@ -426,11 +589,16 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
 
   private mapOperator(op: string): string {
     switch (op) {
-      case 'equals': return 'StringEquals';
-      case 'notEquals': return 'StringNotEquals';
-      case 'contains': return 'StringLike';
-      case 'startsWith': return 'StringLike';
-      default: return 'StringEquals';
+      case 'equals':
+        return 'StringEquals';
+      case 'notEquals':
+        return 'StringNotEquals';
+      case 'contains':
+        return 'StringLike';
+      case 'startsWith':
+        return 'StringLike';
+      default:
+        return 'StringEquals';
     }
   }
 }

@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -11,8 +16,16 @@ const DEFAULT_MANAGED_RULES: ReadonlyArray<{
   priority: number;
 }> = [
   { name: 'AWSManagedRulesCommonRuleSet', vendorName: 'AWS', priority: 10 },
-  { name: 'AWSManagedRulesKnownBadInputsRuleSet', vendorName: 'AWS', priority: 20 },
-  { name: 'AWSManagedRulesAmazonIpReputationList', vendorName: 'AWS', priority: 30 },
+  {
+    name: 'AWSManagedRulesKnownBadInputsRuleSet',
+    vendorName: 'AWS',
+    priority: 20,
+  },
+  {
+    name: 'AWSManagedRulesAmazonIpReputationList',
+    vendorName: 'AWS',
+    priority: 30,
+  },
 ];
 
 /**
@@ -24,7 +37,11 @@ const DEFAULT_MANAGED_RULES: ReadonlyArray<{
 export class WafLowerer implements NodeLowerer {
   readonly platform = 'aws-wafv2';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -38,11 +55,13 @@ export class WafLowerer implements NodeLowerer {
     const defaultAction = (props['defaultAction'] as string) ?? 'allow';
 
     // Build managed rule group statements
-    const customRules = props['managedRules'] as ReadonlyArray<{
-      name: string;
-      vendorName: string;
-      priority: number;
-    }> | undefined;
+    const customRules = props['managedRules'] as
+      | ReadonlyArray<{
+          name: string;
+          vendorName: string;
+          priority: number;
+        }>
+      | undefined;
     const managedRules = customRules ?? DEFAULT_MANAGED_RULES;
 
     const rules = managedRules.map((rule) => ({
@@ -68,7 +87,8 @@ export class WafLowerer implements NodeLowerer {
       properties: {
         name: `${serviceName}-${name}`,
         scope,
-        defaultAction: defaultAction === 'allow' ? { allow: {} } : { block: {} },
+        defaultAction:
+          defaultAction === 'allow' ? { allow: {} } : { block: {} },
         rules,
         visibilityConfig: {
           cloudwatchMetricsEnabled: true,

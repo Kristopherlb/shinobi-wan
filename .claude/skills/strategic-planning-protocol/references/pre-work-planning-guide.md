@@ -10,12 +10,12 @@ Pre-work is **foundation building** that happens before main execution begins. I
 
 ### Pre-Work vs. Implementation
 
-| Pre-Work | Implementation |
-|----------|----------------|
-| Creates foundations | Uses foundations |
-| Removes ambiguity | Executes with clarity |
-| Documents decisions | Implements decisions |
-| Enables success | Achieves success |
+| Pre-Work            | Implementation        |
+| ------------------- | --------------------- |
+| Creates foundations | Uses foundations      |
+| Removes ambiguity   | Executes with clarity |
+| Documents decisions | Implements decisions  |
+| Enables success     | Achieves success      |
 
 ---
 
@@ -26,6 +26,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Purpose:** Establish shared understanding and remove ambiguity.
 
 #### Examples
+
 - **Severity Definitions** - P1-P4 criteria, response times, escalation rules
 - **Role Matrices** - Who can do what, approval authorities
 - **Glossary** - Domain-specific terms and their meanings
@@ -41,11 +42,13 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Effort:** [Low/Medium/High]
 
 **Content:**
+
 - Section 1: [description]
 - Section 2: [description]
 - Section 3: [description]
 
 **Definition of Done:**
+
 - [ ] All sections complete
 - [ ] Reviewed by [stakeholder]
 - [ ] Referenced in plan
@@ -58,6 +61,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Purpose:** Provide authoritative sources for implementation.
 
 #### Examples
+
 - **OpenAPI Specs** - External API definitions
 - **Sample Data** - Test fixtures, example payloads
 - **Configuration Templates** - Environment configs
@@ -77,6 +81,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 [Why this artifact is needed]
 
 **Validation:**
+
 - [ ] Schema is valid
 - [ ] Covers all required operations
 - [ ] Examples are accurate
@@ -89,6 +94,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Purpose:** Capture knowledge to prevent repeated research and ensure consistency.
 
 #### Examples
+
 - **Pattern Skills** - How to implement specific patterns
 - **Integration Skills** - How to integrate with specific services
 - **Process Skills** - How to follow specific procedures
@@ -103,6 +109,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Effort:** [Low/Medium/High]
 
 **Skill Contents:**
+
 - When to Use: [scenarios]
 - Instructions: [key steps]
 - References: [supporting docs]
@@ -111,6 +118,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 [What friction it prevents]
 
 **Definition of Done:**
+
 - [ ] SKILL.md created
 - [ ] References added
 - [ ] Tested by using it
@@ -123,6 +131,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Purpose:** Document significant decisions and their rationale.
 
 #### Examples
+
 - **ADRs** - Technology choices, integration strategies
 - **Sequence Diagrams** - Complex interaction flows
 - **Data Flow Diagrams** - How data moves through the system
@@ -136,12 +145,14 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Blocks:** Phases [X, Y, Z]
 
 **ADR Structure:**
+
 - **Status:** Proposed/Accepted/Deprecated
 - **Context:** Why this decision is needed
 - **Decision:** What we decided
 - **Consequences:** What follows from this decision
 
 **Key Questions to Answer:**
+
 - What alternatives were considered?
 - What constraints drove the decision?
 - What are the trade-offs?
@@ -154,6 +165,7 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Purpose:** Provide concrete examples that demonstrate patterns.
 
 #### Examples
+
 - **Sample Runbooks** - Executable operational procedures
 - **Example Configs** - Working configuration files
 - **Test Cases** - Representative test scenarios
@@ -168,11 +180,13 @@ Pre-work is **foundation building** that happens before main execution begins. I
 **Blocks:** Phases [X, Y, Z]
 
 **Samples to Create:**
+
 1. [Sample 1] - [purpose]
 2. [Sample 2] - [purpose]
 3. [Sample 3] - [purpose]
 
 **Requirements:**
+
 - [ ] Each sample is self-contained
 - [ ] Each sample is tested/validated
 - [ ] Each sample is documented
@@ -184,12 +198,12 @@ Pre-work is **foundation building** that happens before main execution begins. I
 
 ### Priority Levels
 
-| Priority | Criteria | When to Do |
-|----------|----------|------------|
-| P0 - Blocker | Execution cannot start without this | Before Phase 1 |
-| P1 - High | Execution will be significantly slowed | Before Phase 1 |
-| P2 - Medium | Causes friction but workaroundable | During early phases |
-| P3 - Low | Nice to have, improves quality | When convenient |
+| Priority     | Criteria                               | When to Do          |
+| ------------ | -------------------------------------- | ------------------- |
+| P0 - Blocker | Execution cannot start without this    | Before Phase 1      |
+| P1 - High    | Execution will be significantly slowed | Before Phase 1      |
+| P2 - Medium  | Causes friction but workaroundable     | During early phases |
+| P3 - Low     | Nice to have, improves quality         | When convenient     |
 
 ### Prioritization Questions
 
@@ -237,7 +251,7 @@ graph TD
     SampleRunbooks[Sample Runbooks]
     PatternSkill[Pattern Skill]
     Implementation[Main Implementation]
-    
+
     SeverityDefs --> SampleRunbooks
     SampleRunbooks --> Implementation
     OpenAPISpecs --> Implementation
@@ -248,28 +262,28 @@ graph TD
 
 Items with no mutual dependencies can execute in parallel:
 
-| Batch | Items | Why Parallel |
-|-------|-------|--------------|
+| Batch   | Items                        | Why Parallel                  |
+| ------- | ---------------------------- | ----------------------------- |
 | Batch 1 | Severity defs, OpenAPI specs | No dependencies on each other |
-| Batch 2 | Sample runbooks | Depends on Batch 1 |
-| Batch 3 | Pattern skill | Depends on implementation |
+| Batch 2 | Sample runbooks              | Depends on Batch 1            |
+| Batch 3 | Pattern skill                | Depends on implementation     |
 
 #### Dependency Matrix Template
 
-| Pre-Work Item | Depends On | Blocks | Parallelizable With |
-|---------------|------------|--------|---------------------|
-| [Item A] | None | Items B, C | Item D |
-| [Item B] | Item A | Implementation | Item C |
-| [Item C] | Item A | Implementation | Item B |
-| [Item D] | None | Testing | Item A |
+| Pre-Work Item | Depends On | Blocks         | Parallelizable With |
+| ------------- | ---------- | -------------- | ------------------- |
+| [Item A]      | None       | Items B, C     | Item D              |
+| [Item B]      | Item A     | Implementation | Item C              |
+| [Item C]      | Item A     | Implementation | Item B              |
+| [Item D]      | None       | Testing        | Item A              |
 
 #### Common Dependency Patterns
 
-| Pattern | Flow | Example |
-|---------|------|---------|
-| Foundation-first | Definitions → Specs → Samples | Severity → Runbook → Test |
-| Spec-driven | OpenAPI → Implementation → Tests | API spec → Client → E2E |
-| Knowledge-capture | Implementation → Retro → Skill | Build feature → Learn → Document |
+| Pattern           | Flow                             | Example                          |
+| ----------------- | -------------------------------- | -------------------------------- |
+| Foundation-first  | Definitions → Specs → Samples    | Severity → Runbook → Test        |
+| Spec-driven       | OpenAPI → Implementation → Tests | API spec → Client → E2E          |
+| Knowledge-capture | Implementation → Retro → Skill   | Build feature → Learn → Document |
 
 ### Pre-Work Checklist
 
@@ -291,13 +305,13 @@ Special consideration: What pre-work helps AI agents succeed?
 
 ### Agent-Enabling Pre-Work
 
-| Category | Example | Why It Helps Agents |
-|----------|---------|---------------------|
-| Skills | Integration patterns | Agents can follow documented steps |
-| Specs | OpenAPI definitions | Agents understand API contracts |
-| Samples | Example code | Agents have patterns to follow |
-| ADRs | Decision rationale | Agents understand constraints |
-| Glossary | Domain terms | Agents use correct terminology |
+| Category | Example              | Why It Helps Agents                |
+| -------- | -------------------- | ---------------------------------- |
+| Skills   | Integration patterns | Agents can follow documented steps |
+| Specs    | OpenAPI definitions  | Agents understand API contracts    |
+| Samples  | Example code         | Agents have patterns to follow     |
+| ADRs     | Decision rationale   | Agents understand constraints      |
+| Glossary | Domain terms         | Agents use correct terminology     |
 
 ### Questions for Agent Pre-Work
 
@@ -319,15 +333,18 @@ After completing pre-work, checkpoint:
 **Pre-Work Completed:** [list]
 
 ### Learnings
+
 - What took longer than expected?
 - What was easier than expected?
 - What did we miss?
 
 ### Friction
+
 - What gaps remain?
 - What should have been pre-work?
 
 ### Opportunities
+
 - What additional pre-work would help?
 - What skills should be created from this experience?
 ```
@@ -339,9 +356,11 @@ After completing pre-work, checkpoint:
 From a real project:
 
 ### P0 - Blockers
+
 _None identified_
 
 ### P1 - High
+
 1. **Severity Definitions** - SRE persona needs clear P1-P4 criteria
 2. **Sample Runbooks** - Runme capability needs content to execute
 3. **Incident Lifecycle Skill** - Captures Phase 2 patterns for future reference
@@ -349,10 +368,12 @@ _None identified_
 5. **OpenAPI Specs** - Integration capabilities need reference docs
 
 ### P2 - Medium
+
 - Confluence page templates
 - Grafana dashboard templates
 
 ### P3 - Low
+
 - Onboarding guide
 - Video walkthrough
 
@@ -385,14 +406,17 @@ After using SPP-001, reflect and improve it:
 **Date:** [date]
 
 ### Additions
+
 - [ ] New prompt for [persona]: "[question]"
 - [ ] New checklist item: [item]
 - [ ] New dependency pattern: [pattern]
 
 ### Removals
+
 - [ ] Remove/demote: [item] - reason: [why]
 
 ### Calibrations
+
 - [ ] Scoring adjustment: [description]
 - [ ] Priority threshold change: [description]
 ```

@@ -1,6 +1,10 @@
 import type { GraphMutation, NodeType, EdgeType } from '@shinobi/ir';
 import { createNode, createEdge } from '@shinobi/ir';
-import type { ServiceManifest, ManifestComponent, ManifestBinding } from './types';
+import type {
+  ServiceManifest,
+  ManifestComponent,
+  ManifestBinding,
+} from './types';
 
 /**
  * Converts a validated ServiceManifest into a sequence of GraphMutations.
@@ -11,7 +15,9 @@ import type { ServiceManifest, ManifestComponent, ManifestBinding } from './type
  * Node IDs use the format: {type}:{componentId}
  * Edge IDs use the format: edge:{type}:{sourceNodeId}:{targetNodeId}
  */
-export function manifestToMutations(manifest: ServiceManifest): ReadonlyArray<GraphMutation> {
+export function manifestToMutations(
+  manifest: ServiceManifest,
+): ReadonlyArray<GraphMutation> {
   const mutations: GraphMutation[] = [];
 
   // Phase 1: Create nodes from components
@@ -24,8 +30,12 @@ export function manifestToMutations(manifest: ServiceManifest): ReadonlyArray<Gr
 
   // Phase 2: Create edges from bindings
   for (const binding of manifest.bindings) {
-    const sourceComponent = manifest.components.find((c) => c.id === binding.source);
-    const targetComponent = manifest.components.find((c) => c.id === binding.target);
+    const sourceComponent = manifest.components.find(
+      (c) => c.id === binding.source,
+    );
+    const targetComponent = manifest.components.find(
+      (c) => c.id === binding.target,
+    );
 
     if (!sourceComponent || !targetComponent) {
       // This should never happen if the manifest was validated, but guard anyway

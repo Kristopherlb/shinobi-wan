@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class SageMakerEndpointLowerer implements NodeLowerer {
   readonly platform = 'aws-sagemaker-endpoint';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -34,7 +43,9 @@ export class SageMakerEndpointLowerer implements NodeLowerer {
     if (props['modelImage']) {
       modelProperties['primaryContainer'] = {
         image: props['modelImage'],
-        ...(props['modelDataUrl'] ? { modelDataUrl: props['modelDataUrl'] } : {}),
+        ...(props['modelDataUrl']
+          ? { modelDataUrl: props['modelDataUrl'] }
+          : {}),
       };
     }
 
