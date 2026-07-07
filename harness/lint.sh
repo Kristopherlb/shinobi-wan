@@ -149,8 +149,11 @@ diff_scope() {
 #    never goes unrecorded.
 test_shrink() {
   local files blocks
-  files=$(find "$SRC" -name '*.test.ts' -not -path '*/node_modules/*' 2>/dev/null | wc -l | tr -d ' ')
-  blocks=$(grep -rhE '^\s*(it|test)\(' "$SRC" --include='*.test.ts' 2>/dev/null | wc -l | tr -d ' ')
+  # `|| true` inside the substitutions: under pipefail a zero-match grep
+  # would otherwise abort the whole lint (VOID) instead of producing the
+  # intended human-side finding (independent-audit residual #2).
+  files=$( { find "$SRC" -name '*.test.ts' -not -path '*/node_modules/*' 2>/dev/null || true; } | wc -l | tr -d ' ')
+  blocks=$( { grep -rhE '^\s*(it|test)\(' "$SRC" --include='*.test.ts' 2>/dev/null || true; } | wc -l | tr -d ' ')
   [ "${files:-0}" -lt 109 ] && echo "test_shrink: test files $files < 109 (90% of baseline 121)" >> "$FINDINGS"
   [ "${blocks:-0}" -lt 1569 ] && echo "test_shrink: it/test blocks $blocks < 1569 (90% of baseline 1743)" >> "$FINDINGS"
   return 0
