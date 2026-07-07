@@ -63,6 +63,7 @@ bindings:
     target: gateway-handler
     type: triggers
     config:
+      resourceType: api
       route: /invoke
       method: POST
 

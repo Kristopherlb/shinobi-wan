@@ -2,10 +2,10 @@
 # Architecture: VPC + Subnet + SG + KMS + S3 (training data/model artifacts) + SageMaker Pipeline + SageMaker Endpoint
 # Platform-only blueprint — pipeline reads training data and writes model artifacts
 
-name: ml-training-pipeline
+service: ml-training-pipeline
 description: ML training pipeline with SageMaker Pipeline for model training and deployment
 
-nodes:
+components:
   - id: ml-vpc
     type: platform
     platform: aws-vpc
@@ -68,19 +68,19 @@ nodes:
         securityGroupIds:
           - 'platform:ml-sg'
 
-edges:
-  - id: pipeline-reads-training-data
-    type: bindsTo
-    source: 'platform:training-pipeline'
-    target: 'platform:training-data'
+bindings:
+  - type: bindsTo
+    source: training-pipeline
+    target: training-data
     config:
       resourceType: bucket
       accessLevel: read
 
-  - id: pipeline-writes-model-artifacts
-    type: bindsTo
-    source: 'platform:training-pipeline'
-    target: 'platform:model-artifacts'
+  - type: bindsTo
+    source: training-pipeline
+    target: model-artifacts
     config:
       resourceType: bucket
       accessLevel: write
+
+policyPack: Baseline

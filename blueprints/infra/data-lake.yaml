@@ -2,10 +2,10 @@
 # Architecture: VPC + Subnet + SG + KMS + S3 (raw/processed) + Glue Catalog + Glue Job + Glue Crawler + Athena Workgroup
 # Platform-only blueprint — all platform nodes, edges connect ETL job to S3 buckets and crawler to catalog
 
-name: data-lake
+service: data-lake
 description: Data lake with Glue ETL, crawlers, and Athena query engine
 
-nodes:
+components:
   - id: data-vpc
     type: platform
     platform: aws-vpc
@@ -87,27 +87,26 @@ nodes:
       bytesScannedCutoffPerQuery: 10737418240
       enforceWorkgroupConfiguration: true
 
-edges:
-  - id: etl-job-reads-raw
-    type: bindsTo
-    source: 'platform:etl-job'
-    target: 'platform:raw-data'
+bindings:
+  - type: bindsTo
+    source: etl-job
+    target: raw-data
     config:
       resourceType: bucket
       accessLevel: read
 
-  - id: etl-job-writes-processed
-    type: bindsTo
-    source: 'platform:etl-job'
-    target: 'platform:processed-data'
+  - type: bindsTo
+    source: etl-job
+    target: processed-data
     config:
       resourceType: bucket
       accessLevel: write
 
-  - id: crawler-writes-catalog
-    type: bindsTo
-    source: 'platform:data-crawler'
-    target: 'platform:data-catalog'
+  - type: bindsTo
+    source: data-crawler
+    target: data-catalog
     config:
       resourceType: glue-catalog
       accessLevel: write
+
+policyPack: Baseline

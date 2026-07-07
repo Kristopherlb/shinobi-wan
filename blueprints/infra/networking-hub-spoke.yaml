@@ -2,10 +2,10 @@
 # Architecture: Hub VPC (public+private subnets) + 2 Spoke VPCs + Transit Gateway + 3 TGW Attachments + Network Firewall + NAT Gateway
 # Platform-only, zero edges — connectivity via config refs
 
-name: networking-hub-spoke
+service: networking-hub-spoke
 description: Hub-spoke network topology with transit gateway, network firewall, and NAT gateway
 
-nodes:
+components:
   - id: hub-vpc
     type: platform
     platform: aws-vpc
@@ -120,4 +120,6 @@ nodes:
       subnetRef: 'platform:hub-public-subnet'
       connectivityType: public
 
-edges: []
+bindings: []
+
+policyPack: Baseline

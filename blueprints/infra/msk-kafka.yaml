@@ -2,10 +2,10 @@
 # Architecture: VPC + 3 Subnets + SG + KMS + MSK Configuration + MSK Cluster + S3 (logs)
 # Platform-only blueprint — 1 edge for log delivery
 
-name: msk-kafka
+service: msk-kafka
 description: Amazon MSK Kafka cluster with multi-AZ deployment and TLS encryption
 
-nodes:
+components:
   - id: msk-vpc
     type: platform
     platform: aws-vpc
@@ -91,11 +91,12 @@ nodes:
     config:
       versioning: true
 
-edges:
-  - id: msk-cluster-writes-logs
-    type: bindsTo
-    source: 'platform:msk-cluster'
-    target: 'platform:msk-logs'
+bindings:
+  - type: bindsTo
+    source: msk-cluster
+    target: msk-logs
     config:
       resourceType: bucket
       accessLevel: write
+
+policyPack: Baseline
