@@ -26,20 +26,23 @@ function buildErrorEnvelope(
   retriableReason?: RetriableReason,
   details?: Readonly<Record<string, unknown>>,
 ): ToolErrorEnvelope {
-  const category = code === 'INPUT_VALIDATION_FAILED'
-    ? 'validation'
-    : code === 'UNAUTHORIZED' || code === 'APPROVAL_REQUIRED'
-      ? 'authorization'
-      : code === 'CONFLICT'
-        ? 'conflict'
-        : code.includes('UPSTREAM') || code === 'AUTH_FAILURE'
-          ? 'upstream'
-          : code === 'RUNNER_ERROR'
-            ? 'runtime'
-            : 'unknown';
+  const category =
+    code === 'INPUT_VALIDATION_FAILED'
+      ? 'validation'
+      : code === 'UNAUTHORIZED' || code === 'APPROVAL_REQUIRED'
+        ? 'authorization'
+        : code === 'CONFLICT'
+          ? 'conflict'
+          : code.includes('UPSTREAM') || code === 'AUTH_FAILURE'
+            ? 'upstream'
+            : code === 'RUNNER_ERROR'
+              ? 'runtime'
+              : 'unknown';
 
   if (retriable && !retriableReason) {
-    throw new Error(`retriableReason is required when retriable=true for code '${code}'`);
+    throw new Error(
+      `retriableReason is required when retriable=true for code '${code}'`,
+    );
   }
 
   const base = {

@@ -1,5 +1,8 @@
 import type { Violation, IamIntent, NetworkIntent } from '@shinobi/contracts';
-import type { IPolicyEvaluator, PolicyEvaluationContext } from '@shinobi/kernel';
+import type {
+  IPolicyEvaluator,
+  PolicyEvaluationContext,
+} from '@shinobi/kernel';
 import { SUPPORTED_PACKS } from '../severity-map';
 import { getSeverity } from '../severity-map';
 import { getRuleById, type PolicyRule } from '../rules';
@@ -19,7 +22,10 @@ interface NodeRuleCheck {
   readonly platform: string;
   readonly rule: PolicyRule;
   readonly failsWhen: (properties: Record<string, unknown>) => boolean;
-  readonly formatMessage: (nodeId: string, properties: Record<string, unknown>) => string;
+  readonly formatMessage: (
+    nodeId: string,
+    properties: Record<string, unknown>,
+  ) => string;
 }
 
 /** Data-driven node-level rule checks. Adding a new rule = adding one entry here. */
@@ -34,7 +40,9 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
   {
     platform: 'aws-lambda',
     rule: getRuleById('lambda-timeout-excessive')!,
-    failsWhen: (props) => typeof props['timeout'] === 'number' && (props['timeout'] as number) > 900,
+    failsWhen: (props) =>
+      typeof props['timeout'] === 'number' &&
+      (props['timeout'] as number) > 900,
     formatMessage: (nodeId, props) =>
       `Lambda function "${nodeId}" has timeout of ${props['timeout']}s which exceeds 900s maximum. Consider Step Functions for long-running workflows.`,
   },
@@ -50,7 +58,10 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     rule: getRuleById('cloudfront-ssl-protocol-weak')!,
     failsWhen: (props) => {
       const weakProtocols = ['SSLv3', 'TLSv1', 'TLSv1_2016', 'TLSv1.1_2016'];
-      return typeof props['minimumProtocolVersion'] === 'string' && weakProtocols.includes(props['minimumProtocolVersion']);
+      return (
+        typeof props['minimumProtocolVersion'] === 'string' &&
+        weakProtocols.includes(props['minimumProtocolVersion'])
+      );
     },
     formatMessage: (nodeId, props) =>
       `CloudFront distribution "${nodeId}" uses weak SSL protocol "${props['minimumProtocolVersion']}". Use TLSv1.2_2021 or higher.`,
@@ -65,7 +76,8 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
   {
     platform: 'aws-stepfunctions',
     rule: getRuleById('stepfunctions-logging-disabled')!,
-    failsWhen: (props) => props['logging'] === false || props['logging'] === undefined,
+    failsWhen: (props) =>
+      props['logging'] === false || props['logging'] === undefined,
     formatMessage: (nodeId) =>
       `Step Functions state machine "${nodeId}" does not have CloudWatch logging enabled.`,
   },
@@ -143,7 +155,9 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     rule: getRuleById('kms-key-rotation-disabled')!,
     failsWhen: (props) => {
       const keySpec = (props['keySpec'] as string) ?? 'SYMMETRIC_DEFAULT';
-      return keySpec === 'SYMMETRIC_DEFAULT' && props['enableKeyRotation'] !== true;
+      return (
+        keySpec === 'SYMMETRIC_DEFAULT' && props['enableKeyRotation'] !== true
+      );
     },
     formatMessage: (nodeId) =>
       `KMS key "${nodeId}" does not have automatic key rotation enabled.`,
@@ -152,7 +166,8 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     platform: 'aws-elasticache',
     rule: getRuleById('elasticache-encryption-disabled')!,
     failsWhen: (props) =>
-      props['atRestEncryptionEnabled'] !== true || props['transitEncryptionEnabled'] !== true,
+      props['atRestEncryptionEnabled'] !== true ||
+      props['transitEncryptionEnabled'] !== true,
     formatMessage: (nodeId) =>
       `ElastiCache replication group "${nodeId}" does not have both at-rest and in-transit encryption enabled.`,
   },
@@ -183,7 +198,9 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     platform: 'aws-sagemaker-batch-transform',
     rule: getRuleById('sagemaker-vpc-disabled')!,
     failsWhen: (props) => {
-      const vpcConfig = props['vpcConfig'] as Record<string, unknown> | undefined;
+      const vpcConfig = props['vpcConfig'] as
+        | Record<string, unknown>
+        | undefined;
       if (!vpcConfig) return true;
       const subnetIds = vpcConfig['subnetIds'] as unknown[] | undefined;
       return !subnetIds || subnetIds.length === 0;
@@ -195,7 +212,8 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     platform: 'aws-opensearch',
     rule: getRuleById('opensearch-encryption-disabled')!,
     failsWhen: (props) =>
-      props['encryptionAtRest'] !== true || props['nodeToNodeEncryption'] !== true,
+      props['encryptionAtRest'] !== true ||
+      props['nodeToNodeEncryption'] !== true,
     formatMessage: (nodeId) =>
       `OpenSearch domain "${nodeId}" does not have both at-rest and node-to-node encryption enabled.`,
   },
@@ -238,7 +256,9 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     platform: 'aws-sagemaker-endpoint',
     rule: getRuleById('sagemaker-vpc-disabled')!,
     failsWhen: (props) => {
-      const vpcConfig = props['vpcConfig'] as Record<string, unknown> | undefined;
+      const vpcConfig = props['vpcConfig'] as
+        | Record<string, unknown>
+        | undefined;
       if (!vpcConfig) return true;
       const subnetIds = vpcConfig['subnetIds'] as unknown[] | undefined;
       return !subnetIds || subnetIds.length === 0;
@@ -257,8 +277,7 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     platform: 'aws-guardduty',
     rule: getRuleById('guardduty-not-enabled')!,
     failsWhen: (props) => props['enabled'] === false,
-    formatMessage: (nodeId) =>
-      `GuardDuty detector "${nodeId}" is not enabled.`,
+    formatMessage: (nodeId) => `GuardDuty detector "${nodeId}" is not enabled.`,
   },
   {
     platform: 'aws-glue-job',
@@ -305,7 +324,9 @@ const NODE_RULE_CHECKS: ReadonlyArray<NodeRuleCheck> = [
     platform: 'aws-msk-cluster',
     rule: getRuleById('msk-authentication-disabled')!,
     failsWhen: (props) => {
-      const auth = props['clientAuthentication'] as Record<string, unknown> | undefined;
+      const auth = props['clientAuthentication'] as
+        | Record<string, unknown>
+        | undefined;
       if (!auth) return true;
       const sasl = auth['sasl'] as Record<string, unknown> | undefined;
       const tls = auth['tls'] as unknown;
@@ -374,9 +395,17 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
 
     for (const intent of context.intents) {
       if (intent.type === 'iam') {
-        this.checkIamIntent(intent as IamIntent, context.policyPack, violations);
+        this.checkIamIntent(
+          intent as IamIntent,
+          context.policyPack,
+          violations,
+        );
       } else if (intent.type === 'network') {
-        this.checkNetworkIntent(intent as NetworkIntent, context.policyPack, violations);
+        this.checkNetworkIntent(
+          intent as NetworkIntent,
+          context.policyPack,
+          violations,
+        );
       }
     }
 
@@ -389,7 +418,7 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
   private checkIamIntent(
     intent: IamIntent,
     policyPack: string,
-    violations: Violation[]
+    violations: Violation[],
   ): void {
     const targetId = intent.sourceEdgeId;
 
@@ -404,7 +433,7 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
           message: `IAM intent on edge "${targetId}" uses pattern-scoped resource "${intent.resource.pattern ?? '*'}". Wildcard scopes violate least privilege.`,
           remediation: RULE_IAM_WILDCARD.remediation,
           policyPack,
-        })
+        }),
       );
     }
 
@@ -420,7 +449,7 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
           message: `IAM intent on edge "${targetId}" grants admin-level access. Admin grants full control.`,
           remediation: RULE_IAM_ADMIN.remediation,
           policyPack,
-        })
+        }),
       );
     }
 
@@ -438,7 +467,7 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
           message: `IAM intent on edge "${targetId}" grants cross-service access (${intent.principal.nodeRef} → ${intent.resource.nodeRef}) without conditions.`,
           remediation: RULE_IAM_CONDITIONS.remediation,
           policyPack,
-        })
+        }),
       );
     }
   }
@@ -446,7 +475,7 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
   private checkNetworkIntent(
     intent: NetworkIntent,
     policyPack: string,
-    violations: Violation[]
+    violations: Violation[],
   ): void {
     // Rule: network-broad-protocol
     if (intent.protocol.protocol === 'any' && RULE_NETWORK_PROTOCOL) {
@@ -460,19 +489,21 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
           message: `Network intent on edge "${targetId}" uses protocol "any". Specify "tcp" or "udp" instead.`,
           remediation: RULE_NETWORK_PROTOCOL.remediation,
           policyPack,
-        })
+        }),
       );
     }
   }
 
   private checkComputeNodes(
     context: PolicyEvaluationContext,
-    violations: Violation[]
+    violations: Violation[],
   ): void {
     const { snapshot, policyPack } = context;
 
     for (const node of snapshot.nodes) {
-      const platform = node.metadata.properties['platform'] as string | undefined;
+      const platform = node.metadata.properties['platform'] as
+        | string
+        | undefined;
       if (!platform) continue;
 
       for (const check of NODE_RULE_CHECKS) {
@@ -488,7 +519,7 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
             message: check.formatMessage(node.id, node.metadata.properties),
             remediation: check.rule.remediation,
             policyPack,
-          })
+          }),
         );
       }
     }

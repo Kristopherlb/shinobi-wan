@@ -29,8 +29,12 @@ export interface DispatchApplyWorkflowResult {
 }
 
 export interface WorkflowClient {
-  dispatchApplyWorkflow(input: DispatchApplyWorkflowInput): Promise<DispatchApplyWorkflowResult>;
-  getOperationStatus(operationId: string): Promise<OperationStatusRecord | undefined>;
+  dispatchApplyWorkflow(
+    input: DispatchApplyWorkflowInput,
+  ): Promise<DispatchApplyWorkflowResult>;
+  getOperationStatus(
+    operationId: string,
+  ): Promise<OperationStatusRecord | undefined>;
 }
 
 interface WorkflowConfig {
@@ -40,12 +44,17 @@ interface WorkflowConfig {
   readonly dispatchUrl: string;
 }
 
-function resolveWorkflowConfig(env: NodeJS.ProcessEnv = process.env): WorkflowConfig {
+function resolveWorkflowConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): WorkflowConfig {
   const workflowName = env.SHINOBI_HARMONY_WORKFLOW_NAME;
   const taskQueue = env.SHINOBI_HARMONY_TASK_QUEUE;
   const statusBaseUrl = env.SHINOBI_HARMONY_STATUS_BASE_URL;
-  const dispatchUrl = env.SHINOBI_HARMONY_DISPATCH_URL
-    ?? (statusBaseUrl ? `${statusBaseUrl.replace(/\/$/, '')}/operations/dispatch` : undefined);
+  const dispatchUrl =
+    env.SHINOBI_HARMONY_DISPATCH_URL ??
+    (statusBaseUrl
+      ? `${statusBaseUrl.replace(/\/$/, '')}/operations/dispatch`
+      : undefined);
 
   if (!workflowName || !taskQueue || !statusBaseUrl || !dispatchUrl) {
     throw new Error('Harmony workflow wiring is incomplete');
@@ -67,9 +76,13 @@ function asString(value: unknown, field: string): string {
   return value;
 }
 
-export function createHttpWorkflowClient(env: NodeJS.ProcessEnv = process.env): WorkflowClient {
+export function createHttpWorkflowClient(
+  env: NodeJS.ProcessEnv = process.env,
+): WorkflowClient {
   return {
-    async dispatchApplyWorkflow(input: DispatchApplyWorkflowInput): Promise<DispatchApplyWorkflowResult> {
+    async dispatchApplyWorkflow(
+      input: DispatchApplyWorkflowInput,
+    ): Promise<DispatchApplyWorkflowResult> {
       const cfg = resolveWorkflowConfig(env);
       const operationId = randomUUID();
       const workflowId = `${cfg.workflowName}-${operationId}`;
@@ -90,42 +103,57 @@ export function createHttpWorkflowClient(env: NodeJS.ProcessEnv = process.env): 
 
       if (!response.ok) {
         const errorBody = await parseJson(response);
-        const details = typeof errorBody === 'object' && errorBody !== null
-          ? JSON.stringify(errorBody)
-          : String(errorBody ?? '');
-        throw new Error(`Workflow dispatch failed with ${response.status}${details ? `: ${details}` : ''}`);
+        const details =
+          typeof errorBody === 'object' && errorBody !== null
+            ? JSON.stringify(errorBody)
+            : String(errorBody ?? '');
+        throw new Error(
+          `Workflow dispatch failed with ${response.status}${details ? `: ${details}` : ''}`,
+        );
       }
 
-      const payload = await parseJson(response) as Record<string, unknown>;
+      const payload = (await parseJson(response)) as Record<string, unknown>;
       return {
         operationId: asString(payload['operationId'], 'operationId'),
         workflowId: asString(payload['workflowId'], 'workflowId'),
         submittedAt: asString(payload['submittedAt'], 'submittedAt'),
         statusUrl: asString(payload['statusUrl'], 'statusUrl'),
-        ...(typeof payload['cancelUrl'] === 'string' && payload['cancelUrl'].length > 0
+        ...(typeof payload['cancelUrl'] === 'string' &&
+        payload['cancelUrl'].length > 0
           ? { cancelUrl: payload['cancelUrl'] }
           : {}),
       };
     },
 
-    async getOperationStatus(operationId: string): Promise<OperationStatusRecord | undefined> {
+    async getOperationStatus(
+      operationId: string,
+    ): Promise<OperationStatusRecord | undefined> {
       const cfg = resolveWorkflowConfig(env);
       const url = `${cfg.statusBaseUrl.replace(/\/$/, '')}/operations/${operationId}`;
       const response = await fetch(url, { method: 'GET' });
       if (response.status === 404) return undefined;
       if (!response.ok) {
-        throw new Error(`Failed to fetch operation status (${response.status})`);
+        throw new Error(
+          `Failed to fetch operation status (${response.status})`,
+        );
       }
       const payload = await parseJson(response);
       if (!payload || typeof payload !== 'object') return undefined;
       const record = payload as Record<string, unknown>;
       return {
-        status: asString(record['status'], 'status') as OperationStatusRecord['status'],
+        status: asString(
+          record['status'],
+          'status',
+        ) as OperationStatusRecord['status'],
         traceId: asString(record['traceId'], 'traceId'),
         toolId: asString(record['toolId'], 'toolId'),
         startedAt: asString(record['startedAt'], 'startedAt'),
-        ...(typeof record['completedAt'] === 'string' ? { completedAt: record['completedAt'] } : {}),
-        ...(typeof record['error'] === 'string' ? { error: record['error'] } : {}),
+        ...(typeof record['completedAt'] === 'string'
+          ? { completedAt: record['completedAt'] }
+          : {}),
+        ...(typeof record['error'] === 'string'
+          ? { error: record['error'] }
+          : {}),
       };
     },
   };

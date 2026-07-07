@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -12,7 +17,11 @@ import { shortName, createStandardTags } from './utils';
 export class CloudFrontLowerer implements NodeLowerer {
   readonly platform = 'aws-cloudfront';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -42,8 +51,10 @@ export class CloudFrontLowerer implements NodeLowerer {
     const defaultTtl = (props['defaultTtl'] as number) ?? 86400;
     const maxTtl = (props['maxTtl'] as number) ?? 31536000;
     const minTtl = (props['minTtl'] as number) ?? 0;
-    const sslProtocol = (props['minimumProtocolVersion'] as string) ?? 'TLSv1.2_2021';
-    const defaultRootObject = (props['defaultRootObject'] as string) ?? 'index.html';
+    const sslProtocol =
+      (props['minimumProtocolVersion'] as string) ?? 'TLSv1.2_2021';
+    const defaultRootObject =
+      (props['defaultRootObject'] as string) ?? 'index.html';
     const compress = props['compress'] !== false;
 
     // Resolve origin bucket from edges
@@ -56,7 +67,9 @@ export class CloudFrontLowerer implements NodeLowerer {
       origins: [
         {
           domainName: originBucket
-            ? { ref: `${shortName(originBucket)}-bucket.bucketRegionalDomainName` }
+            ? {
+                ref: `${shortName(originBucket)}-bucket.bucketRegionalDomainName`,
+              }
             : `${serviceName}-${name}.s3.amazonaws.com`,
           originId: `${serviceName}-${name}-s3-origin`,
           originAccessControlId: { ref: oacName },
@@ -120,7 +133,10 @@ export class CloudFrontLowerer implements NodeLowerer {
   /**
    * Find the S3 bucket node connected to this CloudFront distribution via bindsTo edge.
    */
-  private resolveOriginBucket(node: Node, context: LoweringContext): string | undefined {
+  private resolveOriginBucket(
+    node: Node,
+    context: LoweringContext,
+  ): string | undefined {
     for (const edge of context.snapshot.edges) {
       if (edge.type !== 'bindsTo') continue;
       if (edge.source !== node.id) continue;

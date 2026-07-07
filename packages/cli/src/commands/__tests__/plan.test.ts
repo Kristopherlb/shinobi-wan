@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import { plan, planAsync } from '../plan';
 
-const MANIFEST_PATH = path.resolve(__dirname, '../../../../../examples/lambda-sqs.yaml');
+const MANIFEST_PATH = path.resolve(
+  __dirname,
+  '../../../../../examples/lambda-sqs.yaml',
+);
 
 describe('plan command', () => {
   it('succeeds with the example Lambda+SQS manifest', () => {
@@ -51,7 +54,9 @@ describe('plan command', () => {
   it('resources are in topological order', () => {
     const result = plan({ manifestPath: MANIFEST_PATH });
 
-    const nameIndex = new Map(result.plan?.resources.map((r, i) => [r.name, i]));
+    const nameIndex = new Map(
+      result.plan?.resources.map((r, i) => [r.name, i]),
+    );
 
     for (const resource of result.plan?.resources ?? []) {
       for (const dep of resource.dependsOn) {
@@ -77,7 +82,10 @@ describe('plan command', () => {
   });
 
   it('passes policy pack through to validation', () => {
-    const result = plan({ manifestPath: MANIFEST_PATH, policyPack: 'FedRAMP-High' });
+    const result = plan({
+      manifestPath: MANIFEST_PATH,
+      policyPack: 'FedRAMP-High',
+    });
 
     expect(result.validation.policy?.policyPack).toBe('FedRAMP-High');
   });

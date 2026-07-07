@@ -30,7 +30,9 @@ function createEdge(overrides: Partial<Edge> = {}): Edge {
   };
 }
 
-function createArtifact(overrides: Partial<DerivedArtifact> = {}): DerivedArtifact {
+function createArtifact(
+  overrides: Partial<DerivedArtifact> = {},
+): DerivedArtifact {
   return {
     id: 'artifact:iam-policy:component:test',
     semanticHash: 'sha256:ghi789',
@@ -348,7 +350,7 @@ describe('Graph', () => {
       const snapshot2 = graph2.toSnapshot();
 
       expect(snapshot1.nodes.map((n) => n.id)).toEqual(
-        snapshot2.nodes.map((n) => n.id)
+        snapshot2.nodes.map((n) => n.id),
       );
     });
   });

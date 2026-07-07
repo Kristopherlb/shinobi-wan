@@ -20,7 +20,7 @@ packages/core/src/platform/services/artifact-serializer.ts
 packages/core/src/platform/services/artifact-writer.ts
 packages/core/src/platform/contracts/artifacts.ts
 V3 standard it supports:
-Canonicalization_And_Deterministic_Serialization
+Canonicalization*And_Deterministic_Serialization
 Deterministic_File_Layout
 Serialization_Formats_And_Canonicalization
 Conformance hook: Given fixture TBD at extraction/v3/fixtures/artifacts/plan-artifact.sample.json, assert JSONArtifactSerializer.serialize() emits normalized whitespace (2-space indent) and is byte-stable across runs for identical inputs, and StandardArtifactWriter.writePlanArtifact() always writes the same file set (plan.json, summary.json, validation.json, compliance.json, plus components/<id>/component.plan.json) with identical bytes for identical inputs.
@@ -49,19 +49,19 @@ V3 standard it supports:
 Binder_Matrix_Compatibility_Validation
 Compatibility_Matrix_Declaration
 Diagnostics_And_Error_Model
-Conformance hook: Given fixture packages/core/src/services/tests/binding-directive-validator.test.ts (case ValidatesBindingDirectives__InvalidAccessLevel__ReturnsError), assert returned errors include rule === 'access-level-validation' and allowedValues listing permitted access levels for that capability.
+Conformance hook: Given fixture packages/core/src/services/tests/binding-directive-validator.test.ts (case ValidatesBindingDirectives**InvalidAccessLevel**ReturnsError), assert returned errors include rule === 'access-level-validation' and allowedValues listing permitted access levels for that capability.
 KL-005 — LeastPrivilegeByConstruction
 Class: kernel
 Summary: IAM derivations must reject unsafe wildcard resources for sensitive services and surface violations/remediation as structured outputs.
 Evidence:
 packages/core/src/platform/binders/resource-validator.ts
 packages/core/src/platform/contracts/unified-binder-strategy-base.ts
-packages/core/src/platform/binders/__tests__/resource-validator.test.ts
-packages/core/src/platform/contracts/__tests__/unified-binder-strategy-base.test.ts
+packages/core/src/platform/binders/**tests**/resource-validator.test.ts
+packages/core/src/platform/contracts/**tests**/unified-binder-strategy-base.test.ts
 V3 standard it supports:
 Least_Privilege_Validation
 Resource_Scoping_And_Wildcard_Restrictions
-Conformance hook: Given fixture packages/core/src/platform/binders/__tests__/resource-validator.test.ts (case ResourceValidation__SensitiveServiceWildcard__ThrowsError), assert wildcard resources for sensitive services throw a structured ResourceValidationError and the error message includes the service prefix and remediation hint (explicit ARNs required).
+Conformance hook: Given fixture packages/core/src/platform/binders/**tests**/resource-validator.test.ts (case ResourceValidation**SensitiveServiceWildcard**ThrowsError), assert wildcard resources for sensitive services throw a structured ResourceValidationError and the error message includes the service prefix and remediation hint (explicit ARNs required).
 Legacy note: Current least-privilege enforcement operates over CDK PolicyStatement objects; V3 should preserve the semantics while moving to a backend-neutral IAM intent schema at the kernel boundary.
 KL-006 — ExplainableDiagnostics
 Class: pipeline
@@ -71,11 +71,11 @@ packages/core/src/services/schema-error-formatter.ts
 packages/core/src/services/enhanced-schema-validator.ts
 packages/core/src/services/tests/binding-directive-validation-integration.test.ts
 apps/svc/src/cli/validate-command.ts
-apps/svc/src/cli/__tests__/validate-command.test.ts
+apps/svc/src/cli/**tests**/validate-command.test.ts
 V3 standard it supports:
 Error_Report_Schema_And_Actionable_Messages
 Exit_Codes_And_Machine_Output
-Conformance hook: Given fixture packages/core/src/services/tests/binding-directive-validation-integration.test.ts (case ValidatesBindingErrors__InvalidAccessLevel__ProvidesHelpfulMessage), assert diagnostics include the invalid value and (when present) allowedValues; and given fixture apps/svc/src/cli/__tests__/validate-command.test.ts (case Failure__ValidationError__ReturnsErrorAndExitCode2), assert CLI returns { success: false, exitCode: 2, error: <string> }.
+Conformance hook: Given fixture packages/core/src/services/tests/binding-directive-validation-integration.test.ts (case ValidatesBindingErrors**InvalidAccessLevel**ProvidesHelpfulMessage), assert diagnostics include the invalid value and (when present) allowedValues; and given fixture apps/svc/src/cli/**tests**/validate-command.test.ts (case Failure**ValidationError**ReturnsErrorAndExitCode2), assert CLI returns { success: false, exitCode: 2, error: <string> }.
 KL-007 — ConfigPrecedence
 Class: kernel
 Summary: Configuration resolution follows a defined precedence chain (defaults/platform → env/context → overrides), then resolves ${env:...} interpolation deterministically.
@@ -96,25 +96,25 @@ packages/core/src/platform/contracts/unified-binder-strategy-base.ts
 config/commercial.yml
 config/fedramp-moderate.yml
 config/fedramp-high.yml
-packages/core/src/platform/contracts/compliance/__tests__/rules.test.ts
-packages/core/src/platform/contracts/__tests__/unified-binder-strategy-base.test.ts
+packages/core/src/platform/contracts/compliance/**tests**/rules.test.ts
+packages/core/src/platform/contracts/**tests**/unified-binder-strategy-base.test.ts
 V3 standard it supports:
 Framework_Selection_And_Precedence
 Rule_Catalog_Loading_And_Resolution
 Override_And_Escape_Hatch_Restrictions
 Compliance_Status_Block_Contract
-Conformance hook: Given fixture packages/core/src/platform/contracts/compliance/__tests__/rules.test.ts (case RulesOverride__RejectedInFedrampHigh), assert loadComplianceRules('fedramp-high', _, rulesOverride) throws with a message that names the framework restriction; and given fixture packages/core/src/platform/contracts/__tests__/unified-binder-strategy-base.test.ts (cases UnifiedBase__ComplianceOverride__RejectedInFedrampHigh|Moderate), assert a ComplianceError is thrown with violations[0].ruleId === 'complianceOverrideRestriction'.
+Conformance hook: Given fixture packages/core/src/platform/contracts/compliance/**tests**/rules.test.ts (case RulesOverride\_\_RejectedInFedrampHigh), assert loadComplianceRules('fedramp-high', *, rulesOverride) throws with a message that names the framework restriction; and given fixture packages/core/src/platform/contracts/**tests**/unified-binder-strategy-base.test.ts (cases UnifiedBase**ComplianceOverride**RejectedInFedrampHigh|Moderate), assert a ComplianceError is thrown with violations[0].ruleId === 'complianceOverrideRestriction'.
 KL-009 — DirectiveValidationAndImmutability
 Class: kernel
 Summary: Directive options are capability-schema validated; env keys are allow-listed and sensitive vars are blocked; validated directives are deep-frozen to prevent post-validation tampering.
 Evidence:
 packages/core/src/platform/contracts/directive-schema-validator.ts
-packages/core/src/platform/contracts/__tests__/directive-schema-validator.test.ts
+packages/core/src/platform/contracts/**tests**/directive-schema-validator.test.ts
 packages/core/src/services/binding-directive-validator.ts
 V3 standard it supports:
 Schema_Validation_And_Schema_Composition
 Error_Report_Schema_And_Actionable_Messages
-Conformance hook: Given fixture packages/core/src/platform/contracts/__tests__/directive-schema-validator.test.ts (case DirectiveValidation__SensitiveEnvVars__Blocked), assert DirectiveSchemaValidator.validate() throws DirectiveValidationError with errors[] entries pointing at the blocked env var key; and given DirectiveValidation__DeepFreeze__PreventsTampering, assert attempts to mutate validated directive throw.
+Conformance hook: Given fixture packages/core/src/platform/contracts/**tests**/directive-schema-validator.test.ts (case DirectiveValidation**SensitiveEnvVars**Blocked), assert DirectiveSchemaValidator.validate() throws DirectiveValidationError with errors[] entries pointing at the blocked env var key; and given DirectiveValidation**DeepFreeze**PreventsTampering, assert attempts to mutate validated directive throw.
 KL-010 — GovernanceExceptionsAndPatchesAreRegistered
 Class: pipeline
 Summary: Governance suppressions and escape-hatch patches must be explicitly registered with required fields (owner/justification/expiry) and strict date/length validation to make risk visible and time-bounded.
@@ -134,7 +134,7 @@ Summary: Plan/deploy/migrate artifacts use a strict, machine-readable envelope (
 Evidence:
 packages/core/src/platform/contracts/artifacts.ts
 packages/core/src/platform/services/artifact-writer.ts
-apps/svc/src/cli/__tests__/plan-command.test.ts
+apps/svc/src/cli/**tests**/plan-command.test.ts
 V3 standard it supports:
 Artifact_Envelope_And_Versioning
 Deterministic_File_Layout
@@ -156,5 +156,5 @@ Conformance hook: Given fixture TBD at extraction/v3/fixtures/tagging/tagging-co
 Rejected candidates (max 5)
 KL-004 DerivedIntentBoundary: excluded for now due to insufficient backend-neutral enforcement evidence (currently contract-level intent only; active implementation surfaces provider-native types at the boundary, so the “adapter-only” enforcement point is not established).
 CloudFormation template diff as determinism oracle: excluded because correctness depends on Resources/Outputs template shape and backend-specific drift semantics (apps/svc/src/cli/utils/template-diff.ts).
-CDK-nag as security oracle: excluded because correctness is defined by CDK-nag rule execution on a construct tree (packages/components/**/tests/security/cdk-nag.test.ts).
+CDK-nag as security oracle: excluded because correctness is defined by CDK-nag rule execution on a construct tree (packages/components/\*\*/tests/security/cdk-nag.test.ts).
 CDK construct-tree synthesis integration tests: excluded because the oracle is CDK/CFN shape (e.g., packages/core/src/services/tests/manifest-synthesis-integration.test.ts).

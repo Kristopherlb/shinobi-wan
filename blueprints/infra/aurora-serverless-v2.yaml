@@ -22,15 +22,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Database subnet AZ-a
   - id: db-subnet-1
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.10.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.10.0/24'
       availabilityZone: us-east-1a
 
   # Database subnet AZ-b
@@ -38,8 +38,8 @@ components:
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.11.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.11.0/24'
       availabilityZone: us-east-1b
 
   # Database security group
@@ -47,7 +47,7 @@ components:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:app-vpc"
+      vpcId: 'platform:app-vpc'
       description: Aurora Serverless v2 security group
 
   # KMS encryption key
@@ -62,7 +62,7 @@ components:
     type: platform
     platform: aws-secretsmanager
     config:
-      kmsKeyId: "platform:db-key"
+      kmsKeyId: 'platform:db-key'
       rotationEnabled: true
       rotationDays: 30
 
@@ -72,11 +72,11 @@ components:
     platform: aws-rds-cluster
     config:
       engine: aurora-postgresql
-      engineVersion: "15.4"
+      engineVersion: '15.4'
       masterUsername: admin
-      masterPassword: "platform:db-secret"
+      masterPassword: 'platform:db-secret'
       storageEncrypted: true
-      kmsKeyId: "platform:db-key"
+      kmsKeyId: 'platform:db-key'
       deletionProtection: true
       backupRetentionPeriod: 7
       publicAccess: false
@@ -84,10 +84,10 @@ components:
       serverlessMinCapacity: 0.5
       serverlessMaxCapacity: 16
       subnetIds:
-        - "platform:db-subnet-1"
-        - "platform:db-subnet-2"
+        - 'platform:db-subnet-1'
+        - 'platform:db-subnet-2'
       securityGroupIds:
-        - "platform:db-sg"
+        - 'platform:db-sg'
 
   # RDS Proxy for connection pooling
   - id: db-proxy
@@ -95,15 +95,15 @@ components:
     platform: aws-rds-proxy
     config:
       engineFamily: POSTGRESQL
-      clusterRef: "platform:db-cluster"
-      secretArn: "platform:db-secret"
+      clusterRef: 'platform:db-cluster'
+      secretArn: 'platform:db-secret'
       requireTls: true
       idleClientTimeout: 1800
       subnetIds:
-        - "platform:db-subnet-1"
-        - "platform:db-subnet-2"
+        - 'platform:db-subnet-1'
+        - 'platform:db-subnet-2'
       securityGroupIds:
-        - "platform:db-sg"
+        - 'platform:db-sg'
 
 bindings:
   # RDS Proxy connects to RDS Cluster

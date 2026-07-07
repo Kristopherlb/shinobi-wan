@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -8,7 +13,11 @@ import { shortName, createStandardTags } from './utils';
 export class LambdaLowerer implements NodeLowerer {
   readonly platform = 'aws-lambda';
 
-  lower(node: Node, context: LoweringContext, resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
 
@@ -17,8 +26,10 @@ export class LambdaLowerer implements NodeLowerer {
     // Build environment variables: merge resolved deps + Powertools config
     const envVars: Record<string, unknown> = { ...resolvedDeps.envVars };
     if (props['powertools'] === true) {
-      envVars['POWERTOOLS_SERVICE_NAME'] = `${context.adapterConfig.serviceName}-${name}`;
-      envVars['POWERTOOLS_LOG_LEVEL'] = (props['powertoolsLogLevel'] as string) ?? 'INFO';
+      envVars['POWERTOOLS_SERVICE_NAME'] =
+        `${context.adapterConfig.serviceName}-${name}`;
+      envVars['POWERTOOLS_LOG_LEVEL'] =
+        (props['powertoolsLogLevel'] as string) ?? 'INFO';
     }
 
     // Lambda Function
@@ -31,22 +42,27 @@ export class LambdaLowerer implements NodeLowerer {
         handler: (props['handler'] as string) ?? 'index.handler',
         memorySize: (props['memorySize'] as number) ?? 128,
         timeout: (props['timeout'] as number) ?? 30,
-        role: resolvedDeps.roleName ? { ref: resolvedDeps.roleName } : undefined,
+        role: resolvedDeps.roleName
+          ? { ref: resolvedDeps.roleName }
+          : undefined,
         ...(context.adapterConfig.codePath
           ? { code: { path: context.adapterConfig.codePath } }
           : {}),
         ...(context.adapterConfig.codeS3
-          ? { s3Bucket: context.adapterConfig.codeS3.bucket, s3Key: context.adapterConfig.codeS3.key }
+          ? {
+              s3Bucket: context.adapterConfig.codeS3.bucket,
+              s3Key: context.adapterConfig.codeS3.key,
+            }
           : {}),
         ...(props['tracing'] === true
           ? { tracingConfig: { mode: 'Active' } }
           : {}),
-        ...(Array.isArray(props['layers']) && (props['layers'] as string[]).length > 0
+        ...(Array.isArray(props['layers']) &&
+        (props['layers'] as string[]).length > 0
           ? { layers: props['layers'] }
           : {}),
-        environment: Object.keys(envVars).length > 0
-          ? { variables: envVars }
-          : undefined,
+        environment:
+          Object.keys(envVars).length > 0 ? { variables: envVars } : undefined,
         tags: createStandardTags(node.id, 'aws-lambda'),
       },
       sourceId: node.id,

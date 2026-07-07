@@ -23,7 +23,7 @@ export function createIamIntent(
   principal: IamPrincipal,
   resource: IamResource,
   actions: ReadonlyArray<IamAction>,
-  conditions?: ReadonlyArray<IamCondition>
+  conditions?: ReadonlyArray<IamCondition>,
 ): IamIntent {
   const intent: IamIntent = {
     type: 'iam',
@@ -46,7 +46,7 @@ export function createNetworkIntent(
   direction: 'ingress' | 'egress',
   source: NetworkEndpoint,
   destination: NetworkEndpoint,
-  protocol: NetworkProtocol
+  protocol: NetworkProtocol,
 ): NetworkIntent {
   const intent: NetworkIntent = {
     type: 'network',
@@ -68,7 +68,7 @@ export function createConfigIntent(
   sourceEdgeId: string,
   targetNodeRef: string,
   key: string,
-  valueSource: ConfigValueSource
+  valueSource: ConfigValueSource,
 ): ConfigIntent {
   const intent: ConfigIntent = {
     type: 'config',
@@ -89,7 +89,7 @@ export function createTelemetryIntent(
   sourceEdgeId: string,
   targetNodeRef: string,
   telemetryType: 'metrics' | 'traces' | 'logs',
-  config: TelemetryConfig
+  config: TelemetryConfig,
 ): TelemetryIntent {
   const intent: TelemetryIntent = {
     type: 'telemetry',

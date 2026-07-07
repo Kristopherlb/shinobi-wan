@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -116,7 +120,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'read',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'DOC_BUCKET', valueSource: { type: 'reference', nodeRef: 'doc-store', field: 'bucket' } },
+          {
+            key: 'DOC_BUCKET',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'doc-store',
+              field: 'bucket',
+            },
+          },
         ],
       },
     },
@@ -133,7 +144,13 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'EMBEDDING_MODEL', valueSource: { type: 'static', value: 'amazon.titan-embed-text-v1' } },
+          {
+            key: 'EMBEDDING_MODEL',
+            valueSource: {
+              type: 'static',
+              value: 'amazon.titan-embed-text-v1',
+            },
+          },
         ],
       },
     },
@@ -150,7 +167,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'OPENSEARCH_ENDPOINT', valueSource: { type: 'reference', nodeRef: 'vector-store', field: 'endpoint' } },
+          {
+            key: 'OPENSEARCH_ENDPOINT',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'vector-store',
+              field: 'endpoint',
+            },
+          },
         ],
       },
     },
@@ -167,7 +191,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'read',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'OPENSEARCH_ENDPOINT', valueSource: { type: 'reference', nodeRef: 'vector-store', field: 'endpoint' } },
+          {
+            key: 'OPENSEARCH_ENDPOINT',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'vector-store',
+              field: 'endpoint',
+            },
+          },
         ],
       },
     },
@@ -184,7 +215,14 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'CONTEXT_TABLE', valueSource: { type: 'reference', nodeRef: 'context-store', field: 'name' } },
+          {
+            key: 'CONTEXT_TABLE',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'context-store',
+              field: 'name',
+            },
+          },
         ],
       },
     },

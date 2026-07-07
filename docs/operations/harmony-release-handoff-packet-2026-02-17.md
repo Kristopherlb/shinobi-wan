@@ -18,16 +18,16 @@ Source of truth:
 
 Current snapshot:
 
-| Gate | Status |
-|---|---|
-| Contract Conformance | pass |
-| Read/Plan SLO | pass |
-| Error Taxonomy Stability | pass |
-| Isolation Chaos Test | pass |
-| Approval Wiring Validation | pass |
-| Canary + Rollback Pin | pass |
-| External Wiring Complete | pass |
-| Restricted Apply Enablement | pass |
+| Gate                        | Status |
+| --------------------------- | ------ |
+| Contract Conformance        | pass   |
+| Read/Plan SLO               | pass   |
+| Error Taxonomy Stability    | pass   |
+| Isolation Chaos Test        | pass   |
+| Approval Wiring Validation  | pass   |
+| Canary + Rollback Pin       | pass   |
+| External Wiring Complete    | pass   |
+| Restricted Apply Enablement | pass   |
 
 Dashboard reference:
 
@@ -86,12 +86,12 @@ node packages/cli/dist/main.js plan <manifest.yaml> --harmony-envelope --trace-i
 
 ## Ownership And Escalation
 
-| Responsibility | Primary Owner | Escalation |
-|---|---|---|
-| Wrapper/integration contract behavior | Kristopher Bowles (Shinobi) | Shared review board |
-| Approval role/SLA policy and external wiring | harmony-owner | Shared review board |
-| Gate state and release decision package | Shared (Shinobi + Harmony) | Shared final sign-off |
-| Production execution and rollback decision | Platform owner on duty | Designated reviewer + shared board |
+| Responsibility                               | Primary Owner               | Escalation                         |
+| -------------------------------------------- | --------------------------- | ---------------------------------- |
+| Wrapper/integration contract behavior        | Kristopher Bowles (Shinobi) | Shared review board                |
+| Approval role/SLA policy and external wiring | harmony-owner               | Shared review board                |
+| Gate state and release decision package      | Shared (Shinobi + Harmony)  | Shared final sign-off              |
+| Production execution and rollback decision   | Platform owner on duty      | Designated reviewer + shared board |
 
 ## Open Risks And Follow-Ups
 

@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { ConfigRulesLowerer } from '../lowerers/config-rules-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('ConfigRulesLowerer', () => {
@@ -33,7 +35,9 @@ describe('ConfigRulesLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0].name).toBe('s3-encryption-check-config-rule');
-    expect(resources[0].properties['name']).toBe('my-service-s3-encryption-check');
+    expect(resources[0].properties['name']).toBe(
+      'my-service-s3-encryption-check',
+    );
   });
 
   it('sets correct tags', () => {
@@ -68,7 +72,12 @@ describe('ConfigRulesLowerer', () => {
     const node = makeNode({
       id: 'platform:check',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-config-rules', inputParameters: { key: 'value' } } },
+      metadata: {
+        properties: {
+          platform: 'aws-config-rules',
+          inputParameters: { key: 'value' },
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -79,7 +88,12 @@ describe('ConfigRulesLowerer', () => {
     const node = makeNode({
       id: 'platform:check',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-config-rules', inputParameters: '{"key":"value"}' } },
+      metadata: {
+        properties: {
+          platform: 'aws-config-rules',
+          inputParameters: '{"key":"value"}',
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -90,11 +104,18 @@ describe('ConfigRulesLowerer', () => {
     const node = makeNode({
       id: 'platform:check',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-config-rules', maximumExecutionFrequency: 'TwentyFour_Hours' } },
+      metadata: {
+        properties: {
+          platform: 'aws-config-rules',
+          maximumExecutionFrequency: 'TwentyFour_Hours',
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].properties['maximumExecutionFrequency']).toBe('TwentyFour_Hours');
+    expect(resources[0].properties['maximumExecutionFrequency']).toBe(
+      'TwentyFour_Hours',
+    );
   });
 
   it('has no dependencies', () => {

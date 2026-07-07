@@ -20,15 +20,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Subnet for data tier
   - id: data-subnet
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.10.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.10.0/24'
       availabilityZone: us-east-1a
 
   # Security group for OpenSearch access
@@ -36,7 +36,7 @@ components:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:app-vpc"
+      vpcId: 'platform:app-vpc'
       description: OpenSearch and Firehose security group
 
   # KMS key for encryption
@@ -74,9 +74,9 @@ components:
       enforceHTTPS: true
       publicAccess: false
       subnetIds:
-        - "platform:data-subnet"
+        - 'platform:data-subnet'
       securityGroupIds:
-        - "platform:data-sg"
+        - 'platform:data-sg'
 
   # Kinesis Firehose for log delivery
   - id: firehose
@@ -95,7 +95,7 @@ components:
     type: platform
     platform: aws-log-subscription-filter
     config:
-      filterPattern: ""
+      filterPattern: ''
 
 bindings:
   # Firehose writes to OpenSearch

@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -11,7 +16,11 @@ import { shortName, createStandardTags } from './utils';
 export class ConfigRulesLowerer implements NodeLowerer {
   readonly platform = 'aws-config-rules';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -33,14 +42,16 @@ export class ConfigRulesLowerer implements NodeLowerer {
 
     // Input parameters for the rule
     if (props['inputParameters']) {
-      configRuleProperties['inputParameters'] = typeof props['inputParameters'] === 'string'
-        ? props['inputParameters']
-        : JSON.stringify(props['inputParameters']);
+      configRuleProperties['inputParameters'] =
+        typeof props['inputParameters'] === 'string'
+          ? props['inputParameters']
+          : JSON.stringify(props['inputParameters']);
     }
 
     // Evaluation frequency
     if (props['maximumExecutionFrequency']) {
-      configRuleProperties['maximumExecutionFrequency'] = props['maximumExecutionFrequency'];
+      configRuleProperties['maximumExecutionFrequency'] =
+        props['maximumExecutionFrequency'];
     }
 
     // Scope

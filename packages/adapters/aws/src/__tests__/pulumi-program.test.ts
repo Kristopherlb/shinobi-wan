@@ -3,18 +3,46 @@ import type { ResourcePlan, PlannedResource } from '../program-generator';
 import type { AdapterConfig } from '../types';
 
 // Track all constructed resources
-const constructedResources: Array<{ type: string; name: string; args: Record<string, unknown>; opts?: unknown }> = [];
+const constructedResources: Array<{
+  type: string;
+  name: string;
+  args: Record<string, unknown>;
+  opts?: unknown;
+}> = [];
 
-function makeMockResource(type: string, name: string, args: Record<string, unknown>) {
+function makeMockResource(
+  type: string,
+  name: string,
+  args: Record<string, unknown>,
+) {
   const resource = {
     __type: type,
     __name: name,
     __args: args,
-    arn: { apply: vi.fn((fn: (v: string) => unknown) => fn(`arn:aws:mock:us-east-1:123456789012:${name}`)), value: `arn:aws:mock:us-east-1:123456789012:${name}` },
-    name: { apply: vi.fn((fn: (v: string) => unknown) => fn(name)), value: name },
-    url: { apply: vi.fn((fn: (v: string) => unknown) => fn(`https://sqs.us-east-1.amazonaws.com/123456789012/${name}`)), value: `https://sqs.us-east-1.amazonaws.com/123456789012/${name}` },
-    functionName: { apply: vi.fn((fn: (v: string) => unknown) => fn(name)), value: name },
-    id: { apply: vi.fn((fn: (v: string) => unknown) => fn(`id-${name}`)), value: `id-${name}` },
+    arn: {
+      apply: vi.fn((fn: (v: string) => unknown) =>
+        fn(`arn:aws:mock:us-east-1:123456789012:${name}`),
+      ),
+      value: `arn:aws:mock:us-east-1:123456789012:${name}`,
+    },
+    name: {
+      apply: vi.fn((fn: (v: string) => unknown) => fn(name)),
+      value: name,
+    },
+    url: {
+      apply: vi.fn((fn: (v: string) => unknown) =>
+        fn(`https://sqs.us-east-1.amazonaws.com/123456789012/${name}`),
+      ),
+      value: `https://sqs.us-east-1.amazonaws.com/123456789012/${name}`,
+    },
+    functionName: {
+      apply: vi.fn((fn: (v: string) => unknown) => fn(name)),
+      value: name,
+    },
+    id: {
+      apply: vi.fn((fn: (v: string) => unknown) => fn(`id-${name}`)),
+      value: `id-${name}`,
+    },
   };
   constructedResources.push({ type, name, args });
   return resource;
@@ -33,10 +61,18 @@ vi.mock('@pulumi/pulumi', () => ({
 vi.mock('@pulumi/aws', () => {
   function makeConstructor(type: string) {
     // Use a regular function so it's constructable with `new`
-    const Ctor = function (this: Record<string, unknown>, name: string, args: Record<string, unknown>) {
+    const Ctor = function (
+      this: Record<string, unknown>,
+      name: string,
+      args: Record<string, unknown>,
+    ) {
       const mock = makeMockResource(type, name, args);
       Object.assign(this, mock);
-    } as unknown as new (name: string, args: Record<string, unknown>, opts?: unknown) => Record<string, unknown>;
+    } as unknown as new (
+      name: string,
+      args: Record<string, unknown>,
+      opts?: unknown,
+    ) => Record<string, unknown>;
     return Ctor;
   }
 
@@ -88,7 +124,9 @@ const DEFAULT_CONFIG: AdapterConfig = {
   serviceName: 'test-service',
 };
 
-function makePlannedResource(overrides: Partial<PlannedResource> & { name: string; resourceType: string }): PlannedResource {
+function makePlannedResource(
+  overrides: Partial<PlannedResource> & { name: string; resourceType: string },
+): PlannedResource {
   return {
     properties: {},
     dependsOn: [],
@@ -96,7 +134,10 @@ function makePlannedResource(overrides: Partial<PlannedResource> & { name: strin
   };
 }
 
-function makePlan(resources: PlannedResource[], outputs?: Record<string, string>): ResourcePlan {
+function makePlan(
+  resources: PlannedResource[],
+  outputs?: Record<string, string>,
+): ResourcePlan {
   return {
     resources,
     outputs: outputs ?? {},
@@ -273,7 +314,8 @@ describe('createPulumiProgram', () => {
         resourceType: 'aws:iam:RolePolicyAttachment',
         properties: {
           role: { ref: 'missing-role' },
-          policyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+          policyArn:
+            'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
         },
       }),
     ]);
@@ -358,7 +400,9 @@ describe('createPulumiProgram', () => {
 
     expect(constructedResources).toHaveLength(2);
     const lambda = constructedResources[1];
-    const env = lambda?.args['environment'] as Record<string, unknown> | undefined;
+    const env = lambda?.args['environment'] as
+      | Record<string, unknown>
+      | undefined;
     const vars = env?.['variables'] as Record<string, unknown> | undefined;
     expect(vars?.['QUEUE_URL']).toBeDefined();
   });
@@ -399,7 +443,8 @@ describe('createPulumiProgram', () => {
         resourceType: 'aws:iam:RolePolicyAttachment',
         properties: {
           role: { ref: 'my-role' },
-          policyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+          policyArn:
+            'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
         },
         dependsOn: ['my-role'],
       }),

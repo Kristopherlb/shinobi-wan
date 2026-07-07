@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class CloudTrailLowerer implements NodeLowerer {
   readonly platform = 'aws-cloudtrail';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -21,7 +30,8 @@ export class CloudTrailLowerer implements NodeLowerer {
 
     const isMultiRegionTrail = props['isMultiRegionTrail'] !== false;
     const enableLogFileValidation = props['enableLogFileValidation'] !== false;
-    const includeGlobalServiceEvents = props['includeGlobalServiceEvents'] !== false;
+    const includeGlobalServiceEvents =
+      props['includeGlobalServiceEvents'] !== false;
     const cloudWatchLogsEnabled = props['cloudWatchLogsEnabled'] !== false;
     const logRetentionDays = (props['logRetentionDays'] as number) ?? 90;
 
@@ -60,7 +70,9 @@ export class CloudTrailLowerer implements NodeLowerer {
       trailProperties['kmsKeyId'] = props['kmsKeyId'];
     }
     if (cloudWatchLogsEnabled) {
-      trailProperties['cloudWatchLogsGroupArn'] = { ref: `${name}-trail-log-group.arn` };
+      trailProperties['cloudWatchLogsGroupArn'] = {
+        ref: `${name}-trail-log-group.arn`,
+      };
     }
 
     const trailDeps = cloudWatchLogsEnabled ? [`${name}-trail-log-group`] : [];

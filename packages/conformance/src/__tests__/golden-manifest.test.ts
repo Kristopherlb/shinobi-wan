@@ -6,7 +6,8 @@ import type { GoldenCase } from '../types';
 
 const CASE_SCHEMA: GoldenCase = {
   id: 'golden:manifest:schema-validation',
-  description: 'Manifest/graph schema validates required fields and rejects invalid structures',
+  description:
+    'Manifest/graph schema validates required fields and rejects invalid structures',
   gates: ['G-004'],
 };
 
@@ -58,7 +59,10 @@ describe(`Golden: Manifest Schema Validation (G-004)`, () => {
     });
 
     it('G-004: edge with dangling target rejected', () => {
-      const component = createTestNode({ id: 'component:orphan', type: 'component' });
+      const component = createTestNode({
+        id: 'component:orphan',
+        type: 'component',
+      });
       const edge = createTestEdge({
         id: 'edge:bindsTo:component:orphan:platform:missing',
         type: 'bindsTo',
@@ -99,7 +103,10 @@ describe(`Golden: Manifest Schema Validation (G-004)`, () => {
     });
 
     it('G-004: error output is deterministic', () => {
-      const component = createTestNode({ id: 'component:orphan', type: 'component' });
+      const component = createTestNode({
+        id: 'component:orphan',
+        type: 'component',
+      });
       const edge = createTestEdge({
         id: 'edge:bindsTo:component:orphan:platform:missing',
         type: 'bindsTo',

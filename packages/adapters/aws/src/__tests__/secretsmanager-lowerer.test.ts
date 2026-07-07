@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { SecretsManagerLowerer } from '../lowerers/secretsmanager-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('SecretsManagerLowerer', () => {
@@ -53,11 +55,18 @@ describe('SecretsManagerLowerer', () => {
     const node = makeNode({
       id: 'platform:app-secret',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-secretsmanager', kmsKeyId: 'platform:encryption-key' } },
+      metadata: {
+        properties: {
+          platform: 'aws-secretsmanager',
+          kmsKeyId: 'platform:encryption-key',
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].properties['kmsKeyId']).toEqual({ ref: 'encryption-key-key' });
+    expect(resources[0].properties['kmsKeyId']).toEqual({
+      ref: 'encryption-key-key',
+    });
     expect(resources[0].dependsOn).toContain('encryption-key-key');
   });
 
@@ -65,7 +74,9 @@ describe('SecretsManagerLowerer', () => {
     const node = makeNode({
       id: 'platform:rotating-secret',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-secretsmanager', rotationEnabled: true } },
+      metadata: {
+        properties: { platform: 'aws-secretsmanager', rotationEnabled: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -79,12 +90,21 @@ describe('SecretsManagerLowerer', () => {
     const node = makeNode({
       id: 'platform:rotating-secret',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-secretsmanager', rotationEnabled: true, rotationDays: 7 } },
+      metadata: {
+        properties: {
+          platform: 'aws-secretsmanager',
+          rotationEnabled: true,
+          rotationDays: 7,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const rotation = resources[1];
-    const rules = rotation.properties['rotationRules'] as Record<string, unknown>;
+    const rules = rotation.properties['rotationRules'] as Record<
+      string,
+      unknown
+    >;
     expect(rules['automaticallyAfterDays']).toBe(7);
   });
 
@@ -92,12 +112,17 @@ describe('SecretsManagerLowerer', () => {
     const node = makeNode({
       id: 'platform:rotating-secret',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-secretsmanager', rotationEnabled: true } },
+      metadata: {
+        properties: { platform: 'aws-secretsmanager', rotationEnabled: true },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const rotation = resources[1];
-    const rules = rotation.properties['rotationRules'] as Record<string, unknown>;
+    const rules = rotation.properties['rotationRules'] as Record<
+      string,
+      unknown
+    >;
     expect(rules['automaticallyAfterDays']).toBe(30);
   });
 
@@ -138,7 +163,9 @@ describe('SecretsManagerLowerer', () => {
     const node = makeNode({
       id: 'platform:app-secret',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-secretsmanager', rotationEnabled: true } },
+      metadata: {
+        properties: { platform: 'aws-secretsmanager', rotationEnabled: true },
+      },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -150,7 +177,9 @@ describe('SecretsManagerLowerer', () => {
     const node = makeNode({
       id: 'platform:app-secret',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-secretsmanager', tags: { env: 'prod' } } },
+      metadata: {
+        properties: { platform: 'aws-secretsmanager', tags: { env: 'prod' } },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

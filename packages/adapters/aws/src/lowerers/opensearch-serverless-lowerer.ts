@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class OpenSearchServerlessLowerer implements NodeLowerer {
   readonly platform = 'aws-opensearch-serverless';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -21,9 +30,11 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
     const securityPolicyName = `${name}-collection-security-policy`;
     const accessPolicyName = `${name}-collection-access-policy`;
 
-    const collectionType = (props['collectionType'] as string) ?? 'VECTORSEARCH';
+    const collectionType =
+      (props['collectionType'] as string) ?? 'VECTORSEARCH';
     const standbyReplicas = (props['standbyReplicas'] as string) ?? 'ENABLED';
-    const encryptionType = (props['encryptionType'] as string) ?? 'AWS_OWNED_KEY';
+    const encryptionType =
+      (props['encryptionType'] as string) ?? 'AWS_OWNED_KEY';
     const publicAccess = props['publicAccess'] === true;
 
     // Security Policy (encryption)
@@ -42,7 +53,12 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
         name: `${serviceName}-${name}-enc`,
         type: 'encryption',
         policy: JSON.stringify({
-          Rules: [{ ResourceType: 'collection', Resource: [`collection/${serviceName}-${name}`] }],
+          Rules: [
+            {
+              ResourceType: 'collection',
+              Resource: [`collection/${serviceName}-${name}`],
+            },
+          ],
           ...securityPolicyConfig,
         }),
       },
@@ -61,8 +77,16 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
         policy: JSON.stringify([
           {
             Rules: [
-              { ResourceType: 'collection', Resource: [`collection/${serviceName}-${name}`], Permission: ['aoss:*'] },
-              { ResourceType: 'index', Resource: [`index/${serviceName}-${name}/*`], Permission: ['aoss:*'] },
+              {
+                ResourceType: 'collection',
+                Resource: [`collection/${serviceName}-${name}`],
+                Permission: ['aoss:*'],
+              },
+              {
+                ResourceType: 'index',
+                Resource: [`index/${serviceName}-${name}/*`],
+                Permission: ['aoss:*'],
+              },
             ],
             Principal: allowedPrincipals,
           },

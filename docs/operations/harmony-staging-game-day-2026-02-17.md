@@ -18,15 +18,15 @@ Exercise the full restricted-apply operator path in staging posture:
 
 ## Drill Steps And Results
 
-| Step | Action | Expected | Observed | Status |
-|---|---|---|---|---|
-| 1 | Generate plan + fingerprint (`plan_change`) | plan envelope success with fingerprint | observed in wrapper tests | pass |
-| 2 | Submit apply with valid approval evidence | async handle returned (`operationId`, `workflowId`, `statusUrl`) | observed in wrapper tests | pass |
-| 3 | Submit apply with missing approval evidence | deterministic `APPROVAL_REQUIRED` error | observed in wrapper tests | pass |
-| 4 | Submit apply with non-approved decision | deterministic `APPROVAL_REQUIRED` error | observed in wrapper tests | pass |
-| 5 | Simulate workflow dispatch failure (`503`) | deterministic `DEPENDENCY_UNAVAILABLE` error | observed in wrapper tests | pass |
-| 6 | Run read/plan after apply dispatch failure | read/plan still healthy | observed in wrapper tests | pass |
-| 7 | Execute rollback-to-known-good posture | re-pin to known-good and validate envelopes | covered by rollback pin drill evidence | pass |
+| Step | Action                                      | Expected                                                         | Observed                               | Status |
+| ---- | ------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------- | ------ |
+| 1    | Generate plan + fingerprint (`plan_change`) | plan envelope success with fingerprint                           | observed in wrapper tests              | pass   |
+| 2    | Submit apply with valid approval evidence   | async handle returned (`operationId`, `workflowId`, `statusUrl`) | observed in wrapper tests              | pass   |
+| 3    | Submit apply with missing approval evidence | deterministic `APPROVAL_REQUIRED` error                          | observed in wrapper tests              | pass   |
+| 4    | Submit apply with non-approved decision     | deterministic `APPROVAL_REQUIRED` error                          | observed in wrapper tests              | pass   |
+| 5    | Simulate workflow dispatch failure (`503`)  | deterministic `DEPENDENCY_UNAVAILABLE` error                     | observed in wrapper tests              | pass   |
+| 6    | Run read/plan after apply dispatch failure  | read/plan still healthy                                          | observed in wrapper tests              | pass   |
+| 7    | Execute rollback-to-known-good posture      | re-pin to known-good and validate envelopes                      | covered by rollback pin drill evidence | pass   |
 
 ## Command Transcript
 

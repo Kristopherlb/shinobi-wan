@@ -60,13 +60,13 @@ Current assessment:
 
 ### Execution Control (Track A)
 
-| Work Item | Owner | Target Window | Status | Blockers | Exit Criteria |
-|---|---|---|---|---|---|
-| `G-005` conformance gate | Shinobi | Completed | `Done` | None | Gate tests merged and green in CI |
-| `G-042` conformance gate | Shinobi | Completed | `Done` | None | Gate tests merged and green in CI |
-| Triad matrix expansion | Shinobi | Completed (phase scope) | `Done` | None | Added DynamoDB/S3/SNS/API Gateway scenario coverage in conformance tests |
-| Additional lowerers | Shinobi | Rolling | `Next` | Prioritization not finalized | At least one new lowerer shipped with tests and wiring checklist complete |
-| Plugin-style lowerer registry | Shinobi | In progress | `In Progress` | Final migration off legacy fallback still pending | Registry abstraction implemented with parity tests and legacy fallback retired |
+| Work Item                     | Owner   | Target Window           | Status        | Blockers                                          | Exit Criteria                                                                  |
+| ----------------------------- | ------- | ----------------------- | ------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `G-005` conformance gate      | Shinobi | Completed               | `Done`        | None                                              | Gate tests merged and green in CI                                              |
+| `G-042` conformance gate      | Shinobi | Completed               | `Done`        | None                                              | Gate tests merged and green in CI                                              |
+| Triad matrix expansion        | Shinobi | Completed (phase scope) | `Done`        | None                                              | Added DynamoDB/S3/SNS/API Gateway scenario coverage in conformance tests       |
+| Additional lowerers           | Shinobi | Rolling                 | `Next`        | Prioritization not finalized                      | At least one new lowerer shipped with tests and wiring checklist complete      |
+| Plugin-style lowerer registry | Shinobi | In progress             | `In Progress` | Final migration off legacy fallback still pending | Registry abstraction implemented with parity tests and legacy fallback retired |
 
 ## Track B: Harmony Integration Rollout
 
@@ -91,12 +91,12 @@ Current assessment:
 
 ### Execution Control (Track B)
 
-| Work Item | Owner | Target Window | Status | Blockers | Exit Criteria |
-|---|---|---|---|---|---|
-| Phase 1 gate closure | Kristopher Bowles (Shinobi) | 2026-02-17 | `Done` | None | All Phase 1 checklist boxes complete |
-| Phase 2 hardening closure | Kristopher Bowles (Shinobi) + harmony-owner | 2026-02-17 | `Done` | None | All Phase 2 checklist boxes complete |
-| Async apply handle validation | Kristopher Bowles (Shinobi) | 2026-02-17 | `Done` | None | Contract fields validated in E2E evidence |
-| Restricted apply decision | Shared review board | 2026-02-17 | `Done` | None | Explicit go/no-go sign-off recorded |
+| Work Item                     | Owner                                       | Target Window | Status | Blockers | Exit Criteria                             |
+| ----------------------------- | ------------------------------------------- | ------------- | ------ | -------- | ----------------------------------------- |
+| Phase 1 gate closure          | Kristopher Bowles (Shinobi)                 | 2026-02-17    | `Done` | None     | All Phase 1 checklist boxes complete      |
+| Phase 2 hardening closure     | Kristopher Bowles (Shinobi) + harmony-owner | 2026-02-17    | `Done` | None     | All Phase 2 checklist boxes complete      |
+| Async apply handle validation | Kristopher Bowles (Shinobi)                 | 2026-02-17    | `Done` | None     | Contract fields validated in E2E evidence |
+| Restricted apply decision     | Shared review board                         | 2026-02-17    | `Done` | None     | Explicit go/no-go sign-off recorded       |
 
 ### Critical Path
 

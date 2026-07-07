@@ -117,9 +117,13 @@ describe('isValidEdgeId', () => {
 describe('isValidArtifactId', () => {
   it('accepts valid artifact IDs', () => {
     expect(isValidArtifactId('artifact:iam-policy:component:api')).toBe(true);
-    expect(isValidArtifactId('artifact:network-rule:component:gateway')).toBe(true);
+    expect(isValidArtifactId('artifact:network-rule:component:gateway')).toBe(
+      true,
+    );
     expect(isValidArtifactId('artifact:config-map:component:app')).toBe(true);
-    expect(isValidArtifactId('artifact:telemetry-config:component:svc')).toBe(true);
+    expect(isValidArtifactId('artifact:telemetry-config:component:svc')).toBe(
+      true,
+    );
   });
 
   it('rejects invalid artifact IDs', () => {

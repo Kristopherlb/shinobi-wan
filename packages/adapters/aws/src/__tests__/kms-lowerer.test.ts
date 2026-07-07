@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { KmsLowerer } from '../lowerers/kms-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('KmsLowerer', () => {
@@ -35,7 +37,9 @@ describe('KmsLowerer', () => {
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0].name).toBe('encryption-key-key');
     expect(resources[1].name).toBe('encryption-key-key-alias');
-    expect(resources[1].properties['name']).toBe('alias/my-service-encryption-key');
+    expect(resources[1].properties['name']).toBe(
+      'alias/my-service-encryption-key',
+    );
   });
 
   it('sets correct tags on key', () => {
@@ -59,7 +63,9 @@ describe('KmsLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].properties['customerMasterKeySpec']).toBe('SYMMETRIC_DEFAULT');
+    expect(resources[0].properties['customerMasterKeySpec']).toBe(
+      'SYMMETRIC_DEFAULT',
+    );
     expect(resources[0].properties['enableKeyRotation']).toBe(true);
   });
 
@@ -79,7 +85,9 @@ describe('KmsLowerer', () => {
     const node = makeNode({
       id: 'platform:no-rotation-key',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-kms', enableKeyRotation: false } },
+      metadata: {
+        properties: { platform: 'aws-kms', enableKeyRotation: false },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -90,7 +98,9 @@ describe('KmsLowerer', () => {
     const node = makeNode({
       id: 'platform:encryption-key',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-kms', deletionWindowInDays: 7 } },
+      metadata: {
+        properties: { platform: 'aws-kms', deletionWindowInDays: 7 },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -117,7 +127,9 @@ describe('KmsLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[1].dependsOn).toContain('encryption-key-key');
-    expect(resources[1].properties['targetKeyId']).toEqual({ ref: 'encryption-key-key' });
+    expect(resources[1].properties['targetKeyId']).toEqual({
+      ref: 'encryption-key-key',
+    });
   });
 
   it('sets sourceId to node ID', () => {

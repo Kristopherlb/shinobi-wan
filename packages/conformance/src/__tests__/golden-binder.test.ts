@@ -1,8 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
+import type {
+  IamIntent,
+  NetworkIntent,
+  ConfigIntent,
+} from '@shinobi/contracts';
 import type { GraphMutation } from '@shinobi/ir';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { runGoldenCase } from '../golden-runner';
 import type { GoldenCase } from '../types';
 
@@ -67,7 +75,8 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
 
   const CASE_INTENTS: GoldenCase = {
     id: 'golden:binder:required-intents',
-    description: 'Binder emits config, iam, and network intents in canonical order',
+    description:
+      'Binder emits config, iam, and network intents in canonical order',
     gates: ['G-023'],
   };
 
@@ -93,23 +102,39 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
       expect(found?.id).toBe('component-platform-binder');
 
       // Non-matching pattern returns undefined
-      const notFound = registry.findBinder('triggers', 'component', 'component');
+      const notFound = registry.findBinder(
+        'triggers',
+        'component',
+        'component',
+      );
       expect(notFound).toBeUndefined();
     });
   });
 
   describe(`${CASE_DETERMINISM.id} — ${CASE_DETERMINISM.description}`, () => {
     it('G-022: two identical compilations with binder produce byte-identical JSON', () => {
-      const r1 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
-      const r2 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
+      const r1 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
 
       expect(r1.serialized).toBe(r2.serialized);
       expect(r1.serialized).toMatchSnapshot();
     });
 
     it('G-022: intents are in identical order across runs', () => {
-      const r1 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
-      const r2 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
+      const r1 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
 
       const types1 = r1.compilation.intents.map((i) => i.type);
       const types2 = r2.compilation.intents.map((i) => i.type);
@@ -137,10 +162,14 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
         binders: createBinders(),
       });
 
-      const iam = compilation.intents.find((i) => i.type === 'iam') as IamIntent;
+      const iam = compilation.intents.find(
+        (i) => i.type === 'iam',
+      ) as IamIntent;
       expect(iam).toBeDefined();
       expect(iam.schemaVersion).toBe('1.0.0');
-      expect(iam.sourceEdgeId).toBe('edge:bindsTo:component:my-svc:platform:aws-sqs');
+      expect(iam.sourceEdgeId).toBe(
+        'edge:bindsTo:component:my-svc:platform:aws-sqs',
+      );
       expect(iam.principal.nodeRef).toBe('component:my-svc');
       expect(iam.resource.nodeRef).toBe('platform:aws-sqs');
       expect(iam.resource.resourceType).toBe('queue');
@@ -157,10 +186,14 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
         binders: createBinders(),
       });
 
-      const net = compilation.intents.find((i) => i.type === 'network') as NetworkIntent;
+      const net = compilation.intents.find(
+        (i) => i.type === 'network',
+      ) as NetworkIntent;
       expect(net).toBeDefined();
       expect(net.schemaVersion).toBe('1.0.0');
-      expect(net.sourceEdgeId).toBe('edge:bindsTo:component:my-svc:platform:aws-sqs');
+      expect(net.sourceEdgeId).toBe(
+        'edge:bindsTo:component:my-svc:platform:aws-sqs',
+      );
       expect(net.direction).toBe('egress');
       expect(net.source.nodeRef).toBe('component:my-svc');
       expect(net.destination.nodeRef).toBe('platform:aws-sqs');
@@ -172,10 +205,14 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
         binders: createBinders(),
       });
 
-      const cfg = compilation.intents.find((i) => i.type === 'config') as ConfigIntent;
+      const cfg = compilation.intents.find(
+        (i) => i.type === 'config',
+      ) as ConfigIntent;
       expect(cfg).toBeDefined();
       expect(cfg.schemaVersion).toBe('1.0.0');
-      expect(cfg.sourceEdgeId).toBe('edge:bindsTo:component:my-svc:platform:aws-sqs');
+      expect(cfg.sourceEdgeId).toBe(
+        'edge:bindsTo:component:my-svc:platform:aws-sqs',
+      );
       expect(cfg.targetNodeRef).toBe('component:my-svc');
       expect(cfg.key).toBe('QUEUE_URL');
     });
@@ -200,8 +237,14 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
  *────────────────────────────────────────────────────────────────────────────*/
 
 function triggersSetup(): ReadonlyArray<GraphMutation> {
-  const platform = createTestNode({ id: 'platform:aws-apigateway', type: 'platform' });
-  const component = createTestNode({ id: 'component:api-handler', type: 'component' });
+  const platform = createTestNode({
+    id: 'platform:aws-apigateway',
+    type: 'platform',
+  });
+  const component = createTestNode({
+    id: 'component:api-handler',
+    type: 'component',
+  });
   const edge = createTestEdge({
     id: 'edge:triggers:platform:aws-apigateway:component:api-handler',
     type: 'triggers',
@@ -255,16 +298,28 @@ describe('Golden: TriggersBinder (G-020, G-022, G-023)', () => {
 
   describe('G-022: TriggersBinder determinism', () => {
     it('two identical compilations produce byte-identical JSON', () => {
-      const r1 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
-      const r2 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
+      const r1 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
 
       expect(r1.serialized).toBe(r2.serialized);
       expect(r1.serialized).toMatchSnapshot();
     });
 
     it('intents are in identical order across runs', () => {
-      const r1 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
-      const r2 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
+      const r1 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
 
       const types1 = r1.compilation.intents.map((i) => i.type);
       const types2 = r2.compilation.intents.map((i) => i.type);
@@ -291,10 +346,14 @@ describe('Golden: TriggersBinder (G-020, G-022, G-023)', () => {
         binders: createTriggersBinders(),
       });
 
-      const iam = compilation.intents.find((i) => i.type === 'iam') as IamIntent;
+      const iam = compilation.intents.find(
+        (i) => i.type === 'iam',
+      ) as IamIntent;
       expect(iam).toBeDefined();
       expect(iam.schemaVersion).toBe('1.0.0');
-      expect(iam.sourceEdgeId).toBe('edge:triggers:platform:aws-apigateway:component:api-handler');
+      expect(iam.sourceEdgeId).toBe(
+        'edge:triggers:platform:aws-apigateway:component:api-handler',
+      );
       expect(iam.principal.nodeRef).toBe('platform:aws-apigateway');
       expect(iam.resource.nodeRef).toBe('component:api-handler');
       expect(iam.actions).toEqual([{ level: 'write', action: 'invoke' }]);
@@ -306,7 +365,9 @@ describe('Golden: TriggersBinder (G-020, G-022, G-023)', () => {
         binders: createTriggersBinders(),
       });
 
-      const configs = compilation.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+      const configs = compilation.intents.filter(
+        (i) => i.type === 'config',
+      ) as ConfigIntent[];
       expect(configs).toHaveLength(2);
 
       const keys = configs.map((c) => c.key).sort();

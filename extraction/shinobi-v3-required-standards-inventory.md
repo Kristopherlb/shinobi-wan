@@ -1,8 +1,9 @@
 # Shinobi V3 — Required Standards & Specifications Inventory (Extracted)
 
-**Purpose**: Identify the *standards and specifications that must exist in Shinobi V3*, inferred from the Shinobi repository as evidence.
+**Purpose**: Identify the _standards and specifications that must exist in Shinobi V3_, inferred from the Shinobi repository as evidence.
 
 **This is an extraction/definition artifact**:
+
 - No full standards text.
 - Only: Name, Scope, normative requirement headings (headings only), validation/enforcement mechanism, and evidence sources.
 - CDK/CloudFormation semantics are treated as **historical evidence only** and **must not** be preserved in V3 design. Any CDK-coupled types in evidence are called out as “legacy coupling to replace with backend-neutral intent”.
@@ -423,14 +424,14 @@
 
 > This is a **mapping list** only (no implementation, no full spec).
 
-| Legacy coupling in repo evidence | Where it appears | V3 replacement artifact (name only) |
-|---|---|---|
-| IAM policies embed CDK `PolicyStatement` | `packages/core/src/platform/contracts/bindings.ts` (`IamPolicy.statement: PolicyStatement`) | IAM_Intent_Schema (backend-neutral) |
-| IAM application performed by CDK post-processor | `packages/core/src/resolver/iam-policy-post-processor.ts` | Adapter_Lowering_Contract_For_IAM_Intents |
-| Network rules applied via CDK `CfnSecurityGroupIngress/Egress` | `packages/core/src/resolver/security-group-rule-post-processor.ts` | Network_Intent_Schema + Adapter_Lowering_Contract_For_Network_Intents |
-| CloudFormation logical-id preservation and drift avoidance | `packages/core/src/platform/logical-id/*` | Stable_Identity_And_Deterministic_Naming_Spec (IR-level) |
-| Capability naming/data shapes reference CDK sources | `docs/platform-standards/platform-capability-naming-standard.md` | Capability_Data_Contract_Registry (backend-neutral) |
-| CDK-Nag suppressions model | `packages/components/**/tests/security/cdk-nag.test.ts`, manifest governance suppressions | Exception_Record_Schema (backend-neutral) |
+| Legacy coupling in repo evidence                               | Where it appears                                                                            | V3 replacement artifact (name only)                                   |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| IAM policies embed CDK `PolicyStatement`                       | `packages/core/src/platform/contracts/bindings.ts` (`IamPolicy.statement: PolicyStatement`) | IAM_Intent_Schema (backend-neutral)                                   |
+| IAM application performed by CDK post-processor                | `packages/core/src/resolver/iam-policy-post-processor.ts`                                   | Adapter_Lowering_Contract_For_IAM_Intents                             |
+| Network rules applied via CDK `CfnSecurityGroupIngress/Egress` | `packages/core/src/resolver/security-group-rule-post-processor.ts`                          | Network_Intent_Schema + Adapter_Lowering_Contract_For_Network_Intents |
+| CloudFormation logical-id preservation and drift avoidance     | `packages/core/src/platform/logical-id/*`                                                   | Stable_Identity_And_Deterministic_Naming_Spec (IR-level)              |
+| Capability naming/data shapes reference CDK sources            | `docs/platform-standards/platform-capability-naming-standard.md`                            | Capability_Data_Contract_Registry (backend-neutral)                   |
+| CDK-Nag suppressions model                                     | `packages/components/**/tests/security/cdk-nag.test.ts`, manifest governance suppressions   | Exception_Record_Schema (backend-neutral)                             |
 
 ---
 

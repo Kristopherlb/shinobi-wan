@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { ElastiCacheLowerer } from '../lowerers/elasticache-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('ElastiCacheLowerer', () => {
@@ -95,7 +97,9 @@ describe('ElastiCacheLowerer', () => {
     const node = makeNode({
       id: 'platform:cache',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-elasticache', authToken: 'super-secret' } },
+      metadata: {
+        properties: { platform: 'aws-elasticache', authToken: 'super-secret' },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -153,7 +157,9 @@ describe('ElastiCacheLowerer', () => {
     const node = makeNode({
       id: 'platform:cache',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-elasticache', tags: { env: 'prod' } } },
+      metadata: {
+        properties: { platform: 'aws-elasticache', tags: { env: 'prod' } },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

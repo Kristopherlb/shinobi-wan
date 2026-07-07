@@ -1,9 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { lower } from '../adapter';
 import { generatePlan } from '../program-generator';
-import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from '../lowerer-registry';
+import {
+  NodeLowererRegistry,
+  createDefaultNodeLowererRegistry,
+} from '../lowerer-registry';
 import type { NodeLowerer, LoweredResource } from '../types';
-import { makeContext, makeIamIntent, makeNetworkIntent, makeConfigIntent, DEFAULT_ADAPTER_CONFIG } from './test-helpers';
+import {
+  makeContext,
+  makeIamIntent,
+  makeNetworkIntent,
+  makeConfigIntent,
+  DEFAULT_ADAPTER_CONFIG,
+} from './test-helpers';
 
 describe('lower (adapter orchestrator)', () => {
   it('produces resources from all intent types', () => {
@@ -30,7 +39,9 @@ describe('lower (adapter orchestrator)', () => {
   it('produces EventSourceMapping for Lambda→SQS binding', () => {
     const result = lower(makeContext());
 
-    const esm = result.resources.find((r) => r.resourceType === 'aws:lambda:EventSourceMapping');
+    const esm = result.resources.find(
+      (r) => r.resourceType === 'aws:lambda:EventSourceMapping',
+    );
     expect(esm).toBeDefined();
     expect(esm?.name).toBe('api-handler-work-queue-event-mapping');
     expect(esm?.dependsOn).toContain('api-handler-function');
@@ -57,7 +68,10 @@ describe('lower (adapter orchestrator)', () => {
     const result = lower(makeContext());
 
     // The edge that generated the intents should have resource entries
-    const edgeResources = result.resourceMap['edge:bindsTo:component:api-handler:platform:work-queue'];
+    const edgeResources =
+      result.resourceMap[
+        'edge:bindsTo:component:api-handler:platform:work-queue'
+      ];
     expect(edgeResources).toBeDefined();
     expect(edgeResources.length).toBeGreaterThan(0);
   });
@@ -65,15 +79,23 @@ describe('lower (adapter orchestrator)', () => {
   it('Lambda function references the IAM role', () => {
     const result = lower(makeContext());
 
-    const lambda = result.resources.find((r) => r.resourceType === 'aws:lambda:Function');
-    expect(lambda?.properties['role']).toEqual({ ref: 'api-handler-exec-role' });
+    const lambda = result.resources.find(
+      (r) => r.resourceType === 'aws:lambda:Function',
+    );
+    expect(lambda?.properties['role']).toEqual({
+      ref: 'api-handler-exec-role',
+    });
   });
 
   it('Lambda function includes QUEUE_URL env var', () => {
     const result = lower(makeContext());
 
-    const lambda = result.resources.find((r) => r.resourceType === 'aws:lambda:Function');
-    const env = lambda?.properties['environment'] as Record<string, unknown> | undefined;
+    const lambda = result.resources.find(
+      (r) => r.resourceType === 'aws:lambda:Function',
+    );
+    const env = lambda?.properties['environment'] as
+      | Record<string, unknown>
+      | undefined;
     expect(env?.['variables']).toBeDefined();
     const vars = env?.['variables'] as Record<string, unknown>;
     expect(vars['QUEUE_URL']).toBeDefined();
@@ -83,10 +105,13 @@ describe('lower (adapter orchestrator)', () => {
     const result = lower(makeContext());
 
     const ssmParam = result.resources.find(
-      (r) => r.resourceType === 'aws:ssm:Parameter' && r.name.includes('QUEUE_URL'),
+      (r) =>
+        r.resourceType === 'aws:ssm:Parameter' && r.name.includes('QUEUE_URL'),
     );
     expect(ssmParam).toBeDefined();
-    expect(ssmParam?.properties['value']).toEqual({ ref: 'work-queue-queue.url' });
+    expect(ssmParam?.properties['value']).toEqual({
+      ref: 'work-queue-queue.url',
+    });
   });
 
   it('silently skips telemetry intents', () => {
@@ -96,7 +121,8 @@ describe('lower (adapter orchestrator)', () => {
         {
           type: 'telemetry' as const,
           schemaVersion: '1.0.0' as const,
-          sourceEdgeId: 'edge:bindsTo:component:api-handler:platform:work-queue',
+          sourceEdgeId:
+            'edge:bindsTo:component:api-handler:platform:work-queue',
           targetNodeRef: 'component:api-handler',
           telemetryType: 'logs' as const,
           config: { enabled: true },
@@ -107,16 +133,27 @@ describe('lower (adapter orchestrator)', () => {
     const result = lower(ctx);
     expect(result.success).toBe(true);
     // No warning for telemetry
-    expect(result.diagnostics.some((d) => d.message.includes('telemetry'))).toBe(false);
+    expect(
+      result.diagnostics.some((d) => d.message.includes('telemetry')),
+    ).toBe(false);
   });
 
-  it('records explicit warning when network intents are not lowered', () => {
+  it('records an info diagnostic when a network intent has no enforcement point', () => {
+    // The default context connects a Lambda to SQS: no security groups, so
+    // there is nothing for the network intent to attach to.
     const result = lower(makeContext());
     expect(
-      result.diagnostics.some((d) =>
-        d.message.includes('Network intent lowering is not yet supported'),
+      result.diagnostics.some(
+        (d) =>
+          d.severity === 'info' &&
+          d.message.includes('no security-group enforcement point'),
       ),
     ).toBe(true);
+    expect(
+      result.resources.some(
+        (r) => r.resourceType === 'aws:ec2:SecurityGroupRule',
+      ),
+    ).toBe(false);
   });
 
   it('determinism: identical input produces identical output', () => {
@@ -152,7 +189,9 @@ describe('lower (adapter orchestrator)', () => {
     registry.register(customLambdaLowerer, { overwrite: true });
 
     const result = lower(makeContext(), { nodeLowererRegistry: registry });
-    expect(result.resources.some((r) => r.resourceType === 'test:custom:Lambda')).toBe(true);
+    expect(
+      result.resources.some((r) => r.resourceType === 'test:custom:Lambda'),
+    ).toBe(true);
   });
 
   it('marks lowering as failed when an intent lowerer throws', () => {
@@ -173,7 +212,9 @@ describe('lower (adapter orchestrator)', () => {
     expect(result.diagnostics.some((d) => d.severity === 'error')).toBe(true);
     expect(
       result.diagnostics.some((d) =>
-        d.message.includes('references unknown resource node "platform:missing"'),
+        d.message.includes(
+          'references unknown resource node "platform:missing"',
+        ),
       ),
     ).toBe(true);
   });
@@ -186,10 +227,12 @@ describe('lower (adapter orchestrator)', () => {
       // The only ARN allowed is the managed policy reference
       const withoutManagedPolicy = json.replace(
         'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-        ''
+        '',
       );
       // No other arn: patterns should exist
-      expect(withoutManagedPolicy).not.toMatch(/arn:aws:[a-z]+:[a-z0-9-]*:\d{12}:/);
+      expect(withoutManagedPolicy).not.toMatch(
+        /arn:aws:[a-z]+:[a-z0-9-]*:\d{12}:/,
+      );
     }
   });
 });

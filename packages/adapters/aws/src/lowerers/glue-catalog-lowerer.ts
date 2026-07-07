@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 interface GlueTableConfig {
@@ -18,14 +23,20 @@ interface GlueTableConfig {
 export class GlueCatalogLowerer implements NodeLowerer {
   readonly platform = 'aws-glue-catalog';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
     const tags = createStandardTags(node.id, 'aws-glue-catalog', extraTags);
 
     const dbName = `${name}-database`;
-    const databaseName = (config['databaseName'] as string) ?? makeResourceName(node.id, context.adapterConfig.serviceName);
+    const databaseName =
+      (config['databaseName'] as string) ??
+      makeResourceName(node.id, context.adapterConfig.serviceName);
     const description = (config['description'] as string) ?? '';
     const locationUri = config['locationUri'] as string | undefined;
 
@@ -49,7 +60,9 @@ export class GlueCatalogLowerer implements NodeLowerer {
       dependsOn: [],
     });
 
-    const tables = Array.isArray(config['tables']) ? (config['tables'] as GlueTableConfig[]) : [];
+    const tables = Array.isArray(config['tables'])
+      ? (config['tables'] as GlueTableConfig[])
+      : [];
 
     for (let i = 0; i < tables.length; i++) {
       const table = tables[i];
@@ -60,9 +73,12 @@ export class GlueCatalogLowerer implements NodeLowerer {
       };
 
       if (table.inputFormat) storageDescriptor.inputFormat = table.inputFormat;
-      if (table.outputFormat) storageDescriptor.outputFormat = table.outputFormat;
+      if (table.outputFormat)
+        storageDescriptor.outputFormat = table.outputFormat;
       if (table.serializationLibrary) {
-        storageDescriptor.serDeInfo = { serializationLibrary: table.serializationLibrary };
+        storageDescriptor.serDeInfo = {
+          serializationLibrary: table.serializationLibrary,
+        };
       }
       if (table.location) storageDescriptor.location = table.location;
 

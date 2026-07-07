@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  compareNodes,
-  compareEdges,
-  compareArtifacts,
-} from '../ordering';
+import { compareNodes, compareEdges, compareArtifacts } from '../ordering';
 import type { Node, Edge, DerivedArtifact } from '../types';
 
 // Test fixtures
@@ -179,9 +175,24 @@ describe('compareEdges', () => {
 
   it('provides total ordering - no two distinct edges compare equal', () => {
     const edges = [
-      createEdge({ id: 'edge:bindsTo:a:b', type: 'bindsTo', source: 'a', target: 'b' }),
-      createEdge({ id: 'edge:bindsTo:a:c', type: 'bindsTo', source: 'a', target: 'c' }),
-      createEdge({ id: 'edge:dependsOn:a:b', type: 'dependsOn', source: 'a', target: 'b' }),
+      createEdge({
+        id: 'edge:bindsTo:a:b',
+        type: 'bindsTo',
+        source: 'a',
+        target: 'b',
+      }),
+      createEdge({
+        id: 'edge:bindsTo:a:c',
+        type: 'bindsTo',
+        source: 'a',
+        target: 'c',
+      }),
+      createEdge({
+        id: 'edge:dependsOn:a:b',
+        type: 'dependsOn',
+        source: 'a',
+        target: 'b',
+      }),
     ];
 
     for (let i = 0; i < edges.length; i++) {

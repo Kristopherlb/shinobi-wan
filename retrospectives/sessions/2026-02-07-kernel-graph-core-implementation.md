@@ -3,6 +3,7 @@
 **Date:** 2026-02-07
 **Session Duration:** ~45 minutes
 **Artifacts Produced:**
+
 - 8 source files in `packages/ir/src/`
 - 8 test files with 135 tests
 - Vitest configuration
@@ -13,19 +14,24 @@
 ## What Went Well
 
 ### 1. TDD Discipline
+
 Strict Red-Green-Refactor cycle prevented over-engineering and ensured every line of code was justified by a failing test. The `/test-driven-development` skill provided clear guidance.
 
 ### 2. Incremental Task Tracking
+
 Using TaskCreate/TaskUpdate to track 10 discrete tasks kept the work organized and provided clear progress visibility. Each task had a focused scope.
 
 ### 3. Plan Quality
+
 The pre-existing implementation plan was detailed and accurate. It correctly identified:
+
 - The split identity model (id vs semanticHash)
 - Semantic projection boundaries
 - Copy-on-write mutation semantics
 - Canonical JSON requirements
 
 ### 4. Determinism Testing
+
 Built determinism verification directly into the test suite (run-twice tests, insertion-order independence). This catches nondeterminism early.
 
 ---
@@ -33,16 +39,19 @@ Built determinism verification directly into the test suite (run-twice tests, in
 ## What Could Have Been Better
 
 ### 1. Test Framework Switch Mid-Stream
+
 User requested Vitest instead of Jest after I had already created Jest config files. Had to delete and recreate.
 
 **Impact:** ~2 minutes, 3 extra tool calls
 
 ### 2. Missing ESLint Plugin
+
 Lint command failed due to missing `@nx/eslint-plugin`. This is a pre-existing project setup issue, not caught during initial exploration.
 
 **Impact:** Could not verify lint compliance; potential style inconsistencies
 
 ### 3. Type-Only Imports Initially Passed
+
 First types.test.ts passed despite the module not existing because TypeScript elides type-only imports. Had to add runtime constants (NODE_TYPES, etc.) to force the test to fail properly.
 
 **Impact:** ~3 minutes debugging why "passing" tests weren't actually testing anything
@@ -84,37 +93,37 @@ First types.test.ts passed despite the module not existing because TypeScript el
 
 ### Immediate (This Sprint)
 
-| Action | Effort | Impact |
-|--------|--------|--------|
-| Install `@nx/eslint-plugin` | 5 min | Enables lint checks on IR package |
-| Add tsconfig.json for IR package | 5 min | Proper TypeScript compilation |
+| Action                           | Effort | Impact                            |
+| -------------------------------- | ------ | --------------------------------- |
+| Install `@nx/eslint-plugin`      | 5 min  | Enables lint checks on IR package |
+| Add tsconfig.json for IR package | 5 min  | Proper TypeScript compilation     |
 
 ### Near-Term (Next 2 Sprints)
 
-| Action | Effort | Impact |
-|--------|--------|--------|
+| Action                            | Effort  | Impact                                                    |
+| --------------------------------- | ------- | --------------------------------------------------------- |
 | Create package generator/template | 2 hours | Consistent package scaffolding with correct Vitest config |
-| Add golden snapshot fixtures | 1 hour | Regression testing for serialization format |
+| Add golden snapshot fixtures      | 1 hour  | Regression testing for serialization format               |
 
 ### Strategic (Roadmap)
 
-| Action | Effort | Impact |
-|--------|--------|--------|
-| Implement `@shinobi/kernel` using IR | 4 hours | Next phase of architecture |
+| Action                                  | Effort  | Impact                          |
+| --------------------------------------- | ------- | ------------------------------- |
+| Implement `@shinobi/kernel` using IR    | 4 hours | Next phase of architecture      |
 | Add property-based testing (fast-check) | 2 hours | Stronger determinism guarantees |
 
 ---
 
 ## Metrics
 
-| Metric | Value | Target | Notes |
-|--------|-------|--------|-------|
-| Test files created | 8 | 8 | On target |
-| Tests written | 135 | ~100 | Exceeded - comprehensive coverage |
-| Source files created | 8 | 12 (per plan) | Consolidated types into directory |
-| User interruptions | 2 | 0 | Test framework switch, skill invocation |
-| Tool calls (estimate) | ~80 | <100 | Efficient |
-| Determinism verified | ✓ | ✓ | Run-twice tests pass |
+| Metric                | Value | Target        | Notes                                   |
+| --------------------- | ----- | ------------- | --------------------------------------- |
+| Test files created    | 8     | 8             | On target                               |
+| Tests written         | 135   | ~100          | Exceeded - comprehensive coverage       |
+| Source files created  | 8     | 12 (per plan) | Consolidated types into directory       |
+| User interruptions    | 2     | 0             | Test framework switch, skill invocation |
+| Tool calls (estimate) | ~80   | <100          | Efficient                               |
+| Determinism verified  | ✓     | ✓             | Run-twice tests pass                    |
 
 ---
 
@@ -127,24 +136,31 @@ First types.test.ts passed despite the module not existing because TypeScript el
 ## Plan Alignment (Mandatory)
 
 ### Plan Drift Observed
+
 - Plan specified Jest; user prefers Vitest
 - Plan listed 12 files in `types/` directory; consolidated to 5 files + index
 - Plan mentioned `semantic-projection.ts` as separate file; integrated into `id-generation.ts`
 
 ### Plan Updates to Apply Next Time
+
 ```markdown
 ## Test Framework
+
 Use Vitest (not Jest) for all packages. Config pattern:
+
 - `packages/<pkg>/vitest.config.ts`
 - Nx target: `nx:run-commands` with `vitest run`
 
 ## Type Module Structure
+
 Consolidate related types into `types/` directory with barrel export:
+
 - `types/index.ts` re-exports all types
 - Import as `from './types'` not individual files
 ```
 
 ### New Preflight Steps
+
 - Verify test framework preference before creating config
 - Ensure `@nx/eslint-plugin` is installed before running lint
 
@@ -152,11 +168,11 @@ Consolidate related types into `types/` directory with barrel export:
 
 ## Improvements / Capabilities That Would Help Next
 
-| Type | Proposal | Effort | Expected Impact |
-|------|----------|--------|-----------------|
-| Tooling | Package generator with Vitest config | 2 hours | Eliminates test framework setup friction |
-| Skill/Docs | Add "TDD with TypeScript" guidance to test-driven-development skill about type-only imports | 30 min | Prevents false-positive tests |
-| Capability | Pre-flight check for missing Nx plugins | 1 hour | Catches config issues before they block |
+| Type       | Proposal                                                                                    | Effort  | Expected Impact                          |
+| ---------- | ------------------------------------------------------------------------------------------- | ------- | ---------------------------------------- |
+| Tooling    | Package generator with Vitest config                                                        | 2 hours | Eliminates test framework setup friction |
+| Skill/Docs | Add "TDD with TypeScript" guidance to test-driven-development skill about type-only imports | 30 min  | Prevents false-positive tests            |
+| Capability | Pre-flight check for missing Nx plugins                                                     | 1 hour  | Catches config issues before they block  |
 
 ---
 

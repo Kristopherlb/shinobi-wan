@@ -3,6 +3,7 @@
 **Date:** 2026-02-09
 **Session Duration:** ~35 minutes
 **Artifacts Produced:**
+
 - `@shinobi/validation` package (4,479 lines of TypeScript)
 - 12 test files, 212 tests passing
 - 3-layer validation pipeline (schema → semantic → determinism)
@@ -12,18 +13,24 @@
 ## What Went Well
 
 ### 1. Plan Quality Was Excellent
+
 The Phase 3 plan was exceptionally well-structured. It included exact file structure, interface definitions, implementation steps, exit criteria, and conformance gate mappings. This reduced decision overhead to near zero—every step was clear.
 
 ### 2. TDD Pattern Remained Effective
+
 Writing tests first continued to work well. The pattern from Phases 1 & 2 carried forward naturally:
+
 - Write test file → implement → verify → refactor
 - Tests caught type mismatches immediately (e.g., `NodeMetadata` needing `properties` field)
 
 ### 3. Reuse of Existing Validators
+
 The plan correctly identified that IR validators could be wrapped rather than duplicated. Graph validators in the new package delegate to existing IR validation where possible, adding enhanced error messages and Kernel Law references.
 
 ### 4. Layered Architecture Worked Well
+
 The three-layer pipeline (schema → semantic → determinism) provided clear separation:
+
 - **Schema layer**: Catches structural issues immediately
 - **Semantic layer**: Referential integrity, forbidden patterns, least-privilege
 - **Determinism layer**: Ordering, hashing, stable IDs
@@ -31,7 +38,9 @@ The three-layer pipeline (schema → semantic → determinism) provided clear se
 Each layer can be run independently via the `level` option.
 
 ### 5. All Kernel Laws Enforced
+
 Successfully implemented enforcement for:
+
 - **KL-001**: Determinism (ordering, hashing, stable IDs)
 - **KL-002**: Schema validation with structured errors
 - **KL-003**: Capability compatibility matrix
@@ -43,7 +52,9 @@ Successfully implemented enforcement for:
 ## What Could Have Been Better
 
 ### 1. IR Type Definitions Required Test Fixes
+
 The plan's example types didn't match actual IR definitions:
+
 - `NodeMetadata` requires `properties: Record<string, unknown>`, not empty `{}`
 - `ArtifactType` uses `'network-rule'` not `'network-config'`
 - `NodeType` uses `'capability'` not `'edge'`
@@ -51,16 +62,19 @@ The plan's example types didn't match actual IR definitions:
 **Impact:** ~5 minutes fixing tests after tsc revealed mismatches
 
 ### 2. Vitest Path Alias Configuration
+
 Vitest didn't automatically resolve `@shinobi/contracts` and `@shinobi/ir` path aliases from `tsconfig.base.json`. Required manual alias configuration in `vitest.config.ts`.
 
 **Impact:** ~2 minutes debugging + fix
 
 ### 3. HashableEntity Type Needed Adjustment
+
 Initial interface with index signature `[key: string]: unknown` wasn't compatible with readonly IR types. Changed to union type `Node | Edge | DerivedArtifact`.
 
 **Impact:** ~2 minutes
 
 ### 4. Unused Variable Lint Warnings
+
 Small lint warnings for unused variables accumulated during implementation. Fixed at the end, but could have been caught incrementally.
 
 **Impact:** ~2 minutes
@@ -116,36 +130,36 @@ Small lint warnings for unused variables accumulated during implementation. Fixe
 
 ### Immediate (This Sprint)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
+| ID      | Action                                                       | Effort | Impact                                      |
+| ------- | ------------------------------------------------------------ | ------ | ------------------------------------------- |
 | IMP-009 | Create package scaffolding template with Vitest alias config | 30 min | Eliminates alias debugging for new packages |
 
 ### Near-Term (Next 2 Sprints)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
-| IMP-010 | Create validation skill documenting the 3-layer pattern | 1 hour | Standardizes validation approach for future validators |
-| IMP-003 | Package Generator with Vitest Config (existing) | 2 hours | Automates scaffolding entirely |
+| ID      | Action                                                  | Effort  | Impact                                                 |
+| ------- | ------------------------------------------------------- | ------- | ------------------------------------------------------ |
+| IMP-010 | Create validation skill documenting the 3-layer pattern | 1 hour  | Standardizes validation approach for future validators |
+| IMP-003 | Package Generator with Vitest Config (existing)         | 2 hours | Automates scaffolding entirely                         |
 
 ### Strategic (Roadmap)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
+| ID      | Action                               | Effort  | Impact                                              |
+| ------- | ------------------------------------ | ------- | --------------------------------------------------- |
 | IMP-011 | Test fixture generators for IR types | 2 hours | Reduces boilerplate in tests, ensures type accuracy |
 
 ---
 
 ## Metrics
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Test files | 12 | Comprehensive coverage of all layers |
-| Tests passing | 212 | All green |
-| Source files | 16 | Well-organized by layer |
-| Lines of code | 4,479 | Including tests |
-| Runtime dependencies | 2 | @shinobi/contracts, @shinobi/ir |
-| Tool calls (estimated) | ~45 | Efficient due to clear plan |
-| Session duration | ~35 min | Minimal friction |
+| Metric                 | Value   | Notes                                |
+| ---------------------- | ------- | ------------------------------------ |
+| Test files             | 12      | Comprehensive coverage of all layers |
+| Tests passing          | 212     | All green                            |
+| Source files           | 16      | Well-organized by layer              |
+| Lines of code          | 4,479   | Including tests                      |
+| Runtime dependencies   | 2       | @shinobi/contracts, @shinobi/ir      |
+| Tool calls (estimated) | ~45     | Efficient due to clear plan          |
+| Session duration       | ~35 min | Minimal friction                     |
 
 ---
 
@@ -158,6 +172,7 @@ Small lint warnings for unused variables accumulated during implementation. Fixe
 ## Plan Alignment (Mandatory)
 
 ### Drift Analysis
+
 Implementation matched the plan extremely closely:
 
 1. **Types adjusted**: Test fixture types updated to match actual IR definitions (minor)
@@ -166,9 +181,10 @@ Implementation matched the plan extremely closely:
 4. **Scope unchanged**: All planned validators and orchestrator functions implemented
 
 ### Plan Updates for Future Phases
+
 If creating similar validation packages in the future:
 
-```markdown
+````markdown
 ## Vitest Configuration (add to Step 1)
 
 The vitest.config.ts must include path aliases to resolve workspace packages:
@@ -186,6 +202,8 @@ export default defineConfig({
   // ... rest of config
 });
 ```
+````
+
 ```
 
 ### New Preflight Steps
@@ -218,6 +236,7 @@ export default defineConfig({
 ## Files Created
 
 ```
+
 packages/validation/
 ├── project.json
 ├── package.json
@@ -225,41 +244,42 @@ packages/validation/
 ├── vitest.config.ts
 ├── .eslintrc.json
 └── src/
-    ├── index.ts
-    ├── errors.ts
-    ├── orchestrator.ts
-    ├── schema/
-    │   ├── index.ts
-    │   ├── field-validators.ts
-    │   ├── graph-validators.ts
-    │   └── contract-validators.ts
-    ├── semantic/
-    │   ├── index.ts
-    │   ├── reference-validator.ts
-    │   ├── forbidden-patterns.ts
-    │   ├── least-privilege.ts
-    │   └── capability-validator.ts
-    ├── determinism/
-    │   ├── index.ts
-    │   ├── ordering-validator.ts
-    │   ├── hash-validator.ts
-    │   └── stable-id-validator.ts
-    └── __tests__/
-        ├── errors.test.ts
-        ├── orchestrator.test.ts
-        ├── schema/
-        │   ├── field-validators.test.ts
-        │   ├── graph-validators.test.ts
-        │   └── contract-validators.test.ts
-        ├── semantic/
-        │   ├── reference-validator.test.ts
-        │   ├── forbidden-patterns.test.ts
-        │   ├── least-privilege.test.ts
-        │   └── capability-validator.test.ts
-        └── determinism/
-            ├── ordering-validator.test.ts
-            ├── hash-validator.test.ts
-            └── stable-id-validator.test.ts
+├── index.ts
+├── errors.ts
+├── orchestrator.ts
+├── schema/
+│ ├── index.ts
+│ ├── field-validators.ts
+│ ├── graph-validators.ts
+│ └── contract-validators.ts
+├── semantic/
+│ ├── index.ts
+│ ├── reference-validator.ts
+│ ├── forbidden-patterns.ts
+│ ├── least-privilege.ts
+│ └── capability-validator.ts
+├── determinism/
+│ ├── index.ts
+│ ├── ordering-validator.ts
+│ ├── hash-validator.ts
+│ └── stable-id-validator.ts
+└── **tests**/
+├── errors.test.ts
+├── orchestrator.test.ts
+├── schema/
+│ ├── field-validators.test.ts
+│ ├── graph-validators.test.ts
+│ └── contract-validators.test.ts
+├── semantic/
+│ ├── reference-validator.test.ts
+│ ├── forbidden-patterns.test.ts
+│ ├── least-privilege.test.ts
+│ └── capability-validator.test.ts
+└── determinism/
+├── ordering-validator.test.ts
+├── hash-validator.test.ts
+└── stable-id-validator.test.ts
+
 ```
 
 ---
@@ -278,3 +298,4 @@ Phase 4 candidates (per CLAUDE.md sequence):
 - [x] Create retrospective file
 - [ ] Update `/retrospectives/PATTERNS.md` with Vitest alias pattern
 - [ ] Add recommendations to `/retrospectives/IMPROVEMENTS.md` with IDs
+```

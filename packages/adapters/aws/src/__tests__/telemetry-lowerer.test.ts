@@ -3,9 +3,13 @@ import { TelemetryIntentLowerer } from '../lowerers/telemetry-lowerer';
 import type { TelemetryIntent } from '@shinobi/contracts';
 import { makeDefaultContext } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 
-function makeTelemetryIntent(overrides?: Partial<TelemetryIntent>): TelemetryIntent {
+function makeTelemetryIntent(
+  overrides?: Partial<TelemetryIntent>,
+): TelemetryIntent {
   return {
     type: 'telemetry',
     schemaVersion: '1.0.0',
@@ -52,21 +56,31 @@ describe('TelemetryIntentLowerer', () => {
   });
 
   it('policy name uses target shortName', () => {
-    const intent = makeTelemetryIntent({ targetNodeRef: 'component:api-handler' });
+    const intent = makeTelemetryIntent({
+      targetNodeRef: 'component:api-handler',
+    });
     const resources = lowerer.lower(intent, DEFAULT_CONTEXT);
     expect(resources[0].name).toBe('api-handler-xray-policy');
   });
 
   it('attachment references correct role and policy', () => {
-    const intent = makeTelemetryIntent({ targetNodeRef: 'component:api-handler' });
+    const intent = makeTelemetryIntent({
+      targetNodeRef: 'component:api-handler',
+    });
     const resources = lowerer.lower(intent, DEFAULT_CONTEXT);
     const attachment = resources[1];
-    expect(attachment.properties['role']).toEqual({ ref: 'api-handler-exec-role' });
-    expect(attachment.properties['policyArn']).toEqual({ ref: 'api-handler-xray-policy' });
+    expect(attachment.properties['role']).toEqual({
+      ref: 'api-handler-exec-role',
+    });
+    expect(attachment.properties['policyArn']).toEqual({
+      ref: 'api-handler-xray-policy',
+    });
   });
 
   it('attachment depends on role and policy', () => {
-    const intent = makeTelemetryIntent({ targetNodeRef: 'component:api-handler' });
+    const intent = makeTelemetryIntent({
+      targetNodeRef: 'component:api-handler',
+    });
     const resources = lowerer.lower(intent, DEFAULT_CONTEXT);
     expect(resources[1].dependsOn).toContain('api-handler-exec-role');
     expect(resources[1].dependsOn).toContain('api-handler-xray-policy');

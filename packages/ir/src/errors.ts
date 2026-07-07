@@ -7,7 +7,7 @@ export class ValidationError extends Error {
 
   constructor(
     readonly path: string,
-    readonly rule: string
+    readonly rule: string,
   ) {
     super(`Validation failed at ${path}: ${rule}`);
   }
@@ -23,10 +23,10 @@ export class ConflictError extends Error {
   constructor(
     readonly id: string,
     readonly existingHash: string,
-    readonly incomingHash: string
+    readonly incomingHash: string,
   ) {
     super(
-      `Conflict at ${id}: existing hash ${existingHash} differs from incoming ${incomingHash}`
+      `Conflict at ${id}: existing hash ${existingHash} differs from incoming ${incomingHash}`,
     );
   }
 }
@@ -40,7 +40,7 @@ export class IntegrityError extends Error {
 
   constructor(
     readonly missingRef: string,
-    readonly referencedBy: string
+    readonly referencedBy: string,
   ) {
     super(`Reference ${missingRef} not found, referenced by ${referencedBy}`);
   }

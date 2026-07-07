@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -8,17 +13,25 @@ import { shortName, createStandardTags } from './utils';
 export class SubnetLowerer implements NodeLowerer {
   readonly platform = 'aws-subnet';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
     const tags = createStandardTags(node.id, 'aws-subnet', extraTags);
 
     const vpcRefName = config['vpcId'] as string | undefined;
-    const vpcId = vpcRefName ? { ref: `${shortName(vpcRefName)}-vpc` } : { ref: 'default-vpc' };
-    const cidrBlock = (config['cidrBlock'] as string | undefined) ?? '10.0.1.0/24';
+    const vpcId = vpcRefName
+      ? { ref: `${shortName(vpcRefName)}-vpc` }
+      : { ref: 'default-vpc' };
+    const cidrBlock =
+      (config['cidrBlock'] as string | undefined) ?? '10.0.1.0/24';
     const availabilityZone = config['availabilityZone'] as string | undefined;
-    const mapPublicIpOnLaunch = (config['mapPublicIpOnLaunch'] as boolean | undefined) ?? false;
+    const mapPublicIpOnLaunch =
+      (config['mapPublicIpOnLaunch'] as boolean | undefined) ?? false;
 
     const resources: LoweredResource[] = [];
 

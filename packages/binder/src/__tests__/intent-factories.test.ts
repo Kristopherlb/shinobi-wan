@@ -14,8 +14,12 @@ describe('intent-factories', () => {
       const intent = createIamIntent(
         edgeId,
         { nodeRef: 'component:svc-a', role: 'service' },
-        { nodeRef: 'platform:aws-lambda', resourceType: 'function', scope: 'specific' },
-        [{ level: 'read', action: 'read' }]
+        {
+          nodeRef: 'platform:aws-lambda',
+          resourceType: 'function',
+          scope: 'specific',
+        },
+        [{ level: 'read', action: 'read' }],
       );
 
       expect(intent.type).toBe('iam');
@@ -30,9 +34,13 @@ describe('intent-factories', () => {
       const intent = createIamIntent(
         edgeId,
         { nodeRef: 'component:svc-a', role: 'service' },
-        { nodeRef: 'platform:aws-lambda', resourceType: 'function', scope: 'specific' },
+        {
+          nodeRef: 'platform:aws-lambda',
+          resourceType: 'function',
+          scope: 'specific',
+        },
         [{ level: 'read', action: 'read' }],
-        [{ key: 'env', operator: 'equals', value: 'production' }]
+        [{ key: 'env', operator: 'equals', value: 'production' }],
       );
 
       expect(intent.conditions).toHaveLength(1);
@@ -43,8 +51,12 @@ describe('intent-factories', () => {
       const intent = createIamIntent(
         edgeId,
         { nodeRef: 'component:svc-a', role: 'service' },
-        { nodeRef: 'platform:aws-lambda', resourceType: 'function', scope: 'specific' },
-        [{ level: 'read', action: 'read' }]
+        {
+          nodeRef: 'platform:aws-lambda',
+          resourceType: 'function',
+          scope: 'specific',
+        },
+        [{ level: 'read', action: 'read' }],
       );
 
       expect(intent.conditions).toBeUndefined();
@@ -54,8 +66,12 @@ describe('intent-factories', () => {
       const intent = createIamIntent(
         edgeId,
         { nodeRef: 'component:svc-a', role: 'service' },
-        { nodeRef: 'platform:aws-lambda', resourceType: 'function', scope: 'specific' },
-        [{ level: 'read', action: 'read' }]
+        {
+          nodeRef: 'platform:aws-lambda',
+          resourceType: 'function',
+          scope: 'specific',
+        },
+        [{ level: 'read', action: 'read' }],
       );
 
       expect(Object.isFrozen(intent)).toBe(true);
@@ -72,7 +88,7 @@ describe('intent-factories', () => {
         'egress',
         { nodeRef: 'component:svc-a', port: 443 },
         { nodeRef: 'platform:aws-lambda', port: 443 },
-        { protocol: 'tcp', ports: [443] }
+        { protocol: 'tcp', ports: [443] },
       );
 
       expect(intent.type).toBe('network');
@@ -90,7 +106,7 @@ describe('intent-factories', () => {
         'egress',
         { nodeRef: 'component:svc-a' },
         { nodeRef: 'platform:aws-lambda' },
-        { protocol: 'tcp' }
+        { protocol: 'tcp' },
       );
 
       expect(Object.isFrozen(intent)).toBe(true);
@@ -101,19 +117,20 @@ describe('intent-factories', () => {
 
   describe('createConfigIntent', () => {
     it('creates a valid config intent with literal value', () => {
-      const intent = createConfigIntent(
-        edgeId,
-        'component:svc-a',
-        'DB_HOST',
-        { type: 'literal', value: 'localhost' }
-      );
+      const intent = createConfigIntent(edgeId, 'component:svc-a', 'DB_HOST', {
+        type: 'literal',
+        value: 'localhost',
+      });
 
       expect(intent.type).toBe('config');
       expect(intent.schemaVersion).toBe('1.0.0');
       expect(intent.sourceEdgeId).toBe(edgeId);
       expect(intent.targetNodeRef).toBe('component:svc-a');
       expect(intent.key).toBe('DB_HOST');
-      expect(intent.valueSource).toEqual({ type: 'literal', value: 'localhost' });
+      expect(intent.valueSource).toEqual({
+        type: 'literal',
+        value: 'localhost',
+      });
     });
 
     it('creates a valid config intent with reference value', () => {
@@ -121,7 +138,7 @@ describe('intent-factories', () => {
         edgeId,
         'component:svc-a',
         'QUEUE_URL',
-        { type: 'reference', nodeRef: 'platform:sqs', field: 'url' }
+        { type: 'reference', nodeRef: 'platform:sqs', field: 'url' },
       );
 
       expect(intent.valueSource).toEqual({
@@ -132,12 +149,10 @@ describe('intent-factories', () => {
     });
 
     it('creates a valid config intent with secret value', () => {
-      const intent = createConfigIntent(
-        edgeId,
-        'component:svc-a',
-        'API_KEY',
-        { type: 'secret', secretRef: 'secret:api-key' }
-      );
+      const intent = createConfigIntent(edgeId, 'component:svc-a', 'API_KEY', {
+        type: 'secret',
+        secretRef: 'secret:api-key',
+      });
 
       expect(intent.valueSource).toEqual({
         type: 'secret',
@@ -146,12 +161,10 @@ describe('intent-factories', () => {
     });
 
     it('returns a frozen object', () => {
-      const intent = createConfigIntent(
-        edgeId,
-        'component:svc-a',
-        'KEY',
-        { type: 'literal', value: 'val' }
-      );
+      const intent = createConfigIntent(edgeId, 'component:svc-a', 'KEY', {
+        type: 'literal',
+        value: 'val',
+      });
 
       expect(Object.isFrozen(intent)).toBe(true);
       expect(Object.isFrozen(intent.valueSource)).toBe(true);
@@ -164,7 +177,7 @@ describe('intent-factories', () => {
         edgeId,
         'component:svc-a',
         'metrics',
-        { enabled: true, samplingRate: 0.5 }
+        { enabled: true, samplingRate: 0.5 },
       );
 
       expect(intent.type).toBe('telemetry');
@@ -177,12 +190,9 @@ describe('intent-factories', () => {
     });
 
     it('returns a frozen object', () => {
-      const intent = createTelemetryIntent(
-        edgeId,
-        'component:svc-a',
-        'logs',
-        { enabled: true }
-      );
+      const intent = createTelemetryIntent(edgeId, 'component:svc-a', 'logs', {
+        enabled: true,
+      });
 
       expect(Object.isFrozen(intent)).toBe(true);
       expect(Object.isFrozen(intent.config)).toBe(true);
@@ -195,27 +205,22 @@ describe('intent-factories', () => {
         edgeId,
         { nodeRef: 'n1', role: 'service' },
         { nodeRef: 'n2', resourceType: 'bucket', scope: 'specific' },
-        [{ level: 'read', action: 'read' }]
+        [{ level: 'read', action: 'read' }],
       );
       const net = createNetworkIntent(
         edgeId,
         'egress',
         { nodeRef: 'n1' },
         { nodeRef: 'n2' },
-        { protocol: 'tcp' }
+        { protocol: 'tcp' },
       );
-      const cfg = createConfigIntent(
-        edgeId,
-        'n1',
-        'KEY',
-        { type: 'literal', value: 'v' }
-      );
-      const tel = createTelemetryIntent(
-        edgeId,
-        'n1',
-        'traces',
-        { enabled: true }
-      );
+      const cfg = createConfigIntent(edgeId, 'n1', 'KEY', {
+        type: 'literal',
+        value: 'v',
+      });
+      const tel = createTelemetryIntent(edgeId, 'n1', 'traces', {
+        enabled: true,
+      });
 
       expect(iam.schemaVersion).toBe('1.0.0');
       expect(net.schemaVersion).toBe('1.0.0');
@@ -229,27 +234,22 @@ describe('intent-factories', () => {
         customEdgeId,
         { nodeRef: 'n1', role: 'service' },
         { nodeRef: 'n2', resourceType: 'bucket', scope: 'specific' },
-        [{ level: 'read', action: 'read' }]
+        [{ level: 'read', action: 'read' }],
       );
       const net = createNetworkIntent(
         customEdgeId,
         'ingress',
         { nodeRef: 'n1' },
         { nodeRef: 'n2' },
-        { protocol: 'udp' }
+        { protocol: 'udp' },
       );
-      const cfg = createConfigIntent(
-        customEdgeId,
-        'n1',
-        'KEY',
-        { type: 'literal', value: 'v' }
-      );
-      const tel = createTelemetryIntent(
-        customEdgeId,
-        'n1',
-        'logs',
-        { enabled: false }
-      );
+      const cfg = createConfigIntent(customEdgeId, 'n1', 'KEY', {
+        type: 'literal',
+        value: 'v',
+      });
+      const tel = createTelemetryIntent(customEdgeId, 'n1', 'logs', {
+        enabled: false,
+      });
 
       expect(iam.sourceEdgeId).toBe(customEdgeId);
       expect(net.sourceEdgeId).toBe(customEdgeId);

@@ -69,7 +69,9 @@ describe('SageMakerPipelineLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.pipelineDescription).toBe('Training pipeline for model v2');
+    expect(result[0]?.properties?.pipelineDescription).toBe(
+      'Training pipeline for model v2',
+    );
   });
 
   it('should default to empty description', () => {
@@ -96,7 +98,9 @@ describe('SageMakerPipelineLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.parallelismConfiguration).toEqual({ maxParallelExecutionSteps: 5 });
+    expect(result[0]?.properties?.parallelismConfiguration).toEqual({
+      maxParallelExecutionSteps: 5,
+    });
   });
 
   it('should omit parallelism configuration when not provided', () => {
@@ -123,7 +127,9 @@ describe('SageMakerPipelineLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.roleArn).toBe('arn:aws:iam::123456789012:role/SageMakerRole');
+    expect(result[0]?.properties?.roleArn).toBe(
+      'arn:aws:iam::123456789012:role/SageMakerRole',
+    );
   });
 
   it('should include standard tags', () => {

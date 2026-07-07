@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class SqsLowerer implements NodeLowerer {
   readonly platform = 'aws-sqs';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const hasDlq = props['deadLetterQueue'] === true;
@@ -24,8 +33,11 @@ export class SqsLowerer implements NodeLowerer {
         resourceType: 'aws:sqs:Queue',
         properties: {
           name: `${context.adapterConfig.serviceName}-${name}-dlq`,
-          messageRetentionSeconds: (props['dlqMessageRetention'] as number) ?? 1209600, // 14 days
-          tags: createStandardTags(node.id, 'aws-sqs', { 'shinobi:role': 'dead-letter-queue' }),
+          messageRetentionSeconds:
+            (props['dlqMessageRetention'] as number) ?? 1209600, // 14 days
+          tags: createStandardTags(node.id, 'aws-sqs', {
+            'shinobi:role': 'dead-letter-queue',
+          }),
         },
         sourceId: node.id,
         dependsOn: [],
@@ -39,7 +51,8 @@ export class SqsLowerer implements NodeLowerer {
       properties: {
         name: `${context.adapterConfig.serviceName}-${name}`,
         visibilityTimeoutSeconds: (props['visibilityTimeout'] as number) ?? 30,
-        messageRetentionSeconds: (props['messageRetention'] as number) ?? 345600,
+        messageRetentionSeconds:
+          (props['messageRetention'] as number) ?? 345600,
         ...(hasDlq
           ? {
               redrivePolicy: JSON.stringify({

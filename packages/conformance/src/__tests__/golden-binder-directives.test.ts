@@ -1,13 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { BinderRegistry, ComponentPlatformBinder, TriggersBinder } from '@shinobi/binder';
+import {
+  BinderRegistry,
+  ComponentPlatformBinder,
+  TriggersBinder,
+} from '@shinobi/binder';
 import { runGoldenCase } from '../golden-runner';
 import type { GoldenCase } from '../types';
 
 const CASE_DIRECTIVE: GoldenCase = {
   id: 'golden:binder:directive-validation',
-  description: 'Binder inputs match directive schema, invalid configs produce deterministic diagnostics',
+  description:
+    'Binder inputs match directive schema, invalid configs produce deterministic diagnostics',
   gates: ['G-021'],
 };
 

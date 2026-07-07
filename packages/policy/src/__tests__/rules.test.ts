@@ -70,22 +70,36 @@ describe('RULE_CATALOG', () => {
 describe('RULE_CATALOG ↔ SEVERITY_MAP consistency', () => {
   const catalogIds = RULE_CATALOG.map((r) => r.ruleId).sort();
 
-  it.each([...SUPPORTED_PACKS])('every catalog rule has a severity in %s', (pack) => {
-    const mapIds = Object.keys(SEVERITY_MAP[pack]).sort();
-    for (const ruleId of catalogIds) {
-      expect(mapIds, `Rule "${ruleId}" missing from SEVERITY_MAP["${pack}"]`).toContain(ruleId);
-    }
-  });
+  it.each([...SUPPORTED_PACKS])(
+    'every catalog rule has a severity in %s',
+    (pack) => {
+      const mapIds = Object.keys(SEVERITY_MAP[pack]).sort();
+      for (const ruleId of catalogIds) {
+        expect(
+          mapIds,
+          `Rule "${ruleId}" missing from SEVERITY_MAP["${pack}"]`,
+        ).toContain(ruleId);
+      }
+    },
+  );
 
-  it.each([...SUPPORTED_PACKS])('every %s severity entry maps to a catalog rule', (pack) => {
-    const mapIds = Object.keys(SEVERITY_MAP[pack]).sort();
-    for (const ruleId of mapIds) {
-      expect(catalogIds, `SEVERITY_MAP["${pack}"] has orphan rule "${ruleId}"`).toContain(ruleId);
-    }
-  });
+  it.each([...SUPPORTED_PACKS])(
+    'every %s severity entry maps to a catalog rule',
+    (pack) => {
+      const mapIds = Object.keys(SEVERITY_MAP[pack]).sort();
+      for (const ruleId of mapIds) {
+        expect(
+          catalogIds,
+          `SEVERITY_MAP["${pack}"] has orphan rule "${ruleId}"`,
+        ).toContain(ruleId);
+      }
+    },
+  );
 
   it('all packs have the same rule set', () => {
-    const packKeys = SUPPORTED_PACKS.map((p) => Object.keys(SEVERITY_MAP[p]).sort());
+    const packKeys = SUPPORTED_PACKS.map((p) =>
+      Object.keys(SEVERITY_MAP[p]).sort(),
+    );
     for (let i = 1; i < packKeys.length; i++) {
       expect(packKeys[i]).toEqual(packKeys[0]);
     }

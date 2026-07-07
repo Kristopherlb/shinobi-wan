@@ -20,15 +20,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Model subnet
   - id: model-subnet
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.10.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.10.0/24'
       availabilityZone: us-east-1a
 
   # S3 for model artifacts
@@ -43,13 +43,13 @@ components:
     type: platform
     platform: aws-sagemaker-endpoint
     config:
-      modelImage: "123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest"
-      modelDataUrl: "s3://model-artifacts/model.tar.gz"
+      modelImage: '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest'
+      modelDataUrl: 's3://model-artifacts/model.tar.gz'
       instanceType: ml.m5.large
       initialInstanceCount: 1
       vpcConfig:
         subnetIds:
-          - "platform:model-subnet"
+          - 'platform:model-subnet'
         securityGroupIds: []
 
   # Lambda function for model invocation

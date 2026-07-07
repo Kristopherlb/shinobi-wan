@@ -4,7 +4,8 @@ import type { GoldenCase } from '../types';
 
 const CASE_SCHEMA: GoldenCase = {
   id: 'golden:component:capability-schema',
-  description: 'Component capability contracts must satisfy required schema and action constraints',
+  description:
+    'Component capability contracts must satisfy required schema and action constraints',
   gates: ['G-005'],
 };
 
@@ -21,7 +22,9 @@ const VALID_CAPABILITY_CONTRACT = {
 describe(`Golden: Component Capability Schema (G-005)`, () => {
   describe(`${CASE_SCHEMA.id} — ${CASE_SCHEMA.description}`, () => {
     it('G-005: accepts a valid capability contract', () => {
-      const result = validateCapabilityContractSchema(VALID_CAPABILITY_CONTRACT);
+      const result = validateCapabilityContractSchema(
+        VALID_CAPABILITY_CONTRACT,
+      );
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
@@ -37,14 +40,18 @@ describe(`Golden: Component Capability Schema (G-005)`, () => {
       const invalid = { ...VALID_CAPABILITY_CONTRACT, id: 'bad-capability-id' };
       const result = validateCapabilityContractSchema(invalid);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-capability-id')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'invalid-capability-id'),
+      ).toBe(true);
     });
 
     it('G-005: rejects unsupported capability action values', () => {
       const invalid = { ...VALID_CAPABILITY_CONTRACT, actions: ['superuser'] };
       const result = validateCapabilityContractSchema(invalid);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path.startsWith('$.actions['))).toBe(true);
+      expect(result.errors.some((e) => e.path.startsWith('$.actions['))).toBe(
+        true,
+      );
     });
 
     it('determinism: capability schema validation output is stable', () => {

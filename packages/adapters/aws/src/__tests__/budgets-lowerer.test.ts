@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { BudgetsLowerer } from '../lowerers/budgets-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('BudgetsLowerer', () => {
@@ -75,11 +77,16 @@ describe('BudgetsLowerer', () => {
     const node = makeNode({
       id: 'platform:monthly-budget',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-budgets', thresholdPercentage: 80 } },
+      metadata: {
+        properties: { platform: 'aws-budgets', thresholdPercentage: 80 },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const notifications = resources[0].properties['notifications'] as Record<string, unknown>[];
+    const notifications = resources[0].properties['notifications'] as Record<
+      string,
+      unknown
+    >[];
     expect(notifications).toHaveLength(1);
     expect(notifications[0]['threshold']).toBe(80);
     expect(notifications[0]['thresholdType']).toBe('PERCENTAGE');
@@ -89,11 +96,20 @@ describe('BudgetsLowerer', () => {
     const node = makeNode({
       id: 'platform:monthly-budget',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-budgets', thresholdPercentage: 80, notificationTopicArn: 'platform:alerts' } },
+      metadata: {
+        properties: {
+          platform: 'aws-budgets',
+          thresholdPercentage: 80,
+          notificationTopicArn: 'platform:alerts',
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const subscribers = resources[0].properties['subscribers'] as Record<string, unknown>[];
+    const subscribers = resources[0].properties['subscribers'] as Record<
+      string,
+      unknown
+    >[];
     expect(subscribers).toHaveLength(1);
     expect(subscribers[0]['subscriptionType']).toBe('SNS');
     expect(subscribers[0]['address']).toEqual({ ref: 'alerts-topic' });
@@ -138,7 +154,9 @@ describe('BudgetsLowerer', () => {
     const node = makeNode({
       id: 'platform:monthly-budget',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-budgets', thresholdPercentage: 80 } },
+      metadata: {
+        properties: { platform: 'aws-budgets', thresholdPercentage: 80 },
+      },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

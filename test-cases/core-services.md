@@ -3,6 +3,7 @@
 Purpose: capture **backend-neutral** semantics for **schema/manifest/directive validation** from the Shinobi test suite, reframed as V3 **Kernel Laws** and **portable behaviors**.
 
 Related canonical laws/patterns (see `README.md`):
+
 - Kernel Laws: **KL-002** (SchemaAndSpecValidation), **KL-006** (ExplainableDiagnostics), **KL-001** (DeterministicCompilation), **KL-003** (CapabilityCompatibilityMatrix)
 - Patterns: **P-006** (SchemaCompositionDiscovery)
 
@@ -36,7 +37,7 @@ These come directly from `index.md` (treat template/CDK coupling as legacy evide
 
 - **Validate against an explicit schema surface**: inputs must validate against the correct schema(s) for their declared kind/version.
 - **Stable, actionable diagnostics**:
-  - stable *path addressing* (e.g., JSONPath-like) for invalid fields
+  - stable _path addressing_ (e.g., JSONPath-like) for invalid fields
   - stable, human-actionable messages
   - when relevant: include `allowedValues` (or equivalent) and remediation hints
 - **Strictness**: invalid inputs must be rejected; no silent fallback.
@@ -69,4 +70,3 @@ TODO: Enumerate the canonical error codes/IDs (if any) and their stable message 
 ## Non-goals / drop list
 
 - Any assertions about CDK construct trees, CloudFormation template output, or synth-time constructs.
-

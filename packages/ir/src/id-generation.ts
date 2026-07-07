@@ -18,7 +18,7 @@ export function createNodeId(type: NodeType, canonicalPath: string): string {
 export function createEdgeId(
   type: EdgeType,
   sourceId: string,
-  targetId: string
+  targetId: string,
 ): string {
   return `edge:${type}:${sourceId}:${targetId}`;
 }
@@ -29,7 +29,7 @@ export function createEdgeId(
  */
 export function createArtifactId(
   type: ArtifactType,
-  sourceNodeId: string
+  sourceNodeId: string,
 ): string {
   return `artifact:${type}:${sourceNodeId}`;
 }

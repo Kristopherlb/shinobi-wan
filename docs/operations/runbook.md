@@ -46,6 +46,7 @@ node packages/cli/dist/main.js validate examples/lambda-sqs.yaml
 ```
 
 Success criteria:
+
 - Validation result is `SUCCESS`
 - Errors list is empty
 
@@ -56,6 +57,7 @@ node packages/cli/dist/main.js plan examples/lambda-sqs.yaml --region us-east-1
 ```
 
 Success criteria:
+
 - Plan result is `SUCCESS`
 - Resources list is non-empty for non-trivial manifests
 
@@ -66,6 +68,7 @@ node packages/cli/dist/main.js up examples/lambda-sqs.yaml --region us-east-1 --
 ```
 
 Success criteria:
+
 - Message includes `Preview complete`
 - `deployed` is `false`
 
@@ -76,6 +79,7 @@ node packages/cli/dist/main.js up examples/lambda-sqs.yaml --region us-east-1 --
 ```
 
 Success criteria:
+
 - Message includes `Deployed`
 - Stack name is returned
 - Outputs are printed when available
@@ -100,36 +104,44 @@ Required checks before production apply:
 ## AWS credential failure
 
 Symptom:
+
 - Preview/deploy fails with `aws-credentials` style message.
 
 Action:
+
 - Re-export AWS credentials in current shell.
 - Re-run preview before apply.
 
 ## Pulumi runtime/plugin failure
 
 Symptom:
+
 - Error category suggests pulumi runtime/load plugin issue.
 
 Action:
+
 - Verify Pulumi CLI installation and shell visibility.
 - Re-run `plan` and preview.
 
 ## Unresolved ref failure
 
 Symptom:
+
 - Error includes `Unresolved ref` or `Unresolved output`.
 
 Action:
+
 - Check manifest binding references and generated resource linkage.
 - Ensure source/target nodes and binding config fields match supported patterns.
 
 ## Policy non-compliance
 
 Symptom:
+
 - Validation succeeds structurally but policy says non-compliant.
 
 Action:
+
 - Inspect violation list and remediation guidance.
 - Fix manifest intent shape (scope/actions/conditions) and re-run validate/plan.
 
@@ -171,5 +183,6 @@ For Harmony integration rollout:
    - `SHINOBI_APPROVAL_REQUIRED=true`
    - `SHINOBI_APPROVAL_MAX_SLA_MINUTES=<threshold>`
 10. Keep decision package current:
-   - `docs/operations/harmony-go-no-go-decision.md`
-   - update sign-off record when gates or risk posture change.
+
+- `docs/operations/harmony-go-no-go-decision.md`
+- update sign-off record when gates or risk posture change.

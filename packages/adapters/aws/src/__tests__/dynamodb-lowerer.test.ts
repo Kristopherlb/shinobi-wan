@@ -54,7 +54,10 @@ describe('DynamoDbLowerer', () => {
   it('includes attribute definitions for hash and range keys', () => {
     const resources = lowerer.lower(dynamoNode, makeContext(), deps);
 
-    const attrs = resources[0].properties['attributes'] as Array<{ name: string; type: string }>;
+    const attrs = resources[0].properties['attributes'] as Array<{
+      name: string;
+      type: string;
+    }>;
     expect(attrs).toEqual([
       { name: 'pk', type: 'S' },
       { name: 'sk', type: 'S' },
@@ -93,7 +96,10 @@ describe('DynamoDbLowerer', () => {
     const resources = lowerer.lower(node, makeContext(), deps);
 
     expect(resources[0].properties['hashKey']).toBe('id');
-    const attrs = resources[0].properties['attributes'] as Array<{ name: string; type: string }>;
+    const attrs = resources[0].properties['attributes'] as Array<{
+      name: string;
+      type: string;
+    }>;
     expect(attrs).toEqual([{ name: 'id', type: 'S' }]);
   });
 
@@ -111,7 +117,10 @@ describe('DynamoDbLowerer', () => {
     const resources = lowerer.lower(node, makeContext(), deps);
 
     expect(resources[0].properties['rangeKey']).toBeUndefined();
-    const attrs = resources[0].properties['attributes'] as Array<{ name: string; type: string }>;
+    const attrs = resources[0].properties['attributes'] as Array<{
+      name: string;
+      type: string;
+    }>;
     expect(attrs).toHaveLength(1);
   });
 

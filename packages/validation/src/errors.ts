@@ -85,7 +85,9 @@ export function createError(input: ValidationErrorInput): ValidationError {
     rule: input.rule,
     message: input.message,
     severity: input.severity,
-    ...(input.allowedValues !== undefined && { allowedValues: input.allowedValues }),
+    ...(input.allowedValues !== undefined && {
+      allowedValues: input.allowedValues,
+    }),
     ...(input.remediation !== undefined && { remediation: input.remediation }),
     ...(input.kernelLaw !== undefined && { kernelLaw: input.kernelLaw }),
   };
@@ -96,10 +98,13 @@ export function createError(input: ValidationErrorInput): ValidationError {
  * Sorts errors by severity (error > warning > info), then by path, then by rule.
  * Returns a new array (does not mutate input).
  */
-export function sortErrors(errors: ReadonlyArray<ValidationError>): ValidationError[] {
+export function sortErrors(
+  errors: ReadonlyArray<ValidationError>,
+): ValidationError[] {
   return [...errors].sort((a, b) => {
     // Primary: sort by severity (error first)
-    const severityDiff = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
+    const severityDiff =
+      SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
     if (severityDiff !== 0) {
       return severityDiff;
     }

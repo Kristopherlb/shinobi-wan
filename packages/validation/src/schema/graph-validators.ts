@@ -13,7 +13,11 @@ import {
   type ValidationResult,
   type ValidatorOptions,
 } from '../errors';
-import { hasRequiredField, rejectUnknownFields, validateEnumField } from './field-validators';
+import {
+  hasRequiredField,
+  rejectUnknownFields,
+  validateEnumField,
+} from './field-validators';
 
 const DEFAULT_OPTIONS: ValidatorOptions = { strict: true };
 
@@ -48,14 +52,19 @@ const ARTIFACT_KNOWN_FIELDS = new Set([
   'schemaVersion',
 ]);
 
-const SNAPSHOT_KNOWN_FIELDS = new Set(['schemaVersion', 'nodes', 'edges', 'artifacts']);
+const SNAPSHOT_KNOWN_FIELDS = new Set([
+  'schemaVersion',
+  'nodes',
+  'edges',
+  'artifacts',
+]);
 
 /**
  * Validates a Node object schema with enhanced error messages.
  */
 export function validateNodeSchema(
   node: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -66,7 +75,7 @@ export function validateNodeSchema(
         rule: 'invalid-input-type',
         message: 'Node must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -82,17 +91,22 @@ export function validateNodeSchema(
         rule: 'invalid-node-id',
         message: `Invalid node ID format: '${n.id}'. Expected format: {type}:{path}`,
         severity: 'error',
-        remediation: 'Node IDs must start with a valid node type followed by colon and path',
+        remediation:
+          'Node IDs must start with a valid node type followed by colon and path',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
-  errors.push(...hasRequiredField(n, '$.semanticHash', 'semanticHash', 'string'));
+  errors.push(
+    ...hasRequiredField(n, '$.semanticHash', 'semanticHash', 'string'),
+  );
 
   errors.push(...hasRequiredField(n, '$.type', 'type', 'string'));
   if (typeof n.type === 'string') {
-    errors.push(...validateEnumField(n.type, '$.type', NODE_TYPES as readonly string[]));
+    errors.push(
+      ...validateEnumField(n.type, '$.type', NODE_TYPES as readonly string[]),
+    );
   }
 
   if (n.schemaVersion !== '1.0.0') {
@@ -103,7 +117,7 @@ export function validateNodeSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
@@ -123,7 +137,7 @@ export function validateNodeSchema(
  */
 export function validateEdgeSchema(
   edge: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -134,7 +148,7 @@ export function validateEdgeSchema(
         rule: 'invalid-input-type',
         message: 'Edge must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -150,17 +164,22 @@ export function validateEdgeSchema(
         rule: 'invalid-edge-id',
         message: `Invalid edge ID format: '${e.id}'. Expected format: edge:{type}:{source}:{target}`,
         severity: 'error',
-        remediation: 'Edge IDs must start with "edge:" followed by type, source, and target',
+        remediation:
+          'Edge IDs must start with "edge:" followed by type, source, and target',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
-  errors.push(...hasRequiredField(e, '$.semanticHash', 'semanticHash', 'string'));
+  errors.push(
+    ...hasRequiredField(e, '$.semanticHash', 'semanticHash', 'string'),
+  );
 
   errors.push(...hasRequiredField(e, '$.type', 'type', 'string'));
   if (typeof e.type === 'string') {
-    errors.push(...validateEnumField(e.type, '$.type', EDGE_TYPES as readonly string[]));
+    errors.push(
+      ...validateEnumField(e.type, '$.type', EDGE_TYPES as readonly string[]),
+    );
   }
 
   errors.push(...hasRequiredField(e, '$.source', 'source', 'string'));
@@ -174,7 +193,7 @@ export function validateEdgeSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
@@ -194,7 +213,7 @@ export function validateEdgeSchema(
  */
 export function validateArtifactSchema(
   artifact: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -205,7 +224,7 @@ export function validateArtifactSchema(
         rule: 'invalid-input-type',
         message: 'Artifact must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -224,18 +243,28 @@ export function validateArtifactSchema(
         remediation:
           'Artifact IDs must start with "artifact:" followed by type and source node ID',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
-  errors.push(...hasRequiredField(a, '$.semanticHash', 'semanticHash', 'string'));
+  errors.push(
+    ...hasRequiredField(a, '$.semanticHash', 'semanticHash', 'string'),
+  );
 
   errors.push(...hasRequiredField(a, '$.type', 'type', 'string'));
   if (typeof a.type === 'string') {
-    errors.push(...validateEnumField(a.type, '$.type', ARTIFACT_TYPES as readonly string[]));
+    errors.push(
+      ...validateEnumField(
+        a.type,
+        '$.type',
+        ARTIFACT_TYPES as readonly string[],
+      ),
+    );
   }
 
-  errors.push(...hasRequiredField(a, '$.sourceNodeId', 'sourceNodeId', 'string'));
+  errors.push(
+    ...hasRequiredField(a, '$.sourceNodeId', 'sourceNodeId', 'string'),
+  );
   errors.push(...hasRequiredField(a, '$.content', 'content', 'object'));
 
   if (a.schemaVersion !== '1.0.0') {
@@ -246,7 +275,7 @@ export function validateArtifactSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
@@ -265,7 +294,7 @@ export function validateArtifactSchema(
  */
 export function validateSnapshotSchema(
   snapshot: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -276,7 +305,7 @@ export function validateSnapshotSchema(
         rule: 'invalid-input-type',
         message: 'Snapshot must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -292,7 +321,7 @@ export function validateSnapshotSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
@@ -304,18 +333,21 @@ export function validateSnapshotSchema(
         rule: 'missing-required-field',
         message: 'nodes must be an array',
         severity: 'error',
-      })
+      }),
     );
   } else {
     for (let i = 0; i < s.nodes.length; i++) {
       const nodeResult = validateNodeSchema(s.nodes[i], options);
       for (const err of nodeResult.errors) {
-        const path = err.path === '$' ? `$.nodes[${i}]` : `$.nodes[${i}]${err.path.slice(1)}`;
+        const path =
+          err.path === '$'
+            ? `$.nodes[${i}]`
+            : `$.nodes[${i}]${err.path.slice(1)}`;
         errors.push(
           createError({
             ...err,
             path,
-          })
+          }),
         );
       }
     }
@@ -329,18 +361,21 @@ export function validateSnapshotSchema(
         rule: 'missing-required-field',
         message: 'edges must be an array',
         severity: 'error',
-      })
+      }),
     );
   } else {
     for (let i = 0; i < s.edges.length; i++) {
       const edgeResult = validateEdgeSchema(s.edges[i], options);
       for (const err of edgeResult.errors) {
-        const path = err.path === '$' ? `$.edges[${i}]` : `$.edges[${i}]${err.path.slice(1)}`;
+        const path =
+          err.path === '$'
+            ? `$.edges[${i}]`
+            : `$.edges[${i}]${err.path.slice(1)}`;
         errors.push(
           createError({
             ...err,
             path,
-          })
+          }),
         );
       }
     }
@@ -354,19 +389,21 @@ export function validateSnapshotSchema(
         rule: 'missing-required-field',
         message: 'artifacts must be an array',
         severity: 'error',
-      })
+      }),
     );
   } else {
     for (let i = 0; i < s.artifacts.length; i++) {
       const artifactResult = validateArtifactSchema(s.artifacts[i], options);
       for (const err of artifactResult.errors) {
         const path =
-          err.path === '$' ? `$.artifacts[${i}]` : `$.artifacts[${i}]${err.path.slice(1)}`;
+          err.path === '$'
+            ? `$.artifacts[${i}]`
+            : `$.artifacts[${i}]${err.path.slice(1)}`;
         errors.push(
           createError({
             ...err,
             path,
-          })
+          }),
         );
       }
     }

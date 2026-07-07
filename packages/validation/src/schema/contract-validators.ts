@@ -13,7 +13,11 @@ import {
   type ValidationResult,
   type ValidatorOptions,
 } from '../errors';
-import { hasRequiredField, rejectUnknownFields, validateEnumField } from './field-validators';
+import {
+  hasRequiredField,
+  rejectUnknownFields,
+  validateEnumField,
+} from './field-validators';
 
 const DEFAULT_OPTIONS: ValidatorOptions = { strict: true };
 
@@ -43,7 +47,10 @@ const VIOLATION_TARGET_KNOWN_FIELDS = new Set(['type', 'id', 'path']);
 /**
  * Validates a capability ID format.
  */
-export function validateCapabilityIdFormat(id: string, path: string): ValidationError[] {
+export function validateCapabilityIdFormat(
+  id: string,
+  path: string,
+): ValidationError[] {
   if (!isValidCapabilityId(id)) {
     return [
       createError({
@@ -64,7 +71,7 @@ export function validateCapabilityIdFormat(id: string, path: string): Validation
  */
 export function validateCapabilityContractSchema(
   contract: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -75,7 +82,7 @@ export function validateCapabilityContractSchema(
         rule: 'invalid-input-type',
         message: 'CapabilityContract must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -97,7 +104,7 @@ export function validateCapabilityContractSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
@@ -117,14 +124,18 @@ export function validateCapabilityContractSchema(
           rule: 'empty-array',
           message: 'actions must contain at least one action',
           severity: 'error',
-        })
+        }),
       );
     } else {
       for (let i = 0; i < c.actions.length; i++) {
         const action = c.actions[i];
         if (typeof action === 'string') {
           errors.push(
-            ...validateEnumField(action, `$.actions[${i}]`, CAPABILITY_ACTIONS as readonly string[])
+            ...validateEnumField(
+              action,
+              `$.actions[${i}]`,
+              CAPABILITY_ACTIONS as readonly string[],
+            ),
           );
         } else {
           errors.push(
@@ -133,7 +144,7 @@ export function validateCapabilityContractSchema(
               rule: 'invalid-field-type',
               message: 'action must be a string',
               severity: 'error',
-            })
+            }),
           );
         }
       }
@@ -142,7 +153,9 @@ export function validateCapabilityContractSchema(
 
   // Strict mode
   if (options.strict !== false) {
-    errors.push(...rejectUnknownFields(c, '$', CAPABILITY_CONTRACT_KNOWN_FIELDS));
+    errors.push(
+      ...rejectUnknownFields(c, '$', CAPABILITY_CONTRACT_KNOWN_FIELDS),
+    );
   }
 
   return createResult(errors);
@@ -154,7 +167,7 @@ export function validateCapabilityContractSchema(
 export function validateIntentSchema(
   intent: unknown,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _options: ValidatorOptions = DEFAULT_OPTIONS
+  _options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -165,7 +178,7 @@ export function validateIntentSchema(
         rule: 'invalid-input-type',
         message: 'Intent must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -175,7 +188,9 @@ export function validateIntentSchema(
   // type (IntentType)
   errors.push(...hasRequiredField(i, '$.type', 'type', 'string'));
   if (typeof i.type === 'string') {
-    errors.push(...validateEnumField(i.type, '$.type', INTENT_TYPES as readonly string[]));
+    errors.push(
+      ...validateEnumField(i.type, '$.type', INTENT_TYPES as readonly string[]),
+    );
   }
 
   // schemaVersion
@@ -187,12 +202,14 @@ export function validateIntentSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
   // sourceEdgeId
-  errors.push(...hasRequiredField(i, '$.sourceEdgeId', 'sourceEdgeId', 'string'));
+  errors.push(
+    ...hasRequiredField(i, '$.sourceEdgeId', 'sourceEdgeId', 'string'),
+  );
 
   // Type-specific validation is intentionally minimal at schema level
   // Semantic validation handles type-specific checks
@@ -205,7 +222,7 @@ export function validateIntentSchema(
  */
 export function validateViolationSchema(
   violation: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const errors: ValidationError[] = [];
 
@@ -216,7 +233,7 @@ export function validateViolationSchema(
         rule: 'invalid-input-type',
         message: 'Violation must be an object',
         severity: 'error',
-      })
+      }),
     );
     return createResult(errors);
   }
@@ -232,9 +249,10 @@ export function validateViolationSchema(
         rule: 'invalid-violation-id',
         message: `Invalid violation ID format: '${v.id}'. Expected format: violation:{ruleId}:{targetId}`,
         severity: 'error',
-        remediation: 'Violation IDs must start with "violation:" followed by ruleId and targetId',
+        remediation:
+          'Violation IDs must start with "violation:" followed by ruleId and targetId',
         kernelLaw: 'KL-001',
-      })
+      }),
     );
   }
 
@@ -247,7 +265,7 @@ export function validateViolationSchema(
         message: 'schemaVersion must be "1.0.0"',
         severity: 'error',
         allowedValues: ['1.0.0'],
-      })
+      }),
     );
   }
 
@@ -260,7 +278,13 @@ export function validateViolationSchema(
   // severity
   errors.push(...hasRequiredField(v, '$.severity', 'severity', 'string'));
   if (typeof v.severity === 'string') {
-    errors.push(...validateEnumField(v.severity, '$.severity', SEVERITY_LEVELS as readonly string[]));
+    errors.push(
+      ...validateEnumField(
+        v.severity,
+        '$.severity',
+        SEVERITY_LEVELS as readonly string[],
+      ),
+    );
   }
 
   // target
@@ -270,14 +294,20 @@ export function validateViolationSchema(
     errors.push(...hasRequiredField(t, '$.target.type', 'type', 'string'));
     if (typeof t.type === 'string') {
       errors.push(
-        ...validateEnumField(t.type, '$.target.type', ['node', 'edge', 'artifact'] as const)
+        ...validateEnumField(t.type, '$.target.type', [
+          'node',
+          'edge',
+          'artifact',
+        ] as const),
       );
     }
     errors.push(...hasRequiredField(t, '$.target.id', 'id', 'string'));
     // path is optional
 
     if (options.strict !== false) {
-      errors.push(...rejectUnknownFields(t, '$.target', VIOLATION_TARGET_KNOWN_FIELDS));
+      errors.push(
+        ...rejectUnknownFields(t, '$.target', VIOLATION_TARGET_KNOWN_FIELDS),
+      );
     }
   }
 

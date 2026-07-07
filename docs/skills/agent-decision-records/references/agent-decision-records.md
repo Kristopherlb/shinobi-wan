@@ -2,13 +2,13 @@
 
 # Agent Decision Records (ADR-AGENT-001)
 
-| Metadata | Value |
-| --- | --- |
-| ID | ADR-AGENT-001 |
-| Version | 1.0.0 |
-| Status | DRAFT |
-| Authors | Platform Intelligence + Platform Engineering |
-| Context | AIP/ASS decision auditability |
+| Metadata | Value                                        |
+| -------- | -------------------------------------------- |
+| ID       | ADR-AGENT-001                                |
+| Version  | 1.0.0                                        |
+| Status   | DRAFT                                        |
+| Authors  | Platform Intelligence + Platform Engineering |
+| Context  | AIP/ASS decision auditability                |
 
 ## 1. Scope
 
@@ -31,7 +31,10 @@ Each decision record MUST follow this shape:
     "sla": { "targetDuration": "5m", "maxDuration": "1h" }
   },
   "alternatives": [
-    { "option": "manualSteps", "rejectedBecause": "not durable and not auditable" }
+    {
+      "option": "manualSteps",
+      "rejectedBecause": "not durable and not auditable"
+    }
   ],
   "approvalsRequired": [
     { "type": "RESTRICTED_APPROVAL", "toolId": "vendor.payroll.update" }
@@ -50,4 +53,3 @@ Each decision record MUST follow this shape:
 ### 1.0.0
 
 - Initial decision record shape for agent auditability.
-

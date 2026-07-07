@@ -19,15 +19,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Subnet for ElastiCache
   - id: cache-subnet
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.10.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.10.0/24'
       availabilityZone: us-east-1a
 
   # Security group for Redis access
@@ -35,8 +35,8 @@ components:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:app-vpc"
-      description: "ElastiCache Redis security group"
+      vpcId: 'platform:app-vpc'
+      description: 'ElastiCache Redis security group'
 
   # ElastiCache Redis replication group
   - id: redis
@@ -47,12 +47,12 @@ components:
       numCacheClusters: 2
       transitEncryptionEnabled: true
       atRestEncryptionEnabled: true
-      authToken: "${ssm:/app/redis-auth-token}"
+      authToken: '${ssm:/app/redis-auth-token}'
       port: 6379
       subnetIds:
-        - "platform:cache-subnet"
+        - 'platform:cache-subnet'
       securityGroupIds:
-        - "platform:cache-sg"
+        - 'platform:cache-sg'
 
   # Lambda consumer that reads from Redis
   - id: cache-reader

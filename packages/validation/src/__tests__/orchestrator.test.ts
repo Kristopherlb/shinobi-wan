@@ -10,7 +10,10 @@ import type { GraphSnapshot, Node, Edge, DerivedArtifact } from '@shinobi/ir';
 
 describe('orchestrator', () => {
   // Helper to create valid nodes with correct hashes
-  const makeValidNode = (type: 'component' | 'platform', path: string): Node => {
+  const makeValidNode = (
+    type: 'component' | 'platform',
+    path: string,
+  ): Node => {
     const base = {
       id: `${type}:${path}`,
       type,
@@ -78,7 +81,9 @@ describe('orchestrator', () => {
     it('rejects non-object input', () => {
       const result = validateGraph(null);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-input-type')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-input-type')).toBe(
+        true,
+      );
     });
 
     it('rejects missing required fields', () => {
@@ -95,7 +100,9 @@ describe('orchestrator', () => {
         artifacts: [],
       });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path.startsWith('$.nodes[0]'))).toBe(true);
+      expect(result.errors.some((e) => e.path.startsWith('$.nodes[0]'))).toBe(
+        true,
+      );
     });
 
     it('validates referential integrity', () => {
@@ -111,7 +118,9 @@ describe('orchestrator', () => {
 
       const result = validateGraph(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'dangling-edge-target')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'dangling-edge-target')).toBe(
+        true,
+      );
     });
 
     it('validates canonical ordering', () => {
@@ -127,7 +136,9 @@ describe('orchestrator', () => {
 
       const result = validateGraph(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'non-canonical-ordering')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'non-canonical-ordering'),
+      ).toBe(true);
     });
 
     it('validates semantic hashes', () => {
@@ -145,7 +156,9 @@ describe('orchestrator', () => {
 
       const result = validateGraph(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'semantic-hash-mismatch')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'semantic-hash-mismatch'),
+      ).toBe(true);
     });
 
     it('validates stable IDs', () => {
@@ -167,7 +180,9 @@ describe('orchestrator', () => {
 
       const result = validateGraph(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'id-type-mismatch')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'id-type-mismatch')).toBe(
+        true,
+      );
     });
 
     it('respects level option: schema only', () => {
@@ -243,13 +258,21 @@ describe('orchestrator', () => {
     });
 
     it('rejects invalid capability ID format', () => {
-      const result = validateCapabilityContract({ ...validContract, id: 'invalid' });
+      const result = validateCapabilityContract({
+        ...validContract,
+        id: 'invalid',
+      });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-capability-id')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'invalid-capability-id'),
+      ).toBe(true);
     });
 
     it('rejects missing actions', () => {
-      const result = validateCapabilityContract({ ...validContract, actions: undefined });
+      const result = validateCapabilityContract({
+        ...validContract,
+        actions: undefined,
+      });
       expect(result.valid).toBe(false);
     });
   });
@@ -260,7 +283,11 @@ describe('orchestrator', () => {
       schemaVersion: '1.0.0',
       sourceEdgeId: 'edge:bindsTo:a:b',
       principal: { nodeRef: 'component:lambda', role: 'function' },
-      resource: { nodeRef: 'component:queue', resourceType: 'queue', scope: 'specific' },
+      resource: {
+        nodeRef: 'component:queue',
+        resourceType: 'queue',
+        scope: 'specific',
+      },
       actions: [{ level: 'read', action: 'receiveMessage' }],
     };
 
@@ -282,7 +309,9 @@ describe('orchestrator', () => {
 
       const result = validateIntent(intent);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'wildcard-resource')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'wildcard-resource')).toBe(
+        true,
+      );
     });
 
     it('detects backend handles in intent', () => {
@@ -293,7 +322,9 @@ describe('orchestrator', () => {
 
       const result = validateIntent(intent);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'backend-handle-detected')).toBe(true);
+      expect(
+        result.errors.some((e) => e.rule === 'backend-handle-detected'),
+      ).toBe(true);
     });
   });
 
@@ -316,12 +347,18 @@ describe('orchestrator', () => {
     });
 
     it('rejects invalid violation ID format', () => {
-      const result = validateViolation({ ...validViolation, id: 'not-a-violation' });
+      const result = validateViolation({
+        ...validViolation,
+        id: 'not-a-violation',
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects invalid severity', () => {
-      const result = validateViolation({ ...validViolation, severity: 'critical' });
+      const result = validateViolation({
+        ...validViolation,
+        severity: 'critical',
+      });
       expect(result.valid).toBe(false);
     });
   });

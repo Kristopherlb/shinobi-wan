@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -28,13 +32,26 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const dataSubnet = createTestNode({
     id: 'platform:data-subnet',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-subnet', vpcId: 'platform:app-vpc', cidrBlock: '10.0.10.0/24', availabilityZone: 'us-east-1a' } },
+    metadata: {
+      properties: {
+        platform: 'aws-subnet',
+        vpcId: 'platform:app-vpc',
+        cidrBlock: '10.0.10.0/24',
+        availabilityZone: 'us-east-1a',
+      },
+    },
   });
 
   const dataSg = createTestNode({
     id: 'platform:data-sg',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-security-group', vpcId: 'platform:app-vpc', description: 'OpenSearch and Firehose security group' } },
+    metadata: {
+      properties: {
+        platform: 'aws-security-group',
+        vpcId: 'platform:app-vpc',
+        description: 'OpenSearch and Firehose security group',
+      },
+    },
   });
 
   const encryptionKey = createTestNode({
@@ -95,7 +112,12 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const appLogs = createTestNode({
     id: 'platform:app-logs',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-log-subscription-filter', filterPattern: '' } },
+    metadata: {
+      properties: {
+        platform: 'aws-log-subscription-filter',
+        filterPattern: '',
+      },
+    },
   });
 
   const firehoseToOpensearch = createTestEdge({

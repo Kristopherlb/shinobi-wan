@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class BudgetsLowerer implements NodeLowerer {
   readonly platform = 'aws-budgets';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -50,9 +59,13 @@ export class BudgetsLowerer implements NodeLowerer {
         budgetProperties['subscribers'] = [
           {
             subscriptionType: 'SNS',
-            address: typeof props['notificationTopicArn'] === 'string' && props['notificationTopicArn'].startsWith('platform:')
-              ? { ref: `${shortName(props['notificationTopicArn'] as string)}-topic` }
-              : props['notificationTopicArn'],
+            address:
+              typeof props['notificationTopicArn'] === 'string' &&
+              props['notificationTopicArn'].startsWith('platform:')
+                ? {
+                    ref: `${shortName(props['notificationTopicArn'] as string)}-topic`,
+                  }
+                : props['notificationTopicArn'],
           },
         ];
       }

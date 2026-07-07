@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class LogSubscriptionFilterLowerer implements NodeLowerer {
   readonly platform = 'aws-log-subscription-filter';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -26,7 +35,11 @@ export class LogSubscriptionFilterLowerer implements NodeLowerer {
       name: `${serviceName}-${name}`,
       filterPattern,
       distribution,
-      tags: createStandardTags(node.id, 'aws-log-subscription-filter', extraTags),
+      tags: createStandardTags(
+        node.id,
+        'aws-log-subscription-filter',
+        extraTags,
+      ),
     };
 
     if (props['logGroupName']) {

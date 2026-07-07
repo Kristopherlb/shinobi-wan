@@ -28,7 +28,9 @@ function dynamodbContext(): LoweringContext {
     type: 'bindsTo',
     source: lambda.id,
     target: dynamo.id,
-    metadata: { bindingConfig: { resourceType: 'table', accessLevel: 'write' } },
+    metadata: {
+      bindingConfig: { resourceType: 'table', accessLevel: 'write' },
+    },
   });
 
   const snapshot = createSnapshot([lambda, dynamo], [edge]);
@@ -51,7 +53,11 @@ function dynamodbContext(): LoweringContext {
     valueSource: { type: 'reference', nodeRef: 'items-db', field: 'name' },
   };
 
-  return { intents: [iamIntent, configIntent], snapshot, adapterConfig: DEFAULT_CONFIG };
+  return {
+    intents: [iamIntent, configIntent],
+    snapshot,
+    adapterConfig: DEFAULT_CONFIG,
+  };
 }
 
 // ── S3 Scenario ─────────────────────────────────────────────────────────────
@@ -72,7 +78,9 @@ function s3Context(): LoweringContext {
     type: 'bindsTo',
     source: lambda.id,
     target: s3.id,
-    metadata: { bindingConfig: { resourceType: 'bucket', accessLevel: 'read' } },
+    metadata: {
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'read' },
+    },
   });
 
   const snapshot = createSnapshot([lambda, s3], [edge]);
@@ -95,7 +103,11 @@ function s3Context(): LoweringContext {
     valueSource: { type: 'reference', nodeRef: 'assets', field: 'bucket' },
   };
 
-  return { intents: [iamIntent, configIntent], snapshot, adapterConfig: DEFAULT_CONFIG };
+  return {
+    intents: [iamIntent, configIntent],
+    snapshot,
+    adapterConfig: DEFAULT_CONFIG,
+  };
 }
 
 // ── API Gateway Scenario ────────────────────────────────────────────────────
@@ -116,7 +128,9 @@ function apigwContext(): LoweringContext {
     type: 'triggers',
     source: gw.id,
     target: lambda.id,
-    metadata: { bindingConfig: { resourceType: 'api', route: '/items', method: 'GET' } },
+    metadata: {
+      bindingConfig: { resourceType: 'api', route: '/items', method: 'GET' },
+    },
   });
 
   const snapshot = createSnapshot([gw, lambda], [edge]);
@@ -156,17 +170,24 @@ function multiContext(): LoweringContext {
     type: 'triggers',
     source: gw.id,
     target: lambda.id,
-    metadata: { bindingConfig: { resourceType: 'api', route: '/items', method: 'GET' } },
+    metadata: {
+      bindingConfig: { resourceType: 'api', route: '/items', method: 'GET' },
+    },
   });
   const bindsToEdge = createTestEdge({
     id: 'edge:bindsTo:component:handler:platform:items-db',
     type: 'bindsTo',
     source: lambda.id,
     target: dynamo.id,
-    metadata: { bindingConfig: { resourceType: 'table', accessLevel: 'write' } },
+    metadata: {
+      bindingConfig: { resourceType: 'table', accessLevel: 'write' },
+    },
   });
 
-  const snapshot = createSnapshot([gw, lambda, dynamo], [triggersEdge, bindsToEdge]);
+  const snapshot = createSnapshot(
+    [gw, lambda, dynamo],
+    [triggersEdge, bindsToEdge],
+  );
 
   const iamTriggers: IamIntent = {
     type: 'iam',
@@ -195,7 +216,11 @@ function multiContext(): LoweringContext {
     valueSource: { type: 'reference', nodeRef: 'items-db', field: 'name' },
   };
 
-  return { intents: [iamTriggers, iamBinds, configIntent], snapshot, adapterConfig: DEFAULT_CONFIG };
+  return {
+    intents: [iamTriggers, iamBinds, configIntent],
+    snapshot,
+    adapterConfig: DEFAULT_CONFIG,
+  };
 }
 
 function lowerAndPlan(ctx: LoweringContext) {
@@ -223,7 +248,9 @@ describe('Golden: Adapter Determinism', () => {
     it('dependencies are in correct order', () => {
       const { plan } = lowerAndPlan(dynamodbContext());
       const names = plan.resources.map((r) => r.name);
-      const fn = plan.resources.find((r) => r.resourceType === 'aws:lambda:Function');
+      const fn = plan.resources.find(
+        (r) => r.resourceType === 'aws:lambda:Function',
+      );
       if (fn) {
         const fnIdx = names.indexOf(fn.name);
         for (const dep of fn.dependsOn) {
@@ -250,8 +277,12 @@ describe('Golden: Adapter Determinism', () => {
 
     it('versioning depends on bucket', () => {
       const { plan } = lowerAndPlan(s3Context());
-      const versioning = plan.resources.find((r) => r.resourceType === 'aws:s3:BucketVersioningV2');
-      const bucket = plan.resources.find((r) => r.resourceType === 'aws:s3:Bucket');
+      const versioning = plan.resources.find(
+        (r) => r.resourceType === 'aws:s3:BucketVersioningV2',
+      );
+      const bucket = plan.resources.find(
+        (r) => r.resourceType === 'aws:s3:Bucket',
+      );
       expect(versioning?.dependsOn).toContain(bucket?.name);
     });
   });
@@ -273,7 +304,9 @@ describe('Golden: Adapter Determinism', () => {
 
     it('integration has correct route key', () => {
       const { plan } = lowerAndPlan(apigwContext());
-      const route = plan.resources.find((r) => r.resourceType === 'aws:apigatewayv2:Route');
+      const route = plan.resources.find(
+        (r) => r.resourceType === 'aws:apigatewayv2:Route',
+      );
       expect(route?.properties['routeKey']).toBe('GET /items');
     });
   });

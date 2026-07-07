@@ -5,7 +5,11 @@ import type { Intent } from './intent-base';
  */
 export type ConfigValueSource =
   | { readonly type: 'literal'; readonly value: string | number | boolean }
-  | { readonly type: 'reference'; readonly nodeRef: string; readonly field: string }
+  | {
+      readonly type: 'reference';
+      readonly nodeRef: string;
+      readonly field: string;
+    }
   | { readonly type: 'secret'; readonly secretRef: string };
 
 /**

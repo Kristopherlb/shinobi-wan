@@ -104,7 +104,11 @@ describe('EksGpuNodeGroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.scalingConfig).toEqual({ desiredSize: 1, minSize: 0, maxSize: 4 });
+    expect(result[0]?.properties?.scalingConfig).toEqual({
+      desiredSize: 1,
+      minSize: 0,
+      maxSize: 4,
+    });
   });
 
   it('should respect custom instance types and scaling', () => {
@@ -122,7 +126,11 @@ describe('EksGpuNodeGroupLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(result[0]?.properties?.instanceTypes).toEqual(['p4d.24xlarge']);
-    expect(result[0]?.properties?.scalingConfig).toEqual({ desiredSize: 2, minSize: 1, maxSize: 8 });
+    expect(result[0]?.properties?.scalingConfig).toEqual({
+      desiredSize: 2,
+      minSize: 1,
+      maxSize: 8,
+    });
   });
 
   it('should resolve cluster ref', () => {
@@ -138,7 +146,9 @@ describe('EksGpuNodeGroupLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.clusterName).toEqual({ ref: 'my-cluster-cluster.name' });
+    expect(result[0]?.properties?.clusterName).toEqual({
+      ref: 'my-cluster-cluster.name',
+    });
   });
 
   it('should resolve subnet refs', () => {

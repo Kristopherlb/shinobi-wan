@@ -5,10 +5,7 @@ export {
 } from './ordering-validator';
 
 // Hash validation
-export {
-  validateSemanticHash,
-  validateSnapshotHashes,
-} from './hash-validator';
+export { validateSemanticHash, validateSnapshotHashes } from './hash-validator';
 
 // Stable ID validation
 export {

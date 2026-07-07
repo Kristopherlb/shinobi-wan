@@ -42,22 +42,32 @@ describe('graph-validators', () => {
     it('rejects invalid id format', () => {
       const result = validateNodeSchema({ ...validNode, id: 'invalid' });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-node-id')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-node-id')).toBe(
+        true,
+      );
     });
 
     it('rejects missing semanticHash', () => {
-      const result = validateNodeSchema({ ...validNode, semanticHash: undefined });
+      const result = validateNodeSchema({
+        ...validNode,
+        semanticHash: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects invalid type', () => {
       const result = validateNodeSchema({ ...validNode, type: 'invalid' });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-enum-value')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-enum-value')).toBe(
+        true,
+      );
     });
 
     it('rejects missing provenance', () => {
-      const result = validateNodeSchema({ ...validNode, provenance: undefined });
+      const result = validateNodeSchema({
+        ...validNode,
+        provenance: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
@@ -67,18 +77,27 @@ describe('graph-validators', () => {
     });
 
     it('rejects invalid schemaVersion', () => {
-      const result = validateNodeSchema({ ...validNode, schemaVersion: '2.0.0' });
+      const result = validateNodeSchema({
+        ...validNode,
+        schemaVersion: '2.0.0',
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects unknown fields in strict mode', () => {
-      const result = validateNodeSchema({ ...validNode, extra: 'field' }, { strict: true });
+      const result = validateNodeSchema(
+        { ...validNode, extra: 'field' },
+        { strict: true },
+      );
       expect(result.valid).toBe(false);
       expect(result.errors.some((e) => e.rule === 'unknown-field')).toBe(true);
     });
 
     it('allows unknown fields in non-strict mode', () => {
-      const result = validateNodeSchema({ ...validNode, extra: 'field' }, { strict: false });
+      const result = validateNodeSchema(
+        { ...validNode, extra: 'field' },
+        { strict: false },
+      );
       expect(result.valid).toBe(true);
     });
   });
@@ -103,7 +122,9 @@ describe('graph-validators', () => {
     it('rejects invalid edge id format', () => {
       const result = validateEdgeSchema({ ...validEdge, id: 'not-an-edge' });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-edge-id')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-edge-id')).toBe(
+        true,
+      );
     });
 
     it('rejects missing source', () => {
@@ -139,23 +160,37 @@ describe('graph-validators', () => {
     });
 
     it('rejects invalid artifact id format', () => {
-      const result = validateArtifactSchema({ ...validArtifact, id: 'not-an-artifact' });
+      const result = validateArtifactSchema({
+        ...validArtifact,
+        id: 'not-an-artifact',
+      });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'invalid-artifact-id')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'invalid-artifact-id')).toBe(
+        true,
+      );
     });
 
     it('rejects missing sourceNodeId', () => {
-      const result = validateArtifactSchema({ ...validArtifact, sourceNodeId: undefined });
+      const result = validateArtifactSchema({
+        ...validArtifact,
+        sourceNodeId: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects missing content', () => {
-      const result = validateArtifactSchema({ ...validArtifact, content: undefined });
+      const result = validateArtifactSchema({
+        ...validArtifact,
+        content: undefined,
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects invalid type', () => {
-      const result = validateArtifactSchema({ ...validArtifact, type: 'invalid-type' });
+      const result = validateArtifactSchema({
+        ...validArtifact,
+        type: 'invalid-type',
+      });
       expect(result.valid).toBe(false);
     });
   });
@@ -188,7 +223,10 @@ describe('graph-validators', () => {
     });
 
     it('rejects invalid schemaVersion', () => {
-      const result = validateSnapshotSchema({ ...validSnapshot, schemaVersion: '2.0.0' });
+      const result = validateSnapshotSchema({
+        ...validSnapshot,
+        schemaVersion: '2.0.0',
+      });
       expect(result.valid).toBe(false);
     });
 
@@ -198,12 +236,18 @@ describe('graph-validators', () => {
     });
 
     it('rejects non-array edges', () => {
-      const result = validateSnapshotSchema({ ...validSnapshot, edges: 'not-array' });
+      const result = validateSnapshotSchema({
+        ...validSnapshot,
+        edges: 'not-array',
+      });
       expect(result.valid).toBe(false);
     });
 
     it('rejects non-array artifacts', () => {
-      const result = validateSnapshotSchema({ ...validSnapshot, artifacts: null });
+      const result = validateSnapshotSchema({
+        ...validSnapshot,
+        artifacts: null,
+      });
       expect(result.valid).toBe(false);
     });
 
@@ -213,7 +257,9 @@ describe('graph-validators', () => {
         nodes: [{ id: 'invalid', type: 'bad' }],
       });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path.startsWith('$.nodes[0]'))).toBe(true);
+      expect(result.errors.some((e) => e.path.startsWith('$.nodes[0]'))).toBe(
+        true,
+      );
     });
 
     it('validates nested edges with correct paths', () => {
@@ -222,7 +268,9 @@ describe('graph-validators', () => {
         edges: [{ id: 'invalid' }],
       });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path.startsWith('$.edges[0]'))).toBe(true);
+      expect(result.errors.some((e) => e.path.startsWith('$.edges[0]'))).toBe(
+        true,
+      );
     });
 
     it('validates nested artifacts with correct paths', () => {
@@ -231,7 +279,9 @@ describe('graph-validators', () => {
         artifacts: [{ id: 'invalid' }],
       });
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path.startsWith('$.artifacts[0]'))).toBe(true);
+      expect(
+        result.errors.some((e) => e.path.startsWith('$.artifacts[0]')),
+      ).toBe(true);
     });
   });
 });

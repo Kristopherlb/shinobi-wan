@@ -1,5 +1,10 @@
 import type { GraphSnapshot } from '@shinobi/ir';
-import { createError, createResult, type ValidationResult, type ValidatorOptions } from './errors';
+import {
+  createError,
+  createResult,
+  type ValidationResult,
+  type ValidatorOptions,
+} from './errors';
 import { validateSnapshotSchema } from './schema/graph-validators';
 import {
   validateCapabilityContractSchema,
@@ -25,7 +30,7 @@ const DEFAULT_OPTIONS: ValidatorOptions = {
  */
 export function validateGraph(
   snapshot: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const allErrors: ReturnType<typeof createError>[] = [];
@@ -78,7 +83,7 @@ export function validateGraph(
  */
 export function validateCapabilityContract(
   contract: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
@@ -94,7 +99,7 @@ export function validateCapabilityContract(
  */
 export function validateIntent(
   intent: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const allErrors: ReturnType<typeof createError>[] = [];
@@ -129,7 +134,7 @@ export function validateIntent(
  */
 export function validateViolation(
   violation: unknown,
-  options: ValidatorOptions = DEFAULT_OPTIONS
+  options: ValidatorOptions = DEFAULT_OPTIONS,
 ): ValidationResult {
   const opts = { ...DEFAULT_OPTIONS, ...options };
 

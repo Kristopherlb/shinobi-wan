@@ -15,7 +15,12 @@ describe('async apply handle contract', () => {
     expect(handle.traceId).toBe('trace-123');
     expect(handle.workflowId).toBe('wf-123');
     expect(handle.statusUrl).toBe('https://example/status/op-123');
-    expect(handle.terminalStates).toEqual(['succeeded', 'failed', 'cancelled', 'timed_out']);
+    expect(handle.terminalStates).toEqual([
+      'succeeded',
+      'failed',
+      'cancelled',
+      'timed_out',
+    ]);
   });
 
   it('includes terminal state retryability map', () => {

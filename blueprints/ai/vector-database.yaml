@@ -29,7 +29,7 @@ components:
       collectionType: VECTORSEARCH
       standbyReplicas: ENABLED
       encryptionType: CUSTOMER_MANAGED_KEY
-      kmsKeyArn: "platform:encryption-key"
+      kmsKeyArn: 'platform:encryption-key'
       publicAccess: false
 
   # Admin handler for index management

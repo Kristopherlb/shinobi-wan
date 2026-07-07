@@ -7,7 +7,7 @@ import { computeSemanticHash } from './id-generation';
  * Only `id` and `type` are required. All other fields have test defaults.
  */
 export function createTestNode(
-  overrides: { id: string; type: Node['type'] } & Partial<Node>
+  overrides: { id: string; type: Node['type'] } & Partial<Node>,
 ): Node {
   const base = {
     schemaVersion: '1.0.0' as const,
@@ -28,7 +28,12 @@ export function createTestNode(
  * `id`, `type`, `source`, and `target` are required. All other fields have test defaults.
  */
 export function createTestEdge(
-  overrides: { id: string; type: Edge['type']; source: string; target: string } & Partial<Edge>
+  overrides: {
+    id: string;
+    type: Edge['type'];
+    source: string;
+    target: string;
+  } & Partial<Edge>,
 ): Edge {
   const base = {
     schemaVersion: '1.0.0' as const,

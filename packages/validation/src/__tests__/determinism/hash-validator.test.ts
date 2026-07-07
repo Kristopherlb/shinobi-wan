@@ -33,7 +33,10 @@ describe('hash-validator', () => {
     return { ...edge, semanticHash: actualHash } as Edge;
   };
 
-  const makeArtifact = (sourceNodeId: string, hash?: string): DerivedArtifact => {
+  const makeArtifact = (
+    sourceNodeId: string,
+    hash?: string,
+  ): DerivedArtifact => {
     const artifact: Omit<DerivedArtifact, 'semanticHash'> = {
       id: `artifact:iam-policy:${sourceNodeId}`,
       type: 'iam-policy',
@@ -115,7 +118,9 @@ describe('hash-validator', () => {
 
       const result = validateSnapshotHashes(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path === '$.nodes[0].semanticHash')).toBe(true);
+      expect(
+        result.errors.some((e) => e.path === '$.nodes[0].semanticHash'),
+      ).toBe(true);
     });
 
     it('returns error for edge with incorrect hash', () => {
@@ -128,7 +133,9 @@ describe('hash-validator', () => {
 
       const result = validateSnapshotHashes(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path === '$.edges[0].semanticHash')).toBe(true);
+      expect(
+        result.errors.some((e) => e.path === '$.edges[0].semanticHash'),
+      ).toBe(true);
     });
 
     it('returns error for artifact with incorrect hash', () => {
@@ -141,7 +148,9 @@ describe('hash-validator', () => {
 
       const result = validateSnapshotHashes(snapshot);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.path === '$.artifacts[0].semanticHash')).toBe(true);
+      expect(
+        result.errors.some((e) => e.path === '$.artifacts[0].semanticHash'),
+      ).toBe(true);
     });
 
     it('collects all hash mismatches', () => {

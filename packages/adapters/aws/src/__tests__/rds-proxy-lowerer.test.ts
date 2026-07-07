@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { RdsProxyLowerer } from '../lowerers/rds-proxy-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('RdsProxyLowerer', () => {
@@ -76,7 +78,9 @@ describe('RdsProxyLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[1].dependsOn).toContain('db-proxy-rds-proxy');
-    expect(resources[1].properties['dbProxyName']).toEqual({ ref: 'db-proxy-rds-proxy' });
+    expect(resources[1].properties['dbProxyName']).toEqual({
+      ref: 'db-proxy-rds-proxy',
+    });
   });
 
   it('target depends on proxy and target group', () => {
@@ -104,7 +108,9 @@ describe('RdsProxyLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[2].properties['dbClusterIdentifier']).toEqual({ ref: 'db-cluster-rds-cluster' });
+    expect(resources[2].properties['dbClusterIdentifier']).toEqual({
+      ref: 'db-cluster-rds-cluster',
+    });
   });
 
   it('configures auth with secret ARN', () => {

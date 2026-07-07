@@ -1,7 +1,10 @@
 /**
  * Kernel facade API for Harmony: stable entrypoints and envelope contract.
  */
-export { CONTRACT_VERSION, CONTRACT_VERSION as contractVersion } from './contract-version';
+export {
+  CONTRACT_VERSION,
+  CONTRACT_VERSION as contractVersion,
+} from './contract-version';
 export type { ContractVersion } from './contract-version';
 
 export type {
@@ -19,4 +22,10 @@ export type {
   ReadActivityInput,
 } from './inputs';
 
-export { validatePlan, planChange, applyChange, readEntities, readActivity } from './facade';
+export {
+  validatePlan,
+  planChange,
+  applyChange,
+  readEntities,
+  readActivity,
+} from './facade';

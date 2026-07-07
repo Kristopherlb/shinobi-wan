@@ -1,7 +1,7 @@
 ---
 name: operations-runbook
 description: Create and maintain Shinobi operational runbooks for validate/plan/preview/deploy workflows, triage, and rollback posture. Use when documenting or executing release operations and environment-safe deployment steps.
-argument-hint: "[environment] + [manifest path] + [deployment intent]"
+argument-hint: '[environment] + [manifest path] + [deployment intent]'
 ---
 
 # Operations Runbook Skill

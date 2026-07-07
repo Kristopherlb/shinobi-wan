@@ -25,9 +25,13 @@ function runReport(write) {
 function main() {
   const report = runReport(false);
   if (report.uncovered.length > 0) {
-    throw new Error(`Conformance coverage incomplete. Missing gates: ${report.uncovered.join(', ')}`);
+    throw new Error(
+      `Conformance coverage incomplete. Missing gates: ${report.uncovered.join(', ')}`,
+    );
   }
-  console.log(`conformance-check passed (${report.covered}/${report.registered}, ${report.coveragePct}%).`);
+  console.log(
+    `conformance-check passed (${report.covered}/${report.registered}, ${report.coveragePct}%).`,
+  );
 }
 
 main();

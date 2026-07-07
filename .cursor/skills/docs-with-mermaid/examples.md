@@ -47,6 +47,7 @@ sequenceDiagram
 ```
 
 **Documentation Text:**
+
 > The order creation flow involves authentication validation, cache lookup for product data, and database writes. The API Gateway handles all external requests and delegates authentication to the Auth Service before forwarding valid requests to the REST API.
 
 ---
@@ -842,4 +843,4 @@ mindmap
 
 ---
 
-*These examples demonstrate how Mermaid diagrams can enhance technical documentation across different use cases. Mix and match these patterns to create comprehensive documentation for your projects.*
+_These examples demonstrate how Mermaid diagrams can enhance technical documentation across different use cases. Mix and match these patterns to create comprehensive documentation for your projects._

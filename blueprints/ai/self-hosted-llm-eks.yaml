@@ -23,15 +23,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Subnets across 2 AZs
   - id: llm-subnet-1
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:llm-vpc"
-      cidrBlock: "10.0.1.0/24"
+      vpcId: 'platform:llm-vpc'
+      cidrBlock: '10.0.1.0/24'
       availabilityZone: us-east-1a
       mapPublicIpOnLaunch: false
 
@@ -39,8 +39,8 @@ components:
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:llm-vpc"
-      cidrBlock: "10.0.2.0/24"
+      vpcId: 'platform:llm-vpc'
+      cidrBlock: '10.0.2.0/24'
       availabilityZone: us-east-1b
       mapPublicIpOnLaunch: false
 
@@ -49,20 +49,20 @@ components:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:llm-vpc"
-      description: "LLM cluster security group"
+      vpcId: 'platform:llm-vpc'
+      description: 'LLM cluster security group'
 
   # EKS control plane
   - id: llm-cluster
     type: platform
     platform: aws-eks-cluster
     config:
-      version: "1.29"
+      version: '1.29'
       subnetIds:
-        - "platform:llm-subnet-1"
-        - "platform:llm-subnet-2"
+        - 'platform:llm-subnet-1'
+        - 'platform:llm-subnet-2'
       securityGroupIds:
-        - "platform:llm-sg"
+        - 'platform:llm-sg'
       endpointPrivateAccess: true
       endpointPublicAccess: false
       enabledClusterLogTypes:
@@ -75,7 +75,7 @@ components:
     type: platform
     platform: aws-eks-gpu-node-group
     config:
-      clusterRef: "platform:llm-cluster"
+      clusterRef: 'platform:llm-cluster'
       instanceTypes:
         - g5.xlarge
       scalingConfig:
@@ -83,17 +83,17 @@ components:
         minSize: 0
         maxSize: 4
       subnetIds:
-        - "platform:llm-subnet-1"
-        - "platform:llm-subnet-2"
+        - 'platform:llm-subnet-1'
+        - 'platform:llm-subnet-2'
 
   # VPC CNI addon for pod networking
   - id: vpc-cni-addon
     type: platform
     platform: aws-eks-addon
     config:
-      clusterRef: "platform:llm-cluster"
+      clusterRef: 'platform:llm-cluster'
       addonName: vpc-cni
-      addonVersion: "v1.14.1-eksbuild.1"
+      addonVersion: 'v1.14.1-eksbuild.1'
       resolveConflicts: OVERWRITE
 
   # ECR for model container images
@@ -125,10 +125,10 @@ components:
     config:
       internal: false
       subnets:
-        - "platform:llm-subnet-1"
-        - "platform:llm-subnet-2"
+        - 'platform:llm-subnet-1'
+        - 'platform:llm-subnet-2'
       securityGroups:
-        - "platform:llm-sg"
+        - 'platform:llm-sg'
 
 bindings:
   # GPU nodes read model weights from S3

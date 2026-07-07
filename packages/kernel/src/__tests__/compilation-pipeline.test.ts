@@ -21,7 +21,9 @@ function makeMockBinder(
   edgeType: Edge['type'],
   sourceType: Node['type'],
   targetType: Node['type'],
-  intentFactory: (edgeId: string) => Intent[] = (edgeId) => [makeIntent('iam', edgeId)]
+  intentFactory: (edgeId: string) => Intent[] = (edgeId) => [
+    makeIntent('iam', edgeId),
+  ],
 ): IBinder {
   return {
     id,
@@ -39,13 +41,23 @@ const emptyConfig: KernelConfig = {};
 
 describe('compilePipeline', () => {
   it('compiles a valid empty snapshot successfully', () => {
-    const emptySnapshot = { schemaVersion: '1.0.0', nodes: [], edges: [], artifacts: [] } as GraphSnapshot;
+    const emptySnapshot = {
+      schemaVersion: '1.0.0',
+      nodes: [],
+      edges: [],
+      artifacts: [],
+    } as GraphSnapshot;
     const result = compilePipeline(emptySnapshot, emptyConfig, [], []);
     expect(result.validation.valid).toBe(true);
   });
 
   it('returns early with validation errors for invalid snapshot', () => {
-    const invalid = { schemaVersion: '1.0.0', nodes: [{ id: 'bad' }], edges: [], artifacts: [] } as GraphSnapshot;
+    const invalid = {
+      schemaVersion: '1.0.0',
+      nodes: [{ id: 'bad' }],
+      edges: [],
+      artifacts: [],
+    } as GraphSnapshot;
     const result = compilePipeline(invalid, emptyConfig, [], []);
     expect(result.validation.valid).toBe(false);
     expect(result.intents).toEqual([]);
@@ -74,7 +86,9 @@ describe('compilePipeline', () => {
     const snapshot = createSnapshot([n1, n2], [e1]);
 
     const result = compilePipeline(snapshot, emptyConfig, [], []);
-    expect(result.bindingDiagnostics.some((d) => d.rule === 'unbound-edge')).toBe(true);
+    expect(
+      result.bindingDiagnostics.some((d) => d.rule === 'unbound-edge'),
+    ).toBe(true);
     expect(result.intents).toEqual([]);
   });
 
@@ -88,7 +102,12 @@ describe('compilePipeline', () => {
       target: n2.id,
     });
     const snapshot = createSnapshot([n1, n2], [e1]);
-    const binder = makeMockBinder('test-binder', 'bindsTo', 'component', 'platform');
+    const binder = makeMockBinder(
+      'test-binder',
+      'bindsTo',
+      'component',
+      'platform',
+    );
 
     const result = compilePipeline(snapshot, emptyConfig, [binder], []);
     expect(result.intents).toHaveLength(1);
@@ -116,7 +135,13 @@ describe('compilePipeline', () => {
 
     const binder: IBinder = {
       id: 'multi-binder',
-      supportedEdgeTypes: [{ edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' }],
+      supportedEdgeTypes: [
+        {
+          edgeType: 'bindsTo',
+          sourceType: 'component',
+          targetType: 'platform',
+        },
+      ],
       compileEdge: (ctx) => ({
         intents: [
           makeIntent('network', ctx.edge.id),
@@ -142,7 +167,9 @@ describe('compilePipeline', () => {
     const snapshot = createSnapshot([], []);
     const config: KernelConfig = { policyPack: 'FedRAMP-High' };
 
-    expect(() => compilePipeline(snapshot, config, [], [])).toThrow(PolicyPackError);
+    expect(() => compilePipeline(snapshot, config, [], [])).toThrow(
+      PolicyPackError,
+    );
   });
 
   it('evaluates policy when pack and evaluator match', () => {
@@ -170,17 +197,19 @@ describe('compilePipeline', () => {
     const evaluator: IPolicyEvaluator = {
       id: 'violation-eval',
       supportedPacks: ['Baseline'],
-      evaluate: () => [{
-        id: 'violation:test-rule:node:x',
-        schemaVersion: '1.0.0' as const,
-        ruleId: 'test-rule',
-        ruleName: 'Test Rule',
-        severity: 'error' as const,
-        message: 'Test violation',
-        target: { type: 'node' as const, id: 'node:x' },
-        policyPack: 'Baseline',
-        remediation: { summary: 'Fix it', autoFixable: false },
-      }],
+      evaluate: () => [
+        {
+          id: 'violation:test-rule:node:x',
+          schemaVersion: '1.0.0' as const,
+          ruleId: 'test-rule',
+          ruleName: 'Test Rule',
+          severity: 'error' as const,
+          message: 'Test violation',
+          target: { type: 'node' as const, id: 'node:x' },
+          policyPack: 'Baseline',
+          remediation: { summary: 'Fix it', autoFixable: false },
+        },
+      ],
     };
 
     const result = compilePipeline(snapshot, config, [], [evaluator]);

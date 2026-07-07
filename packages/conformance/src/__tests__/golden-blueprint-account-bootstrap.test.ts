@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -112,8 +116,16 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
       properties: {
         platform: 'aws-config-rules',
         rules: [
-          { name: 's3-bucket-versioning-enabled', source: 'AWS', sourceIdentifier: 'S3_BUCKET_VERSIONING_ENABLED' },
-          { name: 'iam-root-access-key-check', source: 'AWS', sourceIdentifier: 'IAM_ROOT_ACCESS_KEY_CHECK' },
+          {
+            name: 's3-bucket-versioning-enabled',
+            source: 'AWS',
+            sourceIdentifier: 'S3_BUCKET_VERSIONING_ENABLED',
+          },
+          {
+            name: 'iam-root-access-key-check',
+            source: 'AWS',
+            sourceIdentifier: 'IAM_ROOT_ACCESS_KEY_CHECK',
+          },
         ],
       },
     },

@@ -7,21 +7,57 @@
   const app = document.getElementById('app');
 
   /* ---------- helpers ---------- */
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const esc = (s) =>
+    String(s == null ? '' : s).replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        })[c],
+    );
   const byId = (arr, id) => arr.find((x) => x.id === id);
-  const go = (hash) => { window.location.hash = hash; };
+  const go = (hash) => {
+    window.location.hash = hash;
+  };
 
   const CAT_COLOR = {
-    'Compute': '#38bdf8', 'Containers': '#818cf8', 'Storage': '#34d399', 'Database': '#22d3ee',
-    'Messaging': '#f472b6', 'Networking': '#60a5fa', 'Security': '#fb7185', 'Observability': '#fbbf24',
-    'Data & Analytics': '#2dd4bf', 'Machine Learning': '#a78bfa', 'Edge & CDN': '#fb923c', 'Identity': '#c084fc',
-    'AI / ML': '#a78bfa', 'Infrastructure': '#60a5fa',
-    'Identity & Access': '#c084fc', 'Network': '#60a5fa', 'Encryption': '#34d399',
-    'Logging & Audit': '#fbbf24', 'Resilience': '#38bdf8', 'Data Protection': '#2dd4bf',
-    'Cost': '#fb923c', 'Configuration': '#94a3b8',
+    Compute: '#38bdf8',
+    Containers: '#818cf8',
+    Storage: '#34d399',
+    Database: '#22d3ee',
+    Messaging: '#f472b6',
+    Networking: '#60a5fa',
+    Security: '#fb7185',
+    Observability: '#fbbf24',
+    'Data & Analytics': '#2dd4bf',
+    'Machine Learning': '#a78bfa',
+    'Edge & CDN': '#fb923c',
+    Identity: '#c084fc',
+    'AI / ML': '#a78bfa',
+    Infrastructure: '#60a5fa',
+    'Identity & Access': '#c084fc',
+    Network: '#60a5fa',
+    Encryption: '#34d399',
+    'Logging & Audit': '#fbbf24',
+    Resilience: '#38bdf8',
+    'Data Protection': '#2dd4bf',
+    Cost: '#fb923c',
+    Configuration: '#94a3b8',
   };
   const catColor = (c) => CAT_COLOR[c] || '#7c5cff';
-  const STAGE_COLOR = { sky: '#38bdf8', cyan: '#22d3ee', violet: '#a78bfa', indigo: '#818cf8', amber: '#fbbf24', orange: '#fb923c', emerald: '#34d399' };
+  const STAGE_COLOR = {
+    sky: '#38bdf8',
+    cyan: '#22d3ee',
+    violet: '#a78bfa',
+    indigo: '#818cf8',
+    amber: '#fbbf24',
+    orange: '#fb923c',
+    emerald: '#34d399',
+  };
 
   /* ---------- icons ---------- */
   const I = {
@@ -29,42 +65,68 @@
     cube: '<path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M3 7l9 5 9-5M12 12v10"/>',
     flow: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M10 6.5h4a3 3 0 0 1 3 3V14"/>',
     shield: '<path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5l-8-3Z"/>',
-    layers: '<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/>',
+    layers:
+      '<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/>',
     book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M19 3v18"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
     arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
     back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
     file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/>',
     tick: '<path d="M20 6 9 17l-5-5"/>',
-    server: '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 8h.01M7 17h.01"/>',
+    server:
+      '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 8h.01M7 17h.01"/>',
     db: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
     box: '<path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/>',
     net: '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M10 13l-3.5 3.5M14 13l3.5 3.5"/>',
     chat: '<path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 21l2.1-5.4A8.5 8.5 0 1 1 21 11.5Z"/>',
     eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
-    chart: '<path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="13" y="7" width="3" height="10"/>',
-    brain: '<path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-1 5 3 3 0 0 0 2 5 3 3 0 0 0 5 1V4a3 3 0 0 0-3-1Z"/><path d="M15 3a3 3 0 0 1 3 3 3 3 0 0 1 1 5 3 3 0 0 1-2 5 3 3 0 0 1-5 1"/>',
-    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/>',
+    chart:
+      '<path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="13" y="7" width="3" height="10"/>',
+    brain:
+      '<path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-1 5 3 3 0 0 0 2 5 3 3 0 0 0 5 1V4a3 3 0 0 0-3-1Z"/><path d="M15 3a3 3 0 0 1 3 3 3 3 0 0 1 1 5 3 3 0 0 1-2 5 3 3 0 0 1-5 1"/>',
+    globe:
+      '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/>',
     key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8 2 2-2 2 2 2-3 3-2-2-3 3"/>',
     lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   };
   const CAT_ICON = {
-    'Compute': 'bolt', 'Containers': 'cube', 'Storage': 'box', 'Database': 'db', 'Messaging': 'chat',
-    'Networking': 'net', 'Security': 'shield', 'Observability': 'eye', 'Data & Analytics': 'chart',
-    'Machine Learning': 'brain', 'Edge & CDN': 'globe', 'Identity': 'key',
-    'AI / ML': 'brain', 'Infrastructure': 'layers',
-    'Identity & Access': 'key', 'Network': 'net', 'Encryption': 'lock', 'Logging & Audit': 'eye',
-    'Resilience': 'shield', 'Data Protection': 'lock', 'Cost': 'chart', 'Configuration': 'flow',
+    Compute: 'bolt',
+    Containers: 'cube',
+    Storage: 'box',
+    Database: 'db',
+    Messaging: 'chat',
+    Networking: 'net',
+    Security: 'shield',
+    Observability: 'eye',
+    'Data & Analytics': 'chart',
+    'Machine Learning': 'brain',
+    'Edge & CDN': 'globe',
+    Identity: 'key',
+    'AI / ML': 'brain',
+    Infrastructure: 'layers',
+    'Identity & Access': 'key',
+    Network: 'net',
+    Encryption: 'lock',
+    'Logging & Audit': 'eye',
+    Resilience: 'shield',
+    'Data Protection': 'lock',
+    Cost: 'chart',
+    Configuration: 'flow',
   };
-  const svg = (name, cls) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="${cls || ''}">${I[name] || I.cube}</svg>`;
+  const svg = (name, cls) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="${cls || ''}">${I[name] || I.cube}</svg>`;
   const catIcon = (cat) => svg(CAT_ICON[cat] || 'cube');
 
   /* ---------- cross-links ---------- */
-  const blueprintsUsing = (capId) => D.blueprints.filter((b) => (b.components || []).includes(capId));
+  const blueprintsUsing = (capId) =>
+    D.blueprints.filter((b) => (b.components || []).includes(capId));
   const capById = (id) => byId(D.capabilities, id);
   const polById = (id) => byId(D.policies, id);
   const SEV_RANK = { error: 3, warning: 2, info: 1, none: 0 };
-  const topSeverity = (p) => ['FedRAMP-High', 'FedRAMP-Moderate', 'Baseline'].map((k) => p.severity[k]).sort((a, b) => SEV_RANK[b] - SEV_RANK[a])[0];
+  const topSeverity = (p) =>
+    ['FedRAMP-High', 'FedRAMP-Moderate', 'Baseline']
+      .map((k) => p.severity[k])
+      .sort((a, b) => SEV_RANK[b] - SEV_RANK[a])[0];
   function policyMiniRow(p) {
     const lvl = topSeverity(p);
     return `<a class="polmini" href="#/policy/${encodeURIComponent(p.id)}">
@@ -76,7 +138,8 @@
 
   /* ---------- topbar ---------- */
   function topbar(active) {
-    const link = (href, label, key) => `<a href="${href}" class="${active === key ? 'active' : ''}">${label}</a>`;
+    const link = (href, label, key) =>
+      `<a href="${href}" class="${active === key ? 'active' : ''}">${label}</a>`;
     return `<header class="topbar"><div class="wrap topbar-inner">
       <a class="brand" href="#/">
         <span class="mark">${svg('flow')}</span>
@@ -105,7 +168,8 @@
 
   /* ---------- shell ---------- */
   function shell(active, body) {
-    app.innerHTML = topbar(active) + `<main class="fade">${body}</main>` + footer();
+    app.innerHTML =
+      topbar(active) + `<main class="fade">${body}</main>` + footer();
     const gs = document.getElementById('globalSearch');
     if (gs && Atlas._q) gs.value = Atlas._q;
     window.scrollTo(0, 0);
@@ -117,18 +181,59 @@
 
   function home() {
     const s = D.stats;
-    const stat = (n, l, grad) => `<div class="stat"><div class="num">${grad ? `<span>${n}</span>` : n}</div><div class="label">${l}</div></div>`;
+    const stat = (n, l, grad) =>
+      `<div class="stat"><div class="num">${grad ? `<span>${n}</span>` : n}</div><div class="label">${l}</div></div>`;
     const explore = [
-      { href: '#/capabilities', cat: 'Compute', ic: 'cube', h: 'Capability Catalog', p: `${s.capabilities} deployable building blocks, in plain English.` },
-      { href: '#/blueprints', cat: 'Infrastructure', ic: 'layers', h: 'Blueprint Gallery', p: `${s.blueprintsImplemented} ready-made architectures you can lift and ship.` },
-      { href: '#/compliance', cat: 'Security', ic: 'shield', h: 'Compliance', p: `${s.policyRules} rules across ${s.policyPacks} packs, escalating by tier.` },
-      { href: '#/architecture', cat: 'Networking', ic: 'flow', h: 'Architecture', p: `How ${s.layers} layers compose into one deterministic kernel.` },
-    ].map((x) => `<a class="card xcard" style="--cat:${catColor(x.cat)}" href="${x.href}">
+      {
+        href: '#/capabilities',
+        cat: 'Compute',
+        ic: 'cube',
+        h: 'Capability Catalog',
+        p: `${s.capabilities} deployable building blocks, in plain English.`,
+      },
+      {
+        href: '#/blueprints',
+        cat: 'Infrastructure',
+        ic: 'layers',
+        h: 'Blueprint Gallery',
+        p: `${s.blueprintsImplemented} ready-made architectures you can lift and ship.`,
+      },
+      {
+        href: '#/compliance',
+        cat: 'Security',
+        ic: 'shield',
+        h: 'Compliance',
+        p: `${s.policyRules} rules across ${s.policyPacks} packs, escalating by tier.`,
+      },
+      {
+        href: '#/architecture',
+        cat: 'Networking',
+        ic: 'flow',
+        h: 'Architecture',
+        p: `How ${s.layers} layers compose into one deterministic kernel.`,
+      },
+    ]
+      .map(
+        (
+          x,
+        ) => `<a class="card xcard" style="--cat:${catColor(x.cat)}" href="${x.href}">
         <div class="top"><span class="badge-ic">${svg(x.ic)}</span><h3>${x.h}</h3><span class="arrow">${svg('arrow')}</span></div>
-        <div class="tagline">${x.p}</div></a>`).join('');
+        <div class="tagline">${x.p}</div></a>`,
+      )
+      .join('');
 
-    const featured = ['aws-lambda', 'aws-stepfunctions', 'aws-dynamodb', 'aws-eks-cluster', 'aws-apigateway', 'aws-s3']
-      .map(capById).filter(Boolean).map(capCard).join('');
+    const featured = [
+      'aws-lambda',
+      'aws-stepfunctions',
+      'aws-dynamodb',
+      'aws-eks-cluster',
+      'aws-apigateway',
+      'aws-s3',
+    ]
+      .map(capById)
+      .filter(Boolean)
+      .map(capCard)
+      .join('');
 
     return `
     <section class="hero"><div class="wrap">
@@ -169,18 +274,33 @@
 
   /* ---------- pipeline rail ---------- */
   function railHTML(compact) {
-    return `<div class="rail-block"><div class="rail">` + D.pipeline.map((st, i) => {
-      const c = STAGE_COLOR[st.accent] || '#7c5cff';
-      return `<a class="stage" style="--st:${c}" href="#/pipeline/${st.id}">
+    return (
+      `<div class="rail-block"><div class="rail">` +
+      D.pipeline
+        .map((st, i) => {
+          const c = STAGE_COLOR[st.accent] || '#7c5cff';
+          return `<a class="stage" style="--st:${c}" href="#/pipeline/${st.id}">
         <span class="glow"></span>
         <div class="step">STEP ${i + 1}</div>
         <div class="ic" style="background:color-mix(in srgb, ${c} 18%, transparent);color:${c}">${svg(stageIcon(st.id))}</div>
         <h4>${esc(st.short)}</h4>
         <div class="pkg mono">${esc(st.package)}</div>
       </a>`;
-    }).join('') + `</div></div>`;
+        })
+        .join('') +
+      `</div></div>`
+    );
   }
-  const stageIcon = (id) => ({ manifest: 'file', parse: 'flow', kernel: 'cube', binder: 'net', policy: 'shield', adapter: 'server', deploy: 'bolt' }[id] || 'cube');
+  const stageIcon = (id) =>
+    ({
+      manifest: 'file',
+      parse: 'flow',
+      kernel: 'cube',
+      binder: 'net',
+      policy: 'shield',
+      adapter: 'server',
+      deploy: 'bolt',
+    })[id] || 'cube';
 
   function pipeline() {
     return `<section class="section"><div class="wrap">
@@ -188,17 +308,25 @@
       <p>Shinobi compiles a declarative manifest into deployable cloud through a fixed, deterministic sequence. Backend-neutral until the very last step. Click a stage to drill in.</p></div>
       ${railHTML()}
       <div class="grid explore" style="margin-top:30px">
-        ${D.pipeline.map((st, i) => { const c = STAGE_COLOR[st.accent]; return `<a class="card" style="--cat:${c}" href="#/pipeline/${st.id}">
+        ${D.pipeline
+          .map((st, i) => {
+            const c = STAGE_COLOR[st.accent];
+            return `<a class="card" style="--cat:${c}" href="#/pipeline/${st.id}">
           <div class="top"><span class="badge-ic" style="--cat:${c}">${svg(stageIcon(st.id))}</span><div><h3>${esc(st.name)}</h3><div class="muted mono" style="font-size:12px">${esc(st.package)}</div></div></div>
-          <div class="tagline">${esc(st.summary)}</div></a>`; }).join('')}
+          <div class="tagline">${esc(st.summary)}</div></a>`;
+          })
+          .join('')}
       </div>
     </div></section>`;
   }
 
   function pipelineDetail(id) {
-    const st = byId(D.pipeline, id); if (!st) return notFound();
-    const idx = D.pipeline.indexOf(st); const c = STAGE_COLOR[st.accent];
-    const prev = D.pipeline[idx - 1], next = D.pipeline[idx + 1];
+    const st = byId(D.pipeline, id);
+    if (!st) return notFound();
+    const idx = D.pipeline.indexOf(st);
+    const c = STAGE_COLOR[st.accent];
+    const prev = D.pipeline[idx - 1],
+      next = D.pipeline[idx + 1];
     return `<section class="section"><div class="wrap">
       <a class="backlink" href="#/pipeline">${svg('back')} The Pipeline</a>
       <div class="detail-hero" style="--cat:${c}">
@@ -236,7 +364,8 @@
 
   /* ---------- capability card ---------- */
   function capCard(cap) {
-    const c = catColor(cap.category); const used = blueprintsUsing(cap.id).length;
+    const c = catColor(cap.category);
+    const used = blueprintsUsing(cap.id).length;
     return `<a class="card" style="--cat:${c}" href="#/capability/${encodeURIComponent(cap.id)}">
       <div class="top"><span class="badge-ic">${catIcon(cap.category)}</span>
         <div><h3>${esc(cap.name)}</h3><span class="pill cat" style="--cat:${c}"><span class="dot"></span>${esc(cap.category)}</span></div></div>
@@ -255,9 +384,17 @@
     const q = (Atlas._capQ || '').toLowerCase();
     let list = D.capabilities;
     if (active !== 'All') list = list.filter((c) => c.category === active);
-    if (q) list = list.filter((c) => (c.name + c.tagline + c.id + c.description).toLowerCase().includes(q));
+    if (q)
+      list = list.filter((c) =>
+        (c.name + c.tagline + c.id + c.description).toLowerCase().includes(q),
+      );
     list = list.slice().sort((a, b) => a.name.localeCompare(b.name));
-    const chips = ['All', ...cats].map((cat) => `<button class="chip ${active === cat ? 'on' : ''}" onclick="Atlas.setCapCat('${esc(cat)}')">${esc(cat)}${cat !== 'All' ? ` <span style="opacity:.6">${D.capabilities.filter((c) => c.category === cat).length}</span>` : ''}</button>`).join('');
+    const chips = ['All', ...cats]
+      .map(
+        (cat) =>
+          `<button class="chip ${active === cat ? 'on' : ''}" onclick="Atlas.setCapCat('${esc(cat)}')">${esc(cat)}${cat !== 'All' ? ` <span style="opacity:.6">${D.capabilities.filter((c) => c.category === cat).length}</span>` : ''}</button>`,
+      )
+      .join('');
     return `<section class="section"><div class="wrap">
       <div class="section-head"><div class="eyebrow">Service Catalog</div><h2>Capabilities</h2>
       <p>Every deployable building block, named for humans. Filter by category, then open any card for its full product details — what it provisions, its config surface, and the blueprints that use it.</p></div>
@@ -268,8 +405,10 @@
   }
 
   function capabilityDetail(id) {
-    const cap = capById(id); if (!cap) return notFound();
-    const c = catColor(cap.category); const used = blueprintsUsing(cap.id);
+    const cap = capById(id);
+    if (!cap) return notFound();
+    const c = catColor(cap.category);
+    const used = blueprintsUsing(cap.id);
     return `<section class="section"><div class="wrap">
       <a class="backlink" href="#/capabilities">${svg('back')} Capability Catalog</a>
       <div class="detail-hero" style="--cat:${c}">
@@ -284,12 +423,24 @@
       <div class="detail-grid">
         <div class="prose">
           <p style="font-size:16.5px;color:var(--text)">${esc(cap.description)}</p>
-          ${cap.provisions && cap.provisions.length ? `<div class="section-sub">What it provisions</div>
-            <ul class="list">${cap.provisions.map((p) => `<li><span class="tick">${svg('tick')}</span>${esc(p)}</li>`).join('')}</ul>` : ''}
-          ${(cap.policyIds || []).length ? `<div class="section-sub">Governing policies <span class="muted" style="font-weight:500;font-size:14px">· ${cap.policyIds.length}</span></div>
-            <div class="polminis">${cap.policyIds.map(polById).filter(Boolean).map(policyMiniRow).join('')}</div>` : ''}
-          ${used.length ? `<div class="section-sub">Used in ${used.length} blueprint${used.length > 1 ? 's' : ''}</div>
-            <div class="grid bp">${used.map(bpCard).join('')}</div>` : ''}
+          ${
+            cap.provisions && cap.provisions.length
+              ? `<div class="section-sub">What it provisions</div>
+            <ul class="list">${cap.provisions.map((p) => `<li><span class="tick">${svg('tick')}</span>${esc(p)}</li>`).join('')}</ul>`
+              : ''
+          }
+          ${
+            (cap.policyIds || []).length
+              ? `<div class="section-sub">Governing policies <span class="muted" style="font-weight:500;font-size:14px">· ${cap.policyIds.length}</span></div>
+            <div class="polminis">${cap.policyIds.map(polById).filter(Boolean).map(policyMiniRow).join('')}</div>`
+              : ''
+          }
+          ${
+            used.length
+              ? `<div class="section-sub">Used in ${used.length} blueprint${used.length > 1 ? 's' : ''}</div>
+            <div class="grid bp">${used.map(bpCard).join('')}</div>`
+              : ''
+          }
         </div>
         <div>
           <div class="block"><h4>At a glance</h4>
@@ -329,9 +480,24 @@
     let list = D.blueprints;
     if (active !== 'All') list = list.filter((b) => b.category === active);
     if (status !== 'All') list = list.filter((b) => b.status === status);
-    if (q) list = list.filter((b) => (b.name + b.summary + b.id + (b.components || []).join(' ')).toLowerCase().includes(q));
-    const chips = ['All', ...cats].map((cat) => `<button class="chip ${active === cat ? 'on' : ''}" onclick="Atlas.setBpCat('${esc(cat)}')">${esc(cat)}</button>`).join('');
-    const sChips = ['All', 'Implemented', 'Planned'].map((s) => `<button class="chip ${status === s ? 'on' : ''}" onclick="Atlas.setBpStatus('${esc(s)}')">${esc(s)}</button>`).join('');
+    if (q)
+      list = list.filter((b) =>
+        (b.name + b.summary + b.id + (b.components || []).join(' '))
+          .toLowerCase()
+          .includes(q),
+      );
+    const chips = ['All', ...cats]
+      .map(
+        (cat) =>
+          `<button class="chip ${active === cat ? 'on' : ''}" onclick="Atlas.setBpCat('${esc(cat)}')">${esc(cat)}</button>`,
+      )
+      .join('');
+    const sChips = ['All', 'Implemented', 'Planned']
+      .map(
+        (s) =>
+          `<button class="chip ${status === s ? 'on' : ''}" onclick="Atlas.setBpStatus('${esc(s)}')">${esc(s)}</button>`,
+      )
+      .join('');
     return `<section class="section"><div class="wrap">
       <div class="section-head"><div class="eyebrow">Reference Architectures</div><h2>Blueprint Gallery</h2>
       <p>Opinionated, ready-to-ship architectures. ${D.stats.blueprintsImplemented} of ${D.stats.blueprintsTotal} are implemented as manifests today — open any card to see its components and compliance posture.</p></div>
@@ -342,7 +508,8 @@
   }
 
   function blueprintDetail(id) {
-    const bp = byId(D.blueprints, id); if (!bp) return notFound();
+    const bp = byId(D.blueprints, id);
+    if (!bp) return notFound();
     const c = catColor(bp.category);
     const comps = (bp.components || []).map(capById).filter(Boolean);
     const missing = (bp.components || []).filter((cid) => !capById(cid));
@@ -359,13 +526,20 @@
       </div>
       <div class="detail-grid">
         <div class="prose">
-          ${comps.length ? `<div class="section-sub">Composed of ${comps.length} capabilit${comps.length > 1 ? 'ies' : 'y'}</div>
-            <div class="grid cap">${comps.map(capCard).join('')}</div>` :
-        `<p class="muted">This blueprint is <b>planned</b> — its manifest isn't authored yet, so the component list will populate once it's implemented.</p>`}
+          ${
+            comps.length
+              ? `<div class="section-sub">Composed of ${comps.length} capabilit${comps.length > 1 ? 'ies' : 'y'}</div>
+            <div class="grid cap">${comps.map(capCard).join('')}</div>`
+              : `<p class="muted">This blueprint is <b>planned</b> — its manifest isn't authored yet, so the component list will populate once it's implemented.</p>`
+          }
           ${missing.length ? `<p class="muted" style="margin-top:14px">Also references: ${missing.map((m) => `<span class="cfgchip">${esc(m)}</span>`).join(' ')}</p>` : ''}
-          ${bp.manifest ? `<div class="section-sub">The manifest <button class="copybtn" onclick="Atlas.copy('mf-${esc(bp.id)}', this)">${svg('file')} Copy</button></div>
+          ${
+            bp.manifest
+              ? `<div class="section-sub">The manifest <button class="copybtn" onclick="Atlas.copy('mf-${esc(bp.id)}', this)">${svg('file')} Copy</button></div>
             <p class="muted" style="margin-top:-6px;margin-bottom:12px">This is the exact YAML Shinobi compiles — copy it as a starting point.</p>
-            <pre class="code"><code id="mf-${esc(bp.id)}">${esc(bp.manifest)}</code></pre>` : ''}
+            <pre class="code"><code id="mf-${esc(bp.id)}">${esc(bp.manifest)}</code></pre>`
+              : ''
+          }
         </div>
         <div>
           <div class="block"><h4>Blueprint facts</h4>
@@ -388,14 +562,29 @@
     const q = (Atlas._polQ || '').toLowerCase();
     let list = D.policies;
     if (active !== 'All') list = list.filter((p) => p.category === active);
-    if (q) list = list.filter((p) => (p.name + p.summary + p.id).toLowerCase().includes(q));
+    if (q)
+      list = list.filter((p) =>
+        (p.name + p.summary + p.id).toLowerCase().includes(q),
+      );
     list = list.slice().sort((a, b) => a.name.localeCompare(b.name));
-    const chips = ['All', ...cats].map((cat) => `<button class="chip ${active === cat ? 'on' : ''}" onclick="Atlas.setPolCat('${esc(cat)}')">${esc(cat)}</button>`).join('');
-    const sevDot = (lvl) => `<span class="sevcell"><span class="sev-dot sev-${lvl}"></span>${lvl === 'none' ? '—' : lvl}</span>`;
-    const rows = list.map((p) => `<div class="polrow" onclick="location.hash='#/policy/${encodeURIComponent(p.id)}'">
+    const chips = ['All', ...cats]
+      .map(
+        (cat) =>
+          `<button class="chip ${active === cat ? 'on' : ''}" onclick="Atlas.setPolCat('${esc(cat)}')">${esc(cat)}</button>`,
+      )
+      .join('');
+    const sevDot = (lvl) =>
+      `<span class="sevcell"><span class="sev-dot sev-${lvl}"></span>${lvl === 'none' ? '—' : lvl}</span>`;
+    const rows = list
+      .map(
+        (
+          p,
+        ) => `<div class="polrow" onclick="location.hash='#/policy/${encodeURIComponent(p.id)}'">
       <div><div class="pname">${esc(p.name)}</div><div class="psum">${esc(p.summary)}</div></div>
       ${sevDot(p.severity.Baseline)}${sevDot(p.severity['FedRAMP-Moderate'])}${sevDot(p.severity['FedRAMP-High'])}
-    </div>`).join('');
+    </div>`,
+      )
+      .join('');
     return `<section class="section"><div class="wrap">
       <div class="section-head"><div class="eyebrow">Policy-as-Data</div><h2>Compliance</h2>
       <p>${D.stats.policyRules} rules, evaluated before anything deploys. The same rule set escalates in severity across three packs — the rules never branch, only their severity does.</p></div>
@@ -413,9 +602,11 @@
   }
 
   function policyDetail(id) {
-    const p = byId(D.policies, id); if (!p) return notFound();
+    const p = byId(D.policies, id);
+    if (!p) return notFound();
     const c = catColor(p.category);
-    const pack = (name, lvl) => `<div class="pack"><div class="pk">${name}</div><div class="lvl lvl-${lvl}">${lvl === 'none' ? 'n/a' : lvl}</div></div>`;
+    const pack = (name, lvl) =>
+      `<div class="pack"><div class="pk">${name}</div><div class="lvl lvl-${lvl}">${lvl === 'none' ? 'n/a' : lvl}</div></div>`;
     return `<section class="section"><div class="wrap">
       <a class="backlink" href="#/compliance">${svg('back')} Compliance</a>
       <div class="detail-hero" style="--cat:${c}">
@@ -440,7 +631,18 @@
           </div>
           <div class="block"><h4>Rule</h4><div class="kv"><span class="k">Identifier</span><span class="v mono">${esc(p.id)}</span></div>
           <div class="kv"><span class="k">Category</span><span class="v">${esc(p.category)}</span></div></div>
-          ${(p.appliesTo || []).length ? `<div class="block"><h4>Applies to</h4><div class="chips">${p.appliesTo.map(capById).filter(Boolean).map((c) => `<a class="pill cat" style="--cat:${catColor(c.category)}" href="#/capability/${encodeURIComponent(c.id)}"><span class="dot"></span>${esc(c.name)}</a>`).join('')}</div></div>` : ''}
+          ${
+            (p.appliesTo || []).length
+              ? `<div class="block"><h4>Applies to</h4><div class="chips">${p.appliesTo
+                  .map(capById)
+                  .filter(Boolean)
+                  .map(
+                    (c) =>
+                      `<a class="pill cat" style="--cat:${catColor(c.category)}" href="#/capability/${encodeURIComponent(c.id)}"><span class="dot"></span>${esc(c.name)}</a>`,
+                  )
+                  .join('')}</div></div>`
+              : ''
+          }
         </div>
       </div>
     </div></section>`;
@@ -448,17 +650,53 @@
 
   /* ---------- architecture ---------- */
   function architecture() {
-    const ntc = D.nodeTypeCounts; const total = Object.values(ntc).reduce((a, b) => a + b, 0);
-    const typeColors = { file: '#38bdf8', function: '#a78bfa', class: '#34d399', config: '#fbbf24', document: '#fb923c', pipeline: '#f472b6' };
-    const bar = Object.entries(ntc).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<span style="width:${(n / total * 100).toFixed(2)}%;background:${typeColors[t] || '#7c5cff'}" title="${t}: ${n}"></span>`).join('');
-    const legend = Object.entries(ntc).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<span><i style="background:${typeColors[t] || '#7c5cff'}"></i>${t} · ${n}</span>`).join('');
-    const flowCats = ['Database', 'Encryption', 'Kernel', 'Networking', 'Identity', 'Security', 'Infrastructure', 'Observability', 'AI / ML', 'Cost'];
-    const layers = D.layers.map((l, i) => {
-      const c = catColor(flowCats[i] || 'Infrastructure');
-      return `<div class="arch-layer" style="--cat:${c}">
+    const ntc = D.nodeTypeCounts;
+    const total = Object.values(ntc).reduce((a, b) => a + b, 0);
+    const typeColors = {
+      file: '#38bdf8',
+      function: '#a78bfa',
+      class: '#34d399',
+      config: '#fbbf24',
+      document: '#fb923c',
+      pipeline: '#f472b6',
+    };
+    const bar = Object.entries(ntc)
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([t, n]) =>
+          `<span style="width:${((n / total) * 100).toFixed(2)}%;background:${typeColors[t] || '#7c5cff'}" title="${t}: ${n}"></span>`,
+      )
+      .join('');
+    const legend = Object.entries(ntc)
+      .sort((a, b) => b[1] - a[1])
+      .map(
+        ([t, n]) =>
+          `<span><i style="background:${typeColors[t] || '#7c5cff'}"></i>${t} · ${n}</span>`,
+      )
+      .join('');
+    const flowCats = [
+      'Database',
+      'Encryption',
+      'Kernel',
+      'Networking',
+      'Identity',
+      'Security',
+      'Infrastructure',
+      'Observability',
+      'AI / ML',
+      'Cost',
+    ];
+    const layers = D.layers
+      .map((l, i) => {
+        const c = catColor(flowCats[i] || 'Infrastructure');
+        return (
+          `<div class="arch-layer" style="--cat:${c}">
         <div><div class="ln">${esc(l.name)}</div><div class="ld">${esc(l.description)}</div></div>
-        <div class="cnt">${l.nodeCount}<small>nodes</small></div></div>` + (i < D.layers.length - 1 ? `<div class="arch-flow">↓</div>` : '');
-    }).join('');
+        <div class="cnt">${l.nodeCount}<small>nodes</small></div></div>` +
+          (i < D.layers.length - 1 ? `<div class="arch-flow">↓</div>` : '')
+        );
+      })
+      .join('');
     return `<section class="section"><div class="wrap">
       <div class="section-head"><div class="eyebrow">System Design</div><h2>Architecture</h2>
       <p>Ten layers, each a package with an enforced boundary. Dependencies flow strictly downward — the foundation never imports a provider SDK, and the provider adapter is the only place a cloud is named.</p></div>
@@ -482,17 +720,37 @@
   /* ---------- search ---------- */
   function search(q) {
     const ql = (q || '').toLowerCase().trim();
-    if (!ql) return `<section class="section"><div class="wrap"><div class="empty">Type to search capabilities, blueprints, and rules.</div></div></section>`;
-    const caps = D.capabilities.filter((c) => (c.name + c.tagline + c.id + c.description + c.category).toLowerCase().includes(ql));
-    const bps = D.blueprints.filter((b) => (b.name + b.summary + b.id + (b.components || []).join(' ')).toLowerCase().includes(ql));
-    const pols = D.policies.filter((p) => (p.name + p.summary + p.id + p.category).toLowerCase().includes(ql));
+    if (!ql)
+      return `<section class="section"><div class="wrap"><div class="empty">Type to search capabilities, blueprints, and rules.</div></div></section>`;
+    const caps = D.capabilities.filter((c) =>
+      (c.name + c.tagline + c.id + c.description + c.category)
+        .toLowerCase()
+        .includes(ql),
+    );
+    const bps = D.blueprints.filter((b) =>
+      (b.name + b.summary + b.id + (b.components || []).join(' '))
+        .toLowerCase()
+        .includes(ql),
+    );
+    const pols = D.policies.filter((p) =>
+      (p.name + p.summary + p.id + p.category).toLowerCase().includes(ql),
+    );
     const total = caps.length + bps.length + pols.length;
-    const group = (title, items, render, cls) => items.length ? `<div class="searchgroup"><div class="gh">${title} · ${items.length}</div><div class="grid ${cls}">${items.map(render).join('')}</div></div>` : '';
+    const group = (title, items, render, cls) =>
+      items.length
+        ? `<div class="searchgroup"><div class="gh">${title} · ${items.length}</div><div class="grid ${cls}">${items.map(render).join('')}</div></div>`
+        : '';
     return `<section class="section"><div class="wrap">
       <div class="section-head"><div class="eyebrow">Search</div><h2>${total} result${total === 1 ? '' : 's'} for “${esc(q)}”</h2></div>
-      ${total ? group('Capabilities', caps, capCard, 'cap') + group('Blueprints', bps, bpCard, 'bp') +
-        (pols.length ? `<div class="searchgroup"><div class="gh">Policy rules · ${pols.length}</div>${pols.map((p) => `<div class="polrow" onclick="location.hash='#/policy/${encodeURIComponent(p.id)}'"><div><div class="pname">${esc(p.name)}</div><div class="psum">${esc(p.summary)}</div></div><span class="pill cat" style="--cat:${catColor(p.category)}"><span class="dot"></span>${esc(p.category)}</span></div>`).join('')}</div>` : '')
-        : `<div class="empty">Nothing matched “${esc(q)}”. Try a capability name, a blueprint, or a service.</div>`}
+      ${
+        total
+          ? group('Capabilities', caps, capCard, 'cap') +
+            group('Blueprints', bps, bpCard, 'bp') +
+            (pols.length
+              ? `<div class="searchgroup"><div class="gh">Policy rules · ${pols.length}</div>${pols.map((p) => `<div class="polrow" onclick="location.hash='#/policy/${encodeURIComponent(p.id)}'"><div><div class="pname">${esc(p.name)}</div><div class="psum">${esc(p.summary)}</div></div><span class="pill cat" style="--cat:${catColor(p.category)}"><span class="dot"></span>${esc(p.category)}</span></div>`).join('')}</div>`
+              : '')
+          : `<div class="empty">Nothing matched “${esc(q)}”. Try a capability name, a blueprint, or a service.</div>`
+      }
     </div></section>`;
   }
 
@@ -503,20 +761,83 @@
   /* ============================================================
      ROUTER
      ============================================================ */
-  const Atlas = window.Atlas = {
-    _q: '', _capCat: 'All', _capQ: '', _bpCat: 'All', _bpStatus: 'All', _bpQ: '', _polCat: 'All', _polQ: '',
-    submitSearch(e) { e.preventDefault(); const v = document.getElementById('globalSearch').value.trim(); Atlas._q = v; go('#/search/' + encodeURIComponent(v)); return false; },
-    setCapCat(c) { Atlas._capCat = c; render(); }, setCapQ(v) { Atlas._capQ = v; renderInline(capabilities, 'capabilities'); },
-    setBpCat(c) { Atlas._bpCat = c; render(); }, setBpStatus(s) { Atlas._bpStatus = s; render(); }, setBpQ(v) { Atlas._bpQ = v; renderInline(blueprints, 'blueprints'); },
-    setPolCat(c) { Atlas._polCat = c; render(); }, setPolQ(v) { Atlas._polQ = v; renderInline(compliance, 'compliance'); },
-    copy(id, btn) {
-      const el = document.getElementById(id); if (!el) return;
-      const txt = el.textContent;
-      const done = () => { if (btn) { const o = btn.innerHTML; btn.innerHTML = 'Copied ✓'; btn.classList.add('ok'); setTimeout(() => { btn.innerHTML = o; btn.classList.remove('ok'); }, 1600); } };
-      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done, fallback); } else { fallback(); }
-      function fallback() { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); done(); }
+  const Atlas = (window.Atlas = {
+    _q: '',
+    _capCat: 'All',
+    _capQ: '',
+    _bpCat: 'All',
+    _bpStatus: 'All',
+    _bpQ: '',
+    _polCat: 'All',
+    _polQ: '',
+    submitSearch(e) {
+      e.preventDefault();
+      const v = document.getElementById('globalSearch').value.trim();
+      Atlas._q = v;
+      go('#/search/' + encodeURIComponent(v));
+      return false;
     },
-  };
+    setCapCat(c) {
+      Atlas._capCat = c;
+      render();
+    },
+    setCapQ(v) {
+      Atlas._capQ = v;
+      renderInline(capabilities, 'capabilities');
+    },
+    setBpCat(c) {
+      Atlas._bpCat = c;
+      render();
+    },
+    setBpStatus(s) {
+      Atlas._bpStatus = s;
+      render();
+    },
+    setBpQ(v) {
+      Atlas._bpQ = v;
+      renderInline(blueprints, 'blueprints');
+    },
+    setPolCat(c) {
+      Atlas._polCat = c;
+      render();
+    },
+    setPolQ(v) {
+      Atlas._polQ = v;
+      renderInline(compliance, 'compliance');
+    },
+    copy(id, btn) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const txt = el.textContent;
+      const done = () => {
+        if (btn) {
+          const o = btn.innerHTML;
+          btn.innerHTML = 'Copied ✓';
+          btn.classList.add('ok');
+          setTimeout(() => {
+            btn.innerHTML = o;
+            btn.classList.remove('ok');
+          }, 1600);
+        }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(done, fallback);
+      } else {
+        fallback();
+      }
+      function fallback() {
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+        } catch (e) {}
+        ta.remove();
+        done();
+      }
+    },
+  });
 
   // re-render only <main> without losing input focus (for live filters)
   function renderInline(view, active) {
@@ -530,25 +851,53 @@
     const [route, param] = [h.split('/')[0], h.split('/').slice(1).join('/')];
     Atlas._q = route === 'search' ? decodeURIComponent(param || '') : '';
     switch (route) {
-      case '': case undefined: return shell('home', home());
-      case 'pipeline': return param ? shell('pipeline', pipelineDetail(param)) : shell('pipeline', pipeline());
-      case 'capabilities': return shell('capabilities', capabilities());
-      case 'capability': return shell('capabilities', capabilityDetail(decodeURIComponent(param || '')));
-      case 'blueprints': return shell('blueprints', blueprints());
-      case 'blueprint': return shell('blueprints', blueprintDetail(decodeURIComponent(param || '')));
-      case 'compliance': return shell('compliance', compliance());
-      case 'policy': return shell('compliance', policyDetail(decodeURIComponent(param || '')));
-      case 'architecture': return shell('architecture', architecture());
-      case 'glossary': return shell('glossary', glossary());
-      case 'search': return shell('home', search(decodeURIComponent(param || '')));
-      default: return shell('home', notFound());
+      case '':
+      case undefined:
+        return shell('home', home());
+      case 'pipeline':
+        return param
+          ? shell('pipeline', pipelineDetail(param))
+          : shell('pipeline', pipeline());
+      case 'capabilities':
+        return shell('capabilities', capabilities());
+      case 'capability':
+        return shell(
+          'capabilities',
+          capabilityDetail(decodeURIComponent(param || '')),
+        );
+      case 'blueprints':
+        return shell('blueprints', blueprints());
+      case 'blueprint':
+        return shell(
+          'blueprints',
+          blueprintDetail(decodeURIComponent(param || '')),
+        );
+      case 'compliance':
+        return shell('compliance', compliance());
+      case 'policy':
+        return shell(
+          'compliance',
+          policyDetail(decodeURIComponent(param || '')),
+        );
+      case 'architecture':
+        return shell('architecture', architecture());
+      case 'glossary':
+        return shell('glossary', glossary());
+      case 'search':
+        return shell('home', search(decodeURIComponent(param || '')));
+      default:
+        return shell('home', notFound());
     }
   }
 
   window.addEventListener('hashchange', render);
   // keyboard: "/" focuses search
   window.addEventListener('keydown', (e) => {
-    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); const s = document.getElementById('globalSearch'); if (s) s.focus(); }
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      const s = document.getElementById('globalSearch');
+      if (s) s.focus();
+    }
   });
   render();
 })();

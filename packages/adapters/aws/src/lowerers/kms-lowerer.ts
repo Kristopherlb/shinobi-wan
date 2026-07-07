@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class KmsLowerer implements NodeLowerer {
   readonly platform = 'aws-kms';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -21,7 +30,8 @@ export class KmsLowerer implements NodeLowerer {
 
     const keySpec = (props['keySpec'] as string) ?? 'SYMMETRIC_DEFAULT';
     const enableKeyRotation = props['enableKeyRotation'] !== false; // default true
-    const deletionWindowInDays = (props['deletionWindowInDays'] as number) ?? 30;
+    const deletionWindowInDays =
+      (props['deletionWindowInDays'] as number) ?? 30;
 
     resources.push({
       name: keyName,
@@ -30,7 +40,8 @@ export class KmsLowerer implements NodeLowerer {
         description: `${serviceName}-${name}`,
         keyUsage: 'ENCRYPT_DECRYPT',
         customerMasterKeySpec: keySpec,
-        enableKeyRotation: keySpec === 'SYMMETRIC_DEFAULT' ? enableKeyRotation : false,
+        enableKeyRotation:
+          keySpec === 'SYMMETRIC_DEFAULT' ? enableKeyRotation : false,
         deletionWindowInDays,
         tags: createStandardTags(node.id, 'aws-kms', extraTags),
       },

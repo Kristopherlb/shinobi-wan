@@ -9,76 +9,168 @@ import type { PulumiFn } from './program-generator';
  */
 const RESOURCE_CONSTRUCTORS: Record<
   string,
-  (name: string, args: Record<string, unknown>, opts?: pulumi.ResourceOptions) => pulumi.Resource
+  (
+    name: string,
+    args: Record<string, unknown>,
+    opts?: pulumi.ResourceOptions,
+  ) => pulumi.Resource
 > = {
-  'aws:iam:Role': (n, a, o) => new aws.iam.Role(n, a as unknown as aws.iam.RoleArgs, o),
-  'aws:iam:Policy': (n, a, o) => new aws.iam.Policy(n, a as unknown as aws.iam.PolicyArgs, o),
+  'aws:iam:Role': (n, a, o) =>
+    new aws.iam.Role(n, a as unknown as aws.iam.RoleArgs, o),
+  'aws:iam:Policy': (n, a, o) =>
+    new aws.iam.Policy(n, a as unknown as aws.iam.PolicyArgs, o),
   'aws:iam:RolePolicyAttachment': (n, a, o) =>
-    new aws.iam.RolePolicyAttachment(n, a as unknown as aws.iam.RolePolicyAttachmentArgs, o),
+    new aws.iam.RolePolicyAttachment(
+      n,
+      a as unknown as aws.iam.RolePolicyAttachmentArgs,
+      o,
+    ),
   'aws:lambda:Function': (n, a, o) =>
     new aws.lambda.Function(n, a as unknown as aws.lambda.FunctionArgs, o),
   'aws:lambda:EventSourceMapping': (n, a, o) =>
-    new aws.lambda.EventSourceMapping(n, a as unknown as aws.lambda.EventSourceMappingArgs, o),
+    new aws.lambda.EventSourceMapping(
+      n,
+      a as unknown as aws.lambda.EventSourceMappingArgs,
+      o,
+    ),
   'aws:lambda:Permission': (n, a, o) =>
     new aws.lambda.Permission(n, a as unknown as aws.lambda.PermissionArgs, o),
   'aws:sqs:Queue': (n, a, o) => new aws.sqs.Queue(n, a as aws.sqs.QueueArgs, o),
-  'aws:ssm:Parameter': (n, a, o) => new aws.ssm.Parameter(n, a as unknown as aws.ssm.ParameterArgs, o),
+  'aws:ssm:Parameter': (n, a, o) =>
+    new aws.ssm.Parameter(n, a as unknown as aws.ssm.ParameterArgs, o),
   'aws:ec2:SecurityGroupRule': (n, a, o) =>
-    new aws.ec2.SecurityGroupRule(n, a as unknown as aws.ec2.SecurityGroupRuleArgs, o),
-  'aws:dynamodb:Table': (n, a, o) => new aws.dynamodb.Table(n, a as aws.dynamodb.TableArgs, o),
+    new aws.ec2.SecurityGroupRule(
+      n,
+      a as unknown as aws.ec2.SecurityGroupRuleArgs,
+      o,
+    ),
+  'aws:dynamodb:Table': (n, a, o) =>
+    new aws.dynamodb.Table(n, a as aws.dynamodb.TableArgs, o),
   'aws:s3:Bucket': (n, a, o) => new aws.s3.Bucket(n, a as aws.s3.BucketArgs, o),
   'aws:s3:BucketVersioningV2': (n, a, o) =>
-    new aws.s3.BucketVersioningV2(n, a as unknown as aws.s3.BucketVersioningV2Args, o),
+    new aws.s3.BucketVersioningV2(
+      n,
+      a as unknown as aws.s3.BucketVersioningV2Args,
+      o,
+    ),
   'aws:apigatewayv2:Api': (n, a, o) =>
     new aws.apigatewayv2.Api(n, a as unknown as aws.apigatewayv2.ApiArgs, o),
   'aws:apigatewayv2:Stage': (n, a, o) =>
-    new aws.apigatewayv2.Stage(n, a as unknown as aws.apigatewayv2.StageArgs, o),
+    new aws.apigatewayv2.Stage(
+      n,
+      a as unknown as aws.apigatewayv2.StageArgs,
+      o,
+    ),
   'aws:apigatewayv2:Integration': (n, a, o) =>
-    new aws.apigatewayv2.Integration(n, a as unknown as aws.apigatewayv2.IntegrationArgs, o),
+    new aws.apigatewayv2.Integration(
+      n,
+      a as unknown as aws.apigatewayv2.IntegrationArgs,
+      o,
+    ),
   'aws:apigatewayv2:Route': (n, a, o) =>
-    new aws.apigatewayv2.Route(n, a as unknown as aws.apigatewayv2.RouteArgs, o),
-  'aws:sns:Topic': (n, a, o) => new aws.sns.Topic(n, a as unknown as aws.sns.TopicArgs, o),
+    new aws.apigatewayv2.Route(
+      n,
+      a as unknown as aws.apigatewayv2.RouteArgs,
+      o,
+    ),
+  'aws:sns:Topic': (n, a, o) =>
+    new aws.sns.Topic(n, a as unknown as aws.sns.TopicArgs, o),
   'aws:cloudfront:Distribution': (n, a, o) =>
-    new aws.cloudfront.Distribution(n, a as unknown as aws.cloudfront.DistributionArgs, o),
+    new aws.cloudfront.Distribution(
+      n,
+      a as unknown as aws.cloudfront.DistributionArgs,
+      o,
+    ),
   'aws:cloudfront:OriginAccessControl': (n, a, o) =>
-    new aws.cloudfront.OriginAccessControl(n, a as unknown as aws.cloudfront.OriginAccessControlArgs, o),
+    new aws.cloudfront.OriginAccessControl(
+      n,
+      a as unknown as aws.cloudfront.OriginAccessControlArgs,
+      o,
+    ),
   'aws:cloudfront:Function': (n, a, o) =>
-    new aws.cloudfront.Function(n, a as unknown as aws.cloudfront.FunctionArgs, o),
-  'aws:wafv2:WebAcl': (n, a, o) => new aws.wafv2.WebAcl(n, a as unknown as aws.wafv2.WebAclArgs, o),
+    new aws.cloudfront.Function(
+      n,
+      a as unknown as aws.cloudfront.FunctionArgs,
+      o,
+    ),
+  'aws:wafv2:WebAcl': (n, a, o) =>
+    new aws.wafv2.WebAcl(n, a as unknown as aws.wafv2.WebAclArgs, o),
   'aws:acm:Certificate': (n, a, o) =>
     new aws.acm.Certificate(n, a as unknown as aws.acm.CertificateArgs, o),
   'aws:scheduler:Schedule': (n, a, o) =>
-    new aws.scheduler.Schedule(n, a as unknown as aws.scheduler.ScheduleArgs, o),
+    new aws.scheduler.Schedule(
+      n,
+      a as unknown as aws.scheduler.ScheduleArgs,
+      o,
+    ),
   'aws:scheduler:ScheduleGroup': (n, a, o) =>
-    new aws.scheduler.ScheduleGroup(n, a as unknown as aws.scheduler.ScheduleGroupArgs, o),
+    new aws.scheduler.ScheduleGroup(
+      n,
+      a as unknown as aws.scheduler.ScheduleGroupArgs,
+      o,
+    ),
   'aws:sfn:StateMachine': (n, a, o) =>
     new aws.sfn.StateMachine(n, a as unknown as aws.sfn.StateMachineArgs, o),
   'aws:cloudwatch:LogGroup': (n, a, o) =>
-    new aws.cloudwatch.LogGroup(n, a as unknown as aws.cloudwatch.LogGroupArgs, o),
-  'aws:ec2:Vpc': (n, a, o) => new aws.ec2.Vpc(n, a as unknown as aws.ec2.VpcArgs, o),
+    new aws.cloudwatch.LogGroup(
+      n,
+      a as unknown as aws.cloudwatch.LogGroupArgs,
+      o,
+    ),
+  'aws:ec2:Vpc': (n, a, o) =>
+    new aws.ec2.Vpc(n, a as unknown as aws.ec2.VpcArgs, o),
   'aws:ec2:InternetGateway': (n, a, o) =>
-    new aws.ec2.InternetGateway(n, a as unknown as aws.ec2.InternetGatewayArgs, o),
+    new aws.ec2.InternetGateway(
+      n,
+      a as unknown as aws.ec2.InternetGatewayArgs,
+      o,
+    ),
   'aws:ec2:InternetGatewayAttachment': (n, a, o) =>
-    new aws.ec2.InternetGatewayAttachment(n, a as unknown as aws.ec2.InternetGatewayAttachmentArgs, o),
-  'aws:ec2:Subnet': (n, a, o) => new aws.ec2.Subnet(n, a as unknown as aws.ec2.SubnetArgs, o),
+    new aws.ec2.InternetGatewayAttachment(
+      n,
+      a as unknown as aws.ec2.InternetGatewayAttachmentArgs,
+      o,
+    ),
+  'aws:ec2:Subnet': (n, a, o) =>
+    new aws.ec2.Subnet(n, a as unknown as aws.ec2.SubnetArgs, o),
   'aws:ec2:RouteTable': (n, a, o) =>
     new aws.ec2.RouteTable(n, a as unknown as aws.ec2.RouteTableArgs, o),
   'aws:ec2:RouteTableAssociation': (n, a, o) =>
-    new aws.ec2.RouteTableAssociation(n, a as unknown as aws.ec2.RouteTableAssociationArgs, o),
+    new aws.ec2.RouteTableAssociation(
+      n,
+      a as unknown as aws.ec2.RouteTableAssociationArgs,
+      o,
+    ),
   'aws:ec2:SecurityGroup': (n, a, o) =>
     new aws.ec2.SecurityGroup(n, a as unknown as aws.ec2.SecurityGroupArgs, o),
   'aws:vpc:SecurityGroupIngressRule': (n, a, o) =>
-    new aws.vpc.SecurityGroupIngressRule(n, a as unknown as aws.vpc.SecurityGroupIngressRuleArgs, o),
+    new aws.vpc.SecurityGroupIngressRule(
+      n,
+      a as unknown as aws.vpc.SecurityGroupIngressRuleArgs,
+      o,
+    ),
   'aws:vpc:SecurityGroupEgressRule': (n, a, o) =>
-    new aws.vpc.SecurityGroupEgressRule(n, a as unknown as aws.vpc.SecurityGroupEgressRuleArgs, o),
+    new aws.vpc.SecurityGroupEgressRule(
+      n,
+      a as unknown as aws.vpc.SecurityGroupEgressRuleArgs,
+      o,
+    ),
   'aws:ecr:Repository': (n, a, o) =>
     new aws.ecr.Repository(n, a as unknown as aws.ecr.RepositoryArgs, o),
   'aws:ecr:LifecyclePolicy': (n, a, o) =>
-    new aws.ecr.LifecyclePolicy(n, a as unknown as aws.ecr.LifecyclePolicyArgs, o),
+    new aws.ecr.LifecyclePolicy(
+      n,
+      a as unknown as aws.ecr.LifecyclePolicyArgs,
+      o,
+    ),
   'aws:ecs:Cluster': (n, a, o) =>
     new aws.ecs.Cluster(n, a as unknown as aws.ecs.ClusterArgs, o),
   'aws:ecs:TaskDefinition': (n, a, o) =>
-    new aws.ecs.TaskDefinition(n, a as unknown as aws.ecs.TaskDefinitionArgs, o),
+    new aws.ecs.TaskDefinition(
+      n,
+      a as unknown as aws.ecs.TaskDefinitionArgs,
+      o,
+    ),
   'aws:ecs:Service': (n, a, o) =>
     new aws.ecs.Service(n, a as unknown as aws.ecs.ServiceArgs, o),
   'aws:lb:LoadBalancer': (n, a, o) =>
@@ -135,11 +227,14 @@ function resolveRef(
 
   const resource = registry.get(resourceName);
   if (!resource) {
-    throw new Error(`Unresolved ref "${ref}": resource "${resourceName}" has not been created`);
+    throw new Error(
+      `Unresolved ref "${ref}": resource "${resourceName}" has not been created`,
+    );
   }
 
   // If explicit field is specified, use it directly
-  const field = explicitField ?? resolveOutputField(consumerResourceType, propertyName);
+  const field =
+    explicitField ?? resolveOutputField(consumerResourceType, propertyName);
 
   // Access the output dynamically from the resource
   const res = resource as unknown as Record<string, unknown>;
@@ -149,12 +244,17 @@ function resolveRef(
   }
 
   if (explicitField) {
-    throw new Error(`Unresolved ref "${ref}": field "${field}" does not exist on "${resourceName}"`);
+    throw new Error(
+      `Unresolved ref "${ref}": field "${field}" does not exist on "${resourceName}"`,
+    );
   }
 
   // For implicit field resolution, fallback to arn if available.
   const fallback = res['arn'];
-  if (fallback && typeof (fallback as pulumi.Output<string>).apply === 'function') {
+  if (
+    fallback &&
+    typeof (fallback as pulumi.Output<string>).apply === 'function'
+  ) {
     return fallback as pulumi.Output<string>;
   }
 
@@ -166,7 +266,10 @@ function resolveRef(
 /**
  * Determines which output field to use when resolving a ref based on context.
  */
-function resolveOutputField(consumerResourceType: string, propertyName: string): string {
+function resolveOutputField(
+  consumerResourceType: string,
+  propertyName: string,
+): string {
   const typeMap = REF_OUTPUT_MAP[consumerResourceType];
   if (typeMap && typeMap[propertyName]) {
     return typeMap[propertyName];
@@ -206,8 +309,17 @@ function resolveValue(
     const obj = value as Record<string, unknown>;
 
     // Check for { ref: 'name' } pattern
-    if ('ref' in obj && typeof obj['ref'] === 'string' && Object.keys(obj).length === 1) {
-      return resolveRef(obj['ref'], propertyName, consumerResourceType, registry);
+    if (
+      'ref' in obj &&
+      typeof obj['ref'] === 'string' &&
+      Object.keys(obj).length === 1
+    ) {
+      return resolveRef(
+        obj['ref'],
+        propertyName,
+        consumerResourceType,
+        registry,
+      );
     }
 
     // Recurse into nested objects (e.g., environment.variables)
@@ -219,7 +331,9 @@ function resolveValue(
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => resolveValue(item, propertyName, consumerResourceType, registry));
+    return value.map((item) =>
+      resolveValue(item, propertyName, consumerResourceType, registry),
+    );
   }
 
   return value;
@@ -231,7 +345,10 @@ function resolveValue(
  * The returned function, when executed by the Pulumi Automation API,
  * creates all resources in topological order and returns stack outputs.
  */
-export function createPulumiProgram(plan: ResourcePlan, _config: AdapterConfig): PulumiFn {
+export function createPulumiProgram(
+  plan: ResourcePlan,
+  _config: AdapterConfig,
+): PulumiFn {
   return async (): Promise<Record<string, unknown>> => {
     const registry = new Map<string, pulumi.Resource>();
     const outputs: Record<string, unknown> = {};
@@ -239,7 +356,9 @@ export function createPulumiProgram(plan: ResourcePlan, _config: AdapterConfig):
     for (const resource of plan.resources) {
       const constructor = RESOURCE_CONSTRUCTORS[resource.resourceType];
       if (!constructor) {
-        pulumi.log.warn(`No Pulumi constructor for resource type: ${resource.resourceType}`);
+        pulumi.log.warn(
+          `No Pulumi constructor for resource type: ${resource.resourceType}`,
+        );
         continue;
       }
 
@@ -279,7 +398,7 @@ export function createPulumiProgram(plan: ResourcePlan, _config: AdapterConfig):
           );
         }
 
-          const res = resource as unknown as Record<string, unknown>;
+        const res = resource as unknown as Record<string, unknown>;
         if (!(field in res)) {
           throw new Error(
             `Unresolved output "${key}": field "${field}" does not exist on resource "${resourceName}"`,

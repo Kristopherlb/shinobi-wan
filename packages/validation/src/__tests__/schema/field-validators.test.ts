@@ -10,7 +10,12 @@ import {
 describe('field-validators', () => {
   describe('hasRequiredField', () => {
     it('returns empty array for present field', () => {
-      const errors = hasRequiredField({ name: 'test' }, '$.name', 'name', 'string');
+      const errors = hasRequiredField(
+        { name: 'test' },
+        '$.name',
+        'name',
+        'string',
+      );
       expect(errors).toEqual([]);
     });
 
@@ -23,7 +28,12 @@ describe('field-validators', () => {
     });
 
     it('returns error for null field', () => {
-      const errors = hasRequiredField({ name: null }, '$.name', 'name', 'string');
+      const errors = hasRequiredField(
+        { name: null },
+        '$.name',
+        'name',
+        'string',
+      );
       expect(errors).toHaveLength(1);
       expect(errors[0].rule).toBe('missing-required-field');
     });
@@ -36,18 +46,33 @@ describe('field-validators', () => {
     });
 
     it('returns error for wrong type (expected object, got string)', () => {
-      const errors = hasRequiredField({ data: 'test' }, '$.data', 'data', 'object');
+      const errors = hasRequiredField(
+        { data: 'test' },
+        '$.data',
+        'data',
+        'object',
+      );
       expect(errors).toHaveLength(1);
       expect(errors[0].rule).toBe('invalid-field-type');
     });
 
     it('validates array type', () => {
-      const errors = hasRequiredField({ items: [1, 2] }, '$.items', 'items', 'array');
+      const errors = hasRequiredField(
+        { items: [1, 2] },
+        '$.items',
+        'items',
+        'array',
+      );
       expect(errors).toEqual([]);
     });
 
     it('returns error for non-array when expecting array', () => {
-      const errors = hasRequiredField({ items: {} }, '$.items', 'items', 'array');
+      const errors = hasRequiredField(
+        { items: {} },
+        '$.items',
+        'items',
+        'array',
+      );
       expect(errors).toHaveLength(1);
       expect(errors[0].rule).toBe('invalid-field-type');
     });
@@ -108,12 +133,19 @@ describe('field-validators', () => {
 
   describe('validateEnumField', () => {
     it('returns empty array for valid enum value', () => {
-      const errors = validateEnumField('component', '$.type', ['component', 'platform', 'edge']);
+      const errors = validateEnumField('component', '$.type', [
+        'component',
+        'platform',
+        'edge',
+      ]);
       expect(errors).toEqual([]);
     });
 
     it('returns error for invalid enum value', () => {
-      const errors = validateEnumField('invalid', '$.type', ['component', 'platform']);
+      const errors = validateEnumField('invalid', '$.type', [
+        'component',
+        'platform',
+      ]);
       expect(errors).toHaveLength(1);
       expect(errors[0].rule).toBe('invalid-enum-value');
       expect(errors[0].allowedValues).toEqual(['component', 'platform']);

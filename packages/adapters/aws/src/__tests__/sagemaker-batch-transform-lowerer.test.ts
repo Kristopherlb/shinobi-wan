@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { SageMakerBatchTransformLowerer } from '../lowerers/sagemaker-batch-transform-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-service' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-service' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('SageMakerBatchTransformLowerer', () => {
@@ -57,18 +59,27 @@ describe('SageMakerBatchTransformLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].properties['executionRoleArn']).toEqual({ ref: 'model-exec-role' });
+    expect(resources[0].properties['executionRoleArn']).toEqual({
+      ref: 'model-exec-role',
+    });
   });
 
   it('uses explicit execution role ARN when provided', () => {
     const node = makeNode({
       id: 'platform:model',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-sagemaker-batch-transform', executionRoleArn: 'arn:aws:iam::123:role/my-role' } },
+      metadata: {
+        properties: {
+          platform: 'aws-sagemaker-batch-transform',
+          executionRoleArn: 'arn:aws:iam::123:role/my-role',
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].properties['executionRoleArn']).toBe('arn:aws:iam::123:role/my-role');
+    expect(resources[0].properties['executionRoleArn']).toBe(
+      'arn:aws:iam::123:role/my-role',
+    );
   });
 
   it('includes primary container when modelImage is provided', () => {
@@ -78,15 +89,21 @@ describe('SageMakerBatchTransformLowerer', () => {
       metadata: {
         properties: {
           platform: 'aws-sagemaker-batch-transform',
-          modelImage: '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest',
+          modelImage:
+            '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest',
           modelDataUrl: 's3://my-bucket/model.tar.gz',
         },
       },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const container = resources[0].properties['primaryContainer'] as Record<string, unknown>;
-    expect(container['image']).toBe('123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest');
+    const container = resources[0].properties['primaryContainer'] as Record<
+      string,
+      unknown
+    >;
+    expect(container['image']).toBe(
+      '123456789.dkr.ecr.us-east-1.amazonaws.com/my-model:latest',
+    );
     expect(container['modelDataUrl']).toBe('s3://my-bucket/model.tar.gz');
   });
 
@@ -109,7 +126,9 @@ describe('SageMakerBatchTransformLowerer', () => {
     const node = makeNode({
       id: 'platform:model',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-sagemaker-batch-transform', vpcConfig } },
+      metadata: {
+        properties: { platform: 'aws-sagemaker-batch-transform', vpcConfig },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -154,7 +173,12 @@ describe('SageMakerBatchTransformLowerer', () => {
     const node = makeNode({
       id: 'platform:model',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-sagemaker-batch-transform', tags: { team: 'ml' } } },
+      metadata: {
+        properties: {
+          platform: 'aws-sagemaker-batch-transform',
+          tags: { team: 'ml' },
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

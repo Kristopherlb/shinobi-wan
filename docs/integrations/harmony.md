@@ -4,11 +4,11 @@ This document describes how Harmony (or any external consumer) can install and u
 
 ## Public packages
 
-| Package | Purpose | Stable API surface |
-|--------|---------|--------------------|
-| `@shinobi/contracts` | Type definitions, capability/intent/violation contracts | Exported types and constants |
-| `@shinobi/ir` | Graph IR: Node, Edge, DerivedArtifact, Graph, ordering, serialization | Exported types and functions |
-| `@shinobi/kernel` | Graph engine, compilation pipeline, **kernel facade** | Kernel class, `compilePipeline`, **facade methods** and **contractVersion** |
+| Package              | Purpose                                                               | Stable API surface                                                          |
+| -------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `@shinobi/contracts` | Type definitions, capability/intent/violation contracts               | Exported types and constants                                                |
+| `@shinobi/ir`        | Graph IR: Node, Edge, DerivedArtifact, Graph, ordering, serialization | Exported types and functions                                                |
+| `@shinobi/kernel`    | Graph engine, compilation pipeline, **kernel facade**                 | Kernel class, `compilePipeline`, **facade methods** and **contractVersion** |
 
 Policy, binder, conformance, and adapters are **not** part of the public consumption contract for this first pass.
 
@@ -37,13 +37,13 @@ The kernel exposes a **facade** for tool-style invocation: JSON-serializable inp
 
 ### Facade methods (all return `Promise<ToolResponseEnvelope<...>>`)
 
-| Method | Purpose | Mode / notes |
-|--------|---------|---------------|
-| `validatePlan(input)` | Validate a graph snapshot only; no side effects | `input.mode` must be `'plan'` |
-| `planChange(input)` | Compute planned change from snapshot; no apply | `input.mode` must be `'plan'` |
-| `applyChange(input)` | Apply mutations (stub in facade-only path) | `input.mode` must be `'apply'` |
-| `readEntities(input)` | Read entities (read-only) | — |
-| `readActivity(input)` | Read activity (read-only) | — |
+| Method                | Purpose                                                                                                     | Mode / notes                                                    |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `validatePlan(input)` | Validate a graph snapshot; returns full structured diagnostics (`valid`, `errorCount`, `errors[]`)          | `input.mode` must be `'plan'`                                   |
+| `planChange(input)`   | Validate the snapshot and compute the deterministic planned state (entity counts + canonical semantic hash) | `input.mode` must be `'plan'`                                   |
+| `applyChange(input)`  | Apply graph mutations in memory on the snapshot; reports applied/skipped counts and resulting graph summary | `input.mode` must be `'apply'`                                  |
+| `readEntities(input)` | Canonical projection (`id`, `kind`, `type`) of the entities in the provided snapshot                        | Empty list when no snapshot is provided                         |
+| `readActivity(input)` | Read activity (read-only)                                                                                   | Always empty: the facade is stateless and has no activity store |
 
 ### Input shape (common)
 
@@ -56,7 +56,7 @@ The kernel exposes a **facade** for tool-style invocation: JSON-serializable inp
 Every facade method returns a **tool response envelope**:
 
 - **`success`**: boolean.
-- **`metadata`**: `toolId`, `contractVersion`, `operationClass` (`'read' | 'plan' | 'apply'`), `traceId`, `timestamp`.
+- **`metadata`**: `toolId`, `contractVersion`, `operationClass` (`'read' | 'plan' | 'apply'`), `traceId`. No timestamp: envelopes are byte-stable for identical inputs (KL-001).
 - **`data`**: Present on success; payload type depends on the method.
 - **`error`**: Present on failure; `code`, `category`, `source`, `traceId`, `message`, `retriable`, etc.
 
@@ -68,7 +68,7 @@ Envelopes are deterministic (no random IDs in the contract) and safe to log/reda
   Use `validatePlan` and `planChange` with `mode: 'plan'`. No mutations or side effects; safe to run in restricted environments.
 
 - **Apply mode**  
-  Use `applyChange` with `mode: 'apply'`. In the full stack, apply is wired through the CLI and/or adapter layer; the kernel facade’s apply entrypoint is a stub for the consumption contract. Real apply runs in environments where Pulumi and provider SDKs are available.
+  Use `applyChange` with `mode: 'apply'`. The kernel facade applies graph mutations in memory (idempotent; conflicts return a `CONFLICT` error envelope) and reports the resulting graph summary. Deployment-level side effects are wired through the CLI and adapter layers, in environments where Pulumi and provider SDKs are available.
 
 - **Security**  
   Consumers should enforce mode split (e.g. only allow `plan` in sandboxed or read-only contexts) and apply safe output/error redaction before forwarding envelopes to untrusted clients.

@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -68,8 +72,18 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
         vpcId: 'platform:app-vpc',
         description: 'ALB security group — public HTTPS',
         ingressRules: [
-          { protocol: 'tcp', fromPort: 443, toPort: 443, cidrBlocks: ['0.0.0.0/0'] },
-          { protocol: 'tcp', fromPort: 80, toPort: 80, cidrBlocks: ['0.0.0.0/0'] },
+          {
+            protocol: 'tcp',
+            fromPort: 443,
+            toPort: 443,
+            cidrBlocks: ['0.0.0.0/0'],
+          },
+          {
+            protocol: 'tcp',
+            fromPort: 80,
+            toPort: 80,
+            cidrBlocks: ['0.0.0.0/0'],
+          },
         ],
       },
     },

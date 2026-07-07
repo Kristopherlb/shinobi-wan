@@ -5,7 +5,9 @@ import { GuardDutyLowerer } from '../lowerers/guardduty-lowerer';
 import { CloudTrailLowerer } from '../lowerers/cloudtrail-lowerer';
 import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
-const DEFAULT_CONTEXT = makeDefaultContext({ adapterConfig: { region: 'us-east-1', serviceName: 'my-account' } });
+const DEFAULT_CONTEXT = makeDefaultContext({
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-account' },
+});
 const DEFAULT_DEPS = makeDefaultDeps();
 
 describe('ConfigRecorderLowerer', () => {
@@ -52,7 +54,9 @@ describe('ConfigRecorderLowerer', () => {
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[1].dependsOn).toContain('config-recorder-config-recorder');
     expect(resources[2].dependsOn).toContain('config-recorder-config-recorder');
-    expect(resources[2].dependsOn).toContain('config-recorder-config-delivery-channel');
+    expect(resources[2].dependsOn).toContain(
+      'config-recorder-config-delivery-channel',
+    );
   });
 
   it('defaults to allSupported recording', () => {
@@ -63,7 +67,10 @@ describe('ConfigRecorderLowerer', () => {
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const group = resources[0].properties['recordingGroup'] as Record<string, unknown>;
+    const group = resources[0].properties['recordingGroup'] as Record<
+      string,
+      unknown
+    >;
     expect(group['allSupported']).toBe(true);
     expect(group['includeGlobalResourceTypes']).toBe(true);
   });
@@ -111,7 +118,9 @@ describe('SecurityHubLowerer', () => {
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(2);
     expect(resources[0].resourceType).toBe('aws:securityhub:Account');
-    expect(resources[1].resourceType).toBe('aws:securityhub:StandardsSubscription');
+    expect(resources[1].resourceType).toBe(
+      'aws:securityhub:StandardsSubscription',
+    );
   });
 
   it('standard depends on account', () => {
@@ -129,7 +138,12 @@ describe('SecurityHubLowerer', () => {
     const node = makeNode({
       id: 'platform:security-hub',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-securityhub', enableDefaultStandards: false } },
+      metadata: {
+        properties: {
+          platform: 'aws-securityhub',
+          enableDefaultStandards: false,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -201,7 +215,9 @@ describe('GuardDutyLowerer', () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources[0].properties['enable']).toBe(true);
-    expect(resources[0].properties['findingPublishingFrequency']).toBe('FIFTEEN_MINUTES');
+    expect(resources[0].properties['findingPublishingFrequency']).toBe(
+      'FIFTEEN_MINUTES',
+    );
   });
 
   it('sets correct tags', () => {
@@ -252,7 +268,12 @@ describe('CloudTrailLowerer', () => {
     const node = makeNode({
       id: 'platform:cloudtrail',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-cloudtrail', enableLogFileValidation: true } },
+      metadata: {
+        properties: {
+          platform: 'aws-cloudtrail',
+          enableLogFileValidation: true,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -302,7 +323,12 @@ describe('CloudTrailLowerer', () => {
     const node = makeNode({
       id: 'platform:cloudtrail',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-cloudtrail', cloudWatchLogsEnabled: false } },
+      metadata: {
+        properties: {
+          platform: 'aws-cloudtrail',
+          cloudWatchLogsEnabled: false,
+        },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -353,7 +379,9 @@ describe('CloudTrailLowerer', () => {
     const node = makeNode({
       id: 'platform:cloudtrail',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-cloudtrail', tags: { env: 'prod' } } },
+      metadata: {
+        properties: { platform: 'aws-cloudtrail', tags: { env: 'prod' } },
+      },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);

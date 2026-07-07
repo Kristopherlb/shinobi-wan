@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 interface SgRule {
@@ -16,15 +21,22 @@ interface SgRule {
 export class SecurityGroupLowerer implements NodeLowerer {
   readonly platform = 'aws-security-group';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
     const tags = createStandardTags(node.id, 'aws-security-group', extraTags);
 
     const vpcRefName = config['vpcId'] as string | undefined;
-    const vpcId = vpcRefName ? { ref: `${shortName(vpcRefName)}-vpc` } : { ref: 'default-vpc' };
-    const description = (config['description'] as string | undefined) ?? 'Managed by Shinobi';
+    const vpcId = vpcRefName
+      ? { ref: `${shortName(vpcRefName)}-vpc` }
+      : { ref: 'default-vpc' };
+    const description =
+      (config['description'] as string | undefined) ?? 'Managed by Shinobi';
 
     const resources: LoweredResource[] = [];
 
@@ -51,7 +63,9 @@ export class SecurityGroupLowerer implements NodeLowerer {
         props['cidrBlocks'] = rule.cidrBlocks;
       }
       if (rule.sourceSecurityGroupId) {
-        props['sourceSecurityGroupId'] = { ref: `${shortName(rule.sourceSecurityGroupId)}-sg` };
+        props['sourceSecurityGroupId'] = {
+          ref: `${shortName(rule.sourceSecurityGroupId)}-sg`,
+        };
       }
 
       resources.push({

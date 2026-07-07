@@ -57,25 +57,28 @@ For a separate Harmony repo, integrate through a runtime boundary:
 ### Option A: CLI subprocess bridge (fastest for separate repo)
 
 ```typescript
-import { spawn } from "node:child_process";
+import { spawn } from 'node:child_process';
 
-const SHINOBI_MAIN = "/absolute/path/to/Shinobi-wan/packages/cli/dist/main.js";
+const SHINOBI_MAIN = '/absolute/path/to/Shinobi-wan/packages/cli/dist/main.js';
 
-export function runShinobiPlan(manifestPath: string, traceId: string): Promise<unknown> {
+export function runShinobiPlan(
+  manifestPath: string,
+  traceId: string,
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    const proc = spawn("node", [SHINOBI_MAIN, "plan", manifestPath, "--json"], {
+    const proc = spawn('node', [SHINOBI_MAIN, 'plan', manifestPath, '--json'], {
       env: { ...process.env, SHINOBI_TRACE_ID: traceId },
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
-    let stdout = "";
-    let stderr = "";
-    proc.stdout.on("data", (chunk) => {
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (chunk) => {
       stdout += String(chunk);
     });
-    proc.stderr.on("data", (chunk) => {
+    proc.stderr.on('data', (chunk) => {
       stderr += String(chunk);
     });
-    proc.on("close", (code) => {
+    proc.on('close', (code) => {
       if (code !== 0) {
         reject(new Error(`shinobi plan failed (exit ${code}): ${stderr}`));
         return;
@@ -252,13 +255,13 @@ Before enabling restricted apply:
 
 ## Failure map (what Harmony should do)
 
-| Error code | Meaning | Harmony action |
-|---|---|---|
-| `APPROVAL_REQUIRED` | restricted operation missing approval evidence or apply disabled | stop, request/attach approval evidence |
-| `INPUT_VALIDATION_FAILED` | request contract invalid (manifest, fingerprint, idempotency) | fix request and retry |
-| `CONFLICT` | `planFingerprint` mismatch | re-run plan and re-approve apply |
-| `DEPENDENCY_UNAVAILABLE` | workflow wiring/dispatch path unavailable | keep read/plan active, retry later with same idempotency semantics |
-| `RUNNER_ERROR` | wrapper/runtime issue | fail fast and page operator |
+| Error code                | Meaning                                                          | Harmony action                                                     |
+| ------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `APPROVAL_REQUIRED`       | restricted operation missing approval evidence or apply disabled | stop, request/attach approval evidence                             |
+| `INPUT_VALIDATION_FAILED` | request contract invalid (manifest, fingerprint, idempotency)    | fix request and retry                                              |
+| `CONFLICT`                | `planFingerprint` mismatch                                       | re-run plan and re-approve apply                                   |
+| `DEPENDENCY_UNAVAILABLE`  | workflow wiring/dispatch path unavailable                        | keep read/plan active, retry later with same idempotency semantics |
+| `RUNNER_ERROR`            | wrapper/runtime issue                                            | fail fast and page operator                                        |
 
 ## Common integration mistakes
 

@@ -31,7 +31,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'IAM intents with admin-level actions require justification. Admin grants full control (KL-005).',
     remediation: {
-      summary: "Consider 'read' or 'write' access level. Admin grants full control",
+      summary:
+        "Consider 'read' or 'write' access level. Admin grants full control",
       autoFixable: false,
     },
   },
@@ -48,8 +49,7 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
   {
     ruleId: 'network-broad-protocol',
     ruleName: 'Broad Network Protocol',
-    description:
-      "Network intents with protocol 'any' are overly permissive.",
+    description: "Network intents with protocol 'any' are overly permissive.",
     remediation: {
       summary: "Specify protocol as 'tcp' or 'udp' instead of 'any'",
       autoFixable: false,
@@ -71,7 +71,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'Lambda functions with timeout exceeding 900 seconds may indicate architectural issues. Consider breaking into smaller functions or using Step Functions.',
     remediation: {
-      summary: 'Reduce Lambda timeout to 900 seconds or less, or use Step Functions for long-running workflows',
+      summary:
+        'Reduce Lambda timeout to 900 seconds or less, or use Step Functions for long-running workflows',
       autoFixable: false,
     },
   },
@@ -101,7 +102,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'Public-facing CloudFront distributions should have a WAF Web ACL attached for protection against common web exploits.',
     remediation: {
-      summary: 'Add a WAF v2 Web ACL and associate it with the CloudFront distribution',
+      summary:
+        'Add a WAF v2 Web ACL and associate it with the CloudFront distribution',
       autoFixable: false,
     },
   },
@@ -121,7 +123,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'EventBridge Scheduler schedules should configure a retry policy to handle transient failures.',
     remediation: {
-      summary: 'Add retryPolicy with maximumRetryAttempts to the schedule configuration',
+      summary:
+        'Add retryPolicy with maximumRetryAttempts to the schedule configuration',
       autoFixable: true,
     },
   },
@@ -131,7 +134,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'Fargate tasks should not assign public IP addresses. Use private subnets with NAT gateways for internet access.',
     remediation: {
-      summary: 'Set assignPublicIp to false (DISABLED) in the ECS service configuration',
+      summary:
+        'Set assignPublicIp to false (DISABLED) in the ECS service configuration',
       autoFixable: true,
     },
   },
@@ -161,7 +165,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'EKS clusters should not expose the Kubernetes API endpoint publicly. Use VPN or bastion hosts for access.',
     remediation: {
-      summary: 'Disable public endpoint access and use VPN/bastion for cluster management',
+      summary:
+        'Disable public endpoint access and use VPN/bastion for cluster management',
       autoFixable: true,
     },
   },
@@ -171,7 +176,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'EKS clusters should enable control plane logging (API, audit, authenticator) for security monitoring and troubleshooting.',
     remediation: {
-      summary: 'Enable API, audit, and authenticator log types on the EKS cluster',
+      summary:
+        'Enable API, audit, and authenticator log types on the EKS cluster',
       autoFixable: true,
     },
   },
@@ -222,7 +228,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'ElastiCache Redis replication groups should have both at-rest and in-transit encryption enabled to protect cached data.',
     remediation: {
-      summary: 'Set atRestEncryptionEnabled: true and transitEncryptionEnabled: true',
+      summary:
+        'Set atRestEncryptionEnabled: true and transitEncryptionEnabled: true',
       autoFixable: true,
     },
   },
@@ -242,7 +249,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'AWS Budgets should have a notification threshold configured with an SNS topic to alert on cost overruns.',
     remediation: {
-      summary: 'Set thresholdPercentage and notificationTopicArn in the budget configuration',
+      summary:
+        'Set thresholdPercentage and notificationTopicArn in the budget configuration',
       autoFixable: false,
     },
   },
@@ -292,7 +300,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'CloudTrail trails should have log file validation enabled to detect unauthorized modifications to log files.',
     remediation: {
-      summary: 'Set enableLogFileValidation: true in the CloudTrail configuration',
+      summary:
+        'Set enableLogFileValidation: true in the CloudTrail configuration',
       autoFixable: true,
     },
   },
@@ -352,7 +361,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'Athena workgroups should have result encryption enabled to protect query results at rest.',
     remediation: {
-      summary: 'Set encryptionOption to SSE_S3 or SSE_KMS in the Athena workgroup configuration',
+      summary:
+        'Set encryptionOption to SSE_S3 or SSE_KMS in the Athena workgroup configuration',
       autoFixable: true,
     },
   },
@@ -362,7 +372,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'Athena workgroups should have a bytes scanned cutoff to prevent runaway queries from incurring excessive costs.',
     remediation: {
-      summary: 'Set bytesScannedCutoffPerQuery in the Athena workgroup configuration',
+      summary:
+        'Set bytesScannedCutoffPerQuery in the Athena workgroup configuration',
       autoFixable: false,
     },
   },
@@ -382,7 +393,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'MSK clusters should use TLS encryption for client-broker communication to protect data in transit.',
     remediation: {
-      summary: "Set encryptionInTransit to 'TLS' in the MSK cluster configuration",
+      summary:
+        "Set encryptionInTransit to 'TLS' in the MSK cluster configuration",
       autoFixable: true,
     },
   },
@@ -392,7 +404,8 @@ export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
     description:
       'MSK clusters should have client authentication enabled (SASL-IAM, SASL-SCRAM, or TLS) to prevent unauthorized access.',
     remediation: {
-      summary: 'Configure clientAuthentication with SASL-IAM, SASL-SCRAM, or TLS',
+      summary:
+        'Configure clientAuthentication with SASL-IAM, SASL-SCRAM, or TLS',
       autoFixable: false,
     },
   },

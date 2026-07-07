@@ -54,9 +54,24 @@ describe('ValidationError', () => {
   describe('sortErrors', () => {
     it('sorts by severity (error > warning > info)', () => {
       const errors: ValidationError[] = [
-        createError({ path: '$.a', rule: 'r1', message: 'm1', severity: 'info' }),
-        createError({ path: '$.b', rule: 'r2', message: 'm2', severity: 'error' }),
-        createError({ path: '$.c', rule: 'r3', message: 'm3', severity: 'warning' }),
+        createError({
+          path: '$.a',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'info',
+        }),
+        createError({
+          path: '$.b',
+          rule: 'r2',
+          message: 'm2',
+          severity: 'error',
+        }),
+        createError({
+          path: '$.c',
+          rule: 'r3',
+          message: 'm3',
+          severity: 'warning',
+        }),
       ];
 
       const sorted = sortErrors(errors);
@@ -68,9 +83,24 @@ describe('ValidationError', () => {
 
     it('sorts by path within same severity', () => {
       const errors: ValidationError[] = [
-        createError({ path: '$.z', rule: 'r1', message: 'm1', severity: 'error' }),
-        createError({ path: '$.a', rule: 'r2', message: 'm2', severity: 'error' }),
-        createError({ path: '$.m', rule: 'r3', message: 'm3', severity: 'error' }),
+        createError({
+          path: '$.z',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'error',
+        }),
+        createError({
+          path: '$.a',
+          rule: 'r2',
+          message: 'm2',
+          severity: 'error',
+        }),
+        createError({
+          path: '$.m',
+          rule: 'r3',
+          message: 'm3',
+          severity: 'error',
+        }),
       ];
 
       const sorted = sortErrors(errors);
@@ -82,8 +112,18 @@ describe('ValidationError', () => {
 
     it('sorts by rule within same severity and path', () => {
       const errors: ValidationError[] = [
-        createError({ path: '$.x', rule: 'z-rule', message: 'm1', severity: 'error' }),
-        createError({ path: '$.x', rule: 'a-rule', message: 'm2', severity: 'error' }),
+        createError({
+          path: '$.x',
+          rule: 'z-rule',
+          message: 'm1',
+          severity: 'error',
+        }),
+        createError({
+          path: '$.x',
+          rule: 'a-rule',
+          message: 'm2',
+          severity: 'error',
+        }),
       ];
 
       const sorted = sortErrors(errors);
@@ -94,8 +134,18 @@ describe('ValidationError', () => {
 
     it('returns new array (does not mutate original)', () => {
       const errors: ValidationError[] = [
-        createError({ path: '$.b', rule: 'r1', message: 'm1', severity: 'error' }),
-        createError({ path: '$.a', rule: 'r2', message: 'm2', severity: 'error' }),
+        createError({
+          path: '$.b',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'error',
+        }),
+        createError({
+          path: '$.a',
+          rule: 'r2',
+          message: 'm2',
+          severity: 'error',
+        }),
       ];
 
       const sorted = sortErrors(errors);
@@ -106,9 +156,24 @@ describe('ValidationError', () => {
 
     it('produces deterministic output for identical input', () => {
       const errors: ValidationError[] = [
-        createError({ path: '$.c', rule: 'r3', message: 'm3', severity: 'info' }),
-        createError({ path: '$.a', rule: 'r1', message: 'm1', severity: 'error' }),
-        createError({ path: '$.b', rule: 'r2', message: 'm2', severity: 'warning' }),
+        createError({
+          path: '$.c',
+          rule: 'r3',
+          message: 'm3',
+          severity: 'info',
+        }),
+        createError({
+          path: '$.a',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'error',
+        }),
+        createError({
+          path: '$.b',
+          rule: 'r2',
+          message: 'm2',
+          severity: 'warning',
+        }),
       ];
 
       const sorted1 = sortErrors(errors);
@@ -129,7 +194,12 @@ describe('ValidationError', () => {
 
     it('creates invalid result with errors', () => {
       const errors = [
-        createError({ path: '$.id', rule: 'r1', message: 'm1', severity: 'error' }),
+        createError({
+          path: '$.id',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'error',
+        }),
       ];
 
       const result = createResult(errors);
@@ -140,8 +210,18 @@ describe('ValidationError', () => {
 
     it('only counts error severity as invalid', () => {
       const warningsOnly = [
-        createError({ path: '$.x', rule: 'r1', message: 'm1', severity: 'warning' }),
-        createError({ path: '$.y', rule: 'r2', message: 'm2', severity: 'info' }),
+        createError({
+          path: '$.x',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'warning',
+        }),
+        createError({
+          path: '$.y',
+          rule: 'r2',
+          message: 'm2',
+          severity: 'info',
+        }),
       ];
 
       const result = createResult(warningsOnly);
@@ -151,8 +231,18 @@ describe('ValidationError', () => {
 
     it('sorts errors in result', () => {
       const errors = [
-        createError({ path: '$.z', rule: 'r1', message: 'm1', severity: 'warning' }),
-        createError({ path: '$.a', rule: 'r2', message: 'm2', severity: 'error' }),
+        createError({
+          path: '$.z',
+          rule: 'r1',
+          message: 'm1',
+          severity: 'warning',
+        }),
+        createError({
+          path: '$.a',
+          rule: 'r2',
+          message: 'm2',
+          severity: 'error',
+        }),
       ];
 
       const result = createResult(errors);

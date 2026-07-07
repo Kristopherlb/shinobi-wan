@@ -21,8 +21,12 @@ describe('least-privilege', () => {
     });
 
     it('does not match specific resources', () => {
-      expect(WILDCARD_PATTERNS.some((p) => p.test('my-specific-bucket'))).toBe(false);
-      expect(WILDCARD_PATTERNS.some((p) => p.test('uploads/file.txt'))).toBe(false);
+      expect(WILDCARD_PATTERNS.some((p) => p.test('my-specific-bucket'))).toBe(
+        false,
+      );
+      expect(WILDCARD_PATTERNS.some((p) => p.test('uploads/file.txt'))).toBe(
+        false,
+      );
     });
   });
 
@@ -59,9 +63,7 @@ describe('least-privilege', () => {
     it('detects wildcard in action', () => {
       const intent = {
         type: 'iam',
-        actions: [
-          { level: 'read', action: '*' },
-        ],
+        actions: [{ level: 'read', action: '*' }],
       };
 
       const errors = detectWildcardResources(intent, '$');
@@ -85,10 +87,7 @@ describe('least-privilege', () => {
       const intent = {
         type: 'iam',
         resource: { pattern: '*' },
-        actions: [
-          { action: '*' },
-          { action: 'sqs:*' },
-        ],
+        actions: [{ action: '*' }, { action: 'sqs:*' }],
       };
 
       const errors = detectWildcardResources(intent, '$');
@@ -148,7 +147,9 @@ describe('least-privilege', () => {
 
       const result = validateLeastPrivilege(intent);
       expect(result.valid).toBe(false);
-      expect(result.errors.some((e) => e.rule === 'wildcard-resource')).toBe(true);
+      expect(result.errors.some((e) => e.rule === 'wildcard-resource')).toBe(
+        true,
+      );
     });
 
     it('rejects IAM intent with wildcard action', () => {

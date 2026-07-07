@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class OpenSearchDomainLowerer implements NodeLowerer {
   readonly platform = 'aws-opensearch';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -34,7 +43,8 @@ export class OpenSearchDomainLowerer implements NodeLowerer {
     });
 
     // OpenSearch Domain
-    const engineVersion = (props['engineVersion'] as string) ?? 'OpenSearch_2.11';
+    const engineVersion =
+      (props['engineVersion'] as string) ?? 'OpenSearch_2.11';
     const instanceType = (props['instanceType'] as string) ?? 't3.small.search';
     const instanceCount = (props['instanceCount'] as number) ?? 2;
     const ebsEnabled = props['ebsEnabled'] !== false;

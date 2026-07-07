@@ -10,15 +10,11 @@
         "command": "pnpm exec tsup",
         "cwd": "{projectRoot}"
       },
-      "outputs": [
-        "{projectRoot}/dist"
-      ]
+      "outputs": ["{projectRoot}/dist"]
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "eslintConfig": ".eslintrc.json"
       }
@@ -31,8 +27,5 @@
       }
     }
   },
-  "tags": [
-    "scope:ir",
-    "type:lib"
-  ]
+  "tags": ["scope:ir", "type:lib"]
 }

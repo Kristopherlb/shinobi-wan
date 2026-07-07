@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags, makeResourceName } from './utils';
 export class NetworkFirewallLowerer implements NodeLowerer {
   readonly platform = 'aws-network-firewall';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
     const extraTags = config['tags'] as Record<string, string> | undefined;
@@ -21,13 +30,19 @@ export class NetworkFirewallLowerer implements NodeLowerer {
     const logGroupName = `${name}-fw-log-group`;
 
     const vpcRef = config['vpcRef'] as string | undefined;
-    const statelessDefaultActions = Array.isArray(config['statelessDefaultActions'])
+    const statelessDefaultActions = Array.isArray(
+      config['statelessDefaultActions'],
+    )
       ? (config['statelessDefaultActions'] as string[])
       : ['aws:forward_to_sfe'];
-    const statelessFragmentDefaultActions = Array.isArray(config['statelessFragmentDefaultActions'])
+    const statelessFragmentDefaultActions = Array.isArray(
+      config['statelessFragmentDefaultActions'],
+    )
       ? (config['statelessFragmentDefaultActions'] as string[])
       : ['aws:forward_to_sfe'];
-    const statefulRuleGroupReferences = config['statefulRuleGroupReferences'] as unknown[] | undefined;
+    const statefulRuleGroupReferences = config[
+      'statefulRuleGroupReferences'
+    ] as unknown[] | undefined;
     const loggingEnabled = config['loggingEnabled'] !== false;
     const deleteProtection = config['deleteProtection'] !== false;
 
@@ -42,7 +57,11 @@ export class NetworkFirewallLowerer implements NodeLowerer {
 
     // 1. Firewall Policy
     const policyProperties: Record<string, unknown> = {
-      name: makeResourceName(node.id, context.adapterConfig.serviceName, 'policy'),
+      name: makeResourceName(
+        node.id,
+        context.adapterConfig.serviceName,
+        'policy',
+      ),
       firewallPolicy: {
         statelessDefaultActions,
         statelessFragmentDefaultActions,
@@ -51,7 +70,9 @@ export class NetworkFirewallLowerer implements NodeLowerer {
     };
 
     if (statefulRuleGroupReferences) {
-      (policyProperties.firewallPolicy as Record<string, unknown>).statefulRuleGroupReferences = statefulRuleGroupReferences;
+      (
+        policyProperties.firewallPolicy as Record<string, unknown>
+      ).statefulRuleGroupReferences = statefulRuleGroupReferences;
     }
 
     resources.push({

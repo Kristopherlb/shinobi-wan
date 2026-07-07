@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createTestNode, createTestEdge } from '@shinobi/ir';
 import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
 import { runGoldenCase } from '../golden-runner';
 
@@ -44,13 +48,25 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const dataSg = createTestNode({
     id: 'platform:data-sg',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-security-group', vpcId: 'platform:data-vpc', description: 'Data lake SG' } },
+    metadata: {
+      properties: {
+        platform: 'aws-security-group',
+        vpcId: 'platform:data-vpc',
+        description: 'Data lake SG',
+      },
+    },
   });
 
   const encryptionKey = createTestNode({
     id: 'platform:encryption-key',
     type: 'platform',
-    metadata: { properties: { platform: 'aws-kms', description: 'Data lake key', enableKeyRotation: true } },
+    metadata: {
+      properties: {
+        platform: 'aws-kms',
+        description: 'Data lake key',
+        enableKeyRotation: true,
+      },
+    },
   });
 
   const rawData = createTestNode({
@@ -99,7 +115,10 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
       properties: {
         platform: 'aws-glue-crawler',
         databaseName: 'data_lake_catalog',
-        s3Targets: [{ path: 's3://raw-data/' }, { path: 's3://processed-data/' }],
+        s3Targets: [
+          { path: 's3://raw-data/' },
+          { path: 's3://processed-data/' },
+        ],
         schedule: 'cron(0 12 * * ? *)',
       },
     },
@@ -123,7 +142,9 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
     type: 'bindsTo',
     source: etlJob.id,
     target: rawData.id,
-    metadata: { bindingConfig: { resourceType: 'bucket', accessLevel: 'read' } },
+    metadata: {
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'read' },
+    },
   });
 
   const etlWritesProcessed = createTestEdge({
@@ -131,7 +152,9 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
     type: 'bindsTo',
     source: etlJob.id,
     target: processedData.id,
-    metadata: { bindingConfig: { resourceType: 'bucket', accessLevel: 'write' } },
+    metadata: {
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'write' },
+    },
   });
 
   const crawlerWritesCatalog = createTestEdge({
@@ -139,7 +162,9 @@ function setupBlueprint(): ReadonlyArray<GraphMutation> {
     type: 'bindsTo',
     source: dataCrawler.id,
     target: dataCatalog.id,
-    metadata: { bindingConfig: { resourceType: 'glue-catalog', accessLevel: 'write' } },
+    metadata: {
+      bindingConfig: { resourceType: 'glue-catalog', accessLevel: 'write' },
+    },
   });
 
   return [

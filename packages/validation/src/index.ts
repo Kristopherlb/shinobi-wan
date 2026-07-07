@@ -8,8 +8,17 @@
  */
 
 // Error types and utilities
-export type { ValidationError, ValidationResult, ValidatorOptions } from './errors';
-export { createError, createResult, sortErrors, SEVERITY_ORDER } from './errors';
+export type {
+  ValidationError,
+  ValidationResult,
+  ValidatorOptions,
+} from './errors';
+export {
+  createError,
+  createResult,
+  sortErrors,
+  SEVERITY_ORDER,
+} from './errors';
 
 // Orchestrator (main entry points)
 export {

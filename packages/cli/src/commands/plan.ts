@@ -1,7 +1,11 @@
 import { validate } from './validate';
 import type { ValidateResult } from './validate';
 import { lower, lowerAsync, generatePlan } from '@shinobi/adapter-aws';
-import type { AdapterConfig, AdapterResult, ResourcePlan } from '@shinobi/adapter-aws';
+import type {
+  AdapterConfig,
+  AdapterResult,
+  ResourcePlan,
+} from '@shinobi/adapter-aws';
 
 export interface PlanOptions {
   readonly manifestPath: string;
@@ -20,7 +24,9 @@ export interface PlanResult {
 }
 
 export interface PlanAsyncOptions extends PlanOptions {
-  readonly onProgress?: (phase: 'validate' | 'lower' | 'generate-plan' | 'complete') => void;
+  readonly onProgress?: (
+    phase: 'validate' | 'lower' | 'generate-plan' | 'complete',
+  ) => void;
 }
 
 /**
@@ -87,7 +93,9 @@ export function plan(options: PlanOptions): PlanResult {
 /**
  * Async plan variant for wrapper/service integrations.
  */
-export async function planAsync(options: PlanAsyncOptions): Promise<PlanResult> {
+export async function planAsync(
+  options: PlanAsyncOptions,
+): Promise<PlanResult> {
   options.onProgress?.('validate');
   const validationResult = validate({
     manifestPath: options.manifestPath,

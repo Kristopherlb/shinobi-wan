@@ -14,7 +14,9 @@ describe('IamIntentLowerer', () => {
     const types = resources.map((r) => r.resourceType);
     expect(types).toContain('aws:iam:Role');
     expect(types).toContain('aws:iam:Policy');
-    expect(types.filter((t) => t === 'aws:iam:RolePolicyAttachment')).toHaveLength(2);
+    expect(
+      types.filter((t) => t === 'aws:iam:RolePolicyAttachment'),
+    ).toHaveLength(2);
   });
 
   it('role name derives from principal node ID', () => {
@@ -84,7 +86,9 @@ describe('IamIntentLowerer', () => {
     const resources = lowerer.lower(intent, makeContext());
 
     const attachment = resources.find(
-      (r) => r.resourceType === 'aws:iam:RolePolicyAttachment' && r.name.endsWith('-policy-attachment')
+      (r) =>
+        r.resourceType === 'aws:iam:RolePolicyAttachment' &&
+        r.name.endsWith('-policy-attachment'),
     );
     expect(attachment?.dependsOn).toContain('api-handler-exec-role');
     expect(attachment?.dependsOn).toContain('api-handler-work-queue-policy');
@@ -127,7 +131,9 @@ describe('IamIntentLowerer', () => {
 
     const policy = resources.find((r) => r.resourceType === 'aws:iam:Policy');
     const policyDoc = JSON.parse(policy?.properties['policy'] as string);
-    expect(policyDoc.Statement[0].Resource).toBe('arn:aws:sqs:*:*:my-lambda-sqs-work-queue');
+    expect(policyDoc.Statement[0].Resource).toBe(
+      'arn:aws:sqs:*:*:my-lambda-sqs-work-queue',
+    );
   });
 
   it('scope:pattern uses wildcard * in IAM policy Resource field', () => {

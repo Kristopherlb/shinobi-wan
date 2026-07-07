@@ -6,14 +6,14 @@ so it opens by double-clicking `index.html` and deploys to any static host (GitH
 
 ## What's inside
 
-| Surface | What it gives you |
-|---|---|
-| **Pipeline** | The seven-stage compilation flow (manifest → graph → kernel → binders → policy → adapter → deploy) as an interactive diagram. Click any stage to drill into what it does, which package owns it, its data flow, and the invariants it guards. |
+| Surface          | What it gives you                                                                                                                                                                                                                                                                                                                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pipeline**     | The seven-stage compilation flow (manifest → graph → kernel → binders → policy → adapter → deploy) as an interactive diagram. Click any stage to drill into what it does, which package owns it, its data flow, and the invariants it guards.                                                                                                            |
 | **Capabilities** | A searchable, filterable catalog of every deployable building block — in **human-readable names** ("Serverless Function", "Workflow Orchestrator", "Kubernetes Cluster"), never raw `aws-*` identifiers. Each card opens a product-detail page: what it provisions, its config surface, the provider resources it emits, and the blueprints that use it. |
-| **Blueprints** | The reference-architecture gallery (implemented + planned), each linking to the capabilities it composes and its compliance posture. |
-| **Compliance** | All policy rules with severity escalation across the three packs (Baseline → FedRAMP-Moderate → FedRAMP-High). |
-| **Architecture** | The layered package map and knowledge-graph snapshot. |
-| **Glossary** | The handful of terms that unlock the whole platform. |
+| **Blueprints**   | The reference-architecture gallery (implemented + planned), each linking to the capabilities it composes and its compliance posture.                                                                                                                                                                                                                     |
+| **Compliance**   | All policy rules with severity escalation across the three packs (Baseline → FedRAMP-Moderate → FedRAMP-High).                                                                                                                                                                                                                                           |
+| **Architecture** | The layered package map and knowledge-graph snapshot.                                                                                                                                                                                                                                                                                                    |
+| **Glossary**     | The handful of terms that unlock the whole platform.                                                                                                                                                                                                                                                                                                     |
 
 Search (`/` to focus) spans capabilities, blueprints, and rules.
 

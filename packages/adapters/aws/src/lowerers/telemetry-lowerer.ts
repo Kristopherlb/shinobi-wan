@@ -12,7 +12,10 @@ import { shortName } from './utils';
 export class TelemetryIntentLowerer implements IntentLowerer<TelemetryIntent> {
   readonly intentType = 'telemetry' as const;
 
-  lower(intent: TelemetryIntent, _context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    intent: TelemetryIntent,
+    _context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     if (!intent.config.enabled) {
       return [];
     }

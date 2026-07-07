@@ -21,7 +21,9 @@ describe('TransitGatewayLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(result).toHaveLength(2);
-    expect(result[0]?.resourceType).toBe('aws:ec2transitgateway:TransitGateway');
+    expect(result[0]?.resourceType).toBe(
+      'aws:ec2transitgateway:TransitGateway',
+    );
     expect(result[1]?.resourceType).toBe('aws:ec2transitgateway:RouteTable');
   });
 
@@ -121,7 +123,9 @@ describe('TgwVpcAttachmentLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[0]?.properties?.transitGatewayId).toEqual({ ref: 'transit-gw-tgw' });
+    expect(result[0]?.properties?.transitGatewayId).toEqual({
+      ref: 'transit-gw-tgw',
+    });
     expect(result[0]?.properties?.vpcId).toEqual({ ref: 'hub-vpc-vpc' });
   });
 
@@ -213,7 +217,9 @@ describe('NatGatewayLowerer', () => {
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(result[1]?.properties?.subnetId).toEqual({ ref: 'public-subnet-subnet' });
+    expect(result[1]?.properties?.subnetId).toEqual({
+      ref: 'public-subnet-subnet',
+    });
   });
 
   it('should default connectivity type to public', () => {
@@ -249,7 +255,9 @@ describe('NetworkFirewallLowerer', () => {
     expect(result[0]?.resourceType).toBe('aws:networkfirewall:FirewallPolicy');
     expect(result[1]?.resourceType).toBe('aws:networkfirewall:Firewall');
     expect(result[2]?.resourceType).toBe('aws:cloudwatch:LogGroup');
-    expect(result[3]?.resourceType).toBe('aws:networkfirewall:LoggingConfiguration');
+    expect(result[3]?.resourceType).toBe(
+      'aws:networkfirewall:LoggingConfiguration',
+    );
   });
 
   it('should emit 2 resources when logging disabled', () => {

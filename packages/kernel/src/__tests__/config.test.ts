@@ -5,7 +5,9 @@ import type { KernelConfig } from '../types';
 
 describe('interpolateEnvTokens', () => {
   it('replaces ${env:KEY} with environment value', () => {
-    const result = interpolateEnvTokens('region: ${env:AWS_REGION}', { AWS_REGION: 'us-east-1' });
+    const result = interpolateEnvTokens('region: ${env:AWS_REGION}', {
+      AWS_REGION: 'us-east-1',
+    });
     expect(result).toBe('region: us-east-1');
   });
 
@@ -20,19 +22,24 @@ describe('interpolateEnvTokens', () => {
   });
 
   it('throws ConfigError when key is missing and no fallback', () => {
-    expect(() => interpolateEnvTokens('${env:MISSING}', {})).toThrow(ConfigError);
+    expect(() => interpolateEnvTokens('${env:MISSING}', {})).toThrow(
+      ConfigError,
+    );
   });
 
   it('recursively processes objects', () => {
     const result = interpolateEnvTokens(
       { region: '${env:REGION}', nested: { zone: '${env:ZONE}' } },
-      { REGION: 'us-east-1', ZONE: 'a' }
+      { REGION: 'us-east-1', ZONE: 'a' },
     );
     expect(result).toEqual({ region: 'us-east-1', nested: { zone: 'a' } });
   });
 
   it('recursively processes arrays', () => {
-    const result = interpolateEnvTokens(['${env:A}', '${env:B}'], { A: '1', B: '2' });
+    const result = interpolateEnvTokens(['${env:A}', '${env:B}'], {
+      A: '1',
+      B: '2',
+    });
     expect(result).toEqual(['1', '2']);
   });
 
@@ -44,7 +51,10 @@ describe('interpolateEnvTokens', () => {
   });
 
   it('handles multiple tokens in one string', () => {
-    const result = interpolateEnvTokens('${env:A}-${env:B}', { A: 'x', B: 'y' });
+    const result = interpolateEnvTokens('${env:A}-${env:B}', {
+      A: 'x',
+      B: 'y',
+    });
     expect(result).toBe('x-y');
   });
 });
@@ -70,7 +80,10 @@ describe('resolveConfig', () => {
   it('deep-merges nested objects', () => {
     const config: KernelConfig = {
       layers: [
-        { source: 'defaults', values: { db: { host: 'localhost', port: 5432 } } },
+        {
+          source: 'defaults',
+          values: { db: { host: 'localhost', port: 5432 } },
+        },
         { source: 'overrides', values: { db: { host: 'prod-db' } } },
       ],
     };

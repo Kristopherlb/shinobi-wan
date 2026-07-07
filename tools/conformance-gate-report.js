@@ -4,7 +4,12 @@ const path = require('path');
 const ROOT = process.cwd();
 const GATES_DOC = path.join(ROOT, 'docs', 'conformance', 'gates.md');
 const TEST_DIR = path.join(ROOT, 'packages', 'conformance', 'src', '__tests__');
-const REPORT_PATH = path.join(ROOT, 'docs', 'conformance', 'gate-coverage-report.md');
+const REPORT_PATH = path.join(
+  ROOT,
+  'docs',
+  'conformance',
+  'gate-coverage-report.md',
+);
 
 function listFiles(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -58,9 +63,10 @@ function collectCoverage() {
 
   const covered = [...coveredSet].sort();
   const uncovered = registered.filter((gate) => !coveredSet.has(gate));
-  const coveragePct = registered.length === 0
-    ? 100
-    : Math.round((covered.length / registered.length) * 100);
+  const coveragePct =
+    registered.length === 0
+      ? 100
+      : Math.round((covered.length / registered.length) * 100);
 
   return {
     registered,
@@ -73,10 +79,14 @@ function collectCoverage() {
 
 function renderReport(result) {
   const now = new Date().toISOString();
-  const uncoveredText = result.uncovered.length > 0 ? result.uncovered.join(', ') : '(none)';
+  const uncoveredText =
+    result.uncovered.length > 0 ? result.uncovered.join(', ') : '(none)';
   const coveredText = result.covered.join(', ');
   const table = result.perFile
-    .map((entry) => `| \`${entry.file}\` | ${entry.gates.length > 0 ? entry.gates.join(', ') : '(none)'} |`)
+    .map(
+      (entry) =>
+        `| \`${entry.file}\` | ${entry.gates.length > 0 ? entry.gates.join(', ') : '(none)'} |`,
+    )
     .join('\n');
 
   return `# Conformance Gate Coverage Report

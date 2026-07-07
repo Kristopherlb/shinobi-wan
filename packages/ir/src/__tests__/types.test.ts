@@ -39,7 +39,13 @@ describe('Node type shape', () => {
 
   it('supports all defined NodeTypes', () => {
     // Verify runtime constant matches type union
-    expect(NODE_TYPES).toEqual(['component', 'capability', 'platform', 'config', 'secret']);
+    expect(NODE_TYPES).toEqual([
+      'component',
+      'capability',
+      'platform',
+      'config',
+      'secret',
+    ]);
 
     NODE_TYPES.forEach((type) => {
       const node: Node = createMinimalNode({ type });
@@ -71,7 +77,12 @@ describe('Edge type shape', () => {
   });
 
   it('supports all defined EdgeTypes', () => {
-    expect(EDGE_TYPES).toEqual(['bindsTo', 'triggers', 'dependsOn', 'contains']);
+    expect(EDGE_TYPES).toEqual([
+      'bindsTo',
+      'triggers',
+      'dependsOn',
+      'contains',
+    ]);
 
     EDGE_TYPES.forEach((type) => {
       const edge: Edge = createMinimalEdge({ type });
@@ -99,7 +110,12 @@ describe('DerivedArtifact type shape', () => {
   });
 
   it('supports all defined ArtifactTypes', () => {
-    expect(ARTIFACT_TYPES).toEqual(['iam-policy', 'network-rule', 'config-map', 'telemetry-config']);
+    expect(ARTIFACT_TYPES).toEqual([
+      'iam-policy',
+      'network-rule',
+      'config-map',
+      'telemetry-config',
+    ]);
 
     ARTIFACT_TYPES.forEach((type) => {
       const artifact: DerivedArtifact = createMinimalArtifact({ type });
@@ -187,7 +203,9 @@ function createMinimalEdge(overrides: Partial<Edge>): Edge {
   };
 }
 
-function createMinimalArtifact(overrides: Partial<DerivedArtifact>): DerivedArtifact {
+function createMinimalArtifact(
+  overrides: Partial<DerivedArtifact>,
+): DerivedArtifact {
   return {
     id: 'artifact:iam-policy:test',
     semanticHash: 'sha256:test',

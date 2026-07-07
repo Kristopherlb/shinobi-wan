@@ -3,6 +3,7 @@
 **Date:** 2026-02-09
 **Session Duration:** ~25 minutes
 **Artifacts Produced:**
+
 - `@shinobi/kernel` package (~750 lines of TypeScript)
 - 4 test files, 45 tests passing
 - 8 source files + 2 interface files
@@ -13,18 +14,23 @@
 ## What Went Well
 
 ### 1. Plan Was Nearly Zero-Friction
+
 The Phase 4 plan was the best-structured plan yet. Every file was pre-specified with exact interfaces, types, and test expectations. Implementation was almost mechanical — decisions were already made. This validates the trend observed in Phase 3: better plans → faster implementation.
 
 ### 2. Smooth Integration with Existing Packages
+
 The kernel correctly composed `Graph` from `@shinobi/ir`, `validateGraph`/`validateIntent` from `@shinobi/validation`, and types from `@shinobi/contracts`. No type mismatches required fixing at the interface boundary — the plan accurately reflected the real APIs.
 
 ### 3. No Vitest Alias Issues
+
 Unlike Phase 3, no path alias problems occurred. The kernel's `vitest.config.ts` didn't need explicit aliases because pnpm workspace resolution worked correctly. This may be because the dependencies were already properly linked.
 
 ### 4. Dependency Direction Corrected
-The plan correctly identified that kernel should depend on `validation`, not on `binder`/`policy`. Removing `@shinobi/binder` and `@shinobi/policy` from `package.json` was the right call — kernel defines interfaces *for* those packages.
+
+The plan correctly identified that kernel should depend on `validation`, not on `binder`/`policy`. Removing `@shinobi/binder` and `@shinobi/policy` from `package.json` was the right call — kernel defines interfaces _for_ those packages.
 
 ### 5. Clean Lint on First Try (Almost)
+
 After removing unused imports and replacing `!` non-null assertions with optional chaining (`?.`), the kernel achieved 0 lint errors, 0 lint warnings. The cleanup was minor and fast.
 
 ---
@@ -32,6 +38,7 @@ After removing unused imports and replacing `!` non-null assertions with optiona
 ## What Could Have Been Better
 
 ### 1. Canonical Ordering in Test Snapshots
+
 The `makeSnapshot` test helper initially didn't sort nodes/edges via `compareNodes`/`compareEdges`. The validation pipeline rejected the snapshot as non-canonical, causing one test to fail with a confusing "Cannot read properties of undefined" error (because `result.intents` was empty).
 
 **Root Cause:** Test code constructed `GraphSnapshot` manually without canonical ordering.
@@ -41,12 +48,14 @@ The `makeSnapshot` test helper initially didn't sort nodes/edges via `compareNod
 **This is the 3rd occurrence of this pattern.** See PAT-006 below.
 
 ### 2. Validation Package Had Hardcoded Deps
+
 `packages/validation/package.json` had `"@shinobi/contracts": "0.0.1"` and `"@shinobi/ir": "0.0.1"` instead of `workspace:*`. This caused `pnpm install` to fail trying to resolve from npm. Already documented in memory but still present.
 
 **Impact:** ~1 minute to fix
 **Root Cause:** Not fixed during Phase 3 implementation.
 
 ### 3. Wrong Import Source for `validateGraph`
+
 Initially imported `validateGraph` from `@shinobi/ir` instead of `@shinobi/validation`. Quick fix once spotted.
 
 **Impact:** ~30 seconds
@@ -108,37 +117,37 @@ Initially imported `validateGraph` from `@shinobi/ir` instead of `@shinobi/valid
 
 ### Immediate (This Sprint)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
+| ID      | Action                                             | Effort  | Impact                                                                    |
+| ------- | -------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
 | IMP-011 | IR test fixture generators with canonical ordering | 2 hours | Prevents PAT-006 recurrence; reduces test boilerplate across all packages |
 
 ### Near-Term (Next 2 Sprints)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
-| IMP-012 | Shared test helpers package (or shared fixtures module) | 1 hour | Kernel and validation both define `makeNode`/`makeEdge` — consolidate |
-| IMP-003 | Package generator (existing) | 2 hours | Eliminates config setup entirely |
+| ID      | Action                                                  | Effort  | Impact                                                                |
+| ------- | ------------------------------------------------------- | ------- | --------------------------------------------------------------------- |
+| IMP-012 | Shared test helpers package (or shared fixtures module) | 1 hour  | Kernel and validation both define `makeNode`/`makeEdge` — consolidate |
+| IMP-003 | Package generator (existing)                            | 2 hours | Eliminates config setup entirely                                      |
 
 ### Strategic (Roadmap)
 
-| ID | Action | Effort | Impact |
-|----|--------|--------|--------|
-| IMP-013 | Workspace dep linter (reject non-workspace:* internal deps) | 30 min | Prevents validation's `0.0.1` bug from recurring |
+| ID      | Action                                                       | Effort | Impact                                           |
+| ------- | ------------------------------------------------------------ | ------ | ------------------------------------------------ |
+| IMP-013 | Workspace dep linter (reject non-workspace:\* internal deps) | 30 min | Prevents validation's `0.0.1` bug from recurring |
 
 ---
 
 ## Metrics
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Test files | 4 | freeze, config, compilation-pipeline, kernel |
-| Tests passing | 45 | All green |
-| Source files | 10 | Including interfaces/ |
-| Lines of code | ~750 | Including tests |
-| Runtime dependencies | 3 | contracts, ir, validation |
-| Session duration | ~25 min | Fastest phase yet |
-| Test failure debugging | ~3 min | Canonical ordering issue |
-| Lint cleanup | ~2 min | Unused imports + non-null assertions |
+| Metric                 | Value   | Notes                                        |
+| ---------------------- | ------- | -------------------------------------------- |
+| Test files             | 4       | freeze, config, compilation-pipeline, kernel |
+| Tests passing          | 45      | All green                                    |
+| Source files           | 10      | Including interfaces/                        |
+| Lines of code          | ~750    | Including tests                              |
+| Runtime dependencies   | 3       | contracts, ir, validation                    |
+| Session duration       | ~25 min | Fastest phase yet                            |
+| Test failure debugging | ~3 min  | Canonical ordering issue                     |
+| Lint cleanup           | ~2 min  | Unused imports + non-null assertions         |
 
 ---
 
@@ -151,6 +160,7 @@ Initially imported `validateGraph` from `@shinobi/ir` instead of `@shinobi/valid
 ## Plan Alignment (Mandatory)
 
 ### Drift Analysis
+
 Implementation matched the plan very closely:
 
 1. **Test helper fix**: `makeSnapshot` needed canonical ordering — not in plan
@@ -159,9 +169,10 @@ Implementation matched the plan very closely:
 4. **Scope unchanged**: All planned files, types, interfaces, and tests delivered
 
 ### Plan Updates for Future Phases
+
 For binder/policy implementation:
 
-```markdown
+````markdown
 ## Test Helpers (add to every phase plan)
 
 When constructing GraphSnapshot objects in tests, ALWAYS sort via canonical
@@ -179,6 +190,8 @@ function makeSnapshot(nodes: Node[], edges: Edge[]): GraphSnapshot {
   };
 }
 ```
+````
+
 ```
 
 ### New Preflight Steps
@@ -200,27 +213,29 @@ function makeSnapshot(nodes: Node[], edges: Edge[]): GraphSnapshot {
 ## Files Created
 
 ```
+
 packages/kernel/
 ├── project.json (modified - added test target)
 ├── package.json (modified - deps corrected)
 ├── vitest.config.ts (new)
 └── src/
-    ├── index.ts (replaced stub)
-    ├── freeze.ts
-    ├── errors.ts
-    ├── types.ts
-    ├── config.ts
-    ├── compilation-pipeline.ts
-    ├── kernel.ts
-    ├── interfaces/
-    │   ├── index.ts
-    │   ├── binder-interface.ts
-    │   └── policy-evaluator-interface.ts
-    └── __tests__/
-        ├── freeze.test.ts (7 tests)
-        ├── config.test.ts (14 tests)
-        ├── compilation-pipeline.test.ts (10 tests)
-        └── kernel.test.ts (14 tests)
+├── index.ts (replaced stub)
+├── freeze.ts
+├── errors.ts
+├── types.ts
+├── config.ts
+├── compilation-pipeline.ts
+├── kernel.ts
+├── interfaces/
+│ ├── index.ts
+│ ├── binder-interface.ts
+│ └── policy-evaluator-interface.ts
+└── **tests**/
+├── freeze.test.ts (7 tests)
+├── config.test.ts (14 tests)
+├── compilation-pipeline.test.ts (10 tests)
+└── kernel.test.ts (14 tests)
+
 ```
 
 Also modified:
@@ -244,3 +259,4 @@ The kernel now exports `IBinder` and `IPolicyEvaluator` interfaces, so binder an
 - [x] Create retrospective file
 - [x] Update `/retrospectives/PATTERNS.md` with PAT-006
 - [x] Add recommendations to `/retrospectives/IMPROVEMENTS.md`
+```

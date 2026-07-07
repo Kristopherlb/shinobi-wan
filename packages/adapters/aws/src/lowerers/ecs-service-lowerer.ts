@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -9,7 +14,11 @@ import { shortName, createStandardTags } from './utils';
 export class EcsServiceLowerer implements NodeLowerer {
   readonly platform = 'aws-ecs-service';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const serviceName = context.adapterConfig.serviceName;
     const name = shortName(node.id);
     const config = node.metadata.properties;
@@ -39,20 +48,27 @@ export class EcsServiceLowerer implements NodeLowerer {
 
     // Network configuration — resolve refs for subnets and security groups
     const subnets = (config['subnets'] as string[] | undefined) ?? [];
-    const securityGroups = (config['securityGroups'] as string[] | undefined) ?? [];
+    const securityGroups =
+      (config['securityGroups'] as string[] | undefined) ?? [];
     const assignPublicIp = config['assignPublicIp'] === true;
 
     const networkConfiguration = {
       awsvpcConfiguration: {
         subnets: subnets.map((s) => ({ ref: `${shortName(s)}-subnet` })),
-        securityGroups: securityGroups.map((sg) => ({ ref: `${shortName(sg)}-sg` })),
+        securityGroups: securityGroups.map((sg) => ({
+          ref: `${shortName(sg)}-sg`,
+        })),
         assignPublicIp,
       },
     };
 
     // Load balancer configuration (optional)
     const loadBalancerConfigs = config['loadBalancers'] as
-      | Array<{ targetGroupArn: string; containerName: string; containerPort: number }>
+      | Array<{
+          targetGroupArn: string;
+          containerName: string;
+          containerPort: number;
+        }>
       | undefined;
 
     const loadBalancers = loadBalancerConfigs
@@ -79,7 +95,8 @@ export class EcsServiceLowerer implements NodeLowerer {
     }
 
     if (config['healthCheckGracePeriodSeconds'] !== undefined) {
-      serviceProps.healthCheckGracePeriodSeconds = config['healthCheckGracePeriodSeconds'];
+      serviceProps.healthCheckGracePeriodSeconds =
+        config['healthCheckGracePeriodSeconds'];
     }
 
     return [

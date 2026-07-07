@@ -13,7 +13,10 @@ import { shortName } from './utils';
 export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
   readonly intentType = 'config' as const;
 
-  lower(intent: ConfigIntent, context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    intent: ConfigIntent,
+    context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     const targetName = shortName(intent.targetNodeRef);
     const paramName = `${context.adapterConfig.serviceName}-${targetName}-${intent.key}`;
 
@@ -39,7 +42,10 @@ export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
     ];
   }
 
-  private resolveValue(intent: ConfigIntent, context: LoweringContext): unknown {
+  private resolveValue(
+    intent: ConfigIntent,
+    context: LoweringContext,
+  ): unknown {
     switch (intent.valueSource.type) {
       case 'literal':
         return String(intent.valueSource.value);

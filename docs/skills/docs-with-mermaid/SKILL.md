@@ -13,6 +13,7 @@ You are an expert technical documentation writer who creates clear, comprehensiv
 **"A diagram is worth a thousand lines of code."**
 
 Good technical documentation:
+
 1. **Explains the WHY** before the WHAT and HOW
 2. **Uses visuals strategically** - diagrams should clarify, not decorate
 3. **Layers information** - overview first, then details
@@ -22,23 +23,23 @@ Good technical documentation:
 
 Choose diagrams based on what you're documenting:
 
-| Documenting... | Use This Diagram |
-|----------------|------------------|
-| Process flow, algorithms, decision logic | **Flowchart** |
-| API calls, service interactions, protocols | **Sequence Diagram** |
-| Object-oriented design, class relationships | **Class Diagram** |
-| Lifecycle, state machines, workflows | **State Diagram** |
-| Database schema, data models | **ER Diagram** |
-| System architecture (high level) | **C4 Context Diagram** |
-| Application architecture (containers) | **C4 Container Diagram** |
-| Component internals | **C4 Component Diagram** |
-| User experience flows | **User Journey** |
-| Project timelines | **Gantt Chart** |
-| Prioritization matrices | **Quadrant Chart** |
-| Hierarchical concepts | **Mindmap** |
-| Historical events | **Timeline** |
-| Git workflows | **Git Graph** |
-| Proportions/percentages | **Pie Chart** |
+| Documenting...                              | Use This Diagram         |
+| ------------------------------------------- | ------------------------ |
+| Process flow, algorithms, decision logic    | **Flowchart**            |
+| API calls, service interactions, protocols  | **Sequence Diagram**     |
+| Object-oriented design, class relationships | **Class Diagram**        |
+| Lifecycle, state machines, workflows        | **State Diagram**        |
+| Database schema, data models                | **ER Diagram**           |
+| System architecture (high level)            | **C4 Context Diagram**   |
+| Application architecture (containers)       | **C4 Container Diagram** |
+| Component internals                         | **C4 Component Diagram** |
+| User experience flows                       | **User Journey**         |
+| Project timelines                           | **Gantt Chart**          |
+| Prioritization matrices                     | **Quadrant Chart**       |
+| Hierarchical concepts                       | **Mindmap**              |
+| Historical events                           | **Timeline**             |
+| Git workflows                               | **Git Graph**            |
+| Proportions/percentages                     | **Pie Chart**            |
 
 ## Documentation Structure Template
 
@@ -48,35 +49,43 @@ When creating technical documentation, follow this structure:
 # [System/Feature Name]
 
 ## Overview
+
 [2-3 sentences explaining what this is and why it exists]
 
 [HIGH-LEVEL DIAGRAM - typically flowchart or C4 Context]
 
 ## Key Concepts
+
 [Explain important terms and concepts]
 
 ## Architecture
+
 [Detailed architecture explanation]
 
 [ARCHITECTURE DIAGRAM - C4 Container or detailed flowchart]
 
 ## How It Works
+
 [Step-by-step explanation of the flow]
 
 [SEQUENCE DIAGRAM or STATE DIAGRAM showing the flow]
 
 ## Data Model
+
 [If applicable, explain the data structure]
 
 [ER DIAGRAM or CLASS DIAGRAM]
 
 ## API Reference
+
 [If applicable]
 
 ## Configuration
+
 [Configuration options and examples]
 
 ## Troubleshooting
+
 [Common issues and solutions]
 ```
 
@@ -143,6 +152,7 @@ sequenceDiagram
 ### 6. Use Color Purposefully
 
 Apply color to highlight:
+
 - Different system boundaries (internal vs external)
 - Status (success/error/warning paths)
 - Priority or criticality levels
@@ -163,6 +173,7 @@ flowchart LR
 ### README Documentation
 
 For README files, include:
+
 1. **Architecture overview diagram** (flowchart or C4 Context)
 2. **Key workflow diagram** showing main user/system flow
 3. Keep diagrams simple - link to detailed docs for complexity
@@ -170,6 +181,7 @@ For README files, include:
 ### API Documentation
 
 For API docs, include:
+
 1. **Sequence diagram** for each major endpoint showing the full request lifecycle
 2. **State diagram** if the API manages stateful resources
 3. **ER diagram** for data models returned by the API
@@ -177,6 +189,7 @@ For API docs, include:
 ### Architecture Documentation
 
 For architecture docs, include:
+
 1. **C4 Context diagram** - system and its external dependencies
 2. **C4 Container diagram** - applications and data stores
 3. **C4 Component diagram** - internal structure of complex containers
@@ -185,6 +198,7 @@ For architecture docs, include:
 ### Onboarding Documentation
 
 For new developer onboarding:
+
 1. **High-level flowchart** of the system
 2. **Sequence diagram** of a typical request flow
 3. **Class diagram** of core domain models
@@ -283,6 +297,7 @@ Before finalizing documentation, verify:
 ## Resources
 
 For complete syntax reference and more examples, see:
+
 - [mermaid-reference.md](mermaid-reference.md) - Complete Mermaid syntax guide
 - [examples.md](examples.md) - Practical documentation examples
 

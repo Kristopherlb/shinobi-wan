@@ -1,4 +1,8 @@
-import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
+import type {
+  IamIntent,
+  NetworkIntent,
+  ConfigIntent,
+} from '@shinobi/contracts';
 import type { GraphSnapshot, Node, Edge } from '@shinobi/ir';
 import { createTestNode, createTestEdge, createSnapshot } from '@shinobi/ir';
 import type { LoweringContext, AdapterConfig, ResolvedDeps } from '../types';
@@ -8,12 +12,19 @@ export const DEFAULT_ADAPTER_CONFIG: AdapterConfig = {
   serviceName: 'my-lambda-sqs',
 };
 
-export function makeNode(overrides: { id: string; type: Node['type'] } & Partial<Node>): Node {
+export function makeNode(
+  overrides: { id: string; type: Node['type'] } & Partial<Node>,
+): Node {
   return createTestNode(overrides);
 }
 
 export function makeEdge(
-  overrides: { id: string; type: Edge['type']; source: string; target: string } & Partial<Edge>,
+  overrides: {
+    id: string;
+    type: Edge['type'];
+    source: string;
+    target: string;
+  } & Partial<Edge>,
 ): Edge {
   return createTestEdge(overrides);
 }
@@ -55,7 +66,14 @@ export function makeLambdaSqsSnapshot(): GraphSnapshot {
         accessLevel: 'write',
         network: { port: 443, protocol: 'tcp' },
         configKeys: [
-          { key: 'QUEUE_URL', valueSource: { type: 'reference', nodeRef: 'work-queue', field: 'url' } },
+          {
+            key: 'QUEUE_URL',
+            valueSource: {
+              type: 'reference',
+              nodeRef: 'work-queue',
+              field: 'url',
+            },
+          },
         ],
       },
     },
@@ -70,7 +88,11 @@ export function makeIamIntent(overrides?: Partial<IamIntent>): IamIntent {
     schemaVersion: '1.0.0',
     sourceEdgeId: 'edge:bindsTo:component:api-handler:platform:work-queue',
     principal: { nodeRef: 'component:api-handler', role: 'function' },
-    resource: { nodeRef: 'platform:work-queue', resourceType: 'queue', scope: 'specific' },
+    resource: {
+      nodeRef: 'platform:work-queue',
+      resourceType: 'queue',
+      scope: 'specific',
+    },
     actions: [
       { level: 'write', action: 'read' },
       { level: 'write', action: 'write' },
@@ -79,7 +101,9 @@ export function makeIamIntent(overrides?: Partial<IamIntent>): IamIntent {
   };
 }
 
-export function makeNetworkIntent(overrides?: Partial<NetworkIntent>): NetworkIntent {
+export function makeNetworkIntent(
+  overrides?: Partial<NetworkIntent>,
+): NetworkIntent {
   return {
     type: 'network',
     schemaVersion: '1.0.0',
@@ -92,7 +116,9 @@ export function makeNetworkIntent(overrides?: Partial<NetworkIntent>): NetworkIn
   };
 }
 
-export function makeConfigIntent(overrides?: Partial<ConfigIntent>): ConfigIntent {
+export function makeConfigIntent(
+  overrides?: Partial<ConfigIntent>,
+): ConfigIntent {
   return {
     type: 'config',
     schemaVersion: '1.0.0',
@@ -104,7 +130,9 @@ export function makeConfigIntent(overrides?: Partial<ConfigIntent>): ConfigInten
   };
 }
 
-export function makeContext(overrides?: Partial<LoweringContext>): LoweringContext {
+export function makeContext(
+  overrides?: Partial<LoweringContext>,
+): LoweringContext {
   return {
     intents: [makeIamIntent(), makeNetworkIntent(), makeConfigIntent()],
     snapshot: makeLambdaSqsSnapshot(),
@@ -113,7 +141,9 @@ export function makeContext(overrides?: Partial<LoweringContext>): LoweringConte
   };
 }
 
-export function makeDefaultContext(overrides?: Partial<LoweringContext>): LoweringContext {
+export function makeDefaultContext(
+  overrides?: Partial<LoweringContext>,
+): LoweringContext {
   return {
     intents: [],
     snapshot: createSnapshot([], []),
@@ -125,7 +155,9 @@ export function makeDefaultContext(overrides?: Partial<LoweringContext>): Loweri
   };
 }
 
-export function makeDefaultDeps(overrides?: Partial<ResolvedDeps>): ResolvedDeps {
+export function makeDefaultDeps(
+  overrides?: Partial<ResolvedDeps>,
+): ResolvedDeps {
   return {
     envVars: {},
     securityGroups: [],

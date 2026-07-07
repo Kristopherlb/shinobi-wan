@@ -72,7 +72,9 @@ describe('VpcLowerer', () => {
     const node = createTestNode({
       id: 'platform:my-vpc',
       type: 'platform',
-      metadata: { properties: { platform: 'aws-vpc', cidrBlock: '172.16.0.0/12' } },
+      metadata: {
+        properties: { platform: 'aws-vpc', cidrBlock: '172.16.0.0/12' },
+      },
     });
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -115,7 +117,9 @@ describe('VpcLowerer', () => {
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
     expect(result[2]?.properties?.vpcId).toEqual({ ref: 'my-vpc-vpc' });
-    expect(result[2]?.properties?.internetGatewayId).toEqual({ ref: 'my-vpc-igw' });
+    expect(result[2]?.properties?.internetGatewayId).toEqual({
+      ref: 'my-vpc-igw',
+    });
   });
 
   it('should include standard tags', () => {
@@ -379,8 +383,12 @@ describe('SubnetLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[2]?.properties?.subnetId).toEqual({ ref: 'my-subnet-subnet' });
-    expect(result[2]?.properties?.routeTableId).toEqual({ ref: 'my-subnet-rt' });
+    expect(result[2]?.properties?.subnetId).toEqual({
+      ref: 'my-subnet-subnet',
+    });
+    expect(result[2]?.properties?.routeTableId).toEqual({
+      ref: 'my-subnet-rt',
+    });
   });
 
   it('should include standard tags on all resources', () => {
@@ -712,8 +720,18 @@ describe('SecurityGroupLowerer', () => {
           platform: 'aws-security-group',
           vpcId: 'platform:my-vpc',
           ingressRules: [
-            { protocol: 'tcp', fromPort: 80, toPort: 80, cidrBlocks: ['0.0.0.0/0'] },
-            { protocol: 'tcp', fromPort: 443, toPort: 443, cidrBlocks: ['0.0.0.0/0'] },
+            {
+              protocol: 'tcp',
+              fromPort: 80,
+              toPort: 80,
+              cidrBlocks: ['0.0.0.0/0'],
+            },
+            {
+              protocol: 'tcp',
+              fromPort: 443,
+              toPort: 443,
+              cidrBlocks: ['0.0.0.0/0'],
+            },
           ],
         },
       },
@@ -747,7 +765,9 @@ describe('SecurityGroupLowerer', () => {
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
     const ingressRule = result.find((r) => r.name?.includes('ingress'));
-    expect(ingressRule?.properties?.sourceSecurityGroupId).toEqual({ ref: 'other-sg-sg' });
+    expect(ingressRule?.properties?.sourceSecurityGroupId).toEqual({
+      ref: 'other-sg-sg',
+    });
   });
 
   it('should respect custom tags', () => {
@@ -875,7 +895,9 @@ describe('EcrLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[1]?.properties?.repository).toEqual({ ref: 'my-ecr-repo.name' });
+    expect(result[1]?.properties?.repository).toEqual({
+      ref: 'my-ecr-repo.name',
+    });
   });
 
   it('should include default lifecycle policy keeping 10 images', () => {
@@ -1071,7 +1093,10 @@ describe('EcsClusterLowerer', () => {
       id: 'platform:my-cluster',
       type: 'platform',
       metadata: {
-        properties: { platform: 'aws-ecs-cluster', tags: { Environment: 'dev' } },
+        properties: {
+          platform: 'aws-ecs-cluster',
+          tags: { Environment: 'dev' },
+        },
       },
     });
 
@@ -1118,7 +1143,7 @@ describe('EcsClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.dependsOn).toBeUndefined();
+    expect(result[0]?.dependsOn).toEqual([]);
   });
 
   it('should support capacity providers configuration', () => {
@@ -1135,7 +1160,10 @@ describe('EcsClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.capacityProviders).toEqual(['FARGATE', 'FARGATE_SPOT']);
+    expect(result[0]?.properties?.capacityProviders).toEqual([
+      'FARGATE',
+      'FARGATE_SPOT',
+    ]);
   });
 
   it('should support default capacity provider strategy', () => {
@@ -1399,7 +1427,7 @@ describe('EcsTaskDefinitionLowerer', () => {
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
     const containerDefs = JSON.parse(
-      result[1]?.properties?.containerDefinitions as string
+      result[1]?.properties?.containerDefinitions as string,
     );
     expect(containerDefs[0]?.name).toBe('app');
     expect(containerDefs[0]?.image).toBe('nginx:latest');
@@ -1471,7 +1499,7 @@ describe('EcsTaskDefinitionLowerer', () => {
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
     const containerDefs = JSON.parse(
-      result[1]?.properties?.containerDefinitions as string
+      result[1]?.properties?.containerDefinitions as string,
     );
     expect(containerDefs).toHaveLength(2);
     expect(containerDefs[0]?.name).toBe('app');
@@ -1609,8 +1637,12 @@ describe('EcsServiceLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.properties?.cluster).toEqual({ ref: 'my-cluster-cluster.arn' });
-    expect(result[0]?.properties?.taskDefinition).toEqual({ ref: 'my-task-task-def.arn' });
+    expect(result[0]?.properties?.cluster).toEqual({
+      ref: 'my-cluster-cluster.arn',
+    });
+    expect(result[0]?.properties?.taskDefinition).toEqual({
+      ref: 'my-task-task-def.arn',
+    });
   });
 
   it('should default to 1 desired count', () => {
@@ -1719,7 +1751,8 @@ describe('EcsServiceLowerer', () => {
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
     expect(
-      result[0]?.properties?.networkConfiguration?.awsvpcConfiguration?.assignPublicIp
+      result[0]?.properties?.networkConfiguration?.awsvpcConfiguration
+        ?.assignPublicIp,
     ).toBe(true);
   });
 
@@ -1740,7 +1773,10 @@ describe('EcsServiceLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.dependsOn).toEqual(['my-cluster-cluster', 'my-task-task-def']);
+    expect(result[0]?.dependsOn).toEqual([
+      'my-cluster-cluster',
+      'my-task-task-def',
+    ]);
   });
 
   it('should include standard tags', () => {
@@ -2011,7 +2047,9 @@ describe('AlbLowerer', () => {
       { ref: 'subnet-1a-subnet' },
       { ref: 'subnet-1b-subnet' },
     ]);
-    expect(result[0]?.properties?.securityGroups).toEqual([{ ref: 'my-sg-sg' }]);
+    expect(result[0]?.properties?.securityGroups).toEqual([
+      { ref: 'my-sg-sg' },
+    ]);
   });
 
   it('should configure target group with IP target type', () => {
@@ -2088,7 +2126,9 @@ describe('AlbLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    const httpsListener = result.find((r) => r.name === 'my-alb-listener-https');
+    const httpsListener = result.find(
+      (r) => r.name === 'my-alb-listener-https',
+    );
     expect(httpsListener?.properties?.protocol).toBe('HTTPS');
     expect(httpsListener?.properties?.port).toBe(443);
   });
@@ -2150,7 +2190,9 @@ describe('AlbLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    const httpsListener = result.find((r) => r.name === 'my-alb-listener-https');
+    const httpsListener = result.find(
+      (r) => r.name === 'my-alb-listener-https',
+    );
     expect(httpsListener?.properties?.defaultActions).toEqual([
       {
         type: 'forward',

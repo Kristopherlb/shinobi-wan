@@ -135,7 +135,10 @@ if (gates.size === 0) {
 }
 
 // Scan all conformance test files (excluding snapshots)
-const conformanceTestDir = path.join(rootDir, 'packages/conformance/src/__tests__');
+const conformanceTestDir = path.join(
+  rootDir,
+  'packages/conformance/src/__tests__',
+);
 const testFiles: string[] = [];
 
 function findTestFiles(dir: string): void {
@@ -189,7 +192,9 @@ const percentage = Math.round((coveredCount / total) * 100);
 console.log('Gate Coverage Report');
 console.log('====================');
 
-for (const [gateId, gate] of [...gates.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+for (const [gateId, gate] of [...gates.entries()].sort(([a], [b]) =>
+  a.localeCompare(b),
+)) {
   const refs = allRefs.get(gateId);
   const typeLabel = gate.type.padEnd(12);
 

@@ -23,4 +23,3 @@ Use this skill to make agent decisions stable and auditable: what was chosen, wh
 5. **Attach decision records to shared state** (AIP) under a stable key.
 
 See `references/agent-decision-records.md` for the canonical structure.
-

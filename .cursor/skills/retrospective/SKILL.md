@@ -1,12 +1,13 @@
 ---
 name: retrospective
 description: Continuous improvement through checkpoints, analysis, and retrospectives. Use during and after projects to capture learnings, reduce repeated friction, and keep plans aligned to reality.
-argument-hint: "[topic or project name] + [time window] + [artifacts changed]"
+argument-hint: '[topic or project name] + [time window] + [artifacts changed]'
 ---
 
 # Retrospective Skill
 
 Use this skill to create **durable, reusable learnings** from real work. It standardizes:
+
 - **Checkpointing** (mid-project) so sessions can be resumed safely
 - **Analysis** so improvements are discovered systematically, not by vibe
 - **Retrospectives** so outcomes are actionable, measurable, and tracked
@@ -78,6 +79,7 @@ YYYY-MM-DD-<project-name>-checkpoint.md
    - Improvements/capabilities that would have helped
 
 ### Output expectations (checkpoint)
+
 - **File created**: `retrospectives/checkpoints/YYYY-MM-DD-<project>-checkpoint.md`
 - **If plan editing is not allowed**: include “Proposed plan updates” as copy/paste blocks.
 - **If you found repeated friction**: add/update an entry in `retrospectives/PATTERNS.md`.
@@ -91,28 +93,34 @@ YYYY-MM-DD-<project-name>-checkpoint.md
 **Session:** Planning phase
 
 ## Progress
+
 - [x] Initial research complete
 - [x] Strategic questions answered
 - [ ] Implementation plan (in progress)
 - [ ] ADR (not started)
 
 ## Learnings
+
 - OSCAL has 5 document types, not 3 as initially assumed
 - Trestle is the recommended authoring tool
 
 ## Friction
+
 - Had to manually read 6 GitHub pages to understand the ecosystem
 - No existing OSCAL vocabulary in the codebase
 
 ## Opportunities
+
 - Create an OSCAL skill to avoid this research next time
 - Add a repo summarizer script
 
 ## Plan Alignment
+
 - Plan drift: <what changed and why>
 - Proposed plan update: <copy/paste-ready adjustment>
 
 ## Improvements / Capabilities That Would Help Next
+
 - <script/tool/generator/capability that would reduce repeated manual work>
 ```
 
@@ -123,6 +131,7 @@ YYYY-MM-DD-<project-name>-checkpoint.md
 Use analysis to systematically identify improvement opportunities in the codebase.
 
 ### Preferred approach (use project utilities first)
+
 Prefer repo utilities and existing scripts over one-off ad-hoc commands:
 
 - Run the repository “health check” script:
@@ -144,27 +153,32 @@ pnpm test:path:debug
 Run through this checklist and document findings:
 
 #### Code Quality
+
 - [ ] **DRY violations** — Duplicated code that should be abstracted
 - [ ] **Pattern inconsistencies** — Similar things done differently
 - [ ] **Dead code** — Unused exports, unreachable paths
 - [ ] **Complex functions** — Functions >50 lines or cyclomatic complexity >10
 
 #### Testing
+
 - [ ] **Coverage gaps** — Critical paths without tests
 - [ ] **Test patterns** — Inconsistent test structures
 - [ ] **Missing edge cases** — Error paths not tested
 
 #### Documentation
+
 - [ ] **Stale docs** — Documentation that doesn't match code
 - [ ] **Missing docs** — Public APIs without documentation
 - [ ] **Skill gaps** — Knowledge that should be a skill but isn't
 
 #### DevEx
+
 - [ ] **Missing workflows** — Repetitive processes that could be automated
 - [ ] **Slow feedback** — Tests or builds that are slow
 - [ ] **Confusing errors** — Error messages that don't help
 
 #### Architecture
+
 - [ ] **Coupling** — Components that are too tightly coupled
 - [ ] **Circular dependencies** — Packages that depend on each other
 - [ ] **Abstraction leaks** — Implementation details exposed
@@ -230,6 +244,7 @@ When you notice something in a retrospective that might recur:
 ### Graduating Patterns
 
 When occurrences ≥ 3:
+
 1. Create a formal solution (skill, workflow, tool)
 2. Implement the solution
 3. Move pattern to "Graduated" section
@@ -252,6 +267,7 @@ Proposed → In Progress → Implemented → Impact Validated
 ### Validation
 
 After implementing an improvement:
+
 1. Add to "Impact Tracking" in `/retrospectives/IMPROVEMENTS.md`
 2. State expected impact
 3. In subsequent retrospectives, validate actual impact
@@ -262,15 +278,18 @@ After implementing an improvement:
 ## Maintenance Tasks
 
 ### Weekly
+
 - Review open checkpoints (>7 days old) — complete or update
 - Check for stale improvements (proposed >30 days)
 
 ### Monthly
+
 - Review patterns for graduation candidates
 - Archive resolved improvements
 - Clean up obsolete recommendations
 
 ### Quarterly
+
 - Aggregate metrics across retrospectives
 - Identify meta-patterns (patterns in the patterns)
 - Update this skill based on learnings

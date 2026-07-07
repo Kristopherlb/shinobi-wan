@@ -19,15 +19,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Subnets across 2 AZs
   - id: subnet-1a
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.1.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.1.0/24'
       availabilityZone: us-east-1a
       mapPublicIpOnLaunch: false
 
@@ -35,8 +35,8 @@ components:
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.2.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.2.0/24'
       availabilityZone: us-east-1b
       mapPublicIpOnLaunch: false
 
@@ -45,20 +45,20 @@ components:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:app-vpc"
-      description: "EKS cluster security group"
+      vpcId: 'platform:app-vpc'
+      description: 'EKS cluster security group'
 
   # EKS control plane — private endpoint, logging enabled
   - id: eks-cluster
     type: platform
     platform: aws-eks-cluster
     config:
-      version: "1.29"
+      version: '1.29'
       subnetIds:
-        - "platform:subnet-1a"
-        - "platform:subnet-1b"
+        - 'platform:subnet-1a'
+        - 'platform:subnet-1b'
       securityGroupIds:
-        - "platform:cluster-sg"
+        - 'platform:cluster-sg'
       endpointPrivateAccess: true
       endpointPublicAccess: false
       enabledClusterLogTypes:
@@ -71,10 +71,10 @@ components:
     type: platform
     platform: aws-eks-node-group
     config:
-      clusterName: "platform:eks-cluster"
+      clusterName: 'platform:eks-cluster'
       subnetIds:
-        - "platform:subnet-1a"
-        - "platform:subnet-1b"
+        - 'platform:subnet-1a'
+        - 'platform:subnet-1b'
       instanceTypes:
         - t3.medium
       scalingConfig:

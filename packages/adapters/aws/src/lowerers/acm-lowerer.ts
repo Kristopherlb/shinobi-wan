@@ -1,5 +1,10 @@
 import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from '../types';
 import { shortName, createStandardTags } from './utils';
 
 /**
@@ -11,7 +16,11 @@ import { shortName, createStandardTags } from './utils';
 export class AcmLowerer implements NodeLowerer {
   readonly platform = 'aws-acm';
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -20,7 +29,8 @@ export class AcmLowerer implements NodeLowerer {
 
     const certName = `${name}-cert`;
 
-    const domainName = (props['domainName'] as string) ?? `${serviceName}.example.com`;
+    const domainName =
+      (props['domainName'] as string) ?? `${serviceName}.example.com`;
     const validationMethod = (props['validationMethod'] as string) ?? 'DNS';
 
     const certProperties: Record<string, unknown> = {
@@ -31,7 +41,8 @@ export class AcmLowerer implements NodeLowerer {
 
     // Add Subject Alternative Names if provided
     if (props['subjectAlternativeNames']) {
-      certProperties['subjectAlternativeNames'] = props['subjectAlternativeNames'];
+      certProperties['subjectAlternativeNames'] =
+        props['subjectAlternativeNames'];
     }
 
     resources.push({

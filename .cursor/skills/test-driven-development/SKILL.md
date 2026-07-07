@@ -36,4 +36,3 @@ Use this skill any time you are implementing a feature, bugfix, refactor, or scr
 - Each test verifies **one** behavior.
 - Failures are **actionable** (clear assertions, clear error messages).
 - Tests are fast enough to run locally and in CI.
-
