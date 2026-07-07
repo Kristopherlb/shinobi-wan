@@ -104,6 +104,7 @@ node packages/cli/dist/main.js up examples/lambda-sqs.yaml --region us-east-1 --
 - `up <manifest>`: Preview or deploy the generated plan
 
 For command flags, JSON/envelope outputs, and examples:
+
 - `docs/user/cli-reference.md`
 
 ## Authoring Manifests
@@ -115,6 +116,7 @@ Start from:
 - `docs/cookbook/manifest-patterns.md`
 
 For a practical authoring workflow and validation checklist:
+
 - `docs/user/manifest-authoring-guide.md`
 
 ## Repository Layout
@@ -125,6 +127,7 @@ For a practical authoring workflow and validation checklist:
 - `packages/binder`: edge compilers that emit intents
 - `packages/policy`: policy evaluation and severity mapping
 - `packages/validation`: schema/semantic/determinism validation
+- `packages/conformance`: golden cases and triad-matrix conformance tests
 - `packages/adapters/aws`: AWS lowering and deployment runtime
 - `packages/cli`: user commands (`validate`, `plan`, `up`)
 - `examples`: copy-ready manifest examples

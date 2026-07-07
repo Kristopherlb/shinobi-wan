@@ -17,14 +17,14 @@ pnpm install
 # Build all packages
 pnpm nx run-many -t build
 
-# Build a specific package
-pnpm nx build @shinobi/kernel
+# Build a specific package (Nx project names are unscoped: kernel, ir, cli, ...)
+pnpm nx build kernel
 
 # Run tests
 pnpm nx run-many -t test
 
 # Run tests for a specific package
-pnpm nx test @shinobi/kernel
+pnpm nx test kernel
 
 # Lint
 pnpm nx run-many -t lint
@@ -42,29 +42,33 @@ pnpm run format:write
 cli → kernel
       ├── contracts (base types, no dependencies)
       ├── ir (graph model)
+      ├── validation (manifest/spec validation)
       ├── policy (compliance engine)
       └── binder (edge compilation)
 
+validation → contracts, ir
 adapters/aws → contracts, ir (ONLY)
 ```
 
 **Boundary rules**:
+
 - `kernel`, `binder`, `policy` **cannot import adapters**
 - No provider SDKs anywhere except `adapters/`
 - All outputs must be structured JSON objects, never strings
 
 ### Package Purposes
 
-| Package | Purpose |
-|---------|---------|
-| `contracts` | Type definitions and interfaces (zero dependencies) |
-| `ir` | Intermediate Representation: Node, Edge, DerivedArtifact types |
-| `kernel` | Graph engine: mutation API, canonical ordering, serialization |
-| `binder` | Edge compiler: transforms binding directives → backend-neutral intents |
-| `policy` | Compliance evaluation: policy pack loading, rule evaluation |
-| `conformance` | Testing framework: golden cases, triad matrix |
-| `cli` | User-facing commands: validate, plan |
-| `adapters/aws` | Lowers intents to Pulumi AWS resources |
+| Package        | Purpose                                                                |
+| -------------- | ---------------------------------------------------------------------- |
+| `contracts`    | Type definitions and interfaces (zero dependencies)                    |
+| `ir`           | Intermediate Representation: Node, Edge, DerivedArtifact types         |
+| `validation`   | Validation pipeline (schema → semantic → determinism), stable errors   |
+| `kernel`       | Graph engine: mutation API, canonical ordering, serialization          |
+| `binder`       | Edge compiler: transforms binding directives → backend-neutral intents |
+| `policy`       | Compliance evaluation: policy pack loading, rule evaluation            |
+| `conformance`  | Testing framework: golden cases, triad matrix                          |
+| `cli`          | User-facing commands: validate, plan                                   |
+| `adapters/aws` | Lowers intents to Pulumi AWS resources                                 |
 
 ### Key Concepts (from glossary.md)
 
@@ -88,15 +92,15 @@ These invariants are non-negotiable and enforced at CI:
 
 ## Kernel Laws (from extraction/v3/patterns/kernel-laws.md)
 
-| Law | Summary |
-|-----|---------|
-| KL-001 | DeterministicCompilation: byte-stable outputs, stable serialization |
-| KL-002 | SchemaAndSpecValidation: structured errors with stable paths |
+| Law    | Summary                                                                       |
+| ------ | ----------------------------------------------------------------------------- |
+| KL-001 | DeterministicCompilation: byte-stable outputs, stable serialization           |
+| KL-002 | SchemaAndSpecValidation: structured errors with stable paths                  |
 | KL-003 | CapabilityCompatibilityMatrix: binder validation with allowed-values guidance |
-| KL-005 | LeastPrivilegeByConstruction: reject unsafe wildcard resources |
-| KL-006 | ExplainableDiagnostics: actionable messages suitable for JSON consumption |
-| KL-007 | ConfigPrecedence: defined resolution chain for configuration |
-| KL-008 | PolicyPackDrivenCompliance: explicit pack selection, no inferred defaults |
+| KL-005 | LeastPrivilegeByConstruction: reject unsafe wildcard resources                |
+| KL-006 | ExplainableDiagnostics: actionable messages suitable for JSON consumption     |
+| KL-007 | ConfigPrecedence: defined resolution chain for configuration                  |
+| KL-008 | PolicyPackDrivenCompliance: explicit pack selection, no inferred defaults     |
 
 ## Documentation Structure
 
@@ -108,7 +112,7 @@ These invariants are non-negotiable and enforced at CI:
 
 ## Current State
 
-All 8 core packages are fully implemented and tested: contracts, ir, validation, kernel, binder, policy, conformance, cli, and adapter-aws.
+All 9 core packages are fully implemented and tested: contracts, ir, validation, kernel, binder, policy, conformance, cli, and adapter-aws.
 
 - **22/38 blueprints complete** (58%) across Waves A, B, and C
 - **55 node lowerers** + 4 intent lowerers in the AWS adapter
@@ -120,6 +124,7 @@ Wave D is next: 16 remaining blueprints covering CI/CD, cross-cutting concerns, 
 ## Agent Roles (from roles.md)
 
 When contributing, consider which role applies:
+
 - **R1 Kernel/Graph Engineer**: graph semantics, determinism, adapter boundaries
 - **R2 Component Authoring**: capabilities, config surfaces, emitted facts
 - **R3 Binder Engineer**: edge → intent compilation, least-privilege
@@ -131,22 +136,22 @@ When contributing, consider which role applies:
 
 Skills provide structured guidance for specific development tasks:
 
-| Skill | Use When |
-|-------|----------|
-| `graph-reasoning-and-mutation` | Designing graph changes, mutation planning, invariant definition |
-| `determinism-engineering` | Eliminating nondeterminism, stable IDs, canonical ordering |
-| `binder-logic-synthesis` | Writing binders, edge → intent compilation |
-| `capability-modeling-standard` | Defining component capabilities, contracts |
-| `policy-pack-authoring` | Creating compliance rules, enforcement tiers |
-| `security-intent-modeling` | IAM and network intent design, least-privilege |
-| `conformance-test-design` | Golden cases, triad matrix, determinism gates |
-| `contract-and-schema-evolution` | Versioned contracts, breaking changes |
-| `explainability-and-why-output-standard` | Provenance, structured diagnostics |
-| `provenance-and-traceability` | Origin tracking, audit evidence |
-| `pulumi-best-practices` | Adapter implementation, Pulumi patterns |
-| `test-driven-development` | Writing tests first, minimal implementations |
-| `docs-with-mermaid` | Architecture diagrams, technical documentation |
-| `adr-maintenance` | Architecture Decision Records creation and maintenance |
-| `environment-matrix-management` | Dev/staging/prod environment controls and policy defaults |
-| `manifest-cookbook-authoring` | Copy-ready manifest pattern docs and examples |
-| `operations-runbook` | Deployment workflow documentation and triage procedures |
+| Skill                                    | Use When                                                         |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `graph-reasoning-and-mutation`           | Designing graph changes, mutation planning, invariant definition |
+| `determinism-engineering`                | Eliminating nondeterminism, stable IDs, canonical ordering       |
+| `binder-logic-synthesis`                 | Writing binders, edge → intent compilation                       |
+| `capability-modeling-standard`           | Defining component capabilities, contracts                       |
+| `policy-pack-authoring`                  | Creating compliance rules, enforcement tiers                     |
+| `security-intent-modeling`               | IAM and network intent design, least-privilege                   |
+| `conformance-test-design`                | Golden cases, triad matrix, determinism gates                    |
+| `contract-and-schema-evolution`          | Versioned contracts, breaking changes                            |
+| `explainability-and-why-output-standard` | Provenance, structured diagnostics                               |
+| `provenance-and-traceability`            | Origin tracking, audit evidence                                  |
+| `pulumi-best-practices`                  | Adapter implementation, Pulumi patterns                          |
+| `test-driven-development`                | Writing tests first, minimal implementations                     |
+| `docs-with-mermaid`                      | Architecture diagrams, technical documentation                   |
+| `adr-maintenance`                        | Architecture Decision Records creation and maintenance           |
+| `environment-matrix-management`          | Dev/staging/prod environment controls and policy defaults        |
+| `manifest-cookbook-authoring`            | Copy-ready manifest pattern docs and examples                    |
+| `operations-runbook`                     | Deployment workflow documentation and triage procedures          |
