@@ -146,7 +146,12 @@ export async function invokeHarmonyTool(
         versions,
       );
     case 'golden.shinobi.apply_change':
+    case 'golden.shinobi.rollback_change':
+      // Rollback is re-applying a known-good manifest: an apply-class
+      // operation with identical safety gates (rollout gate, plan
+      // fingerprint, idempotency key, approval evidence).
       return runApply(
+        request.toolId,
         request.input as ApplyChangeInput,
         request.traceId,
         versions,
@@ -155,8 +160,6 @@ export async function invokeHarmonyTool(
         flags.approvalRequired,
         flags.approvalMaxSlaMinutes,
       );
-    case 'golden.shinobi.rollback_change':
-      return runRollback(request.traceId, versions);
     case 'golden.shinobi.read_entities':
     case 'golden.shinobi.read_activity':
       return runReadProjection(
@@ -223,7 +226,12 @@ async function runPlan(
   return { envelope };
 }
 
+type ApplyClassToolId =
+  | 'golden.shinobi.apply_change'
+  | 'golden.shinobi.rollback_change';
+
 async function runApply(
+  toolId: ApplyClassToolId,
   input: ApplyChangeInput,
   traceId: string,
   versions: { toolVersion: string; contractVersion: string },
@@ -237,7 +245,7 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: 'golden.shinobi.apply_change',
+          toolId,
           operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
@@ -273,7 +281,7 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: 'golden.shinobi.apply_change',
+          toolId,
           operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
@@ -309,7 +317,7 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: 'golden.shinobi.apply_change',
+          toolId,
           operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
@@ -350,7 +358,7 @@ async function runApply(
         envelope: {
           success: false,
           metadata: {
-            toolId: 'golden.shinobi.apply_change',
+            toolId,
             operationClass: 'apply',
             traceId,
             toolVersion: versions.toolVersion,
@@ -392,7 +400,7 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: 'golden.shinobi.apply_change',
+          toolId,
           operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
@@ -428,7 +436,7 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: 'golden.shinobi.apply_change',
+          toolId,
           operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
@@ -466,7 +474,7 @@ async function runApply(
     try {
       const dispatch = await workflowClient.dispatchApplyWorkflow({
         traceId,
-        toolId: 'golden.shinobi.apply_change',
+        toolId,
         manifestPath: normalizeManifestPath(input.manifestPath),
         policyPack: input.policyPack,
         region: input.region,
@@ -479,7 +487,7 @@ async function runApply(
         envelope: {
           success: true,
           metadata: {
-            toolId: 'golden.shinobi.apply_change',
+            toolId,
             operationClass: 'apply',
             traceId,
             toolVersion: versions.toolVersion,
@@ -519,7 +527,7 @@ async function runApply(
         envelope: {
           success: false,
           metadata: {
-            toolId: 'golden.shinobi.apply_change',
+            toolId,
             operationClass: 'apply',
             traceId,
             toolVersion: versions.toolVersion,
@@ -562,7 +570,7 @@ async function runApply(
   });
   return {
     envelope: envelopeUpResult(result, {
-      toolId: 'golden.shinobi.apply_change',
+      toolId,
       operationClass: 'apply',
       traceId,
       ...versions,
@@ -649,46 +657,6 @@ async function runReadProjection(
               details: derivedPayload as Record<string, unknown>,
             },
           }),
-    },
-  };
-}
-
-async function runRollback(
-  traceId: string,
-  versions: { toolVersion: string; contractVersion: string },
-): Promise<HarmonyToolCallResult> {
-  return {
-    envelope: {
-      success: false,
-      metadata: {
-        toolId: 'golden.shinobi.rollback_change',
-        operationClass: 'apply',
-        traceId,
-        toolVersion: versions.toolVersion,
-        contractVersion: versions.contractVersion,
-        timestamp: new Date().toISOString(),
-      },
-      policy: {
-        operationClass: 'apply',
-        defaultTimeoutMs: 30_000,
-        maxTimeoutMs: 120_000,
-        retryPolicy: {
-          maxAttempts: 1,
-          initialIntervalSeconds: 1,
-          backoffCoefficient: 1,
-        },
-        idempotency: 'required',
-        mode: 'start',
-      },
-      error: {
-        code: 'RUNNER_ERROR',
-        category: 'runtime',
-        retriable: false,
-        source: 'cli.mcp.wrapper',
-        traceId,
-        message:
-          'Rollback is not yet a first-class Shinobi operation. Use wrapper-managed compensation.',
-      },
     },
   };
 }

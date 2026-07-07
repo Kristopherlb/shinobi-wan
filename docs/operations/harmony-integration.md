@@ -28,7 +28,7 @@ flowchart LR
 | `golden.shinobi.read_entities`   | `read`          | wrapper-derived projection from validate/plan outputs                                    | `await`         | non-restricted |
 | `golden.shinobi.read_activity`   | `read`          | wrapper-derived projection from validate/plan diagnostics                                | `await`         | non-restricted |
 | `golden.shinobi.apply_change`    | `apply`         | `shinobi up <manifest> --json --no-dry-run ...`                                          | `start` default | restricted     |
-| `golden.shinobi.rollback_change` | `apply`         | wrapper-managed compensation (native rollback not available)                             | `start`         | restricted     |
+| `golden.shinobi.rollback_change` | `apply`         | re-apply of a known-good manifest via the apply workflow (same gates as apply)           | `start` default | restricted     |
 
 ## Response Envelope Contract
 
@@ -165,4 +165,4 @@ Rules:
 1. Enable wrapper mode and ship read/plan tools.
 2. Validate SLOs and error budget in pilot.
 3. Enable apply only after gate checklist passes.
-4. Keep rollback tool as wrapper-managed compensation until native contract exists.
+4. Rollback re-applies a known-good manifest through the apply workflow with identical gates (rollout flag, plan fingerprint, idempotency key, approval evidence).

@@ -450,15 +450,104 @@ describe('harmony wrapper', () => {
     expect(response.envelope.error?.category).toBe('validation');
   });
 
-  it('returns explicit unsupported envelope for rollback until native contract exists', async () => {
+  it('gates rollback behind the apply rollout flag like any apply operation', async () => {
     const response = await invokeHarmonyTool({
       toolId: 'golden.shinobi.rollback_change',
       traceId: 'trace-4',
-      input: {},
+      input: {
+        manifestPath: 'examples/lambda-sqs.yaml',
+        planFingerprint: 'x',
+        idempotencyKey: 'rollback-1',
+      },
     });
     expect(response.envelope.success).toBe(false);
-    expect(response.envelope.error?.message).toContain(
-      'Rollback is not yet a first-class Shinobi operation',
+    expect(response.envelope.error?.code).toBe('APPROVAL_REQUIRED');
+    expect(response.envelope.metadata.toolId).toBe(
+      'golden.shinobi.rollback_change',
     );
+  });
+
+  it('dispatches rollback as an apply-class workflow with full safety gates', async () => {
+    process.env.SHINOBI_APPLY_ENABLED = 'true';
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          operationId: 'operation-rollback-1',
+          workflowId: 'workflow-rollback-1',
+          submittedAt: '2026-02-16T00:00:00.000Z',
+          statusUrl: 'https://harmony.local/operations/operation-rollback-1',
+        }),
+        { status: 202 },
+      ),
+    );
+
+    // Rollback re-applies a known-good manifest, so the fingerprint comes
+    // from planning that manifest — exactly like apply.
+    const planResponse = await invokeHarmonyTool({
+      toolId: 'golden.shinobi.plan_change',
+      traceId: 'trace-plan-rollback',
+      input: { manifestPath: 'examples/lambda-sqs.yaml' },
+    });
+    const planFingerprint = (
+      planResponse.envelope.data as { planFingerprint?: string } | undefined
+    )?.planFingerprint;
+    expect(planFingerprint).toBeDefined();
+
+    const response = await invokeHarmonyTool({
+      toolId: 'golden.shinobi.rollback_change',
+      traceId: 'trace-rollback',
+      input: {
+        manifestPath: 'examples/lambda-sqs.yaml',
+        mode: 'start',
+        planFingerprint: planFingerprint!,
+        idempotencyKey: 'rollback-2',
+        approval: {
+          approvalId: 'apr-rollback',
+          approverRole: 'harmony-release-manager',
+          approverId: 'user-1',
+          decision: 'approved',
+          decidedAt: '2026-02-16T00:01:00.000Z',
+          slaMinutes: 30,
+        },
+      },
+    });
+
+    expect(response.envelope.success).toBe(true);
+    expect(response.envelope.metadata.toolId).toBe(
+      'golden.shinobi.rollback_change',
+    );
+    expect(response.handle?.operationId).toBe('operation-rollback-1');
+    const dispatchBody = JSON.parse(
+      (fetchMock.mock.calls.at(-1)?.[1] as RequestInit).body as string,
+    ) as { input?: { toolId?: string } };
+    expect(dispatchBody.input?.toolId).toBe('golden.shinobi.rollback_change');
+  });
+
+  it('rejects rollback without approval evidence when approval is required', async () => {
+    process.env.SHINOBI_APPLY_ENABLED = 'true';
+
+    const planResponse = await invokeHarmonyTool({
+      toolId: 'golden.shinobi.plan_change',
+      traceId: 'trace-plan-rollback-2',
+      input: { manifestPath: 'examples/lambda-sqs.yaml' },
+    });
+    const planFingerprint = (
+      planResponse.envelope.data as { planFingerprint?: string } | undefined
+    )?.planFingerprint;
+
+    const response = await invokeHarmonyTool({
+      toolId: 'golden.shinobi.rollback_change',
+      traceId: 'trace-rollback-2',
+      input: {
+        manifestPath: 'examples/lambda-sqs.yaml',
+        mode: 'start',
+        planFingerprint: planFingerprint!,
+        idempotencyKey: 'rollback-3',
+      },
+    });
+
+    expect(response.envelope.success).toBe(false);
+    expect(response.envelope.error?.code).toBe('APPROVAL_REQUIRED');
+    expect(response.envelope.error?.message).toContain('Approval evidence');
   });
 });
