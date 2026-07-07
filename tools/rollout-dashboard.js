@@ -2,9 +2,25 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = process.cwd();
-const GATES_PATH = path.join(ROOT, 'docs', 'operations', 'harmony-go-live-gates.md');
-const OUTPUT_PATH = path.join(ROOT, 'docs', 'operations', 'harmony-rollout-dashboard.md');
-const VALID_STATUSES = new Set(['pass', 'fail', 'blocked', 'on-track', 'at-risk']);
+const GATES_PATH = path.join(
+  ROOT,
+  'docs',
+  'operations',
+  'harmony-go-live-gates.md',
+);
+const OUTPUT_PATH = path.join(
+  ROOT,
+  'docs',
+  'operations',
+  'harmony-rollout-dashboard.md',
+);
+const VALID_STATUSES = new Set([
+  'pass',
+  'fail',
+  'blocked',
+  'on-track',
+  'at-risk',
+]);
 
 function parseGateRows(content) {
   const rows = [];
@@ -12,15 +28,19 @@ function parseGateRows(content) {
   let inTable = false;
 
   for (const line of lines) {
-    if (!inTable && line.startsWith('| Gate |')) {
+    // Tolerate formatter-aligned tables: cells may be padded with spaces.
+    if (!inTable && /^\|\s*Gate\s*\|/.test(line)) {
       inTable = true;
       continue;
     }
     if (!inTable) continue;
     if (!line.startsWith('|')) break;
-    if (line.startsWith('|---')) continue;
+    if (/^\|[\s|:-]+$/.test(line)) continue;
 
-    const cols = line.split('|').map((v) => v.trim()).filter(Boolean);
+    const cols = line
+      .split('|')
+      .map((v) => v.trim())
+      .filter(Boolean);
     if (cols.length >= 7) {
       rows.push({
         gate: cols[0],
@@ -95,7 +115,9 @@ function main() {
   }
   for (const row of rows) {
     if (!VALID_STATUSES.has(row.status)) {
-      throw new Error(`Invalid gate status '${row.status}' for gate '${row.gate}'`);
+      throw new Error(
+        `Invalid gate status '${row.status}' for gate '${row.gate}'`,
+      );
     }
   }
 
