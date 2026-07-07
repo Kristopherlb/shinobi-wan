@@ -109,16 +109,6 @@ export function lower(
 
   // Phase 1: Lower intents
   for (const intent of context.intents) {
-    if (intent.type === 'network') {
-      diagnostics.push({
-        severity: 'warning',
-        message:
-          'Network intent lowering is not yet supported by the AWS adapter; intent was recorded but no resource was emitted',
-        sourceId: intent.sourceEdgeId,
-      });
-      continue;
-    }
-
     const lowerer = INTENT_LOWERERS.find((l) => l.intentType === intent.type);
     if (!lowerer) {
       diagnostics.push({
@@ -132,6 +122,18 @@ export function lower(
     try {
       const resources = lowerer.lower(intent, context);
       allResources.push(...resources);
+
+      if (intent.type === 'network' && resources.length === 0) {
+        // Security groups are the only network enforcement point this
+        // adapter manages; between non-VPC resources the intent is enforced
+        // by the IAM intents emitted for the same edge.
+        diagnostics.push({
+          severity: 'info',
+          message:
+            'Network intent has no security-group enforcement point in this plan (no aws-security-group nodes at both endpoints); connectivity is governed by the IAM intents for this edge',
+          sourceId: intent.sourceEdgeId,
+        });
+      }
 
       // Track which intents generated which resources
       if (!resourceMap[intent.sourceEdgeId]) {

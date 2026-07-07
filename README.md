@@ -48,10 +48,14 @@ Currently deployable resource families:
 - `aws-apigateway` (v2)
 - IAM resources and SSM parameters
 
-Current limitations:
+Current behavior notes:
 
-- Network intents are accepted but emit warning-only diagnostics (no network resource emission yet)
-- Telemetry intents are currently skipped by adapter lowering
+- Network intents lower to security-group rules when both endpoints are
+  modeled `aws-security-group` nodes; API-level connectivity (e.g.
+  Lambda → SQS) has no security-group enforcement point and is governed by
+  the IAM intents for the same edge (an info diagnostic explains this)
+- Telemetry intents: traces emit X-Ray IAM permissions; logs/metrics emit no
+  standalone resources (logging configuration is handled by node lowerers)
 
 ## Quick Start
 

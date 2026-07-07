@@ -138,13 +138,22 @@ describe('lower (adapter orchestrator)', () => {
     ).toBe(false);
   });
 
-  it('records explicit warning when network intents are not lowered', () => {
+  it('records an info diagnostic when a network intent has no enforcement point', () => {
+    // The default context connects a Lambda to SQS: no security groups, so
+    // there is nothing for the network intent to attach to.
     const result = lower(makeContext());
     expect(
-      result.diagnostics.some((d) =>
-        d.message.includes('Network intent lowering is not yet supported'),
+      result.diagnostics.some(
+        (d) =>
+          d.severity === 'info' &&
+          d.message.includes('no security-group enforcement point'),
       ),
     ).toBe(true);
+    expect(
+      result.resources.some(
+        (r) => r.resourceType === 'aws:ec2:SecurityGroupRule',
+      ),
+    ).toBe(false);
   });
 
   it('determinism: identical input produces identical output', () => {
