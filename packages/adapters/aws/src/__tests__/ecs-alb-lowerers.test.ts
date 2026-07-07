@@ -1143,7 +1143,7 @@ describe('EcsClusterLowerer', () => {
 
     const result = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
 
-    expect(result[0]?.dependsOn).toBeUndefined();
+    expect(result[0]?.dependsOn).toEqual([]);
   });
 
   it('should support capacity providers configuration', () => {

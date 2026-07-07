@@ -8,6 +8,7 @@ import { createPulumiProgram } from './pulumi-program';
 export { classifyError } from './deployer-errors';
 export type { DeployerError, DeployerErrorCategory } from './deployer-errors';
 import { classifyError } from './deployer-errors';
+import type { DeployerError } from './deployer-errors';
 
 // ── Progress events ─────────────────────────────────────────────────────────
 

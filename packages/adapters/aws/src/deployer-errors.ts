@@ -16,6 +16,7 @@ export interface DeployerError {
   readonly code:
     | 'AUTH_FAILURE'
     | 'CONFLICT'
+    | 'RATE_LIMIT'
     | 'UPSTREAM_TIMEOUT'
     | 'RUNNER_ERROR'
     | 'UPSTREAM_UNAVAILABLE';

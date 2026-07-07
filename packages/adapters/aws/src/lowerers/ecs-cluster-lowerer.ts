@@ -58,6 +58,7 @@ export class EcsClusterLowerer implements NodeLowerer {
         resourceType: 'aws:ecs:Cluster',
         properties: clusterProperties,
         sourceId: node.id,
+        dependsOn: [],
       },
     ];
   }

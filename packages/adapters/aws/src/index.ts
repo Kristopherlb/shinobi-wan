@@ -44,17 +44,25 @@ import type {
   DeployResult as DeployResultT,
   PreviewResult as PreviewResultT,
 } from './deployer';
+import type { ResourcePlan as ResourcePlanT } from './program-generator';
+import type { AdapterConfig as AdapterConfigT } from './types';
 
-export async function deploy(options: DeployOptionsT): Promise<DeployResultT> {
+export async function deploy(
+  plan: ResourcePlanT,
+  config: AdapterConfigT,
+  options?: DeployOptionsT,
+): Promise<DeployResultT> {
   const mod = await import('./deployer');
-  return mod.deploy(options);
+  return mod.deploy(plan, config, options);
 }
 
 export async function preview(
-  options: DeployOptionsT,
+  plan: ResourcePlanT,
+  config: AdapterConfigT,
+  options?: DeployOptionsT,
 ): Promise<PreviewResultT> {
   const mod = await import('./deployer');
-  return mod.preview(options);
+  return mod.preview(plan, config, options);
 }
 
 // Types
