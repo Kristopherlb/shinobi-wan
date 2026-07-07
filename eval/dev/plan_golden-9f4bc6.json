@@ -1,0 +1,107 @@
+{
+  "check": {
+    "families": [
+      "aws:budgets:Budget",
+      "aws:sns:Topic"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "events-topic",
+        "properties": {
+          "name": "metrics-svc-events",
+          "tags": {
+            "shinobi:node": "platform:events",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      },
+      {
+        "dependsOn": [],
+        "name": "gateway-topic",
+        "properties": {
+          "name": "metrics-svc-gateway",
+          "tags": {
+            "shinobi:node": "platform:gateway",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      },
+      {
+        "dependsOn": [],
+        "name": "inbox-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "metrics-svc-inbox",
+          "tags": {
+            "shinobi:node": "platform:inbox",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-9f4bc6",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "inbox",
+          "target": "gateway",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "inbox",
+          "target": "events",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "inbox",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "gateway",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "events",
+          "platform": "aws-sns",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "metrics-svc"
+    },
+    "manifest_yaml": "\"service\": \"metrics-svc\"\n\"components\":\n  - \"id\": \"inbox\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"gateway\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"events\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"inbox\"\n    \"target\": \"gateway\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"inbox\"\n    \"target\": \"events\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

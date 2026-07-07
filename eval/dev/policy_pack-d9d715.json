@@ -1,0 +1,77 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": true,
+    "errorCount": 0,
+    "policyPack": "FedRAMP-Moderate",
+    "success": true,
+    "valid": true,
+    "violationCount": 1,
+    "warningCount": 0
+  },
+  "id": "policy_pack-d9d715",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "FedRAMP-Moderate"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "cache",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "ingest",
+          "target": "cache",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "ingestion.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 300,
+            "tracing": true
+          },
+          "id": "ingest",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "cache",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "loader-stack"
+    },
+    "manifest_yaml": "\"service\": \"loader-stack\"\n\"components\":\n  - \"id\": \"ingest\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"ingestion.handler\"\n      \"memorySize\": 512\n      \"timeout\": 300\n      \"tracing\": true\n  - \"id\": \"cache\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n\"bindings\":\n  - \"source\": \"ingest\"\n    \"target\": \"cache\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"cache\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

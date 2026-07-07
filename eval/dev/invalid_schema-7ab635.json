@@ -1,0 +1,115 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.components[0].id"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-7ab635",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "archive",
+          "target": "export",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "COLLECTION_ENDPOINT",
+                "valueSource": {
+                  "field": "collectionEndpoint",
+                  "nodeRef": "index",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "collection"
+          },
+          "source": "archive",
+          "target": "index",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_TABLE_NAME",
+                "valueSource": {
+                  "field": "table",
+                  "nodeRef": "search",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "table"
+          },
+          "source": "archive",
+          "target": "search",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "orchestrator.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "export",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "index",
+          "platform": "aws-opensearch-serverless",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "hashKey": "sessionId",
+            "rangeKey": "timestamp"
+          },
+          "id": "search",
+          "platform": "aws-dynamodb",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "uploads-svc"
+    },
+    "manifest_yaml": "\"service\": \"uploads-svc\"\n\"components\":\n  - \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"orchestrator.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"export\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"index\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch-serverless\"\n    \"config\": {}\n  - \"id\": \"search\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-dynamodb\"\n    \"config\":\n      \"hashKey\": \"sessionId\"\n      \"rangeKey\": \"timestamp\"\n\"bindings\":\n  - \"source\": \"archive\"\n    \"target\": \"export\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"archive\"\n    \"target\": \"index\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"collection\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"COLLECTION_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"index\"\n            \"field\": \"collectionEndpoint\"\n  - \"source\": \"archive\"\n    \"target\": \"search\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"table\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_TABLE_NAME\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"search\"\n            \"field\": \"table\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

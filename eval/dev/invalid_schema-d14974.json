@@ -1,0 +1,140 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].config.resourceType"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-d14974",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "OPENSEARCH_ENDPOINT",
+                "valueSource": {
+                  "field": "endpoint",
+                  "nodeRef": "uploads",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            }
+          },
+          "source": "mailer",
+          "target": "uploads",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "ENDPOINT_NAME",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "billing",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "endpoint"
+          },
+          "source": "mailer",
+          "target": "billing",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "feeds",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "mailer",
+          "target": "feeds",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "mailer",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "ebsEnabled": true,
+            "encryptionAtRest": true,
+            "enforceHTTPS": true,
+            "engineVersion": "OpenSearch_2.11",
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search",
+            "nodeToNodeEncryption": true,
+            "publicAccess": false,
+            "volumeSize": 100
+          },
+          "id": "uploads",
+          "platform": "aws-opensearch",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "billing",
+          "platform": "aws-sagemaker-endpoint",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "feeds",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "bridge-svc"
+    },
+    "manifest_yaml": "\"service\": \"bridge-svc\"\n\"components\":\n  - \"id\": \"mailer\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"uploads\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch\"\n    \"config\":\n      \"engineVersion\": \"OpenSearch_2.11\"\n      \"instanceType\": \"r6g.large.search\"\n      \"instanceCount\": 2\n      \"ebsEnabled\": true\n      \"volumeSize\": 100\n      \"encryptionAtRest\": true\n      \"nodeToNodeEncryption\": true\n      \"enforceHTTPS\": true\n      \"publicAccess\": false\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sagemaker-endpoint\"\n    \"config\": {}\n  - \"id\": \"feeds\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n\"bindings\":\n  - \"source\": \"mailer\"\n    \"target\": \"uploads\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"OPENSEARCH_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"uploads\"\n            \"field\": \"endpoint\"\n  - \"source\": \"mailer\"\n    \"target\": \"billing\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"endpoint\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"ENDPOINT_NAME\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"billing\"\n            \"field\": \"arn\"\n  - \"source\": \"mailer\"\n    \"target\": \"feeds\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"feeds\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

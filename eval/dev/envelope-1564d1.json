@@ -1,0 +1,56 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-1564d1",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "billing",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "ebsEnabled": true,
+            "encryptionAtRest": true,
+            "enforceHTTPS": true,
+            "engineVersion": "OpenSearch_2.11",
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search",
+            "nodeToNodeEncryption": true,
+            "publicAccess": false,
+            "volumeSize": 100
+          },
+          "id": "gateway",
+          "platform": "aws-opensearch",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "domainName": "waf-shield-secrets.example.com",
+            "validationMethod": "DNS"
+          },
+          "id": "collector",
+          "platform": "aws-acm",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-billing"
+    },
+    "manifest_yaml": "\"service\": \"ecs-billing\"\n\"components\":\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\": {}\n  - \"id\": \"gateway\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch\"\n    \"config\":\n      \"engineVersion\": \"OpenSearch_2.11\"\n      \"instanceType\": \"r6g.large.search\"\n      \"instanceCount\": 2\n      \"ebsEnabled\": true\n      \"volumeSize\": 100\n      \"encryptionAtRest\": true\n      \"nodeToNodeEncryption\": true\n      \"enforceHTTPS\": true\n      \"publicAccess\": false\n  - \"id\": \"collector\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-acm\"\n    \"config\":\n      \"domainName\": \"waf-shield-secrets.example.com\"\n      \"validationMethod\": \"DNS\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

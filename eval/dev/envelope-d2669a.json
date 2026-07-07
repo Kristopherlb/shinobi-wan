@@ -1,0 +1,105 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-d2669a",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "MODEL_ID",
+                "valueSource": {
+                  "type": "static",
+                  "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bedrock"
+          },
+          "source": "harvest",
+          "target": "webhook",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "MODEL_ID",
+                "valueSource": {
+                  "type": "static",
+                  "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bedrock"
+          },
+          "source": "feeds",
+          "target": "webhook",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "invocationLogging": true,
+            "modelId": "anthropic.claude-3-sonnet-20240229-v1:0"
+          },
+          "id": "webhook",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "harvest",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "powertools": true,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "feeds",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "jobs-stack"
+    },
+    "manifest_yaml": "\"service\": \"jobs-stack\"\n\"components\":\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n      \"guardrailEnabled\": true\n      \"invocationLogging\": true\n  - \"id\": \"harvest\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"feeds\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n      \"powertools\": true\n\"bindings\":\n  - \"source\": \"harvest\"\n    \"target\": \"webhook\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bedrock\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"MODEL_ID\"\n          \"valueSource\":\n            \"type\": \"static\"\n            \"value\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n  - \"source\": \"feeds\"\n    \"target\": \"webhook\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bedrock\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"MODEL_ID\"\n          \"valueSource\":\n            \"type\": \"static\"\n            \"value\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

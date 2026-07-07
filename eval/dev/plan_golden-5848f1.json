@@ -1,0 +1,54 @@
+{
+  "check": {
+    "families": [
+      "aws:glue:Crawler"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "flows-crawler",
+        "properties": {
+          "name": "solo-glue-crawler-0-flows",
+          "recrawlPolicy": {
+            "recrawlBehavior": "CRAWL_EVERYTHING"
+          },
+          "schemaChangePolicy": {
+            "deleteBehavior": "DEPRECATE_IN_DATABASE",
+            "updateBehavior": "UPDATE_IN_DATABASE"
+          },
+          "tags": {
+            "shinobi:node": "platform:flows",
+            "shinobi:platform": "aws-glue-crawler"
+          }
+        },
+        "resourceType": "aws:glue:Crawler"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-5848f1",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "flows",
+          "platform": "aws-glue-crawler",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-glue-crawler-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-glue-crawler-0\"\n\"components\":\n  - \"id\": \"flows\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-glue-crawler\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

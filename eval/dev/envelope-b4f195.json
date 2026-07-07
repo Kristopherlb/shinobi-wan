@@ -1,0 +1,100 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-b4f195",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "reports",
+          "target": "guard",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "REDIS_ENDPOINT",
+                "valueSource": {
+                  "field": "primaryEndpointAddress",
+                  "nodeRef": "events",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 6379,
+              "protocol": "tcp"
+            },
+            "resourceType": "events"
+          },
+          "source": "reports",
+          "target": "events",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "table"
+          },
+          "source": "reports",
+          "target": "dispatch",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "invoke.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "reports",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "guard",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "events",
+          "platform": "aws-elasticache",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "hashKey": "agentId",
+            "rangeKey": "stepId"
+          },
+          "id": "dispatch",
+          "platform": "aws-dynamodb",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "webhook-stack"
+    },
+    "manifest_yaml": "\"service\": \"webhook-stack\"\n\"components\":\n  - \"id\": \"reports\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"invoke.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"guard\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"events\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-elasticache\"\n    \"config\": {}\n  - \"id\": \"dispatch\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-dynamodb\"\n    \"config\":\n      \"hashKey\": \"agentId\"\n      \"rangeKey\": \"stepId\"\n\"bindings\":\n  - \"source\": \"reports\"\n    \"target\": \"guard\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"reports\"\n    \"target\": \"events\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"events\"\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 6379\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"REDIS_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"events\"\n            \"field\": \"primaryEndpointAddress\"\n  - \"source\": \"reports\"\n    \"target\": \"dispatch\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"table\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

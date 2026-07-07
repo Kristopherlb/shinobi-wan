@@ -1,0 +1,62 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-fb498e",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "metrics",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "allSupported": true,
+            "deliveryFrequency": "TwentyFour_Hours",
+            "includeGlobalResourceTypes": true,
+            "recordingEnabled": true
+          },
+          "id": "journal",
+          "platform": "aws-config-recorder",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "deadLetterQueue": true,
+            "maxReceiveCount": 5,
+            "visibilityTimeout": 900
+          },
+          "id": "catalog",
+          "platform": "aws-sqs",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "deadLetterQueue": true,
+            "maxReceiveCount": 5,
+            "visibilityTimeout": 900
+          },
+          "id": "tasks",
+          "platform": "aws-sqs",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-archive"
+    },
+    "manifest_yaml": "\"service\": \"ecs-archive\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\": {}\n  - \"id\": \"journal\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-recorder\"\n    \"config\":\n      \"recordingEnabled\": true\n      \"allSupported\": true\n      \"includeGlobalResourceTypes\": true\n      \"deliveryFrequency\": \"TwentyFour_Hours\"\n  - \"id\": \"catalog\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 900\n      \"deadLetterQueue\": true\n      \"maxReceiveCount\": 5\n  - \"id\": \"tasks\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 900\n      \"deadLetterQueue\": true\n      \"maxReceiveCount\": 5\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

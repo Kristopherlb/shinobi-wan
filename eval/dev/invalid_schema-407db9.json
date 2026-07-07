@@ -1,0 +1,68 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].config.resourceType"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-407db9",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "method": "POST",
+            "route": "/remediate"
+          },
+          "source": "index",
+          "target": "feeds",
+          "type": "triggers"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "rules": [
+              {
+                "name": "s3-bucket-versioning-enabled",
+                "source": "AWS",
+                "sourceIdentifier": "S3_BUCKET_VERSIONING_ENABLED"
+              },
+              {
+                "name": "iam-root-access-key-check",
+                "source": "AWS",
+                "sourceIdentifier": "IAM_ROOT_ACCESS_KEY_CHECK"
+              }
+            ]
+          },
+          "id": "index",
+          "platform": "aws-config-rules",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "worker.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "feeds",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "orders-stack"
+    },
+    "manifest_yaml": "\"service\": \"orders-stack\"\n\"components\":\n  - \"id\": \"index\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-rules\"\n    \"config\":\n      \"rules\":\n        - \"name\": \"s3-bucket-versioning-enabled\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"S3_BUCKET_VERSIONING_ENABLED\"\n        - \"name\": \"iam-root-access-key-check\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"IAM_ROOT_ACCESS_KEY_CHECK\"\n  - \"id\": \"feeds\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"worker.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n\"bindings\":\n  - \"source\": \"index\"\n    \"target\": \"feeds\"\n    \"type\": \"triggers\"\n    \"config\":\n      \"route\": \"/remediate\"\n      \"method\": \"POST\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

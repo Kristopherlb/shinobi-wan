@@ -1,0 +1,102 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].target"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-e2626e",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "ORIGIN_BUCKET",
+                "valueSource": {
+                  "field": "bucket",
+                  "nodeRef": "kiosk",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bucket"
+          },
+          "source": "search",
+          "target": "no-such-node",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "metrics",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "search",
+          "target": "metrics",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "aliases": [
+              "static-site-cdn-waf.example.com"
+            ],
+            "certificateDomain": "static-site-cdn-waf.example.com",
+            "minimumProtocolVersion": "TLSv1.2_2021"
+          },
+          "id": "search",
+          "platform": "aws-cloudfront",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "kiosk",
+          "platform": "aws-s3",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "metrics",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "cache-core"
+    },
+    "manifest_yaml": "\"service\": \"cache-core\"\n\"components\":\n  - \"id\": \"search\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudfront\"\n    \"config\":\n      \"minimumProtocolVersion\": \"TLSv1.2_2021\"\n      \"aliases\":\n        - \"static-site-cdn-waf.example.com\"\n      \"certificateDomain\": \"static-site-cdn-waf.example.com\"\n  - \"id\": \"kiosk\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\": {}\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n\"bindings\":\n  - \"source\": \"search\"\n    \"target\": \"no-such-node\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bucket\"\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"ORIGIN_BUCKET\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"kiosk\"\n            \"field\": \"bucket\"\n  - \"source\": \"search\"\n    \"target\": \"metrics\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"metrics\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "check": {
+    "families": [
+      "aws:bedrock:Guardrail",
+      "aws:sagemaker:Model"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "collector-bedrock-guardrail",
+        "properties": {
+          "blockedInputMessaging": "This input is not allowed by the guardrail policy.",
+          "blockedOutputsMessaging": "This output has been blocked by the guardrail policy.",
+          "name": "nightly-svc-collector-guardrail",
+          "tags": {
+            "shinobi:node": "platform:collector",
+            "shinobi:platform": "aws-bedrock"
+          }
+        },
+        "resourceType": "aws:bedrock:Guardrail"
+      },
+      {
+        "dependsOn": [],
+        "name": "parser-model",
+        "properties": {
+          "executionRoleArn": {
+            "ref": "parser-exec-role"
+          },
+          "name": "nightly-svc-parser",
+          "primaryContainer": {
+            "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest",
+            "modelDataUrl": "s3://models/model.tar.gz"
+          },
+          "tags": {
+            "shinobi:node": "platform:parser",
+            "shinobi:platform": "aws-sagemaker-batch-transform"
+          },
+          "vpcConfig": {
+            "securityGroupIds": [
+              "sg-1"
+            ],
+            "subnetIds": [
+              "subnet-1",
+              "subnet-2"
+            ]
+          }
+        },
+        "resourceType": "aws:sagemaker:Model"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-f866f8",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "modelDataUrl": "s3://models/model.tar.gz",
+            "modelImage": "123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest",
+            "vpcConfig": {
+              "securityGroupIds": [
+                "sg-1"
+              ],
+              "subnetIds": [
+                "subnet-1",
+                "subnet-2"
+              ]
+            }
+          },
+          "id": "parser",
+          "platform": "aws-sagemaker-batch-transform",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "modelId": "amazon.titan-embed-text-v1"
+          },
+          "id": "collector",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "nightly-svc"
+    },
+    "manifest_yaml": "\"service\": \"nightly-svc\"\n\"components\":\n  - \"id\": \"parser\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sagemaker-batch-transform\"\n    \"config\":\n      \"modelImage\": \"123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest\"\n      \"modelDataUrl\": \"s3://models/model.tar.gz\"\n      \"vpcConfig\":\n        \"subnetIds\":\n          - \"subnet-1\"\n          - \"subnet-2\"\n        \"securityGroupIds\":\n          - \"sg-1\"\n  - \"id\": \"collector\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"amazon.titan-embed-text-v1\"\n      \"guardrailEnabled\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

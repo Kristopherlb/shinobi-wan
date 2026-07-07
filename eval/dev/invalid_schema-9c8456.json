@@ -1,0 +1,71 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "edge:bindsTo:component:vault:platform:notify"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-9c8456",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "MODEL_ID",
+                "valueSource": {
+                  "type": "static",
+                  "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bedrock"
+          },
+          "source": "vault",
+          "target": "notify",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "vault",
+          "platform": "aws-teleporter",
+          "type": "component"
+        },
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "modelId": "amazon.titan-embed-text-v1"
+          },
+          "id": "notify",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "search-stack"
+    },
+    "manifest_yaml": "\"service\": \"search-stack\"\n\"components\":\n  - \"id\": \"vault\"\n    \"type\": \"component\"\n    \"platform\": \"aws-teleporter\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"notify\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"amazon.titan-embed-text-v1\"\n      \"guardrailEnabled\": true\n\"bindings\":\n  - \"source\": \"vault\"\n    \"target\": \"notify\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bedrock\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"MODEL_ID\"\n          \"valueSource\":\n            \"type\": \"static\"\n            \"value\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

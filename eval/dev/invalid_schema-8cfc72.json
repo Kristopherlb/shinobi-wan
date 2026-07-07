@@ -1,0 +1,88 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].type"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-8cfc72",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "DISTRIBUTION_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "webhook",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "distribution"
+          },
+          "source": "orders",
+          "target": "webhook",
+          "type": "hugs"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "resourceType": "bucket"
+          },
+          "source": "webhook",
+          "target": "catalog",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "scope": "CLOUDFRONT"
+          },
+          "id": "orders",
+          "platform": "aws-wafv2",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "aliases": [
+              "static-site-cdn-waf.example.com"
+            ],
+            "certificateDomain": "static-site-cdn-waf.example.com",
+            "minimumProtocolVersion": "TLSv1.2_2021"
+          },
+          "id": "webhook",
+          "platform": "aws-cloudfront",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "catalog",
+          "platform": "aws-s3",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "router-core"
+    },
+    "manifest_yaml": "\"service\": \"router-core\"\n\"components\":\n  - \"id\": \"orders\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-wafv2\"\n    \"config\":\n      \"scope\": \"CLOUDFRONT\"\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudfront\"\n    \"config\":\n      \"minimumProtocolVersion\": \"TLSv1.2_2021\"\n      \"aliases\":\n        - \"static-site-cdn-waf.example.com\"\n      \"certificateDomain\": \"static-site-cdn-waf.example.com\"\n  - \"id\": \"catalog\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n\"bindings\":\n  - \"source\": \"orders\"\n    \"target\": \"webhook\"\n    \"type\": \"hugs\"\n    \"config\":\n      \"resourceType\": \"distribution\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"DISTRIBUTION_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"webhook\"\n            \"field\": \"arn\"\n  - \"source\": \"webhook\"\n    \"target\": \"catalog\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bucket\"\n      \"accessLevel\": \"read\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

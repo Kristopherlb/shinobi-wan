@@ -1,0 +1,76 @@
+{
+  "check": {
+    "families": [
+      "aws:cfg:DeliveryChannel",
+      "aws:cfg:Recorder",
+      "aws:cfg:RecorderStatus"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "feeds-config-recorder"
+        ],
+        "name": "feeds-config-delivery-channel",
+        "properties": {
+          "name": "solo-config-recorder-1-feeds-channel",
+          "snapshotDeliveryProperties": {
+            "deliveryFrequency": "TwentyFour_Hours"
+          }
+        },
+        "resourceType": "aws:cfg:DeliveryChannel"
+      },
+      {
+        "dependsOn": [],
+        "name": "feeds-config-recorder",
+        "properties": {
+          "name": "solo-config-recorder-1-feeds",
+          "recordingGroup": {
+            "allSupported": true,
+            "includeGlobalResourceTypes": true
+          }
+        },
+        "resourceType": "aws:cfg:Recorder"
+      },
+      {
+        "dependsOn": [
+          "feeds-config-delivery-channel",
+          "feeds-config-recorder"
+        ],
+        "name": "feeds-config-recorder-status",
+        "properties": {
+          "isEnabled": true,
+          "name": {
+            "ref": "feeds-config-recorder"
+          }
+        },
+        "resourceType": "aws:cfg:RecorderStatus"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-9d565a",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "feeds",
+          "platform": "aws-config-recorder",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-config-recorder-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-config-recorder-1\"\n\"components\":\n  - \"id\": \"feeds\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-recorder\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

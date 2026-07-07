@@ -1,0 +1,53 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-03b922",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "read",
+            "resourceType": "redis"
+          },
+          "source": "harvest",
+          "target": "worker",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "harvest",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "worker",
+          "platform": "aws-elasticache",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "cache-flows"
+    },
+    "manifest_yaml": "\"service\": \"cache-flows\"\n\"components\":\n  - \"id\": \"harvest\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"worker\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-elasticache\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"harvest\"\n    \"target\": \"worker\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"redis\"\n      \"accessLevel\": \"read\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

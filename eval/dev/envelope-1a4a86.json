@@ -1,0 +1,54 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-1a4a86",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "read",
+            "resourceType": "redis"
+          },
+          "source": "webhook",
+          "target": "journal",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "worker.handler",
+            "memorySize": 512,
+            "powertools": true,
+            "runtime": "nodejs20.x",
+            "timeout": 300,
+            "tracing": true
+          },
+          "id": "webhook",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "journal",
+          "platform": "aws-elasticache",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "cache-uploads"
+    },
+    "manifest_yaml": "\"service\": \"cache-uploads\"\n\"components\":\n  - \"id\": \"webhook\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"worker.handler\"\n      \"memorySize\": 512\n      \"timeout\": 300\n      \"tracing\": true\n      \"powertools\": true\n  - \"id\": \"journal\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-elasticache\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"webhook\"\n    \"target\": \"journal\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"redis\"\n      \"accessLevel\": \"read\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

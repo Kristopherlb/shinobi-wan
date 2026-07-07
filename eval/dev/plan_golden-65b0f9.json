@@ -1,0 +1,60 @@
+{
+  "check": {
+    "families": [
+      "aws:lambda:Function"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "cache-function",
+        "properties": {
+          "functionName": "solo-lambda-2-cache",
+          "handler": "index.handler",
+          "memorySize": 512,
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:cache",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 60,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-65b0f9",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "cache",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-lambda-2"
+    },
+    "manifest_yaml": "\"service\": \"solo-lambda-2\"\n\"components\":\n  - \"id\": \"cache\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "check": {
+    "families": [
+      "aws:lb:Listener",
+      "aws:lb:LoadBalancer",
+      "aws:lb:TargetGroup"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "metrics-alb",
+        "properties": {
+          "internal": false,
+          "loadBalancerType": "application",
+          "name": "solo-alb-0-metrics",
+          "securityGroups": [],
+          "subnets": [],
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-alb"
+          }
+        },
+        "resourceType": "aws:lb:LoadBalancer"
+      },
+      {
+        "dependsOn": [
+          "metrics-alb",
+          "metrics-tg"
+        ],
+        "name": "metrics-listener-http",
+        "properties": {
+          "defaultActions": [
+            {
+              "redirect": {
+                "port": "443",
+                "protocol": "HTTPS",
+                "statusCode": "HTTP_301"
+              },
+              "type": "redirect"
+            }
+          ],
+          "loadBalancerArn": {
+            "ref": "metrics-alb"
+          },
+          "port": 80,
+          "protocol": "HTTP"
+        },
+        "resourceType": "aws:lb:Listener"
+      },
+      {
+        "dependsOn": [
+          "metrics-alb",
+          "metrics-tg"
+        ],
+        "name": "metrics-listener-https",
+        "properties": {
+          "defaultActions": [
+            {
+              "targetGroupArn": {
+                "ref": "metrics-tg.arn"
+              },
+              "type": "forward"
+            }
+          ],
+          "loadBalancerArn": {
+            "ref": "metrics-alb"
+          },
+          "port": 443,
+          "protocol": "HTTPS",
+          "sslPolicy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
+        },
+        "resourceType": "aws:lb:Listener"
+      },
+      {
+        "dependsOn": [
+          "metrics-alb"
+        ],
+        "name": "metrics-tg",
+        "properties": {
+          "healthCheck": {
+            "healthyThreshold": 2,
+            "interval": 30,
+            "path": "/health",
+            "timeout": 5,
+            "unhealthyThreshold": 3
+          },
+          "name": "solo-alb-0-metrics",
+          "port": 80,
+          "protocol": "HTTP",
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-alb"
+          },
+          "targetType": "ip"
+        },
+        "resourceType": "aws:lb:TargetGroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-620201",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "metrics",
+          "platform": "aws-alb",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-alb-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-alb-0\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-alb\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

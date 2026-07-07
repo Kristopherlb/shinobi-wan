@@ -1,0 +1,78 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].target"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-d96c3e",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "worker",
+          "target": "no-such-node",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "COLLECTION_ENDPOINT",
+                "valueSource": {
+                  "field": "collectionEndpoint",
+                  "nodeRef": "billing",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "collection"
+          },
+          "source": "worker",
+          "target": "billing",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "worker",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "flows",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "billing",
+          "platform": "aws-opensearch-serverless",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "inbox-core"
+    },
+    "manifest_yaml": "\"service\": \"inbox-core\"\n\"components\":\n  - \"id\": \"worker\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"flows\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch-serverless\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"worker\"\n    \"target\": \"no-such-node\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"worker\"\n    \"target\": \"billing\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"collection\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"COLLECTION_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"billing\"\n            \"field\": \"collectionEndpoint\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

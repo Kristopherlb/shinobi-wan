@@ -1,0 +1,45 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-8fb966",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": "none",
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "ingest",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "feeds",
+          "platform": "aws-opensearch-serverless",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "search-stack"
+    },
+    "manifest_yaml": "\"service\": \"search-stack\"\n\"components\":\n  - \"id\": \"ingest\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"feeds\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch-serverless\"\n    \"config\": {}\n\"bindings\": \"none\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

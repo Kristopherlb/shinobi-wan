@@ -1,0 +1,93 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].config.resourceType"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-7064ab",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "read"
+          },
+          "source": "webhook",
+          "target": "inbox",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "QUEUE_URL",
+                "valueSource": {
+                  "field": "url",
+                  "nodeRef": "catalog",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "queue"
+          },
+          "source": "webhook",
+          "target": "catalog",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "modelDataUrl": "s3://models/model.tar.gz",
+            "modelImage": "123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest",
+            "vpcConfig": {
+              "securityGroupIds": [
+                "sg-1"
+              ],
+              "subnetIds": [
+                "subnet-1",
+                "subnet-2"
+              ]
+            }
+          },
+          "id": "webhook",
+          "platform": "aws-sagemaker-batch-transform",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "inbox",
+          "platform": "aws-s3",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "visibilityTimeout": 30
+          },
+          "id": "catalog",
+          "platform": "aws-sqs",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "inbox-core"
+    },
+    "manifest_yaml": "\"service\": \"inbox-core\"\n\"components\":\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sagemaker-batch-transform\"\n    \"config\":\n      \"modelImage\": \"123456789.dkr.ecr.us-east-1.amazonaws.com/inference:latest\"\n      \"modelDataUrl\": \"s3://models/model.tar.gz\"\n      \"vpcConfig\":\n        \"subnetIds\":\n          - \"subnet-1\"\n          - \"subnet-2\"\n        \"securityGroupIds\":\n          - \"sg-1\"\n  - \"id\": \"inbox\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n  - \"id\": \"catalog\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 30\n\"bindings\":\n  - \"source\": \"webhook\"\n    \"target\": \"inbox\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"accessLevel\": \"read\"\n  - \"source\": \"webhook\"\n    \"target\": \"catalog\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"queue\"\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"QUEUE_URL\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"catalog\"\n            \"field\": \"url\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,358 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:opensearch:Domain",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "archive-exec-role"
+        ],
+        "name": "archive-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "archive-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "archive-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:archive"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "archive-exec-role"
+        ],
+        "name": "archive-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "OPENSEARCH_ENDPOINT": {
+                "ref": "index-domain.endpoint"
+              },
+              "STATE_MACHINE_ARN": {
+                "ref": "history-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "uploads-svc-archive",
+          "handler": "admin.handler",
+          "memorySize": 256,
+          "role": {
+            "ref": "archive-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:archive",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 60,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "archive-history-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:uploads-svc-history\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:archive:platform:history",
+            "shinobi:resource": "platform:history"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "archive-exec-role",
+          "archive-history-policy"
+        ],
+        "name": "archive-history-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "archive-history-policy"
+          },
+          "role": {
+            "ref": "archive-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "archive-index-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"es:ESHttpGet\",\"es:DescribeElasticsearchDomain\",\"es:ESHttpPost\",\"es:ESHttpPut\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:es:*:*:domain/uploads-svc-index\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:archive:platform:index",
+            "shinobi:resource": "platform:index"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "archive-exec-role",
+          "archive-index-policy"
+        ],
+        "name": "archive-index-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "archive-index-policy"
+          },
+          "role": {
+            "ref": "archive-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "history-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/uploads-svc-history",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:history",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "history-log-group"
+        ],
+        "name": "history-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for history\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "history-log-group"
+            }
+          },
+          "name": "uploads-svc-history",
+          "tags": {
+            "shinobi:node": "platform:history",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      },
+      {
+        "dependsOn": [
+          "index-domain-log-group"
+        ],
+        "name": "index-domain",
+        "properties": {
+          "clusterConfig": {
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search"
+          },
+          "domainEndpointOptions": {
+            "enforceHTTPS": true
+          },
+          "domainName": "uploads-svc-index",
+          "ebsOptions": {
+            "ebsEnabled": true,
+            "volumeSize": 100
+          },
+          "encryptAtRestOptions": {
+            "enabled": true
+          },
+          "engineVersion": "OpenSearch_2.11",
+          "logPublishingOptions": {
+            "INDEX_SLOW_LOGS": {
+              "cloudWatchLogsLogGroupArn": {
+                "ref": "index-domain-log-group.arn"
+              },
+              "enabled": true
+            }
+          },
+          "nodeToNodeEncryptionOptions": {
+            "enabled": true
+          },
+          "tags": {
+            "shinobi:node": "platform:index",
+            "shinobi:platform": "aws-opensearch"
+          }
+        },
+        "resourceType": "aws:opensearch:Domain"
+      },
+      {
+        "dependsOn": [],
+        "name": "index-domain-log-group",
+        "properties": {
+          "name": "/aws/opensearch/uploads-svc-index",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:index",
+            "shinobi:platform": "aws-opensearch"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [],
+        "name": "uploads-svc-archive-OPENSEARCH_ENDPOINT",
+        "properties": {
+          "name": "/uploads-svc/archive/OPENSEARCH_ENDPOINT",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:archive:platform:index",
+            "shinobi:key": "OPENSEARCH_ENDPOINT",
+            "shinobi:target": "component:archive"
+          },
+          "type": "String",
+          "value": {
+            "ref": "index-domain.endpoint"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "uploads-svc-archive-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/uploads-svc/archive/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:archive:platform:history",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:archive"
+          },
+          "type": "String",
+          "value": {
+            "ref": "history-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-823ba5",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "history",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "archive",
+          "target": "history",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "OPENSEARCH_ENDPOINT",
+                "valueSource": {
+                  "field": "endpoint",
+                  "nodeRef": "index",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "domain"
+          },
+          "source": "archive",
+          "target": "index",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "admin.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "archive",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "history",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "ebsEnabled": true,
+            "encryptionAtRest": true,
+            "enforceHTTPS": true,
+            "engineVersion": "OpenSearch_2.11",
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search",
+            "nodeToNodeEncryption": true,
+            "publicAccess": false,
+            "volumeSize": 100
+          },
+          "id": "index",
+          "platform": "aws-opensearch",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "uploads-svc"
+    },
+    "manifest_yaml": "\"service\": \"uploads-svc\"\n\"components\":\n  - \"id\": \"archive\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"admin.handler\"\n      \"memorySize\": 256\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"history\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n  - \"id\": \"index\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch\"\n    \"config\":\n      \"engineVersion\": \"OpenSearch_2.11\"\n      \"instanceType\": \"r6g.large.search\"\n      \"instanceCount\": 2\n      \"ebsEnabled\": true\n      \"volumeSize\": 100\n      \"encryptionAtRest\": true\n      \"nodeToNodeEncryption\": true\n      \"enforceHTTPS\": true\n      \"publicAccess\": false\n\"bindings\":\n  - \"source\": \"archive\"\n    \"target\": \"history\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"history\"\n            \"field\": \"arn\"\n  - \"source\": \"archive\"\n    \"target\": \"index\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"domain\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"OPENSEARCH_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"index\"\n            \"field\": \"endpoint\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

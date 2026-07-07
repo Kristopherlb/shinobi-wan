@@ -1,0 +1,69 @@
+{
+  "check": {
+    "families": [
+      "aws:eks:NodeGroup"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "orders-gpu-node-group",
+        "properties": {
+          "amiType": "AL2_x86_64_GPU",
+          "capacityType": "ON_DEMAND",
+          "diskSize": 100,
+          "instanceTypes": [
+            "g5.xlarge"
+          ],
+          "labels": {
+            "nvidia.com/gpu": "true"
+          },
+          "nodeGroupName": "solo-eks-gpu-node-group-0-orders",
+          "scalingConfig": {
+            "desiredSize": 1,
+            "maxSize": 4,
+            "minSize": 0
+          },
+          "subnetIds": [],
+          "tags": {
+            "shinobi:node": "platform:orders",
+            "shinobi:platform": "aws-eks-gpu-node-group"
+          },
+          "taints": [
+            {
+              "effect": "NO_SCHEDULE",
+              "key": "nvidia.com/gpu",
+              "value": "true"
+            }
+          ]
+        },
+        "resourceType": "aws:eks:NodeGroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-9bb5e7",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "orders",
+          "platform": "aws-eks-gpu-node-group",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-eks-gpu-node-group-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-eks-gpu-node-group-0\"\n\"components\":\n  - \"id\": \"orders\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-eks-gpu-node-group\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

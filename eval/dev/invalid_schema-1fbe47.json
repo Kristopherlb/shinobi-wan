@@ -1,0 +1,57 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.components[1].id"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-1fbe47",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "enableDefaultStandards": true
+          },
+          "id": "metrics",
+          "platform": "aws-securityhub",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "domainName": "waf-shield-secrets.example.com",
+            "validationMethod": "DNS"
+          },
+          "id": "metrics",
+          "platform": "aws-acm",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "bufferingIntervalSeconds": 60,
+            "bufferingSizeMBs": 5,
+            "destinationType": "opensearch",
+            "encryptionEnabled": true,
+            "indexName": "logs",
+            "s3BackupMode": "FailedDocumentsOnly"
+          },
+          "id": "export",
+          "platform": "aws-kinesis-firehose",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ingest-app"
+    },
+    "manifest_yaml": "\"service\": \"ingest-app\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-securityhub\"\n    \"config\":\n      \"enableDefaultStandards\": true\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-acm\"\n    \"config\":\n      \"domainName\": \"waf-shield-secrets.example.com\"\n      \"validationMethod\": \"DNS\"\n  - \"id\": \"export\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-kinesis-firehose\"\n    \"config\":\n      \"destinationType\": \"opensearch\"\n      \"encryptionEnabled\": true\n      \"bufferingIntervalSeconds\": 60\n      \"bufferingSizeMBs\": 5\n      \"s3BackupMode\": \"FailedDocumentsOnly\"\n      \"indexName\": \"logs\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

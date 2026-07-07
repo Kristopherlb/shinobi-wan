@@ -1,0 +1,126 @@
+{
+  "check": {
+    "families": [
+      "aws:bedrock:Guardrail",
+      "aws:budgets:Budget",
+      "aws:sns:Topic"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "archive-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "feeds-svc-archive",
+          "tags": {
+            "shinobi:node": "platform:archive",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "collector-bedrock-guardrail",
+        "properties": {
+          "blockedInputMessaging": "This input is not allowed by the guardrail policy.",
+          "blockedOutputsMessaging": "This output has been blocked by the guardrail policy.",
+          "name": "feeds-svc-collector-guardrail",
+          "tags": {
+            "shinobi:node": "platform:collector",
+            "shinobi:platform": "aws-bedrock"
+          }
+        },
+        "resourceType": "aws:bedrock:Guardrail"
+      },
+      {
+        "dependsOn": [],
+        "name": "search-topic",
+        "properties": {
+          "name": "feeds-svc-search",
+          "tags": {
+            "shinobi:node": "platform:search",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-128498",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "archive",
+          "target": "search",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "MODEL_ID",
+                "valueSource": {
+                  "type": "static",
+                  "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bedrock"
+          },
+          "source": "archive",
+          "target": "collector",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "archive",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "search",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "modelId": "amazon.titan-embed-text-v1"
+          },
+          "id": "collector",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "feeds-svc"
+    },
+    "manifest_yaml": "\"service\": \"feeds-svc\"\n\"components\":\n  - \"id\": \"archive\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"search\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"collector\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"amazon.titan-embed-text-v1\"\n      \"guardrailEnabled\": true\n\"bindings\":\n  - \"source\": \"archive\"\n    \"target\": \"search\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"archive\"\n    \"target\": \"collector\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bedrock\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"MODEL_ID\"\n          \"valueSource\":\n            \"type\": \"static\"\n            \"value\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

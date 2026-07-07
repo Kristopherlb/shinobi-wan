@@ -1,0 +1,126 @@
+{
+  "check": {
+    "families": [
+      "aws:lb:Listener",
+      "aws:lb:LoadBalancer",
+      "aws:lb:TargetGroup"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "billing-alb",
+        "properties": {
+          "internal": false,
+          "loadBalancerType": "application",
+          "name": "solo-alb-1-billing",
+          "securityGroups": [],
+          "subnets": [],
+          "tags": {
+            "shinobi:node": "platform:billing",
+            "shinobi:platform": "aws-alb"
+          }
+        },
+        "resourceType": "aws:lb:LoadBalancer"
+      },
+      {
+        "dependsOn": [
+          "billing-alb",
+          "billing-tg"
+        ],
+        "name": "billing-listener-http",
+        "properties": {
+          "defaultActions": [
+            {
+              "redirect": {
+                "port": "443",
+                "protocol": "HTTPS",
+                "statusCode": "HTTP_301"
+              },
+              "type": "redirect"
+            }
+          ],
+          "loadBalancerArn": {
+            "ref": "billing-alb"
+          },
+          "port": 80,
+          "protocol": "HTTP"
+        },
+        "resourceType": "aws:lb:Listener"
+      },
+      {
+        "dependsOn": [
+          "billing-alb",
+          "billing-tg"
+        ],
+        "name": "billing-listener-https",
+        "properties": {
+          "defaultActions": [
+            {
+              "targetGroupArn": {
+                "ref": "billing-tg.arn"
+              },
+              "type": "forward"
+            }
+          ],
+          "loadBalancerArn": {
+            "ref": "billing-alb"
+          },
+          "port": 443,
+          "protocol": "HTTPS",
+          "sslPolicy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
+        },
+        "resourceType": "aws:lb:Listener"
+      },
+      {
+        "dependsOn": [
+          "billing-alb"
+        ],
+        "name": "billing-tg",
+        "properties": {
+          "healthCheck": {
+            "healthyThreshold": 2,
+            "interval": 30,
+            "path": "/health",
+            "timeout": 5,
+            "unhealthyThreshold": 3
+          },
+          "name": "solo-alb-1-billing",
+          "port": 80,
+          "protocol": "HTTP",
+          "tags": {
+            "shinobi:node": "platform:billing",
+            "shinobi:platform": "aws-alb"
+          },
+          "targetType": "ip"
+        },
+        "resourceType": "aws:lb:TargetGroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-1e345f",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "billing",
+          "platform": "aws-alb",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-alb-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-alb-1\"\n\"components\":\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-alb\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

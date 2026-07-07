@@ -1,0 +1,57 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-a2aa7c",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "digest",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "enabled": true,
+            "findingPublishingFrequency": "FIFTEEN_MINUTES",
+            "s3DataSource": true
+          },
+          "id": "guard",
+          "platform": "aws-guardduty",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "filterPattern": ""
+          },
+          "id": "journal",
+          "platform": "aws-log-subscription-filter",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "filterPattern": ""
+          },
+          "id": "billing",
+          "platform": "aws-log-subscription-filter",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-events"
+    },
+    "manifest_yaml": "\"service\": \"ecs-events\"\n\"components\":\n  - \"id\": \"digest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\": {}\n  - \"id\": \"guard\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-guardduty\"\n    \"config\":\n      \"enabled\": true\n      \"findingPublishingFrequency\": \"FIFTEEN_MINUTES\"\n      \"s3DataSource\": true\n  - \"id\": \"journal\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-log-subscription-filter\"\n    \"config\":\n      \"filterPattern\": \"\"\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-log-subscription-filter\"\n    \"config\":\n      \"filterPattern\": \"\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

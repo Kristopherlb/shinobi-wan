@@ -1,0 +1,99 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-c8e632",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "bridge",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "dispatch",
+          "target": "bridge",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "REDIS_ENDPOINT",
+                "valueSource": {
+                  "field": "primaryEndpointAddress",
+                  "nodeRef": "feeds",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 6379,
+              "protocol": "tcp"
+            },
+            "resourceType": "feeds"
+          },
+          "source": "dispatch",
+          "target": "feeds",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "dispatch",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "bridge",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "feeds",
+          "platform": "aws-elasticache",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "vault-app"
+    },
+    "manifest_yaml": "\"service\": \"vault-app\"\n\"components\":\n  - \"id\": \"dispatch\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"bridge\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n  - \"id\": \"feeds\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-elasticache\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"dispatch\"\n    \"target\": \"bridge\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"bridge\"\n            \"field\": \"arn\"\n  - \"source\": \"dispatch\"\n    \"target\": \"feeds\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"feeds\"\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 6379\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"REDIS_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"feeds\"\n            \"field\": \"primaryEndpointAddress\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

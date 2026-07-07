@@ -1,0 +1,74 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": true,
+    "errorCount": 0,
+    "policyPack": "Baseline",
+    "success": true,
+    "valid": true,
+    "violationCount": 2,
+    "warningCount": 0
+  },
+  "id": "policy_pack-48e293",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "Baseline"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "ENDPOINT_NAME",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "jobs",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "endpoint"
+          },
+          "source": "index",
+          "target": "jobs",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "index",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "jobs",
+          "platform": "aws-sagemaker-endpoint",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "webhook-stack"
+    },
+    "manifest_yaml": "\"service\": \"webhook-stack\"\n\"components\":\n  - \"id\": \"index\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"jobs\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sagemaker-endpoint\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"index\"\n    \"target\": \"jobs\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"endpoint\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"ENDPOINT_NAME\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"jobs\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

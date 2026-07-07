@@ -1,0 +1,51 @@
+{
+  "check": {
+    "families": [
+      "aws:sqs:Queue"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "jobs-queue",
+        "properties": {
+          "messageRetentionSeconds": 345600,
+          "name": "solo-sqs-0-jobs",
+          "tags": {
+            "shinobi:node": "platform:jobs",
+            "shinobi:platform": "aws-sqs"
+          },
+          "visibilityTimeoutSeconds": 30
+        },
+        "resourceType": "aws:sqs:Queue"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-8a74cf",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "visibilityTimeout": 30
+          },
+          "id": "jobs",
+          "platform": "aws-sqs",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-sqs-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-sqs-0\"\n\"components\":\n  - \"id\": \"jobs\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 30\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

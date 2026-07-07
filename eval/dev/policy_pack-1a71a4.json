@@ -1,0 +1,124 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": false,
+    "errorCount": 0,
+    "policyPack": "FedRAMP-High",
+    "success": false,
+    "valid": true,
+    "violationCount": 4,
+    "warningCount": 0
+  },
+  "id": "policy_pack-1a71a4",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "FedRAMP-High"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "metrics",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "router",
+          "target": "metrics",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "QUEUE_URL",
+                "valueSource": {
+                  "field": "url",
+                  "nodeRef": "tasks",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "queue"
+          },
+          "source": "router",
+          "target": "tasks",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "router",
+          "target": "dispatch",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "worker.handler",
+            "memorySize": 1024,
+            "runtime": "nodejs20.x",
+            "timeout": 300,
+            "tracing": true
+          },
+          "id": "router",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "metrics",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "visibilityTimeout": 300
+          },
+          "id": "tasks",
+          "platform": "aws-sqs",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "dispatch",
+          "platform": "aws-sns",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "nightly-svc"
+    },
+    "manifest_yaml": "\"service\": \"nightly-svc\"\n\"components\":\n  - \"id\": \"router\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"worker.handler\"\n      \"memorySize\": 1024\n      \"timeout\": 300\n      \"tracing\": true\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n  - \"id\": \"tasks\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 300\n  - \"id\": \"dispatch\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"router\"\n    \"target\": \"metrics\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"metrics\"\n            \"field\": \"arn\"\n  - \"source\": \"router\"\n    \"target\": \"tasks\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"queue\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"QUEUE_URL\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"tasks\"\n            \"field\": \"url\"\n  - \"source\": \"router\"\n    \"target\": \"dispatch\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

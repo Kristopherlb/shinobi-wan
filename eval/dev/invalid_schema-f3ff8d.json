@@ -1,0 +1,52 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.components"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-f3ff8d",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "COLLECTION_ENDPOINT",
+                "valueSource": {
+                  "field": "collectionEndpoint",
+                  "nodeRef": "journal",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "collection"
+          },
+          "source": "guard",
+          "target": "journal",
+          "type": "bindsTo"
+        }
+      ],
+      "components": {
+        "oops": true
+      },
+      "policyPack": "Baseline",
+      "service": "jobs-stack"
+    },
+    "manifest_yaml": "\"service\": \"jobs-stack\"\n\"components\":\n  \"oops\": true\n\"bindings\":\n  - \"source\": \"guard\"\n    \"target\": \"journal\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"collection\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"COLLECTION_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"journal\"\n            \"field\": \"collectionEndpoint\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

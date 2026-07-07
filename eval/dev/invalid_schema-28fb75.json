@@ -1,0 +1,52 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.service"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-28fb75",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "containerInsights": true
+          },
+          "id": "auditor",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "domainName": "waf-shield-secrets.example.com",
+            "validationMethod": "DNS"
+          },
+          "id": "router",
+          "platform": "aws-acm",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "enableDefaultStandards": true
+          },
+          "id": "nightly",
+          "platform": "aws-securityhub",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": 12345
+    },
+    "manifest_yaml": "\"service\": 12345\n\"components\":\n  - \"id\": \"auditor\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\":\n      \"containerInsights\": true\n  - \"id\": \"router\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-acm\"\n    \"config\":\n      \"domainName\": \"waf-shield-secrets.example.com\"\n      \"validationMethod\": \"DNS\"\n  - \"id\": \"nightly\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-securityhub\"\n    \"config\":\n      \"enableDefaultStandards\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

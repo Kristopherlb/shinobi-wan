@@ -1,0 +1,142 @@
+{
+  "check": {
+    "families": [
+      "aws:budgets:Budget",
+      "aws:sns:Topic"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "bridge-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "notify-app-bridge",
+          "tags": {
+            "shinobi:node": "platform:bridge",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "kiosk-topic",
+        "properties": {
+          "name": "notify-app-kiosk",
+          "tags": {
+            "shinobi:node": "platform:kiosk",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      },
+      {
+        "dependsOn": [],
+        "name": "notify-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "notify-app-notify",
+          "tags": {
+            "shinobi:node": "platform:notify",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "search-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "notify-app-search",
+          "tags": {
+            "shinobi:node": "platform:search",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-d04044",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "bridge",
+          "target": "kiosk",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "notify",
+          "target": "kiosk",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "search",
+          "target": "kiosk",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "kiosk",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "bridge",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "notify",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "search",
+          "platform": "aws-budgets",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "notify-app"
+    },
+    "manifest_yaml": "\"service\": \"notify-app\"\n\"components\":\n  - \"id\": \"kiosk\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"bridge\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"notify\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"search\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"bridge\"\n    \"target\": \"kiosk\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"notify\"\n    \"target\": \"kiosk\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"search\"\n    \"target\": \"kiosk\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

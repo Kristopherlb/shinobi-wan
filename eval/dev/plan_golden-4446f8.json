@@ -1,0 +1,127 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:ecr:LifecyclePolicy",
+      "aws:ecr:Repository",
+      "aws:ecs:TaskDefinition"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "harvest-repo"
+        ],
+        "name": "harvest-lifecycle",
+        "properties": {
+          "policy": "{\"rules\":[{\"action\":{\"type\":\"expire\"},\"description\":\"Keep last 10 images\",\"rulePriority\":1,\"selection\":{\"countNumber\":10,\"countType\":\"imageCountMoreThan\",\"tagStatus\":\"any\"}}]}",
+          "repository": {
+            "ref": "harvest-repo.name"
+          }
+        },
+        "resourceType": "aws:ecr:LifecyclePolicy"
+      },
+      {
+        "dependsOn": [],
+        "name": "harvest-repo",
+        "properties": {
+          "imageScanningConfiguration": {
+            "scanOnPush": true
+          },
+          "imageTagMutability": "IMMUTABLE",
+          "name": "export-core-harvest",
+          "tags": {
+            "shinobi:node": "platform:harvest",
+            "shinobi:platform": "aws-ecr"
+          }
+        },
+        "resourceType": "aws:ecr:Repository"
+      },
+      {
+        "dependsOn": [],
+        "name": "jobs-log-group",
+        "properties": {
+          "name": "/ecs/export-core-jobs",
+          "retentionInDays": 7,
+          "tags": {
+            "shinobi:node": "platform:jobs",
+            "shinobi:platform": "aws-ecs-task-definition"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "jobs-log-group"
+        ],
+        "name": "jobs-task-def",
+        "properties": {
+          "containerDefinitions": "[{\"cpu\":256,\"image\":\"ecs-fargate-alb-app-task:latest\",\"memory\":512,\"name\":\"app\",\"portMappings\":[{\"containerPort\":3000,\"protocol\":\"tcp\"}]}]",
+          "cpu": "256",
+          "family": "export-core-jobs",
+          "memory": "512",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": [
+            "FARGATE"
+          ],
+          "tags": {
+            "shinobi:node": "platform:jobs",
+            "shinobi:platform": "aws-ecs-task-definition"
+          }
+        },
+        "resourceType": "aws:ecs:TaskDefinition"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-4446f8",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "containerDefinitions": [
+              {
+                "cpu": 256,
+                "image": "ecs-fargate-alb-app-task:latest",
+                "memory": 512,
+                "name": "app",
+                "portMappings": [
+                  {
+                    "containerPort": 3000,
+                    "protocol": "tcp"
+                  }
+                ]
+              }
+            ],
+            "cpu": "256",
+            "memory": "512"
+          },
+          "id": "jobs",
+          "platform": "aws-ecs-task-definition",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "imageTagMutability": "IMMUTABLE",
+            "scanOnPush": true
+          },
+          "id": "harvest",
+          "platform": "aws-ecr",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "export-core"
+    },
+    "manifest_yaml": "\"service\": \"export-core\"\n\"components\":\n  - \"id\": \"jobs\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-task-definition\"\n    \"config\":\n      \"cpu\": \"256\"\n      \"memory\": \"512\"\n      \"containerDefinitions\":\n        - \"name\": \"app\"\n          \"image\": \"ecs-fargate-alb-app-task:latest\"\n          \"cpu\": 256\n          \"memory\": 512\n          \"portMappings\":\n            - \"containerPort\": 3000\n              \"protocol\": \"tcp\"\n  - \"id\": \"harvest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecr\"\n    \"config\":\n      \"imageTagMutability\": \"IMMUTABLE\"\n      \"scanOnPush\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

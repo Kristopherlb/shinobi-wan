@@ -1,0 +1,54 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": true,
+    "errorCount": 0,
+    "policyPack": "Baseline",
+    "success": true,
+    "valid": true,
+    "violationCount": 1,
+    "warningCount": 0
+  },
+  "id": "policy_pack-40125e",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "Baseline"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "rds-cluster"
+          },
+          "source": "index",
+          "target": "vault",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "index",
+          "platform": "aws-rds-proxy",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "vault",
+          "platform": "aws-rds-cluster",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "orders-stack"
+    },
+    "manifest_yaml": "\"service\": \"orders-stack\"\n\"components\":\n  - \"id\": \"index\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-rds-proxy\"\n    \"config\": {}\n  - \"id\": \"vault\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-rds-cluster\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"index\"\n    \"target\": \"vault\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"rds-cluster\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}
