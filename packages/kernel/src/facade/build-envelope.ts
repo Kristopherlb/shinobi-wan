@@ -18,10 +18,10 @@ export function buildErrorEnvelope(
   details?: Readonly<Record<string, unknown>>,
 ): ToolErrorEnvelope {
   const category =
-    code === 'INPUT_VALIDATION_FAILED'
+    code === 'INPUT_VALIDATION_FAILED' || code === 'MODE_MISMATCH'
       ? 'validation'
-      : code === 'MODE_MISMATCH'
-        ? 'validation'
+      : code === 'CONFLICT'
+        ? 'conflict'
         : 'unknown';
   return {
     code,
