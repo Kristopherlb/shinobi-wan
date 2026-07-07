@@ -13,13 +13,13 @@ function assert(condition, message) {
   }
 }
 
-const {
-  contractVersion,
-  validatePlan,
-  planChange,
-} = await import('@shinobi/kernel');
+const { contractVersion, validatePlan, planChange } =
+  await import('@shinobi/kernel');
 
-assert(typeof contractVersion === 'string' && contractVersion.length > 0, 'contractVersion is non-empty string');
+assert(
+  typeof contractVersion === 'string' && contractVersion.length > 0,
+  'contractVersion is non-empty string',
+);
 
 const validateResult = await validatePlan({
   mode: 'plan',
@@ -30,13 +30,28 @@ const validateResult = await validatePlan({
 assert(validateResult != null, 'validatePlan returns envelope');
 assert(typeof validateResult.success === 'boolean', 'envelope has success');
 assert(validateResult.metadata != null, 'envelope has metadata');
-assert(validateResult.metadata.contractVersion === contractVersion, 'metadata.contractVersion matches export');
-assert(validateResult.metadata.operationClass === 'plan', 'metadata.operationClass is plan');
-assert(validateResult.metadata.traceId === TRACE_ID, 'metadata.traceId matches input');
-assert(typeof validateResult.metadata.timestamp === 'string', 'metadata.timestamp is string');
+assert(
+  validateResult.metadata.contractVersion === contractVersion,
+  'metadata.contractVersion matches export',
+);
+assert(
+  validateResult.metadata.operationClass === 'plan',
+  'metadata.operationClass is plan',
+);
+assert(
+  validateResult.metadata.traceId === TRACE_ID,
+  'metadata.traceId matches input',
+);
+assert(
+  !('timestamp' in validateResult.metadata),
+  'metadata has no timestamp (envelopes are byte-stable, KL-001)',
+);
 
 const roundTrip = JSON.parse(JSON.stringify(validateResult));
-assert(roundTrip.metadata.contractVersion === contractVersion, 'envelope is JSON-serializable and deterministic');
+assert(
+  roundTrip.metadata.contractVersion === contractVersion,
+  'envelope is JSON-serializable and deterministic',
+);
 
 const planResult = await planChange({
   mode: 'plan',
@@ -45,8 +60,14 @@ const planResult = await planChange({
 });
 
 assert(planResult != null, 'planChange returns envelope');
-assert(planResult.metadata.operationClass === 'plan', 'planChange envelope has operationClass plan');
-assert(planResult.metadata.contractVersion === contractVersion, 'planChange envelope has contractVersion');
+assert(
+  planResult.metadata.operationClass === 'plan',
+  'planChange envelope has operationClass plan',
+);
+assert(
+  planResult.metadata.contractVersion === contractVersion,
+  'planChange envelope has contractVersion',
+);
 
 console.log('Consumer smoke: validatePlan and planChange envelopes OK');
 process.exit(0);

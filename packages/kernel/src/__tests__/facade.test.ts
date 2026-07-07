@@ -26,7 +26,11 @@ describe('kernel facade', () => {
 
   describe('validatePlan', () => {
     it('returns Promise<ToolResponseEnvelope> with success and metadata', async () => {
-      const input = { mode: 'plan' as const, snapshot: { nodes: [], edges: [], artifacts: [] }, traceId: TRACE_ID };
+      const input = {
+        mode: 'plan' as const,
+        snapshot: { nodes: [], edges: [], artifacts: [] },
+        traceId: TRACE_ID,
+      };
       const result = await validatePlan(input);
       expect(result).toBeDefined();
       expect(result.success).toBeDefined();
@@ -36,11 +40,25 @@ describe('kernel facade', () => {
       expect(result.metadata.toolId).toBe(TOOL_ID);
       expect(result.metadata.traceId).toBe(TRACE_ID);
       expect(result.metadata.operationClass).toBe('plan');
-      expect(result.metadata.timestamp).toBeDefined();
+    });
+
+    it('returns byte-identical envelopes for identical inputs', async () => {
+      const input = {
+        mode: 'plan' as const,
+        snapshot: { nodes: [], edges: [], artifacts: [] },
+        traceId: TRACE_ID,
+      };
+      const first = JSON.stringify(await validatePlan(input));
+      const second = JSON.stringify(await validatePlan(input));
+      expect(second).toBe(first);
     });
 
     it('returns envelope that is JSON-serializable', async () => {
-      const input = { mode: 'plan' as const, snapshot: { nodes: [], edges: [], artifacts: [] }, traceId: TRACE_ID };
+      const input = {
+        mode: 'plan' as const,
+        snapshot: { nodes: [], edges: [], artifacts: [] },
+        traceId: TRACE_ID,
+      };
       const result = await validatePlan(input);
       const serialized = JSON.stringify(result);
       const parsed = JSON.parse(serialized) as ToolResponseEnvelope;
@@ -50,7 +68,9 @@ describe('kernel facade', () => {
 
     it('rejects input without mode plan for validatePlan', async () => {
       const input = { mode: 'apply' as const, snapshot: {}, traceId: TRACE_ID };
-      const result = await validatePlan(input as Parameters<typeof validatePlan>[0]);
+      const result = await validatePlan(
+        input as Parameters<typeof validatePlan>[0],
+      );
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
       expect(result.error?.code).toBeDefined();
@@ -59,7 +79,11 @@ describe('kernel facade', () => {
 
   describe('planChange', () => {
     it('returns Promise<ToolResponseEnvelope> with deterministic keys', async () => {
-      const input = { mode: 'plan' as const, snapshot: { nodes: [], edges: [], artifacts: [] }, traceId: TRACE_ID };
+      const input = {
+        mode: 'plan' as const,
+        snapshot: { nodes: [], edges: [], artifacts: [] },
+        traceId: TRACE_ID,
+      };
       const result = await planChange(input);
       expect(result).toHaveProperty('success');
       expect(result).toHaveProperty('metadata');
@@ -70,7 +94,11 @@ describe('kernel facade', () => {
 
   describe('applyChange', () => {
     it('returns envelope with mode apply in metadata when input.mode is apply', async () => {
-      const input = { mode: 'apply' as const, snapshot: { nodes: [], edges: [], artifacts: [] }, traceId: TRACE_ID };
+      const input = {
+        mode: 'apply' as const,
+        snapshot: { nodes: [], edges: [], artifacts: [] },
+        traceId: TRACE_ID,
+      };
       const result = await applyChange(input);
       expect(result.metadata.operationClass).toBe('apply');
     });

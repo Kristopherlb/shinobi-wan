@@ -6,7 +6,13 @@
 /** Error payload within an envelope (no functions, JSON-serializable). */
 export interface ToolErrorEnvelope {
   readonly code: string;
-  readonly category: 'validation' | 'authorization' | 'upstream' | 'runtime' | 'conflict' | 'unknown';
+  readonly category:
+    | 'validation'
+    | 'authorization'
+    | 'upstream'
+    | 'runtime'
+    | 'conflict'
+    | 'unknown';
   readonly source: string;
   readonly traceId: string;
   readonly message: string;
@@ -15,13 +21,16 @@ export interface ToolErrorEnvelope {
   readonly retriableReason?: string;
 }
 
-/** Metadata present on every envelope response. */
+/**
+ * Metadata present on every envelope response.
+ * No timestamp: envelopes must be byte-stable for identical inputs (KL-001);
+ * wall-clock stamping belongs to outer transport layers, not the kernel.
+ */
 export interface ToolResponseMetadata {
   readonly toolId: string;
   readonly contractVersion: string;
   readonly operationClass: 'read' | 'plan' | 'apply';
   readonly traceId: string;
-  readonly timestamp: string;
 }
 
 /** Standard response envelope for all facade methods (JSON-serializable). */
