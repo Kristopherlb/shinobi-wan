@@ -31,6 +31,8 @@ export interface ValidateResult {
     policyPack: string;
     compliant: boolean;
     violationCount: number;
+    blockingViolationCount: number;
+    advisoryViolationCount: number;
   };
   readonly compilation?: CompilationResult;
   readonly errors: ReadonlyArray<{ path: string; message: string }>;
@@ -128,6 +130,12 @@ export function validate(options: ValidateOptions): ValidateResult {
             policyPack: compilation.policy.policyPack,
             compliant: compilation.policy.compliant,
             violationCount: compilation.policy.violations.length,
+            blockingViolationCount: compilation.policy.violations.filter(
+              (v) => v.severity === 'error',
+            ).length,
+            advisoryViolationCount: compilation.policy.violations.filter(
+              (v) => v.severity !== 'error',
+            ).length,
           },
         }
       : {}),

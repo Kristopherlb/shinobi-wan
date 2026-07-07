@@ -239,7 +239,7 @@ function printValidateResult(result: ReturnType<typeof validate>): void {
   if (result.policy) {
     const icon = result.policy.compliant ? 'COMPLIANT' : 'NON-COMPLIANT';
     process.stdout.write(
-      `Policy (${result.policy.policyPack}): ${icon} (${result.policy.violationCount} violations)\n`,
+      `Policy (${result.policy.policyPack}): ${icon} (${result.policy.blockingViolationCount} blocking, ${result.policy.advisoryViolationCount} advisory)\n`,
     );
   }
 

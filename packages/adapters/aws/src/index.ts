@@ -24,19 +24,38 @@ export type {
   PlannedResource,
 } from './program-generator';
 
-// Pulumi program builder
-export { createPulumiProgram } from './pulumi-program';
+// Pulumi program builder: import from './pulumi-program' directly when
+// composing a custom deployer — it is intentionally not re-exported here
+// because it loads provider SDKs at module scope.
 
-// Deployer (Pulumi Automation API)
-export { deploy, preview, classifyError } from './deployer';
+// Deployer (Pulumi Automation API). deploy/preview are lazy wrappers so that
+// importing this package (e.g. for validate/plan) never loads Pulumi; the
+// provider SDK is required only when a deploy or preview actually runs.
+export { classifyError } from './deployer-errors';
+export type { DeployerError, DeployerErrorCategory } from './deployer-errors';
 export type {
   DeployResult,
   PreviewResult,
   DeployOptions,
-  DeployerError,
-  DeployerErrorCategory,
   DeployerEvent,
 } from './deployer';
+import type {
+  DeployOptions as DeployOptionsT,
+  DeployResult as DeployResultT,
+  PreviewResult as PreviewResultT,
+} from './deployer';
+
+export async function deploy(options: DeployOptionsT): Promise<DeployResultT> {
+  const mod = await import('./deployer');
+  return mod.deploy(options);
+}
+
+export async function preview(
+  options: DeployOptionsT,
+): Promise<PreviewResultT> {
+  const mod = await import('./deployer');
+  return mod.preview(options);
+}
 
 // Types
 export type {

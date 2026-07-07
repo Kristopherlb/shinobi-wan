@@ -6,6 +6,8 @@
     "shinobi": "./dist/main.js"
   },
   "dependencies": {
+    "@pulumi/aws": "^6.0.0",
+    "@pulumi/pulumi": "^3.0.0",
     "@shinobi/adapter-aws": "workspace:*",
     "@shinobi/binder": "workspace:*",
     "@shinobi/contracts": "workspace:*",
