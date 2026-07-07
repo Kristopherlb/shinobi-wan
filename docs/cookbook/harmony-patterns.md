@@ -80,10 +80,10 @@ Expected behavior:
 - Restricted policy requires approval.
 - Mutating operations remain async-first.
 
-## Pattern 4: Rollback fallback posture
+## Pattern 4: Rollback as re-apply of known good
 
-`golden.shinobi.rollback_change` currently represents wrapper-managed compensation.
+`golden.shinobi.rollback_change` is a first-class apply-class operation: it re-applies a known-good manifest through the apply workflow.
 
-- Treat as restricted operation.
-- Do not assume native Shinobi rollback semantics yet.
-- Prefer re-plan + compensating apply sequence until first-class rollback contract is delivered.
+- Treat as restricted operation — it shares every apply gate (rollout flag, plan fingerprint, idempotency key, approval evidence).
+- Plan the known-good manifest first; pass its `planFingerprint` to the rollback call.
+- The dispatched workflow carries `toolId=golden.shinobi.rollback_change`, so audit trails distinguish rollbacks from forward applies.

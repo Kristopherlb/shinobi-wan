@@ -28,6 +28,7 @@ Adopt MCP-first integration backed by a Shinobi wrapper/service boundary:
 - Negative:
   - Wrapper introduces additional integration layer.
   - Rollback remains wrapper-managed compensation until native API exists.
+    (Amended: rollback_change is now first-class — an apply-class re-apply of a known-good manifest sharing all apply gates; see docs/operations/harmony-integration.md.)
 
 ### TDD / Verification
 
