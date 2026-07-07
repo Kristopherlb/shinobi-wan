@@ -19,7 +19,8 @@
     "rollout:dashboard:check": "node tools/rollout-dashboard.js --check",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "blueprints:check": "node scripts/blueprints-check.mjs"
+    "blueprints:check": "node scripts/blueprints-check.mjs",
+    "site:build": "node site/build-data.mjs"
   },
   "private": true,
   "devDependencies": {
