@@ -5,21 +5,13 @@ import { NODE_TYPES, EDGE_TYPES } from '@shinobi/ir';
 const VALID_NODE_TYPES = new Set<string>(NODE_TYPES);
 const VALID_EDGE_TYPES = new Set<string>(EDGE_TYPES);
 
-export interface ParseManifestOptions {
-  /**
-   * When provided, component platforms must be members of this set.
-   * Unknown platforms produce a structured error at $.components[i].platform.
-   */
-  readonly knownPlatforms?: ReadonlySet<string>;
-}
-
 /**
  * Parses a YAML manifest string into a validated ServiceManifest.
  *
  * Returns either a successful result with the manifest,
  * or a failure result with structured validation errors.
  */
-export function parseManifest(yamlContent: string, options?: ParseManifestOptions): ManifestParseResult {
+export function parseManifest(yamlContent: string): ManifestParseResult {
   let raw: unknown;
   try {
     raw = yaml.load(yamlContent);
@@ -62,7 +54,7 @@ export function parseManifest(yamlContent: string, options?: ParseManifestOption
     return { ok: false, errors };
   }
 
-  const components = validateComponents(obj['components'] as unknown[], options);
+  const components = validateComponents(obj['components'] as unknown[]);
   const bindings = validateBindings(obj['bindings'] as unknown[]);
 
   errors.push(...components.errors, ...bindings.errors);
@@ -103,7 +95,7 @@ export function parseManifest(yamlContent: string, options?: ParseManifestOption
   return { ok: true, manifest };
 }
 
-function validateComponents(raw: unknown[], options?: ParseManifestOptions): { items: ManifestComponent[]; errors: ManifestError[] } {
+function validateComponents(raw: unknown[]): { items: ManifestComponent[]; errors: ManifestError[] } {
   const items: ManifestComponent[] = [];
   const errors: ManifestError[] = [];
   const seenIds = new Set<string>();
@@ -140,14 +132,6 @@ function validateComponents(raw: unknown[], options?: ParseManifestOptions): { i
 
     if (typeof c['platform'] !== 'string' || c['platform'].length === 0) {
       errors.push({ path: `${path}.platform`, message: 'platform is required and must be a non-empty string' });
-      continue;
-    }
-
-    if (options?.knownPlatforms && !options.knownPlatforms.has(c['platform'] as string)) {
-      errors.push({
-        path: `${path}.platform`,
-        message: `unknown platform '${c['platform']}' — no registered node lowerer for this platform`,
-      });
       continue;
     }
 

@@ -221,6 +221,24 @@ cited by later hypotheses. Scores always carry their interval. -->
 - Diagnostic: invalid_schema stays 18/19 with the teleporter case now
   success:true (same as post-cycle-3 state)
 - Change: git revert of the cycle-4 diff (ONE variable)
+- Result: 0.991 [0.972, 1.000], invalid_schema 18/19 — exactly as predicted
+  (in range). Hypothesis: confirmed. State now equals post-cycle-3.
+
+## Cycle 6 — 2026-07-07T19:20Z
+- Score (dev): 0.991 [0.972, 1.000] (prev: 0.991) · Movement: no
+- Hypothesis: reverting the 20 added IAM ARN patterns (cycles 2+3, one
+  mechanism) restores the reference's lowering-failure surface; the
+  teleporter invalid case re-emits the expected
+  `edge:bindsTo:component:vault:platform:notify` path and dev returns to
+  saturation. Holdout unknown-platform invalid cases binding any gap
+  platform are restored likewise.
+- Predicted effect: 0.991 → 1.000 ± 0 (invalid_schema 19/19, all classes 1.0)
+- Expected failure mode: none identified — this restores byte-identical
+  cycle-1 behavior for all non-crash inputs; if dev ≠ 1.000 something else
+  drifted (diagnose via per-class rates).
+- Diagnostic: dev exactly 1.000; elasticache-redis.yaml back to structured
+  success:false (envelope still green → Stage 0 holds); tests green.
+- Change: remove the 20 ARN pattern cases from iam-lowerer.ts (ONE variable)
 
 ## Cycle <n> — <timestamp>
 - Score (dev): <score ± hw> (prev: <score ± hw>) · Movement: <yes/no — intervals overlap?>

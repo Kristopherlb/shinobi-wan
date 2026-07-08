@@ -85,19 +85,6 @@ export class NodeLowererRegistry {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([, lowerer]) => lowerer);
   }
-
-  platforms(): ReadonlyArray<string> {
-    return [...this.byPlatform.keys()].sort();
-  }
-}
-
-/**
- * Platforms with a registered node lowerer in the default registry.
- * Used by manifest validation to reject unknown platforms up front
- * instead of silently skipping them at lowering time.
- */
-export function listKnownNodePlatforms(): ReadonlyArray<string> {
-  return createDefaultNodeLowererRegistry().platforms();
 }
 
 export function createDefaultNodeLowererRegistry(): NodeLowererRegistry {

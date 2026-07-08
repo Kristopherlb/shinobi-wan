@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { parseManifest, manifestToMutations } from '../manifest';
-import { listKnownNodePlatforms } from '@shinobi/adapter-aws';
 import { Kernel } from '@shinobi/kernel';
 import type { IBinder, IPolicyEvaluator, CompilationResult } from '@shinobi/kernel';
 import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
@@ -47,10 +46,8 @@ export function validate(options: ValidateOptions): ValidateResult {
     };
   }
 
-  // Parse manifest — platforms must have a registered node lowerer
-  const parseResult = parseManifest(yamlContent, {
-    knownPlatforms: new Set(listKnownNodePlatforms()),
-  });
+  // Parse manifest
+  const parseResult = parseManifest(yamlContent);
   if (!parseResult.ok) {
     return {
       success: false,

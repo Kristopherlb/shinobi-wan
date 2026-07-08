@@ -11,7 +11,7 @@
 // Adapter orchestrator
 export { lower, lowerAsync } from './adapter';
 export type { LowerAsyncOptions, LowerOptions } from './adapter';
-export { NodeLowererRegistry, createDefaultNodeLowererRegistry, listKnownNodePlatforms } from './lowerer-registry';
+export { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
 
 // Program generator
 export { generatePlan } from './program-generator';
