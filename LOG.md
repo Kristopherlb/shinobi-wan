@@ -253,6 +253,24 @@ cited by later hypotheses. Scores always carry their interval. -->
   holdout, whose request channel (tag push) remains blocked by the
   environment.
 
+## Checkpoint — 2026-07-07T19:35Z (loop paused: holdout channel blocked)
+- State: dev 1.000 [1.000, 1.000] · Stage 0 green (tests 9/9 projects,
+  25/25 shipped manifests emit envelopes) · probe all operators 1.0 ·
+  6 cycles, all committed and pushed to claude/optimization-executor-setup-wo9ywx.
+- Blocker: `request-holdout-check.sh` requires pushing tag
+  `holdout-check-1`; this environment's git proxy 403s ALL `refs/tags/*`
+  pushes (only `refs/heads/claude/*` allowed). Retried across ~2h.
+  The tag exists locally, annotated with {"dev_score":1.0,"dev_ci":[1.0,1.0],
+  "model_id":"claude-fable-5","reported_wall_clock":1500}, pointing at
+  2d339de whose packages/ tree is solution-identical to HEAD.
+- Needed from environment owner (either works):
+  (a) allow tag pushes from this session, or
+  (b) push the local tag from a machine with tag-push rights, or
+  (c) have the hub poll refs/heads/* so a branch can carry the request.
+- Dev loop status: dev is saturated; per-goal movement is impossible
+  locally, so further dev-only cycles are pure noise. Holding at this
+  checkpoint per the cycle protocol until the holdout channel opens.
+
 ## Cycle <n> — <timestamp>
 - Score (dev): <score ± hw> (prev: <score ± hw>) · Movement: <yes/no — intervals overlap?>
 - Probe (per operator): <key_reorder: · item_reorder: · comment_noise: · service_rename: · config_scale:> (floors: 0.8)
