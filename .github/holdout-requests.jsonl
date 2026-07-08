@@ -1,0 +1,1 @@
+{"tag": "holdout-check-2", "target": "747eb3a5a1bd74ea3565d49cd0eba7b65d40fac9", "message": "{\"dev_score\": 1.0, \"dev_ci\": [1.0, 1.0], \"model_id\": \"claude-fable-5\", \"reported_wall_clock\": 1500.0}"}
