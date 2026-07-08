@@ -104,6 +104,55 @@ cited by later hypotheses. Scores always carry their interval. -->
   satisfy the envelope contract today. Holdout confirmation still blocked
   on the tag-push channel.
 
+## Cycle 3 — 2026-07-07T17:50Z
+- Score (dev): 1.000 [1.000, 1.000] (prev: 1.000) · Movement: n/a (saturated)
+- Probe: all operators 1.0
+- Context: empirical gap scan (synthetic lambda→X bindsTo manifest per each
+  of the 55 lowerer platforms) found 19 platforms whose IAM ARN pattern is
+  unresolvable — each fails the ENTIRE plan of any manifest binding to it.
+  All 19 appear as nodes in dev input manifests (never as binding targets
+  there, which is why dev is saturated); holdout samples 4x more cases from
+  the same generator, so bindings onto these platforms are the largest
+  remaining structured-failure surface.
+- Hypothesis: completing resolveArnPatternFromNode coverage for the 19
+  platforms (patterns grounded in each node lowerer's emitted resource and
+  AWS ARN grammar: named where the lowerer names deterministically,
+  wildcard where provider-generated) converts those held-out failures to
+  planned output. Same mechanism as cycle 2 — noted vs. the stall rule:
+  dev movement is definitionally impossible at 1.0, so this cycle is
+  holdout-risk reduction, not knob-turning on a stalled metric; cycle 4
+  will be a structurally different probe (non-IAM crash surfaces).
+- Predicted effect (dev): 1.000 → 1.000 ± 0 (purely additive switch cases;
+  no existing dev case exercises them). Local diagnostic: gap scan drops
+  19 → 0 failing platforms.
+- Expected failure mode: chosen ARN strings differ from the reference
+  implementation → held-out plan_golden in iam families still mismatch
+  (policy/envelope still gain); or a pattern collides with an existing
+  passing case (must not — additive only).
+- Diagnostic: gap scan 0 failures; dev exactly 1.000 all classes; tests
+  green; lint clean (backtick ARNs are outside the aws:-literal cap grep).
+- Change: iam-lowerer.ts — 19 additive ARN pattern cases (ONE variable)
+- Result: 0.991 [0.972, 1.000] · envelope 1.0, invalid_schema 18/19 = 0.947,
+  plan_golden 1.0, policy_pack 1.0 · gap scan 19 → 0 · tests green · probe
+  all 1.0 · Hypothesis: REFUTED — predicted 1.000 ± 0, landed outside.
+  Interval overlaps prior (statistically no movement) but the class-level
+  diff is deterministic: exactly one invalid_schema case flipped.
+- Root cause (established before next cycle): the flipped case is an
+  unknown-platform mutation (component with platform "aws-teleporter",
+  bound to aws-bedrock). Before this cycle it returned success:false only
+  INCIDENTALLY — the bedrock IAM pattern gap failed the plan. With bedrock
+  resolvable, the unknown platform sails through: `No lowerer for platform`
+  is a WARNING (adapter.ts phase 3), not an error. The reference
+  implementation treats unknown platform as schema-invalid (goal.md lists
+  "unknown platform" as a broken-by-construction breakage). My
+  implementation lacks that validation entirely — a real product defect
+  masked until now. Ruled out the case's `valueSource type: "static"` as
+  the breakage: "static" appears in a PASSING plan_golden case.
+- Reflection: the 19 patterns stay (product-correct, holdout-positive for
+  bindings onto those platforms); the revealed defect is fixed next cycle
+  as its own variable. Keeping this cycle's diff committed keeps the run
+  bisectable.
+
 ## Cycle <n> — <timestamp>
 - Score (dev): <score ± hw> (prev: <score ± hw>) · Movement: <yes/no — intervals overlap?>
 - Probe (per operator): <key_reorder: · item_reorder: · comment_noise: · service_rename: · config_scale:> (floors: 0.8)
