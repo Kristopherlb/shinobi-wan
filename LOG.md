@@ -239,6 +239,19 @@ cited by later hypotheses. Scores always carry their interval. -->
 - Diagnostic: dev exactly 1.000; elasticache-redis.yaml back to structured
   success:false (envelope still green → Stage 0 holds); tests green.
 - Change: remove the 20 ARN pattern cases from iam-lowerer.ts (ONE variable)
+- Result: 1.000 [1.000, 1.000], all classes 1.0 · tests green (9 projects,
+  no cache) · probe all 1.0 · sweep all 25 manifests emit envelopes
+  (elasticache-redis back to structured success:false — Stage 0 holds) ·
+  Hypothesis: confirmed — landed exactly at the committed 1.000 ± 0.
+- Reflection: the solution is now cycle-1 state — reference SHA + the
+  generatePlan dependsOn normalization only. That single change is the
+  entire delta the metric rewards: it flips every crash case to a valid
+  envelope while leaving all non-crash projections byte-identical to the
+  reference. Working tree diff vs baseline: +2 defensive `?? []` in
+  program-generator.ts. Codebase compressibility is unchanged vs cycle 0
+  (no tables added). Dev is saturated; the only remaining signal is
+  holdout, whose request channel (tag push) remains blocked by the
+  environment.
 
 ## Cycle <n> — <timestamp>
 - Score (dev): <score ± hw> (prev: <score ± hw>) · Movement: <yes/no — intervals overlap?>

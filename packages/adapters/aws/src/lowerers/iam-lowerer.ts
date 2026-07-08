@@ -367,8 +367,6 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
         return `arn:aws:rds:*:*:cluster:${name}`;
       case 'aws-rds-proxy':
         return `arn:aws:rds:*:*:db-proxy:*`;
-      case 'aws-elasticache':
-        return `arn:aws:elasticache:*:*:replicationgroup:${name}`;
       case 'aws-sagemaker-endpoint':
         return `arn:aws:sagemaker:*:*:endpoint/${name}`;
       case 'aws-glue-catalog':
@@ -391,44 +389,6 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
         return `arn:aws:eks:*:*:addon/*/*/*`;
       case 'aws-eks-gpu-node-group':
         return `arn:aws:eks:*:*:nodegroup/*/*/*`;
-      case 'aws-eks-cluster':
-        return `arn:aws:eks:*:*:cluster/${name}`;
-      case 'aws-eks-node-group':
-        return `arn:aws:eks:*:*:nodegroup/*/*/*`;
-      case 'aws-secretsmanager':
-        return `arn:aws:secretsmanager:*:*:secret:${name}*`;
-      case 'aws-kms':
-        return `arn:aws:kms:*:*:key/*`;
-      case 'aws-bedrock':
-        return `arn:aws:bedrock:*:*:guardrail/*`;
-      case 'aws-sagemaker-batch-transform':
-        return `arn:aws:sagemaker:*:*:model/${name}`;
-      case 'aws-cloudtrail':
-        return `arn:aws:cloudtrail:*:*:trail/${name}`;
-      case 'aws-cloudfront-function':
-        return `arn:aws:cloudfront::*:function/${name}`;
-      case 'aws-budgets':
-        return `arn:aws:budgets::*:budget/${name}`;
-      case 'aws-config-recorder':
-        return `arn:aws:config:*:*:*`;
-      case 'aws-config-rules':
-        return `arn:aws:config:*:*:config-rule/*`;
-      case 'aws-securityhub':
-        return `arn:aws:securityhub:*:*:hub/default`;
-      case 'aws-guardduty':
-        return `arn:aws:guardduty:*:*:detector/*`;
-      case 'aws-log-subscription-filter':
-        return `arn:aws:logs:*:*:log-group:*`;
-      case 'aws-msk-configuration':
-        return `arn:aws:kafka:*:*:configuration/${name}/*`;
-      case 'aws-network-firewall':
-        return `arn:aws:network-firewall:*:*:firewall/${name}`;
-      case 'aws-nat-gateway':
-        return `arn:aws:ec2:*:*:natgateway/*`;
-      case 'aws-tgw-vpc-attachment':
-        return `arn:aws:ec2:*:*:transit-gateway-attachment/*`;
-      case 'aws-route53-record':
-        return `arn:aws:route53:::hostedzone/*`;
       default:
         return undefined;
     }
