@@ -367,6 +367,8 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
         return `arn:aws:rds:*:*:cluster:${name}`;
       case 'aws-rds-proxy':
         return `arn:aws:rds:*:*:db-proxy:*`;
+      case 'aws-elasticache':
+        return `arn:aws:elasticache:*:*:replicationgroup:${name}`;
       case 'aws-sagemaker-endpoint':
         return `arn:aws:sagemaker:*:*:endpoint/${name}`;
       case 'aws-glue-catalog':

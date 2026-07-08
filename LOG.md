@@ -61,6 +61,49 @@ cited by later hypotheses. Scores always carry their interval. -->
   generatePlan, not manifest-shaped. Dev is saturated (1.0); per
   agent-instructions the next signal must come from holdout.
 
+## Cycle 2 — 2026-07-07T17:20Z
+- Score (dev): 1.000 [1.000, 1.000] (prev: 1.000 [1.000, 1.000]) · Movement: n/a (dev saturated)
+- Probe: all operators 1.0 (floors 0.8)
+- Holdout: request channel BLOCKED — `request-holdout-check.sh` created tag
+  `holdout-check-1` locally but the git proxy 403s all `refs/tags/*` pushes
+  (branch pushes to `claude/*` succeed; retried 4x with backoff). Continuing
+  the dev loop per agent-instructions; needs environment owner to unblock.
+- Context: dev inputs (staged via harness `--stage-inputs`, inputs only) are
+  100% manifest-style; `aws-elasticache` appears in 8 dev manifests. The
+  named spec.md defect — IamIntentLowerer has no ARN pattern for
+  `aws-elasticache` — makes any IAM-generating binding to elasticache fail
+  the whole plan. Dev is saturated so the gain is holdout-only: golden/policy
+  cases sampling elasticache bindings currently return success:false.
+- Hypothesis: adding the missing `aws-elasticache` case to
+  `resolveArnPatternFromNode` (modeled as ReplicationGroup, consistent with
+  the node lowerer) repairs elasticache-redis.yaml to success:true and any
+  held-out case with an elasticache binding target.
+- Predicted effect (dev): 1.000 → 1.000 ± 0 (all classes stay 1.0; no dev
+  case currently exercises the gap in a scored direction). Local diagnostic
+  carries the signal instead: elasticache-redis.yaml flips to success:true.
+- Expected failure mode: the ARN pattern string I choose differs from the
+  reference implementation's, so held-out plan_golden cases in the iam
+  family would still mismatch (envelope/policy classes gain regardless);
+  or the added pattern perturbs an existing dev golden case (must not —
+  purely additive switch case).
+- Diagnostic: dev stays exactly 1.000 all classes; elasticache-redis.yaml
+  plans success:true with an aws:iam:Policy Resource of
+  arn:aws:elasticache:*:*:replicationgroup:<svc>-<node>; tests green.
+- Change: iam-lowerer.ts — add `aws-elasticache` ARN pattern (ONE variable)
+- Result: 1.000 [1.000, 1.000], all classes 1.0 · tests green (9 projects,
+  no cache) · probe all 1.0 · elasticache-redis.yaml now plans success:true
+  with Resource `arn:aws:elasticache:*:*:replicationgroup:elasticache-redis-redis` ·
+  Hypothesis: confirmed — landed exactly in committed range (1.000 ± 0),
+  diagnostic behavior matched prediction.
+- Reflection: generalizing — additive platform coverage in an existing
+  general mechanism, no manifest-shaped branching. All three named spec.md
+  defect groups that affect eval-shaped inputs are now repaired. Remaining
+  shipped-manifest gaps (4 graph-style blueprints, 4 blueprints missing
+  binding resourceType) are NOT eval-shaped (dev inputs are 100%
+  manifest-style with resourceType always present in valid cases) — they
+  satisfy the envelope contract today. Holdout confirmation still blocked
+  on the tag-push channel.
+
 ## Cycle <n> — <timestamp>
 - Score (dev): <score ± hw> (prev: <score ± hw>) · Movement: <yes/no — intervals overlap?>
 - Probe (per operator): <key_reorder: · item_reorder: · comment_noise: · service_rename: · config_scale:> (floors: 0.8)
