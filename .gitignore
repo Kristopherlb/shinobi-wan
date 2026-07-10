@@ -4,6 +4,7 @@
 # nx
 /.nx
 /tmp
+/tmp-*
 
 # build output
 **/dist
