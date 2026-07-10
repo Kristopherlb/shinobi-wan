@@ -1,18 +1,14 @@
 /**
  * Build JSON-serializable envelopes for facade responses.
  */
-import { CONTRACT_VERSION } from "./contract-version";
+import { CONTRACT_VERSION } from './contract-version';
 import type {
   ToolResponseEnvelope,
   ToolErrorEnvelope,
   ToolResponseMetadata,
-} from "./envelope-types";
+} from './envelope-types';
 
-const TOOL_ID = "shinobi-kernel";
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
+const TOOL_ID = 'shinobi-kernel';
 
 export function buildErrorEnvelope(
   code: string,
@@ -22,11 +18,11 @@ export function buildErrorEnvelope(
   details?: Readonly<Record<string, unknown>>,
 ): ToolErrorEnvelope {
   const category =
-    code === "INPUT_VALIDATION_FAILED"
-      ? "validation"
-      : code === "MODE_MISMATCH"
-        ? "validation"
-        : "unknown";
+    code === 'INPUT_VALIDATION_FAILED' || code === 'MODE_MISMATCH'
+      ? 'validation'
+      : code === 'CONFLICT'
+        ? 'conflict'
+        : 'unknown';
   return {
     code,
     category,
@@ -39,7 +35,7 @@ export function buildErrorEnvelope(
 }
 
 export function buildEnvelope<T>(
-  operationClass: "read" | "plan" | "apply",
+  operationClass: 'read' | 'plan' | 'apply',
   traceId: string,
   success: boolean,
   data?: T,
@@ -50,7 +46,6 @@ export function buildEnvelope<T>(
     contractVersion: CONTRACT_VERSION,
     operationClass,
     traceId,
-    timestamp: nowIso(),
   };
   const out: ToolResponseEnvelope<T> = {
     success,

@@ -11,11 +11,11 @@ export interface CompilationDetail {
  * Error thrown when compilation fails at a specific phase.
  */
 export class CompilationError extends Error {
-  readonly phase: "validation" | "binding" | "policy";
+  readonly phase: 'validation' | 'binding' | 'policy';
   readonly details: ReadonlyArray<CompilationDetail>;
 
   constructor(
-    phase: CompilationError["phase"],
+    phase: CompilationError['phase'],
     details: ReadonlyArray<CompilationDetail>,
     message?: string,
   ) {
@@ -23,7 +23,7 @@ export class CompilationError extends Error {
       message ??
         `Compilation failed in ${phase} phase with ${details.length} error(s)`,
     );
-    this.name = "CompilationError";
+    this.name = 'CompilationError';
     this.phase = phase;
     this.details = details;
   }
@@ -38,7 +38,7 @@ export class ConfigError extends Error {
 
   constructor(key: string, reason: string) {
     super(`Config error for key "${key}": ${reason}`);
-    this.name = "ConfigError";
+    this.name = 'ConfigError';
     this.key = key;
     this.reason = reason;
   }
@@ -53,9 +53,9 @@ export class PolicyPackError extends Error {
 
   constructor(requestedPack: string, availablePacks: ReadonlyArray<string>) {
     super(
-      `Policy pack "${requestedPack}" not found. Available: [${availablePacks.join(", ")}]`,
+      `Policy pack "${requestedPack}" not found. Available: [${availablePacks.join(', ')}]`,
     );
-    this.name = "PolicyPackError";
+    this.name = 'PolicyPackError';
     this.requestedPack = requestedPack;
     this.availablePacks = availablePacks;
   }

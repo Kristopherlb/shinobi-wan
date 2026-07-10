@@ -1,348 +1,348 @@
-import type { IamIntent } from "@shinobi/contracts";
-import type { Node } from "@shinobi/ir";
-import type { LoweredResource, LoweringContext, IntentLowerer } from "../types";
-import { shortName } from "./utils";
+import type { IamIntent } from '@shinobi/contracts';
+import type { Node } from '@shinobi/ir';
+import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
+import { shortName } from './utils';
 
 /** Maps intent action levels to AWS IAM action prefixes per resource type */
 const ACTION_MAP: Record<string, Record<string, ReadonlyArray<string>>> = {
   queue: {
-    read: ["sqs:ReceiveMessage", "sqs:GetQueueAttributes", "sqs:GetQueueUrl"],
-    write: ["sqs:SendMessage", "sqs:GetQueueAttributes", "sqs:GetQueueUrl"],
-    admin: ["sqs:*"],
+    read: ['sqs:ReceiveMessage', 'sqs:GetQueueAttributes', 'sqs:GetQueueUrl'],
+    write: ['sqs:SendMessage', 'sqs:GetQueueAttributes', 'sqs:GetQueueUrl'],
+    admin: ['sqs:*'],
   },
   bucket: {
-    read: ["s3:GetObject", "s3:ListBucket"],
-    write: ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
-    admin: ["s3:*"],
+    read: ['s3:GetObject', 's3:ListBucket'],
+    write: ['s3:PutObject', 's3:GetObject', 's3:ListBucket'],
+    admin: ['s3:*'],
   },
   table: {
-    read: ["dynamodb:GetItem", "dynamodb:Query", "dynamodb:Scan"],
+    read: ['dynamodb:GetItem', 'dynamodb:Query', 'dynamodb:Scan'],
     write: [
-      "dynamodb:PutItem",
-      "dynamodb:UpdateItem",
-      "dynamodb:DeleteItem",
-      "dynamodb:GetItem",
-      "dynamodb:Query",
+      'dynamodb:PutItem',
+      'dynamodb:UpdateItem',
+      'dynamodb:DeleteItem',
+      'dynamodb:GetItem',
+      'dynamodb:Query',
     ],
-    admin: ["dynamodb:*"],
+    admin: ['dynamodb:*'],
   },
   api: {
-    invoke: ["lambda:InvokeFunction"],
-    read: ["execute-api:Invoke"],
-    write: ["execute-api:Invoke"],
-    admin: ["execute-api:*"],
+    invoke: ['lambda:InvokeFunction'],
+    read: ['execute-api:Invoke'],
+    write: ['execute-api:Invoke'],
+    admin: ['execute-api:*'],
   },
   topic: {
-    read: ["sns:GetTopicAttributes", "sns:ListSubscriptionsByTopic"],
-    write: ["sns:Publish", "sns:GetTopicAttributes"],
-    admin: ["sns:*"],
+    read: ['sns:GetTopicAttributes', 'sns:ListSubscriptionsByTopic'],
+    write: ['sns:Publish', 'sns:GetTopicAttributes'],
+    admin: ['sns:*'],
   },
   xray: {
     read: [
-      "xray:GetSamplingRules",
-      "xray:GetSamplingTargets",
-      "xray:GetTraceGraph",
+      'xray:GetSamplingRules',
+      'xray:GetSamplingTargets',
+      'xray:GetTraceGraph',
     ],
     write: [
-      "xray:PutTraceSegments",
-      "xray:PutTelemetryRecords",
-      "xray:GetSamplingRules",
-      "xray:GetSamplingTargets",
+      'xray:PutTraceSegments',
+      'xray:PutTelemetryRecords',
+      'xray:GetSamplingRules',
+      'xray:GetSamplingTargets',
     ],
-    admin: ["xray:*"],
+    admin: ['xray:*'],
   },
   distribution: {
-    read: ["cloudfront:GetDistribution", "cloudfront:ListDistributions"],
+    read: ['cloudfront:GetDistribution', 'cloudfront:ListDistributions'],
     write: [
-      "cloudfront:CreateInvalidation",
-      "cloudfront:GetDistribution",
-      "cloudfront:ListDistributions",
+      'cloudfront:CreateInvalidation',
+      'cloudfront:GetDistribution',
+      'cloudfront:ListDistributions',
     ],
-    admin: ["cloudfront:*"],
+    admin: ['cloudfront:*'],
   },
   webacl: {
-    read: ["wafv2:GetWebACL", "wafv2:ListWebACLs"],
-    write: ["wafv2:UpdateWebACL", "wafv2:GetWebACL"],
-    admin: ["wafv2:*"],
+    read: ['wafv2:GetWebACL', 'wafv2:ListWebACLs'],
+    write: ['wafv2:UpdateWebACL', 'wafv2:GetWebACL'],
+    admin: ['wafv2:*'],
   },
   certificate: {
-    read: ["acm:DescribeCertificate", "acm:ListCertificates"],
-    write: ["acm:RequestCertificate", "acm:DescribeCertificate"],
-    admin: ["acm:*"],
+    read: ['acm:DescribeCertificate', 'acm:ListCertificates'],
+    write: ['acm:RequestCertificate', 'acm:DescribeCertificate'],
+    admin: ['acm:*'],
   },
   scheduler: {
-    read: ["scheduler:GetSchedule", "scheduler:ListSchedules"],
+    read: ['scheduler:GetSchedule', 'scheduler:ListSchedules'],
     write: [
-      "scheduler:CreateSchedule",
-      "scheduler:UpdateSchedule",
-      "scheduler:GetSchedule",
+      'scheduler:CreateSchedule',
+      'scheduler:UpdateSchedule',
+      'scheduler:GetSchedule',
     ],
-    admin: ["scheduler:*"],
+    admin: ['scheduler:*'],
   },
   statemachine: {
     read: [
-      "states:DescribeStateMachine",
-      "states:ListStateMachines",
-      "states:ListExecutions",
+      'states:DescribeStateMachine',
+      'states:ListStateMachines',
+      'states:ListExecutions',
     ],
     write: [
-      "states:StartExecution",
-      "states:StopExecution",
-      "states:DescribeStateMachine",
+      'states:StartExecution',
+      'states:StopExecution',
+      'states:DescribeStateMachine',
     ],
-    admin: ["states:*"],
+    admin: ['states:*'],
   },
   cluster: {
-    read: ["ecs:DescribeClusters", "ecs:ListClusters"],
+    read: ['ecs:DescribeClusters', 'ecs:ListClusters'],
     write: [
-      "ecs:RunTask",
-      "ecs:StopTask",
-      "ecs:DescribeTasks",
-      "ecs:ListTasks",
+      'ecs:RunTask',
+      'ecs:StopTask',
+      'ecs:DescribeTasks',
+      'ecs:ListTasks',
     ],
-    admin: ["ecs:*"],
+    admin: ['ecs:*'],
   },
-  "task-definition": {
-    read: ["ecs:DescribeTaskDefinition", "ecs:ListTaskDefinitions"],
-    write: ["ecs:RegisterTaskDefinition", "ecs:DeregisterTaskDefinition"],
-    admin: ["ecs:*"],
+  'task-definition': {
+    read: ['ecs:DescribeTaskDefinition', 'ecs:ListTaskDefinitions'],
+    write: ['ecs:RegisterTaskDefinition', 'ecs:DeregisterTaskDefinition'],
+    admin: ['ecs:*'],
   },
   repository: {
     read: [
-      "ecr:GetAuthorizationToken",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:GetDownloadUrlForLayer",
-      "ecr:BatchGetImage",
+      'ecr:GetAuthorizationToken',
+      'ecr:BatchCheckLayerAvailability',
+      'ecr:GetDownloadUrlForLayer',
+      'ecr:BatchGetImage',
     ],
     write: [
-      "ecr:PutImage",
-      "ecr:InitiateLayerUpload",
-      "ecr:UploadLayerPart",
-      "ecr:CompleteLayerUpload",
+      'ecr:PutImage',
+      'ecr:InitiateLayerUpload',
+      'ecr:UploadLayerPart',
+      'ecr:CompleteLayerUpload',
     ],
-    admin: ["ecr:*"],
+    admin: ['ecr:*'],
   },
-  "load-balancer": {
+  'load-balancer': {
     read: [
-      "elasticloadbalancing:DescribeLoadBalancers",
-      "elasticloadbalancing:DescribeTargetGroups",
-      "elasticloadbalancing:DescribeListeners",
+      'elasticloadbalancing:DescribeLoadBalancers',
+      'elasticloadbalancing:DescribeTargetGroups',
+      'elasticloadbalancing:DescribeListeners',
     ],
     write: [
-      "elasticloadbalancing:RegisterTargets",
-      "elasticloadbalancing:DeregisterTargets",
+      'elasticloadbalancing:RegisterTargets',
+      'elasticloadbalancing:DeregisterTargets',
     ],
-    admin: ["elasticloadbalancing:*"],
+    admin: ['elasticloadbalancing:*'],
   },
   secret: {
-    read: ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+    read: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
     write: [
-      "secretsmanager:PutSecretValue",
-      "secretsmanager:UpdateSecret",
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret",
+      'secretsmanager:PutSecretValue',
+      'secretsmanager:UpdateSecret',
+      'secretsmanager:GetSecretValue',
+      'secretsmanager:DescribeSecret',
     ],
-    admin: ["secretsmanager:*"],
+    admin: ['secretsmanager:*'],
   },
   key: {
-    read: ["kms:Decrypt", "kms:DescribeKey"],
+    read: ['kms:Decrypt', 'kms:DescribeKey'],
     write: [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:GenerateDataKey",
-      "kms:DescribeKey",
+      'kms:Encrypt',
+      'kms:Decrypt',
+      'kms:GenerateDataKey',
+      'kms:DescribeKey',
     ],
-    admin: ["kms:*"],
+    admin: ['kms:*'],
   },
   redis: {
     read: [
-      "elasticache:DescribeReplicationGroups",
-      "elasticache:DescribeCacheClusters",
+      'elasticache:DescribeReplicationGroups',
+      'elasticache:DescribeCacheClusters',
     ],
     write: [
-      "elasticache:ModifyReplicationGroup",
-      "elasticache:DescribeReplicationGroups",
+      'elasticache:ModifyReplicationGroup',
+      'elasticache:DescribeReplicationGroups',
     ],
-    admin: ["elasticache:*"],
+    admin: ['elasticache:*'],
   },
   bedrock: {
-    read: ["bedrock:InvokeModel", "bedrock:GetFoundationModel"],
+    read: ['bedrock:InvokeModel', 'bedrock:GetFoundationModel'],
     write: [
-      "bedrock:InvokeModel",
-      "bedrock:InvokeModelWithResponseStream",
-      "bedrock:GetFoundationModel",
+      'bedrock:InvokeModel',
+      'bedrock:InvokeModelWithResponseStream',
+      'bedrock:GetFoundationModel',
     ],
-    admin: ["bedrock:*"],
+    admin: ['bedrock:*'],
   },
   model: {
-    read: ["sagemaker:DescribeModel", "sagemaker:ListModels"],
+    read: ['sagemaker:DescribeModel', 'sagemaker:ListModels'],
     write: [
-      "sagemaker:CreateTransformJob",
-      "sagemaker:DescribeTransformJob",
-      "sagemaker:StopTransformJob",
-      "sagemaker:DescribeModel",
+      'sagemaker:CreateTransformJob',
+      'sagemaker:DescribeTransformJob',
+      'sagemaker:StopTransformJob',
+      'sagemaker:DescribeModel',
     ],
-    admin: ["sagemaker:*"],
+    admin: ['sagemaker:*'],
   },
   domain: {
-    read: ["es:ESHttpGet", "es:DescribeElasticsearchDomain"],
+    read: ['es:ESHttpGet', 'es:DescribeElasticsearchDomain'],
     write: [
-      "es:ESHttpGet",
-      "es:ESHttpPost",
-      "es:ESHttpPut",
-      "es:DescribeElasticsearchDomain",
+      'es:ESHttpGet',
+      'es:ESHttpPost',
+      'es:ESHttpPut',
+      'es:DescribeElasticsearchDomain',
     ],
-    admin: ["es:*"],
+    admin: ['es:*'],
   },
   firehose: {
-    read: ["firehose:DescribeDeliveryStream", "firehose:ListDeliveryStreams"],
+    read: ['firehose:DescribeDeliveryStream', 'firehose:ListDeliveryStreams'],
     write: [
-      "firehose:PutRecord",
-      "firehose:PutRecordBatch",
-      "firehose:DescribeDeliveryStream",
+      'firehose:PutRecord',
+      'firehose:PutRecordBatch',
+      'firehose:DescribeDeliveryStream',
     ],
-    admin: ["firehose:*"],
+    admin: ['firehose:*'],
   },
   collection: {
-    read: ["aoss:APIAccessAll"],
-    write: ["aoss:APIAccessAll"],
-    admin: ["aoss:*"],
+    read: ['aoss:APIAccessAll'],
+    write: ['aoss:APIAccessAll'],
+    admin: ['aoss:*'],
   },
-  "rds-cluster": {
-    read: ["rds:DescribeDBClusters", "rds:DescribeDBInstances"],
+  'rds-cluster': {
+    read: ['rds:DescribeDBClusters', 'rds:DescribeDBInstances'],
     write: [
-      "rds:ModifyDBCluster",
-      "rds:DescribeDBClusters",
-      "rds:DescribeDBInstances",
+      'rds:ModifyDBCluster',
+      'rds:DescribeDBClusters',
+      'rds:DescribeDBInstances',
     ],
-    admin: ["rds:*"],
+    admin: ['rds:*'],
   },
-  "rds-proxy": {
-    read: ["rds:DescribeDBProxies", "rds:DescribeDBProxyTargets"],
+  'rds-proxy': {
+    read: ['rds:DescribeDBProxies', 'rds:DescribeDBProxyTargets'],
     write: [
-      "rds:ModifyDBProxy",
-      "rds:DescribeDBProxies",
-      "rds:DescribeDBProxyTargets",
+      'rds:ModifyDBProxy',
+      'rds:DescribeDBProxies',
+      'rds:DescribeDBProxyTargets',
     ],
-    admin: ["rds:*"],
+    admin: ['rds:*'],
   },
   endpoint: {
-    read: ["sagemaker:DescribeEndpoint", "sagemaker:DescribeEndpointConfig"],
+    read: ['sagemaker:DescribeEndpoint', 'sagemaker:DescribeEndpointConfig'],
     write: [
-      "sagemaker:InvokeEndpoint",
-      "sagemaker:DescribeEndpoint",
-      "sagemaker:DescribeEndpointConfig",
+      'sagemaker:InvokeEndpoint',
+      'sagemaker:DescribeEndpoint',
+      'sagemaker:DescribeEndpointConfig',
     ],
-    admin: ["sagemaker:*"],
+    admin: ['sagemaker:*'],
   },
-  "glue-catalog": {
-    read: ["glue:GetDatabase", "glue:GetTable", "glue:GetTables"],
+  'glue-catalog': {
+    read: ['glue:GetDatabase', 'glue:GetTable', 'glue:GetTables'],
     write: [
-      "glue:CreateTable",
-      "glue:UpdateTable",
-      "glue:GetDatabase",
-      "glue:GetTable",
-      "glue:GetTables",
+      'glue:CreateTable',
+      'glue:UpdateTable',
+      'glue:GetDatabase',
+      'glue:GetTable',
+      'glue:GetTables',
     ],
-    admin: ["glue:*"],
+    admin: ['glue:*'],
   },
-  "glue-job": {
-    read: ["glue:GetJob", "glue:GetJobRun", "glue:GetJobRuns"],
+  'glue-job': {
+    read: ['glue:GetJob', 'glue:GetJobRun', 'glue:GetJobRuns'],
     write: [
-      "glue:StartJobRun",
-      "glue:BatchStopJobRun",
-      "glue:GetJob",
-      "glue:GetJobRun",
+      'glue:StartJobRun',
+      'glue:BatchStopJobRun',
+      'glue:GetJob',
+      'glue:GetJobRun',
     ],
-    admin: ["glue:*"],
+    admin: ['glue:*'],
   },
-  "glue-crawler": {
-    read: ["glue:GetCrawler", "glue:GetCrawlers"],
-    write: ["glue:StartCrawler", "glue:StopCrawler", "glue:GetCrawler"],
-    admin: ["glue:*"],
+  'glue-crawler': {
+    read: ['glue:GetCrawler', 'glue:GetCrawlers'],
+    write: ['glue:StartCrawler', 'glue:StopCrawler', 'glue:GetCrawler'],
+    admin: ['glue:*'],
   },
-  "athena-workgroup": {
+  'athena-workgroup': {
     read: [
-      "athena:GetWorkGroup",
-      "athena:GetQueryResults",
-      "athena:ListQueryExecutions",
+      'athena:GetWorkGroup',
+      'athena:GetQueryResults',
+      'athena:ListQueryExecutions',
     ],
     write: [
-      "athena:StartQueryExecution",
-      "athena:GetWorkGroup",
-      "athena:GetQueryResults",
+      'athena:StartQueryExecution',
+      'athena:GetWorkGroup',
+      'athena:GetQueryResults',
     ],
-    admin: ["athena:*"],
+    admin: ['athena:*'],
   },
-  "sagemaker-pipeline": {
-    read: ["sagemaker:DescribePipeline", "sagemaker:ListPipelineExecutions"],
+  'sagemaker-pipeline': {
+    read: ['sagemaker:DescribePipeline', 'sagemaker:ListPipelineExecutions'],
     write: [
-      "sagemaker:StartPipelineExecution",
-      "sagemaker:StopPipelineExecution",
-      "sagemaker:DescribePipeline",
+      'sagemaker:StartPipelineExecution',
+      'sagemaker:StopPipelineExecution',
+      'sagemaker:DescribePipeline',
     ],
-    admin: ["sagemaker:*"],
+    admin: ['sagemaker:*'],
   },
-  "msk-cluster": {
+  'msk-cluster': {
     read: [
-      "kafka:DescribeCluster",
-      "kafka:GetBootstrapBrokers",
-      "kafka-cluster:Connect",
-      "kafka-cluster:ReadData",
+      'kafka:DescribeCluster',
+      'kafka:GetBootstrapBrokers',
+      'kafka-cluster:Connect',
+      'kafka-cluster:ReadData',
     ],
     write: [
-      "kafka:DescribeCluster",
-      "kafka:GetBootstrapBrokers",
-      "kafka-cluster:Connect",
-      "kafka-cluster:ReadData",
-      "kafka-cluster:WriteData",
+      'kafka:DescribeCluster',
+      'kafka:GetBootstrapBrokers',
+      'kafka-cluster:Connect',
+      'kafka-cluster:ReadData',
+      'kafka-cluster:WriteData',
     ],
-    admin: ["kafka:*", "kafka-cluster:*"],
+    admin: ['kafka:*', 'kafka-cluster:*'],
   },
-  "transit-gateway": {
+  'transit-gateway': {
     read: [
-      "ec2:DescribeTransitGateways",
-      "ec2:DescribeTransitGatewayAttachments",
+      'ec2:DescribeTransitGateways',
+      'ec2:DescribeTransitGatewayAttachments',
     ],
     write: [
-      "ec2:CreateTransitGatewayVpcAttachment",
-      "ec2:CreateTransitGatewayRoute",
-      "ec2:DescribeTransitGateways",
+      'ec2:CreateTransitGatewayVpcAttachment',
+      'ec2:CreateTransitGatewayRoute',
+      'ec2:DescribeTransitGateways',
     ],
-    admin: ["ec2:*"],
+    admin: ['ec2:*'],
   },
-  "route53-zone": {
-    read: ["route53:GetHostedZone", "route53:ListResourceRecordSets"],
+  'route53-zone': {
+    read: ['route53:GetHostedZone', 'route53:ListResourceRecordSets'],
     write: [
-      "route53:ChangeResourceRecordSets",
-      "route53:GetHostedZone",
-      "route53:ListResourceRecordSets",
+      'route53:ChangeResourceRecordSets',
+      'route53:GetHostedZone',
+      'route53:ListResourceRecordSets',
     ],
-    admin: ["route53:*"],
+    admin: ['route53:*'],
   },
-  "eks-addon": {
-    read: ["eks:DescribeAddon", "eks:ListAddons"],
+  'eks-addon': {
+    read: ['eks:DescribeAddon', 'eks:ListAddons'],
     write: [
-      "eks:CreateAddon",
-      "eks:UpdateAddon",
-      "eks:DeleteAddon",
-      "eks:DescribeAddon",
+      'eks:CreateAddon',
+      'eks:UpdateAddon',
+      'eks:DeleteAddon',
+      'eks:DescribeAddon',
     ],
-    admin: ["eks:*"],
+    admin: ['eks:*'],
   },
 };
 
 const DEFAULT_ACTIONS: Record<string, ReadonlyArray<string>> = {
-  read: ["*:Get*", "*:List*"],
-  write: ["*:Get*", "*:List*", "*:Put*", "*:Update*"],
-  admin: ["*:*"],
+  read: ['*:Get*', '*:List*'],
+  write: ['*:Get*', '*:List*', '*:Put*', '*:Update*'],
+  admin: ['*:*'],
 };
 
 /**
  * Lowers IamIntent → IAM Role + Policy + RolePolicyAttachment resources.
  */
 export class IamIntentLowerer implements IntentLowerer<IamIntent> {
-  readonly intentType = "iam" as const;
+  readonly intentType = 'iam' as const;
 
   lower(
     intent: IamIntent,
@@ -361,19 +361,19 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     // 1. IAM Role (Lambda assume role)
     resources.push({
       name: roleName,
-      resourceType: "aws:iam:Role",
+      resourceType: 'aws:iam:Role',
       properties: {
         assumeRolePolicy: JSON.stringify({
-          Version: "2012-10-17",
+          Version: '2012-10-17',
           Statement: [
             {
-              Effect: "Allow",
-              Principal: { Service: "lambda.amazonaws.com" },
-              Action: "sts:AssumeRole",
+              Effect: 'Allow',
+              Principal: { Service: 'lambda.amazonaws.com' },
+              Action: 'sts:AssumeRole',
             },
           ],
         }),
-        tags: { "shinobi:principal": intent.principal.nodeRef },
+        tags: { 'shinobi:principal': intent.principal.nodeRef },
       },
       sourceId: intent.sourceEdgeId,
       dependsOn: [],
@@ -382,13 +382,13 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     // 2. IAM Policy
     resources.push({
       name: policyName,
-      resourceType: "aws:iam:Policy",
+      resourceType: 'aws:iam:Policy',
       properties: {
         policy: JSON.stringify({
-          Version: "2012-10-17",
+          Version: '2012-10-17',
           Statement: [
             {
-              Effect: "Allow",
+              Effect: 'Allow',
               Action: iamActions,
               Resource: this.resolvePolicyResource(intent, context),
               ...(intent.conditions && intent.conditions.length > 0
@@ -398,8 +398,8 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
           ],
         }),
         tags: {
-          "shinobi:resource": intent.resource.nodeRef,
-          "shinobi:edge": intent.sourceEdgeId,
+          'shinobi:resource': intent.resource.nodeRef,
+          'shinobi:edge': intent.sourceEdgeId,
         },
       },
       sourceId: intent.sourceEdgeId,
@@ -409,7 +409,7 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     // 3. Role-Policy Attachment
     resources.push({
       name: attachmentName,
-      resourceType: "aws:iam:RolePolicyAttachment",
+      resourceType: 'aws:iam:RolePolicyAttachment',
       properties: {
         role: { ref: roleName },
         policyArn: { ref: policyName },
@@ -422,11 +422,11 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     const basicAttachmentName = `${principalName}-basic-execution-attachment`;
     resources.push({
       name: basicAttachmentName,
-      resourceType: "aws:iam:RolePolicyAttachment",
+      resourceType: 'aws:iam:RolePolicyAttachment',
       properties: {
         role: { ref: roleName },
         policyArn:
-          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
       },
       sourceId: intent.sourceEdgeId,
       dependsOn: [roleName],
@@ -439,7 +439,7 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     intent: IamIntent,
     context: LoweringContext,
   ): string {
-    if (intent.resource.scope === "pattern") {
+    if (intent.resource.scope === 'pattern') {
       if (!intent.resource.pattern) {
         throw new Error(
           `IAM intent "${intent.sourceEdgeId}" uses scope=pattern but does not provide resource.pattern`,
@@ -465,7 +465,7 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     if (!resolved) {
       throw new Error(
         `IAM intent "${intent.sourceEdgeId}" cannot resolve specific resource pattern for platform "${String(
-          target.metadata.properties["platform"],
+          target.metadata.properties['platform'],
         )}"`,
       );
     }
@@ -476,79 +476,79 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
     node: Node,
     context: LoweringContext,
   ): string | undefined {
-    const platform = node.metadata.properties["platform"] as string | undefined;
+    const platform = node.metadata.properties['platform'] as string | undefined;
     const name = `${context.adapterConfig.serviceName}-${shortName(node.id)}`;
 
     switch (platform) {
-      case "aws-sqs":
+      case 'aws-sqs':
         return `arn:aws:sqs:*:*:${name}`;
-      case "aws-lambda":
+      case 'aws-lambda':
         return `arn:aws:lambda:*:*:function:${name}`;
-      case "aws-dynamodb":
+      case 'aws-dynamodb':
         return `arn:aws:dynamodb:*:*:table/${name}`;
-      case "aws-s3":
+      case 'aws-s3':
         return `arn:aws:s3:::${name}`;
-      case "aws-apigateway":
+      case 'aws-apigateway':
         return `arn:aws:execute-api:*:*:*`;
-      case "aws-sns":
+      case 'aws-sns':
         return `arn:aws:sns:*:*:${name}`;
-      case "aws-cloudfront":
+      case 'aws-cloudfront':
         return `arn:aws:cloudfront::*:distribution/*`;
-      case "aws-wafv2":
+      case 'aws-wafv2':
         return `arn:aws:wafv2:*:*:*/webacl/${name}/*`;
-      case "aws-acm":
+      case 'aws-acm':
         return `arn:aws:acm:*:*:certificate/*`;
-      case "aws-eventbridge-scheduler":
+      case 'aws-eventbridge-scheduler':
         return `arn:aws:scheduler:*:*:schedule/${name}/*`;
-      case "aws-stepfunctions":
+      case 'aws-stepfunctions':
         return `arn:aws:states:*:*:stateMachine:${name}`;
-      case "aws-ecr":
+      case 'aws-ecr':
         return `arn:aws:ecr:*:*:repository/${name}`;
-      case "aws-ecs-cluster":
+      case 'aws-ecs-cluster':
         return `arn:aws:ecs:*:*:cluster/${name}`;
-      case "aws-ecs-task-definition":
+      case 'aws-ecs-task-definition':
         return `arn:aws:ecs:*:*:task-definition/${name}:*`;
-      case "aws-ecs-service":
+      case 'aws-ecs-service':
         return `arn:aws:ecs:*:*:service/${name}/*`;
-      case "aws-alb":
+      case 'aws-alb':
         return `arn:aws:elasticloadbalancing:*:*:loadbalancer/app/${name}/*`;
-      case "aws-vpc":
+      case 'aws-vpc':
         return `arn:aws:ec2:*:*:vpc/*`;
-      case "aws-subnet":
+      case 'aws-subnet':
         return `arn:aws:ec2:*:*:subnet/*`;
-      case "aws-security-group":
+      case 'aws-security-group':
         return `arn:aws:ec2:*:*:security-group/*`;
-      case "aws-opensearch":
+      case 'aws-opensearch':
         return `arn:aws:es:*:*:domain/${name}`;
-      case "aws-kinesis-firehose":
+      case 'aws-kinesis-firehose':
         return `arn:aws:firehose:*:*:deliverystream/${name}`;
-      case "aws-opensearch-serverless":
+      case 'aws-opensearch-serverless':
         return `arn:aws:aoss:*:*:collection/*`;
-      case "aws-rds-cluster":
+      case 'aws-rds-cluster':
         return `arn:aws:rds:*:*:cluster:${name}`;
-      case "aws-rds-proxy":
+      case 'aws-rds-proxy':
         return `arn:aws:rds:*:*:db-proxy:*`;
-      case "aws-sagemaker-endpoint":
+      case 'aws-sagemaker-endpoint':
         return `arn:aws:sagemaker:*:*:endpoint/${name}`;
-      case "aws-glue-catalog":
+      case 'aws-glue-catalog':
         return `arn:aws:glue:*:*:catalog`;
-      case "aws-glue-job":
+      case 'aws-glue-job':
         return `arn:aws:glue:*:*:job/${name}`;
-      case "aws-glue-crawler":
+      case 'aws-glue-crawler':
         return `arn:aws:glue:*:*:crawler/${name}`;
-      case "aws-athena-workgroup":
+      case 'aws-athena-workgroup':
         return `arn:aws:athena:*:*:workgroup/${name}`;
-      case "aws-sagemaker-pipeline":
+      case 'aws-sagemaker-pipeline':
         return `arn:aws:sagemaker:*:*:pipeline/${name}`;
-      case "aws-msk-cluster":
+      case 'aws-msk-cluster':
         return `arn:aws:kafka:*:*:cluster/${name}/*`;
-      case "aws-transit-gateway":
+      case 'aws-transit-gateway':
         return `arn:aws:ec2:*:*:transit-gateway/*`;
-      case "aws-route53-zone":
+      case 'aws-route53-zone':
         return `arn:aws:route53:::hostedzone/*`;
-      case "aws-eks-addon":
+      case 'aws-eks-addon':
         return `arn:aws:eks:*:*:addon/*/*/*`;
-      case "aws-eks-gpu-node-group":
+      case 'aws-eks-gpu-node-group':
         return `arn:aws:eks:*:*:nodegroup/*/*/*`;
       default:
         return undefined;
@@ -589,16 +589,16 @@ export class IamIntentLowerer implements IntentLowerer<IamIntent> {
 
   private mapOperator(op: string): string {
     switch (op) {
-      case "equals":
-        return "StringEquals";
-      case "notEquals":
-        return "StringNotEquals";
-      case "contains":
-        return "StringLike";
-      case "startsWith":
-        return "StringLike";
+      case 'equals':
+        return 'StringEquals';
+      case 'notEquals':
+        return 'StringNotEquals';
+      case 'contains':
+        return 'StringLike';
+      case 'startsWith':
+        return 'StringLike';
       default:
-        return "StringEquals";
+        return 'StringEquals';
     }
   }
 }

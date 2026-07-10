@@ -3,7 +3,7 @@
  * e.g., "component:api-handler" → "api-handler"
  */
 export function shortName(nodeRef: string): string {
-  const idx = nodeRef.indexOf(":");
+  const idx = nodeRef.indexOf(':');
   return idx >= 0 ? nodeRef.substring(idx + 1) : nodeRef;
 }
 
@@ -17,8 +17,8 @@ export function createStandardTags(
   extraTags?: Record<string, string>,
 ): Record<string, string> {
   return {
-    "shinobi:node": nodeId,
-    "shinobi:platform": platform,
+    'shinobi:node': nodeId,
+    'shinobi:platform': platform,
     ...extraTags,
   };
 }

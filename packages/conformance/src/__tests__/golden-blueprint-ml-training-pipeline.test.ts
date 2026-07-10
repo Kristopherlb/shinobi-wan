@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
-import { createTestNode, createTestEdge } from "@shinobi/ir";
-import type { GraphMutation } from "@shinobi/ir";
+import { describe, it, expect } from 'vitest';
+import { createTestNode, createTestEdge } from '@shinobi/ir';
+import type { GraphMutation } from '@shinobi/ir';
 import {
   ComponentPlatformBinder,
   TriggersBinder,
   BinderRegistry,
-} from "@shinobi/binder";
-import { BaselinePolicyEvaluator } from "@shinobi/policy";
-import { runGoldenCase } from "../golden-runner";
+} from '@shinobi/binder';
+import { BaselinePolicyEvaluator } from '@shinobi/policy';
+import { runGoldenCase } from '../golden-runner';
 
 /**
  * Golden test for Blueprint BP-A16: ML Training Pipeline
@@ -24,121 +24,121 @@ import { runGoldenCase } from "../golden-runner";
 
 function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const mlVpc = createTestNode({
-    id: "platform:ml-vpc",
-    type: "platform",
-    metadata: { properties: { platform: "aws-vpc", cidrBlock: "10.0.0.0/16" } },
+    id: 'platform:ml-vpc',
+    type: 'platform',
+    metadata: { properties: { platform: 'aws-vpc', cidrBlock: '10.0.0.0/16' } },
   });
 
   const mlSubnet = createTestNode({
-    id: "platform:ml-subnet",
-    type: "platform",
+    id: 'platform:ml-subnet',
+    type: 'platform',
     metadata: {
       properties: {
-        platform: "aws-subnet",
-        vpcId: "platform:ml-vpc",
-        cidrBlock: "10.0.1.0/24",
-        availabilityZone: "us-east-1a",
+        platform: 'aws-subnet',
+        vpcId: 'platform:ml-vpc',
+        cidrBlock: '10.0.1.0/24',
+        availabilityZone: 'us-east-1a',
         mapPublicIpOnLaunch: false,
       },
     },
   });
 
   const mlSg = createTestNode({
-    id: "platform:ml-sg",
-    type: "platform",
+    id: 'platform:ml-sg',
+    type: 'platform',
     metadata: {
       properties: {
-        platform: "aws-security-group",
-        vpcId: "platform:ml-vpc",
-        description: "ML SG",
+        platform: 'aws-security-group',
+        vpcId: 'platform:ml-vpc',
+        description: 'ML SG',
       },
     },
   });
 
   const encryptionKey = createTestNode({
-    id: "platform:encryption-key",
-    type: "platform",
+    id: 'platform:encryption-key',
+    type: 'platform',
     metadata: {
       properties: {
-        platform: "aws-kms",
-        description: "ML key",
+        platform: 'aws-kms',
+        description: 'ML key',
         enableKeyRotation: true,
       },
     },
   });
 
   const trainingData = createTestNode({
-    id: "platform:training-data",
-    type: "platform",
-    metadata: { properties: { platform: "aws-s3", versioning: true } },
+    id: 'platform:training-data',
+    type: 'platform',
+    metadata: { properties: { platform: 'aws-s3', versioning: true } },
   });
 
   const modelArtifacts = createTestNode({
-    id: "platform:model-artifacts",
-    type: "platform",
-    metadata: { properties: { platform: "aws-s3", versioning: true } },
+    id: 'platform:model-artifacts',
+    type: 'platform',
+    metadata: { properties: { platform: 'aws-s3', versioning: true } },
   });
 
   const trainingPipeline = createTestNode({
-    id: "platform:training-pipeline",
-    type: "platform",
+    id: 'platform:training-pipeline',
+    type: 'platform',
     metadata: {
       properties: {
-        platform: "aws-sagemaker-pipeline",
+        platform: 'aws-sagemaker-pipeline',
         pipelineDefinition: '{"Version": "2020-12-01", "Steps": []}',
-        pipelineDescription: "Training pipeline for model v1",
+        pipelineDescription: 'Training pipeline for model v1',
         parallelismConfiguration: { maxParallelExecutionSteps: 3 },
       },
     },
   });
 
   const modelEndpoint = createTestNode({
-    id: "platform:model-endpoint",
-    type: "platform",
+    id: 'platform:model-endpoint',
+    type: 'platform',
     metadata: {
       properties: {
-        platform: "aws-sagemaker-endpoint",
-        instanceType: "ml.m5.large",
+        platform: 'aws-sagemaker-endpoint',
+        instanceType: 'ml.m5.large',
         initialInstanceCount: 1,
         vpcConfig: {
-          subnetIds: ["platform:ml-subnet"],
-          securityGroupIds: ["platform:ml-sg"],
+          subnetIds: ['platform:ml-subnet'],
+          securityGroupIds: ['platform:ml-sg'],
         },
       },
     },
   });
 
   const pipelineReadsData = createTestEdge({
-    id: "edge:bindsTo:platform:training-pipeline:platform:training-data",
-    type: "bindsTo",
+    id: 'edge:bindsTo:platform:training-pipeline:platform:training-data',
+    type: 'bindsTo',
     source: trainingPipeline.id,
     target: trainingData.id,
     metadata: {
-      bindingConfig: { resourceType: "bucket", accessLevel: "read" },
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'read' },
     },
   });
 
   const pipelineWritesArtifacts = createTestEdge({
-    id: "edge:bindsTo:platform:training-pipeline:platform:model-artifacts",
-    type: "bindsTo",
+    id: 'edge:bindsTo:platform:training-pipeline:platform:model-artifacts',
+    type: 'bindsTo',
     source: trainingPipeline.id,
     target: modelArtifacts.id,
     metadata: {
-      bindingConfig: { resourceType: "bucket", accessLevel: "write" },
+      bindingConfig: { resourceType: 'bucket', accessLevel: 'write' },
     },
   });
 
   return [
-    { type: "addNode", node: mlVpc },
-    { type: "addNode", node: mlSubnet },
-    { type: "addNode", node: mlSg },
-    { type: "addNode", node: encryptionKey },
-    { type: "addNode", node: trainingData },
-    { type: "addNode", node: modelArtifacts },
-    { type: "addNode", node: trainingPipeline },
-    { type: "addNode", node: modelEndpoint },
-    { type: "addEdge", edge: pipelineReadsData },
-    { type: "addEdge", edge: pipelineWritesArtifacts },
+    { type: 'addNode', node: mlVpc },
+    { type: 'addNode', node: mlSubnet },
+    { type: 'addNode', node: mlSg },
+    { type: 'addNode', node: encryptionKey },
+    { type: 'addNode', node: trainingData },
+    { type: 'addNode', node: modelArtifacts },
+    { type: 'addNode', node: trainingPipeline },
+    { type: 'addNode', node: modelEndpoint },
+    { type: 'addEdge', edge: pipelineReadsData },
+    { type: 'addEdge', edge: pipelineWritesArtifacts },
   ];
 }
 
@@ -149,13 +149,13 @@ function makeBinders() {
   return registry.getBinders();
 }
 
-describe("Golden: Blueprint BP-A16 — ML Training Pipeline", () => {
+describe('Golden: Blueprint BP-A16 — ML Training Pipeline', () => {
   const evaluator = new BaselinePolicyEvaluator();
 
-  it("compiles successfully", () => {
+  it('compiles successfully', () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: "Baseline" },
+      config: { policyPack: 'Baseline' },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
@@ -163,30 +163,30 @@ describe("Golden: Blueprint BP-A16 — ML Training Pipeline", () => {
     expect(compilation.validation.valid).toBe(true);
   });
 
-  it("contains all 8 nodes", () => {
+  it('contains all 8 nodes', () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: "Baseline" },
+      config: { policyPack: 'Baseline' },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
 
     expect(compilation.snapshot.nodes).toHaveLength(8);
     const ids = compilation.snapshot.nodes.map((n) => n.id);
-    expect(ids).toContain("platform:ml-vpc");
-    expect(ids).toContain("platform:ml-subnet");
-    expect(ids).toContain("platform:ml-sg");
-    expect(ids).toContain("platform:encryption-key");
-    expect(ids).toContain("platform:training-data");
-    expect(ids).toContain("platform:model-artifacts");
-    expect(ids).toContain("platform:training-pipeline");
-    expect(ids).toContain("platform:model-endpoint");
+    expect(ids).toContain('platform:ml-vpc');
+    expect(ids).toContain('platform:ml-subnet');
+    expect(ids).toContain('platform:ml-sg');
+    expect(ids).toContain('platform:encryption-key');
+    expect(ids).toContain('platform:training-data');
+    expect(ids).toContain('platform:model-artifacts');
+    expect(ids).toContain('platform:training-pipeline');
+    expect(ids).toContain('platform:model-endpoint');
   });
 
-  it("contains 2 edges", () => {
+  it('contains 2 edges', () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: "Baseline" },
+      config: { policyPack: 'Baseline' },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
@@ -194,10 +194,10 @@ describe("Golden: Blueprint BP-A16 — ML Training Pipeline", () => {
     expect(compilation.snapshot.edges).toHaveLength(2);
   });
 
-  it("emits zero intents (platform-to-platform edges)", () => {
+  it('emits zero intents (platform-to-platform edges)', () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: "Baseline" },
+      config: { policyPack: 'Baseline' },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
@@ -205,10 +205,10 @@ describe("Golden: Blueprint BP-A16 — ML Training Pipeline", () => {
     expect(compilation.intents).toHaveLength(0);
   });
 
-  it("determinism: identical output across two runs", () => {
+  it('determinism: identical output across two runs', () => {
     const opts = {
       setup: setupBlueprint,
-      config: { policyPack: "Baseline" },
+      config: { policyPack: 'Baseline' },
       binders: makeBinders(),
       evaluators: [evaluator],
     };
@@ -218,9 +218,9 @@ describe("Golden: Blueprint BP-A16 — ML Training Pipeline", () => {
     expect(r1.serialized).toBe(r2.serialized);
   });
 
-  describe("policy evaluation across packs", () => {
-    it.each(["Baseline", "FedRAMP-Moderate", "FedRAMP-High"] as const)(
-      "evaluates with pack %s without throwing",
+  describe('policy evaluation across packs', () => {
+    it.each(['Baseline', 'FedRAMP-Moderate', 'FedRAMP-High'] as const)(
+      'evaluates with pack %s without throwing',
       (pack) => {
         const { compilation } = runGoldenCase({
           setup: setupBlueprint,
@@ -233,16 +233,16 @@ describe("Golden: Blueprint BP-A16 — ML Training Pipeline", () => {
       },
     );
 
-    it("sagemaker-pipeline-parallelism-missing does not fire (config set)", () => {
+    it('sagemaker-pipeline-parallelism-missing does not fire (config set)', () => {
       const { compilation } = runGoldenCase({
         setup: setupBlueprint,
-        config: { policyPack: "Baseline" },
+        config: { policyPack: 'Baseline' },
         binders: makeBinders(),
         evaluators: [evaluator],
       });
 
       const violations = compilation.policy?.violations.filter(
-        (v) => v.ruleId === "sagemaker-pipeline-parallelism-missing",
+        (v) => v.ruleId === 'sagemaker-pipeline-parallelism-missing',
       );
       expect(violations).toHaveLength(0);
     });

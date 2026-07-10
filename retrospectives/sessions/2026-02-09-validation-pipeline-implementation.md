@@ -190,13 +190,13 @@ If creating similar validation packages in the future:
 The vitest.config.ts must include path aliases to resolve workspace packages:
 
 ```typescript
-import { resolve } from "path";
+import { resolve } from 'path';
 
 export default defineConfig({
   resolve: {
     alias: {
-      "@shinobi/contracts": resolve(__dirname, "../contracts/src/index.ts"),
-      "@shinobi/ir": resolve(__dirname, "../ir/src/index.ts"),
+      '@shinobi/contracts': resolve(__dirname, '../contracts/src/index.ts'),
+      '@shinobi/ir': resolve(__dirname, '../ir/src/index.ts'),
     },
   },
   // ... rest of config

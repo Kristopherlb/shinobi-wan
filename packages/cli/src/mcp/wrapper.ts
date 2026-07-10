@@ -1,7 +1,7 @@
-import { createHash } from "crypto";
-import { plan } from "../commands/plan";
-import { up } from "../commands/up";
-import { validate } from "../commands/validate";
+import { createHash } from 'crypto';
+import { plan } from '../commands/plan';
+import { up } from '../commands/up';
+import { validate } from '../commands/validate';
 import {
   createAsyncOperationHandle,
   createHttpWorkflowClient,
@@ -9,8 +9,8 @@ import {
   envelopeUpResult,
   envelopeValidateResult,
   getIntegrationFeatureFlags,
-} from "../integration";
-import type { OperationStatusRecord } from "../integration";
+} from '../integration';
+import type { OperationStatusRecord } from '../integration';
 import type {
   ApplyApprovalEvidence,
   ApplyChangeInput,
@@ -19,7 +19,7 @@ import type {
   PlanChangeInput,
   ReadInput,
   ValidatePlanInput,
-} from "./types";
+} from './types';
 
 const workflowClient = createHttpWorkflowClient();
 
@@ -53,11 +53,11 @@ function normalizeManifestPath(manifestPath: string): string {
 function computePlanFingerprint(input: PlanChangeInput): string {
   const normalized = JSON.stringify({
     manifestPath: normalizeManifestPath(input.manifestPath),
-    policyPack: input.policyPack ?? "",
-    region: input.region ?? "us-east-1",
-    codePath: input.codePath ?? "",
+    policyPack: input.policyPack ?? '',
+    region: input.region ?? 'us-east-1',
+    codePath: input.codePath ?? '',
   });
-  return createHash("sha256").update(normalized).digest("hex");
+  return createHash('sha256').update(normalized).digest('hex');
 }
 
 function validateApprovalEvidence(
@@ -65,25 +65,25 @@ function validateApprovalEvidence(
   maxSlaMinutes: number,
 ): { valid: true } | { valid: false; missingFields: string[] } {
   if (!approval) {
-    return { valid: false, missingFields: ["approval"] };
+    return { valid: false, missingFields: ['approval'] };
   }
   const missingFields: string[] = [];
-  if (!approval.approvalId) missingFields.push("approval.approvalId");
-  if (!approval.approverRole) missingFields.push("approval.approverRole");
-  if (!approval.approverId) missingFields.push("approval.approverId");
-  if (!approval.decision) missingFields.push("approval.decision");
-  if (approval.decision && approval.decision !== "approved") {
-    missingFields.push("approval.decision.approved");
+  if (!approval.approvalId) missingFields.push('approval.approvalId');
+  if (!approval.approverRole) missingFields.push('approval.approverRole');
+  if (!approval.approverId) missingFields.push('approval.approverId');
+  if (!approval.decision) missingFields.push('approval.decision');
+  if (approval.decision && approval.decision !== 'approved') {
+    missingFields.push('approval.decision.approved');
   }
-  if (!approval.decidedAt) missingFields.push("approval.decidedAt");
+  if (!approval.decidedAt) missingFields.push('approval.decidedAt');
   if (!Number.isFinite(approval.slaMinutes) || approval.slaMinutes <= 0) {
-    missingFields.push("approval.slaMinutes");
+    missingFields.push('approval.slaMinutes');
   }
   if (
     Number.isFinite(approval.slaMinutes) &&
     approval.slaMinutes > maxSlaMinutes
   ) {
-    missingFields.push("approval.slaMinutes.withinThreshold");
+    missingFields.push('approval.slaMinutes.withinThreshold');
   }
   return missingFields.length === 0
     ? { valid: true }
@@ -102,14 +102,14 @@ export async function invokeHarmonyTool(
         success: false,
         metadata: {
           toolId: request.toolId,
-          operationClass: "read",
+          operationClass: 'read',
           traceId: request.traceId,
           toolVersion: versions.toolVersion,
           contractVersion: versions.contractVersion,
           timestamp: new Date().toISOString(),
         },
         policy: {
-          operationClass: "read",
+          operationClass: 'read',
           defaultTimeoutMs: 5_000,
           maxTimeoutMs: 15_000,
           retryPolicy: {
@@ -117,35 +117,35 @@ export async function invokeHarmonyTool(
             initialIntervalSeconds: 1,
             backoffCoefficient: 1,
           },
-          idempotency: "optional",
-          mode: "await",
+          idempotency: 'optional',
+          mode: 'await',
         },
         error: {
-          code: "RUNNER_ERROR",
-          category: "runtime",
+          code: 'RUNNER_ERROR',
+          category: 'runtime',
           retriable: false,
-          source: "cli.mcp.wrapper",
+          source: 'cli.mcp.wrapper',
           traceId: request.traceId,
-          message: "Wrapper mode is disabled by feature flag",
+          message: 'Wrapper mode is disabled by feature flag',
         },
       },
     };
   }
 
   switch (request.toolId) {
-    case "golden.shinobi.validate_plan":
+    case 'golden.shinobi.validate_plan':
       return runValidate(
         request.input as ValidatePlanInput,
         request.traceId,
         versions,
       );
-    case "golden.shinobi.plan_change":
+    case 'golden.shinobi.plan_change':
       return runPlan(
         request.input as PlanChangeInput,
         request.traceId,
         versions,
       );
-    case "golden.shinobi.apply_change":
+    case 'golden.shinobi.apply_change':
       return runApply(
         request.input as ApplyChangeInput,
         request.traceId,
@@ -155,10 +155,10 @@ export async function invokeHarmonyTool(
         flags.approvalRequired,
         flags.approvalMaxSlaMinutes,
       );
-    case "golden.shinobi.rollback_change":
+    case 'golden.shinobi.rollback_change':
       return runRollback(request.traceId, versions);
-    case "golden.shinobi.read_entities":
-    case "golden.shinobi.read_activity":
+    case 'golden.shinobi.read_entities':
+    case 'golden.shinobi.read_activity':
       return runReadProjection(
         request.toolId,
         request.input as ReadInput,
@@ -181,8 +181,8 @@ async function runValidate(
 
   return {
     envelope: envelopeValidateResult(result, {
-      toolId: "golden.shinobi.validate_plan",
-      operationClass: "plan",
+      toolId: 'golden.shinobi.validate_plan',
+      operationClass: 'plan',
       traceId,
       ...versions,
     }),
@@ -203,8 +203,8 @@ async function runPlan(
   });
 
   const envelope = envelopePlanResult(result, {
-    toolId: "golden.shinobi.plan_change",
-    operationClass: "plan",
+    toolId: 'golden.shinobi.plan_change',
+    operationClass: 'plan',
     traceId,
     ...versions,
   });
@@ -228,7 +228,7 @@ async function runApply(
   traceId: string,
   versions: { toolVersion: string; contractVersion: string },
   applyEnabled: boolean,
-  defaultMode: "start" | "await",
+  defaultMode: 'start' | 'await',
   approvalRequired: boolean,
   approvalMaxSlaMinutes: number,
 ): Promise<HarmonyToolCallResult> {
@@ -237,15 +237,15 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: "golden.shinobi.apply_change",
-          operationClass: "apply",
+          toolId: 'golden.shinobi.apply_change',
+          operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
           contractVersion: versions.contractVersion,
           timestamp: new Date().toISOString(),
         },
         policy: {
-          operationClass: "apply",
+          operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
           retryPolicy: {
@@ -253,16 +253,16 @@ async function runApply(
             initialIntervalSeconds: 1,
             backoffCoefficient: 1,
           },
-          idempotency: "required",
-          mode: "start",
+          idempotency: 'required',
+          mode: 'start',
         },
         error: {
-          code: "APPROVAL_REQUIRED",
-          category: "authorization",
+          code: 'APPROVAL_REQUIRED',
+          category: 'authorization',
           retriable: false,
-          source: "cli.mcp.wrapper",
+          source: 'cli.mcp.wrapper',
           traceId,
-          message: "Apply is disabled by rollout gate",
+          message: 'Apply is disabled by rollout gate',
         },
       },
     };
@@ -273,15 +273,15 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: "golden.shinobi.apply_change",
-          operationClass: "apply",
+          toolId: 'golden.shinobi.apply_change',
+          operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
           contractVersion: versions.contractVersion,
           timestamp: new Date().toISOString(),
         },
         policy: {
-          operationClass: "apply",
+          operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
           retryPolicy: {
@@ -289,16 +289,16 @@ async function runApply(
             initialIntervalSeconds: 1,
             backoffCoefficient: 1,
           },
-          idempotency: "required",
-          mode: "start",
+          idempotency: 'required',
+          mode: 'start',
         },
         error: {
-          code: "INPUT_VALIDATION_FAILED",
-          category: "validation",
+          code: 'INPUT_VALIDATION_FAILED',
+          category: 'validation',
           retriable: false,
-          source: "cli.mcp.wrapper",
+          source: 'cli.mcp.wrapper',
           traceId,
-          message: "planFingerprint is required for apply operations.",
+          message: 'planFingerprint is required for apply operations.',
         },
       },
     };
@@ -309,15 +309,15 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: "golden.shinobi.apply_change",
-          operationClass: "apply",
+          toolId: 'golden.shinobi.apply_change',
+          operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
           contractVersion: versions.contractVersion,
           timestamp: new Date().toISOString(),
         },
         policy: {
-          operationClass: "apply",
+          operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
           retryPolicy: {
@@ -325,16 +325,16 @@ async function runApply(
             initialIntervalSeconds: 1,
             backoffCoefficient: 1,
           },
-          idempotency: "required",
-          mode: "start",
+          idempotency: 'required',
+          mode: 'start',
         },
         error: {
-          code: "INPUT_VALIDATION_FAILED",
-          category: "validation",
+          code: 'INPUT_VALIDATION_FAILED',
+          category: 'validation',
           retriable: false,
-          source: "cli.mcp.wrapper",
+          source: 'cli.mcp.wrapper',
           traceId,
-          message: "idempotencyKey is required for apply operations.",
+          message: 'idempotencyKey is required for apply operations.',
         },
       },
     };
@@ -350,15 +350,15 @@ async function runApply(
         envelope: {
           success: false,
           metadata: {
-            toolId: "golden.shinobi.apply_change",
-            operationClass: "apply",
+            toolId: 'golden.shinobi.apply_change',
+            operationClass: 'apply',
             traceId,
             toolVersion: versions.toolVersion,
             contractVersion: versions.contractVersion,
             timestamp: new Date().toISOString(),
           },
           policy: {
-            operationClass: "apply",
+            operationClass: 'apply',
             defaultTimeoutMs: 30_000,
             maxTimeoutMs: 120_000,
             retryPolicy: {
@@ -366,16 +366,16 @@ async function runApply(
               initialIntervalSeconds: 1,
               backoffCoefficient: 1,
             },
-            idempotency: "required",
-            mode: "start",
+            idempotency: 'required',
+            mode: 'start',
           },
           error: {
-            code: "APPROVAL_REQUIRED",
-            category: "authorization",
+            code: 'APPROVAL_REQUIRED',
+            category: 'authorization',
             retriable: false,
-            source: "cli.mcp.wrapper",
+            source: 'cli.mcp.wrapper',
             traceId,
-            message: "Approval evidence is required before apply operations.",
+            message: 'Approval evidence is required before apply operations.',
             details: {
               missingFields: approvalValidation.missingFields,
               maxSlaMinutes: approvalMaxSlaMinutes,
@@ -392,15 +392,15 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: "golden.shinobi.apply_change",
-          operationClass: "apply",
+          toolId: 'golden.shinobi.apply_change',
+          operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
           contractVersion: versions.contractVersion,
           timestamp: new Date().toISOString(),
         },
         policy: {
-          operationClass: "apply",
+          operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
           retryPolicy: {
@@ -408,16 +408,16 @@ async function runApply(
             initialIntervalSeconds: 1,
             backoffCoefficient: 1,
           },
-          idempotency: "required",
-          mode: "start",
+          idempotency: 'required',
+          mode: 'start',
         },
         error: {
-          code: "CONFLICT",
-          category: "conflict",
+          code: 'CONFLICT',
+          category: 'conflict',
           retriable: false,
-          source: "cli.mcp.wrapper",
+          source: 'cli.mcp.wrapper',
           traceId,
-          message: "planFingerprint mismatch. Re-run plan before apply.",
+          message: 'planFingerprint mismatch. Re-run plan before apply.',
         },
       },
     };
@@ -428,15 +428,15 @@ async function runApply(
       envelope: {
         success: false,
         metadata: {
-          toolId: "golden.shinobi.apply_change",
-          operationClass: "apply",
+          toolId: 'golden.shinobi.apply_change',
+          operationClass: 'apply',
           traceId,
           toolVersion: versions.toolVersion,
           contractVersion: versions.contractVersion,
           timestamp: new Date().toISOString(),
         },
         policy: {
-          operationClass: "apply",
+          operationClass: 'apply',
           defaultTimeoutMs: 30_000,
           maxTimeoutMs: 120_000,
           retryPolicy: {
@@ -444,29 +444,29 @@ async function runApply(
             initialIntervalSeconds: 1,
             backoffCoefficient: 1,
           },
-          idempotency: "required",
-          mode: "start",
+          idempotency: 'required',
+          mode: 'start',
         },
         error: {
-          code: "DEPENDENCY_UNAVAILABLE",
-          category: "upstream",
+          code: 'DEPENDENCY_UNAVAILABLE',
+          category: 'upstream',
           retriable: true,
-          retriableReason: "dependency_unavailable",
-          source: "cli.mcp.wrapper",
+          retriableReason: 'dependency_unavailable',
+          source: 'cli.mcp.wrapper',
           traceId,
           message:
-            "Harmony wiring is incomplete. Apply remains blocked while read/plan continue.",
+            'Harmony wiring is incomplete. Apply remains blocked while read/plan continue.',
         },
       },
     };
   }
 
   const mode = input.mode ?? defaultMode;
-  if (mode === "start") {
+  if (mode === 'start') {
     try {
       const dispatch = await workflowClient.dispatchApplyWorkflow({
         traceId,
-        toolId: "golden.shinobi.apply_change",
+        toolId: 'golden.shinobi.apply_change',
         manifestPath: normalizeManifestPath(input.manifestPath),
         policyPack: input.policyPack,
         region: input.region,
@@ -479,15 +479,15 @@ async function runApply(
         envelope: {
           success: true,
           metadata: {
-            toolId: "golden.shinobi.apply_change",
-            operationClass: "apply",
+            toolId: 'golden.shinobi.apply_change',
+            operationClass: 'apply',
             traceId,
             toolVersion: versions.toolVersion,
             contractVersion: versions.contractVersion,
             timestamp: new Date().toISOString(),
           },
           policy: {
-            operationClass: "apply",
+            operationClass: 'apply',
             defaultTimeoutMs: 30_000,
             maxTimeoutMs: 120_000,
             retryPolicy: {
@@ -495,8 +495,8 @@ async function runApply(
               initialIntervalSeconds: 1,
               backoffCoefficient: 1,
             },
-            idempotency: "required",
-            mode: "start",
+            idempotency: 'required',
+            mode: 'start',
           },
           data: {
             accepted: true,
@@ -519,15 +519,15 @@ async function runApply(
         envelope: {
           success: false,
           metadata: {
-            toolId: "golden.shinobi.apply_change",
-            operationClass: "apply",
+            toolId: 'golden.shinobi.apply_change',
+            operationClass: 'apply',
             traceId,
             toolVersion: versions.toolVersion,
             contractVersion: versions.contractVersion,
             timestamp: new Date().toISOString(),
           },
           policy: {
-            operationClass: "apply",
+            operationClass: 'apply',
             defaultTimeoutMs: 30_000,
             maxTimeoutMs: 120_000,
             retryPolicy: {
@@ -535,15 +535,15 @@ async function runApply(
               initialIntervalSeconds: 1,
               backoffCoefficient: 1,
             },
-            idempotency: "required",
-            mode: "start",
+            idempotency: 'required',
+            mode: 'start',
           },
           error: {
-            code: "DEPENDENCY_UNAVAILABLE",
-            category: "upstream",
+            code: 'DEPENDENCY_UNAVAILABLE',
+            category: 'upstream',
             retriable: true,
-            retriableReason: "dependency_unavailable",
-            source: "cli.mcp.wrapper",
+            retriableReason: 'dependency_unavailable',
+            source: 'cli.mcp.wrapper',
             traceId,
             message: `Workflow dispatch failed: ${message}`,
           },
@@ -562,8 +562,8 @@ async function runApply(
   });
   return {
     envelope: envelopeUpResult(result, {
-      toolId: "golden.shinobi.apply_change",
-      operationClass: "apply",
+      toolId: 'golden.shinobi.apply_change',
+      operationClass: 'apply',
       traceId,
       ...versions,
     }),
@@ -571,7 +571,7 @@ async function runApply(
 }
 
 async function runReadProjection(
-  toolId: "golden.shinobi.read_entities" | "golden.shinobi.read_activity",
+  toolId: 'golden.shinobi.read_entities' | 'golden.shinobi.read_activity',
   input: ReadInput,
   traceId: string,
   versions: { toolVersion: string; contractVersion: string },
@@ -588,7 +588,7 @@ async function runReadProjection(
   });
 
   const derivedPayload =
-    toolId === "golden.shinobi.read_entities"
+    toolId === 'golden.shinobi.read_entities'
       ? {
           manifest: validateResult.manifest,
           resources:
@@ -617,14 +617,14 @@ async function runReadProjection(
       success: readSuccess,
       metadata: {
         toolId,
-        operationClass: "read",
+        operationClass: 'read',
         traceId,
         toolVersion: versions.toolVersion,
         contractVersion: versions.contractVersion,
         timestamp: new Date().toISOString(),
       },
       policy: {
-        operationClass: "read",
+        operationClass: 'read',
         defaultTimeoutMs: 5_000,
         maxTimeoutMs: 15_000,
         retryPolicy: {
@@ -632,20 +632,20 @@ async function runReadProjection(
           initialIntervalSeconds: 1,
           backoffCoefficient: 2,
         },
-        idempotency: "recommended",
-        mode: "await",
+        idempotency: 'recommended',
+        mode: 'await',
       },
       ...(readSuccess
         ? { data: derivedPayload }
         : {
             error: {
-              code: "INPUT_VALIDATION_FAILED",
-              category: "validation",
+              code: 'INPUT_VALIDATION_FAILED',
+              category: 'validation',
               retriable: false,
-              source: "cli.mcp.wrapper",
+              source: 'cli.mcp.wrapper',
               traceId,
               message:
-                "Read projection failed because validate/plan did not succeed.",
+                'Read projection failed because validate/plan did not succeed.',
               details: derivedPayload as Record<string, unknown>,
             },
           }),
@@ -661,15 +661,15 @@ async function runRollback(
     envelope: {
       success: false,
       metadata: {
-        toolId: "golden.shinobi.rollback_change",
-        operationClass: "apply",
+        toolId: 'golden.shinobi.rollback_change',
+        operationClass: 'apply',
         traceId,
         toolVersion: versions.toolVersion,
         contractVersion: versions.contractVersion,
         timestamp: new Date().toISOString(),
       },
       policy: {
-        operationClass: "apply",
+        operationClass: 'apply',
         defaultTimeoutMs: 30_000,
         maxTimeoutMs: 120_000,
         retryPolicy: {
@@ -677,17 +677,17 @@ async function runRollback(
           initialIntervalSeconds: 1,
           backoffCoefficient: 1,
         },
-        idempotency: "required",
-        mode: "start",
+        idempotency: 'required',
+        mode: 'start',
       },
       error: {
-        code: "RUNNER_ERROR",
-        category: "runtime",
+        code: 'RUNNER_ERROR',
+        category: 'runtime',
         retriable: false,
-        source: "cli.mcp.wrapper",
+        source: 'cli.mcp.wrapper',
         traceId,
         message:
-          "Rollback is not yet a first-class Shinobi operation. Use wrapper-managed compensation.",
+          'Rollback is not yet a first-class Shinobi operation. Use wrapper-managed compensation.',
       },
     },
   };

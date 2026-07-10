@@ -1,18 +1,18 @@
-import type { Node } from "@shinobi/ir";
+import type { Node } from '@shinobi/ir';
 import type {
   LoweredResource,
   LoweringContext,
   NodeLowerer,
   ResolvedDeps,
-} from "../types";
-import { shortName, createStandardTags, makeResourceName } from "./utils";
+} from '../types';
+import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-transit-gateway" ->
  * Transit Gateway + Route Table.
  */
 export class TransitGatewayLowerer implements NodeLowerer {
-  readonly platform = "aws-transit-gateway";
+  readonly platform = 'aws-transit-gateway';
 
   lower(
     node: Node,
@@ -21,27 +21,27 @@ export class TransitGatewayLowerer implements NodeLowerer {
   ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
-    const extraTags = config["tags"] as Record<string, string> | undefined;
-    const tags = createStandardTags(node.id, "aws-transit-gateway", extraTags);
+    const extraTags = config['tags'] as Record<string, string> | undefined;
+    const tags = createStandardTags(node.id, 'aws-transit-gateway', extraTags);
 
     const tgwName = `${name}-tgw`;
     const rtName = `${name}-tgw-rt`;
 
     const autoAcceptSharedAttachments =
-      (config["autoAcceptSharedAttachments"] as string) ?? "disable";
+      (config['autoAcceptSharedAttachments'] as string) ?? 'disable';
     const defaultRouteTableAssociation =
-      (config["defaultRouteTableAssociation"] as string) ?? "enable";
+      (config['defaultRouteTableAssociation'] as string) ?? 'enable';
     const defaultRouteTablePropagation =
-      (config["defaultRouteTablePropagation"] as string) ?? "enable";
-    const dnsSupport = (config["dnsSupport"] as string) ?? "enable";
-    const vpnEcmpSupport = (config["vpnEcmpSupport"] as string) ?? "enable";
-    const amazonSideAsn = (config["amazonSideAsn"] as number) ?? 64512;
+      (config['defaultRouteTablePropagation'] as string) ?? 'enable';
+    const dnsSupport = (config['dnsSupport'] as string) ?? 'enable';
+    const vpnEcmpSupport = (config['vpnEcmpSupport'] as string) ?? 'enable';
+    const amazonSideAsn = (config['amazonSideAsn'] as number) ?? 64512;
 
     const resources: LoweredResource[] = [];
 
     resources.push({
       name: tgwName,
-      resourceType: "aws:ec2transitgateway:TransitGateway",
+      resourceType: 'aws:ec2transitgateway:TransitGateway',
       properties: {
         description: makeResourceName(
           node.id,
@@ -61,7 +61,7 @@ export class TransitGatewayLowerer implements NodeLowerer {
 
     resources.push({
       name: rtName,
-      resourceType: "aws:ec2transitgateway:RouteTable",
+      resourceType: 'aws:ec2transitgateway:RouteTable',
       properties: {
         transitGatewayId: { ref: tgwName },
         tags,

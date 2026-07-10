@@ -1,12 +1,12 @@
-import type { IntegrationFeatureFlags } from "./types";
-import { CONTRACT_VERSION, DEFAULT_TOOL_VERSION } from "./contract";
+import type { IntegrationFeatureFlags } from './types';
+import { CONTRACT_VERSION, DEFAULT_TOOL_VERSION } from './contract';
 
 function parseBoolean(
   value: string | undefined,
   defaultValue: boolean,
 ): boolean {
   if (value === undefined) return defaultValue;
-  return value === "true";
+  return value === 'true';
 }
 
 function parsePositiveInteger(
@@ -24,7 +24,7 @@ export function getIntegrationFeatureFlags(
   return {
     wrapperModeEnabled: parseBoolean(env.SHINOBI_WRAPPER_MODE_ENABLED, false),
     applyEnabled: parseBoolean(env.SHINOBI_APPLY_ENABLED, false),
-    applyMode: env.SHINOBI_APPLY_MODE === "await" ? "await" : "start",
+    applyMode: env.SHINOBI_APPLY_MODE === 'await' ? 'await' : 'start',
     approvalRequired: parseBoolean(env.SHINOBI_APPROVAL_REQUIRED, true),
     approvalMaxSlaMinutes: parsePositiveInteger(
       env.SHINOBI_APPROVAL_MAX_SLA_MINUTES,

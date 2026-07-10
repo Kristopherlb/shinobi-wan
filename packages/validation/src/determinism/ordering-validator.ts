@@ -1,11 +1,11 @@
-import type { GraphSnapshot, Node, Edge, DerivedArtifact } from "@shinobi/ir";
-import { compareNodes, compareEdges, compareArtifacts } from "@shinobi/ir";
+import type { GraphSnapshot, Node, Edge, DerivedArtifact } from '@shinobi/ir';
+import { compareNodes, compareEdges, compareArtifacts } from '@shinobi/ir';
 import {
   createError,
   createResult,
   type ValidationError,
   type ValidationResult,
-} from "../errors";
+} from '../errors';
 
 /**
  * Checks if an array is in canonical order according to a comparator.
@@ -29,13 +29,13 @@ function validateNodeOrdering(nodes: ReadonlyArray<Node>): ValidationError[] {
   if (!isCanonicallyOrdered(nodes, compareNodes)) {
     return [
       createError({
-        path: "$.nodes",
-        rule: "non-canonical-ordering",
-        message: "Nodes are not in canonical order (sorted by type, then id)",
-        severity: "error",
+        path: '$.nodes',
+        rule: 'non-canonical-ordering',
+        message: 'Nodes are not in canonical order (sorted by type, then id)',
+        severity: 'error',
         remediation:
-          "Sort nodes using the canonical ordering: primary by type (lexicographic), secondary by id (lexicographic)",
-        kernelLaw: "KL-001",
+          'Sort nodes using the canonical ordering: primary by type (lexicographic), secondary by id (lexicographic)',
+        kernelLaw: 'KL-001',
       }),
     ];
   }
@@ -49,14 +49,14 @@ function validateEdgeOrdering(edges: ReadonlyArray<Edge>): ValidationError[] {
   if (!isCanonicallyOrdered(edges, compareEdges)) {
     return [
       createError({
-        path: "$.edges",
-        rule: "non-canonical-ordering",
+        path: '$.edges',
+        rule: 'non-canonical-ordering',
         message:
-          "Edges are not in canonical order (sorted by type, source, target, then id)",
-        severity: "error",
+          'Edges are not in canonical order (sorted by type, source, target, then id)',
+        severity: 'error',
         remediation:
-          "Sort edges using the canonical ordering: type → source → target → id (all lexicographic)",
-        kernelLaw: "KL-001",
+          'Sort edges using the canonical ordering: type → source → target → id (all lexicographic)',
+        kernelLaw: 'KL-001',
       }),
     ];
   }
@@ -72,14 +72,14 @@ function validateArtifactOrdering(
   if (!isCanonicallyOrdered(artifacts, compareArtifacts)) {
     return [
       createError({
-        path: "$.artifacts",
-        rule: "non-canonical-ordering",
+        path: '$.artifacts',
+        rule: 'non-canonical-ordering',
         message:
-          "Artifacts are not in canonical order (sorted by type, then id)",
-        severity: "error",
+          'Artifacts are not in canonical order (sorted by type, then id)',
+        severity: 'error',
         remediation:
-          "Sort artifacts using the canonical ordering: primary by type (lexicographic), secondary by id (lexicographic)",
-        kernelLaw: "KL-001",
+          'Sort artifacts using the canonical ordering: primary by type (lexicographic), secondary by id (lexicographic)',
+        kernelLaw: 'KL-001',
       }),
     ];
   }

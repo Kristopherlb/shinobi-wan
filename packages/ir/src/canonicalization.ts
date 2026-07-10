@@ -30,15 +30,15 @@ export function canonicalize(value: unknown): CanonicalValue {
     return null;
   }
 
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return value;
   }
 
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     return normalizeNumber(value);
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value;
   }
 
@@ -46,7 +46,7 @@ export function canonicalize(value: unknown): CanonicalValue {
     return value.map(canonicalize);
   }
 
-  if (typeof value === "object") {
+  if (typeof value === 'object') {
     const sorted: Record<string, CanonicalValue> = {};
     const keys = Object.keys(value).sort();
 

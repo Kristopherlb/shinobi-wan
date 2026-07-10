@@ -1,36 +1,36 @@
-import { Command } from "commander";
-import { validate } from "./commands/validate";
-import { plan } from "./commands/plan";
-import type { PlanResult } from "./commands/plan";
-import { up } from "./commands/up";
-import type { UpResult } from "./commands/up";
-import { preview } from "@shinobi/adapter-aws";
-import type { AdapterConfig } from "@shinobi/adapter-aws";
+import { Command } from 'commander';
+import { validate } from './commands/validate';
+import { plan } from './commands/plan';
+import type { PlanResult } from './commands/plan';
+import { up } from './commands/up';
+import type { UpResult } from './commands/up';
+import { preview } from '@shinobi/adapter-aws';
+import type { AdapterConfig } from '@shinobi/adapter-aws';
 import {
   envelopePlanResult,
   envelopeUpResult,
   envelopeValidateResult,
   getIntegrationFeatureFlags,
-} from "./integration";
+} from './integration';
 
 export function createCli(): Command {
   const program = new Command();
 
   program
-    .name("shinobi")
-    .description("Shinobi V3 — Infrastructure-as-code graph kernel")
-    .version("0.0.1");
+    .name('shinobi')
+    .description('Shinobi V3 — Infrastructure-as-code graph kernel')
+    .version('0.0.1');
 
   program
-    .command("validate")
-    .description("Parse and validate a service manifest")
-    .argument("<manifest>", "Path to the YAML service manifest")
-    .option("--json", "Output results as JSON")
-    .option("--harmony-envelope", "Emit Harmony-compatible envelope output")
-    .option("--trace-id <traceId>", "Correlation trace identifier")
+    .command('validate')
+    .description('Parse and validate a service manifest')
+    .argument('<manifest>', 'Path to the YAML service manifest')
+    .option('--json', 'Output results as JSON')
+    .option('--harmony-envelope', 'Emit Harmony-compatible envelope output')
+    .option('--trace-id <traceId>', 'Correlation trace identifier')
     .option(
-      "--policy-pack <pack>",
-      "Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)",
+      '--policy-pack <pack>',
+      'Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)',
     )
     .action(
       (
@@ -48,20 +48,20 @@ export function createCli(): Command {
           policyPack: opts.policyPack,
         });
         const featureFlags = getIntegrationFeatureFlags();
-        const traceId = opts.traceId ?? "trace-local";
+        const traceId = opts.traceId ?? 'trace-local';
 
         if (opts.harmonyEnvelope) {
           const output = envelopeValidateResult(result, {
-            toolId: "golden.shinobi.validate_plan",
-            operationClass: "plan",
+            toolId: 'golden.shinobi.validate_plan',
+            operationClass: 'plan',
             traceId,
             toolVersion: featureFlags.toolVersion,
             contractVersion: featureFlags.contractVersion,
           });
-          process.stdout.write(JSON.stringify(output, null, 2) + "\n");
+          process.stdout.write(JSON.stringify(output, null, 2) + '\n');
         } else if (opts.json) {
           const { compilation: _, ...output } = result;
-          process.stdout.write(JSON.stringify(output, null, 2) + "\n");
+          process.stdout.write(JSON.stringify(output, null, 2) + '\n');
         } else {
           printValidateResult(result);
         }
@@ -71,18 +71,18 @@ export function createCli(): Command {
     );
 
   program
-    .command("plan")
-    .description("Generate a deployment plan from a service manifest")
-    .argument("<manifest>", "Path to the YAML service manifest")
-    .option("--region <region>", "AWS region", "us-east-1")
-    .option("--code-path <path>", "Path to Lambda code artifact")
-    .option("--preview", "Run a Pulumi preview (requires AWS credentials)")
-    .option("--json", "Output results as JSON")
-    .option("--harmony-envelope", "Emit Harmony-compatible envelope output")
-    .option("--trace-id <traceId>", "Correlation trace identifier")
+    .command('plan')
+    .description('Generate a deployment plan from a service manifest')
+    .argument('<manifest>', 'Path to the YAML service manifest')
+    .option('--region <region>', 'AWS region', 'us-east-1')
+    .option('--code-path <path>', 'Path to Lambda code artifact')
+    .option('--preview', 'Run a Pulumi preview (requires AWS credentials)')
+    .option('--json', 'Output results as JSON')
+    .option('--harmony-envelope', 'Emit Harmony-compatible envelope output')
+    .option('--trace-id <traceId>', 'Correlation trace identifier')
     .option(
-      "--policy-pack <pack>",
-      "Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)",
+      '--policy-pack <pack>',
+      'Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)',
     )
     .action(
       async (
@@ -108,9 +108,9 @@ export function createCli(): Command {
         // If --preview is set and plan succeeded, run Pulumi preview
         if (opts.preview && result.success && result.plan) {
           const adapterConfig: AdapterConfig = {
-            region: opts.region ?? "us-east-1",
+            region: opts.region ?? 'us-east-1',
             serviceName:
-              result.validation.manifest?.service ?? "shinobi-service",
+              result.validation.manifest?.service ?? 'shinobi-service',
             ...(opts.codePath ? { codePath: opts.codePath } : {}),
           };
 
@@ -129,20 +129,20 @@ export function createCli(): Command {
         if (opts.harmonyEnvelope) {
           const featureFlags = getIntegrationFeatureFlags();
           const output = envelopePlanResult(result, {
-            toolId: "golden.shinobi.plan_change",
-            operationClass: "plan",
-            traceId: opts.traceId ?? "trace-local",
+            toolId: 'golden.shinobi.plan_change',
+            operationClass: 'plan',
+            traceId: opts.traceId ?? 'trace-local',
             toolVersion: featureFlags.toolVersion,
             contractVersion: featureFlags.contractVersion,
           });
-          process.stdout.write(JSON.stringify(output, null, 2) + "\n");
+          process.stdout.write(JSON.stringify(output, null, 2) + '\n');
         } else if (opts.json) {
           const {
             validation: { compilation: _, ...validation },
             ...rest
           } = result;
           process.stdout.write(
-            JSON.stringify({ ...rest, validation }, null, 2) + "\n",
+            JSON.stringify({ ...rest, validation }, null, 2) + '\n',
           );
         } else {
           printPlanResult(result);
@@ -153,18 +153,18 @@ export function createCli(): Command {
     );
 
   program
-    .command("up")
-    .description("Deploy resources from a service manifest")
-    .argument("<manifest>", "Path to the YAML service manifest")
-    .option("--region <region>", "AWS region", "us-east-1")
-    .option("--code-path <path>", "Path to Lambda code artifact")
-    .option("--no-dry-run", "Actually deploy (default is dry run)")
-    .option("--json", "Output results as JSON")
-    .option("--harmony-envelope", "Emit Harmony-compatible envelope output")
-    .option("--trace-id <traceId>", "Correlation trace identifier")
+    .command('up')
+    .description('Deploy resources from a service manifest')
+    .argument('<manifest>', 'Path to the YAML service manifest')
+    .option('--region <region>', 'AWS region', 'us-east-1')
+    .option('--code-path <path>', 'Path to Lambda code artifact')
+    .option('--no-dry-run', 'Actually deploy (default is dry run)')
+    .option('--json', 'Output results as JSON')
+    .option('--harmony-envelope', 'Emit Harmony-compatible envelope output')
+    .option('--trace-id <traceId>', 'Correlation trace identifier')
     .option(
-      "--policy-pack <pack>",
-      "Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)",
+      '--policy-pack <pack>',
+      'Policy pack (Baseline, FedRAMP-Moderate, FedRAMP-High)',
     )
     .action(
       async (
@@ -191,13 +191,13 @@ export function createCli(): Command {
         if (opts.harmonyEnvelope) {
           const featureFlags = getIntegrationFeatureFlags();
           const output = envelopeUpResult(result, {
-            toolId: "golden.shinobi.apply_change",
-            operationClass: "apply",
-            traceId: opts.traceId ?? "trace-local",
+            toolId: 'golden.shinobi.apply_change',
+            operationClass: 'apply',
+            traceId: opts.traceId ?? 'trace-local',
             toolVersion: featureFlags.toolVersion,
             contractVersion: featureFlags.contractVersion,
           });
-          process.stdout.write(JSON.stringify(output, null, 2) + "\n");
+          process.stdout.write(JSON.stringify(output, null, 2) + '\n');
         } else if (opts.json) {
           process.stdout.write(
             JSON.stringify(
@@ -209,7 +209,7 @@ export function createCli(): Command {
               },
               null,
               2,
-            ) + "\n",
+            ) + '\n',
           );
         } else {
           printUpResult(result);
@@ -230,27 +230,27 @@ function printValidateResult(result: ReturnType<typeof validate>): void {
   }
 
   if (result.validation) {
-    const icon = result.validation.valid ? "PASS" : "FAIL";
+    const icon = result.validation.valid ? 'PASS' : 'FAIL';
     process.stdout.write(
       `Validation: ${icon} (${result.validation.errorCount} errors, ${result.validation.warningCount} warnings)\n`,
     );
   }
 
   if (result.policy) {
-    const icon = result.policy.compliant ? "COMPLIANT" : "NON-COMPLIANT";
+    const icon = result.policy.compliant ? 'COMPLIANT' : 'NON-COMPLIANT';
     process.stdout.write(
-      `Policy (${result.policy.policyPack}): ${icon} (${result.policy.violationCount} violations)\n`,
+      `Policy (${result.policy.policyPack}): ${icon} (${result.policy.blockingViolationCount} blocking, ${result.policy.advisoryViolationCount} advisory)\n`,
     );
   }
 
   if (result.errors.length > 0) {
-    process.stdout.write("\nErrors:\n");
+    process.stdout.write('\nErrors:\n');
     for (const e of result.errors) {
       process.stdout.write(`  ${e.path}: ${e.message}\n`);
     }
   }
 
-  process.stdout.write(`\nResult: ${result.success ? "SUCCESS" : "FAILURE"}\n`);
+  process.stdout.write(`\nResult: ${result.success ? 'SUCCESS' : 'FAILURE'}\n`);
 }
 
 function printPlanResult(result: ReturnType<typeof plan>): void {
@@ -261,8 +261,8 @@ function printPlanResult(result: ReturnType<typeof plan>): void {
     for (const r of result.plan.resources) {
       const deps =
         r.dependsOn.length > 0
-          ? ` (depends on: ${r.dependsOn.join(", ")})`
-          : "";
+          ? ` (depends on: ${r.dependsOn.join(', ')})`
+          : '';
       process.stdout.write(`  + ${r.resourceType} "${r.name}"${deps}\n`);
     }
 

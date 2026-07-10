@@ -1,14 +1,14 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: "contracts",
+    name: 'contracts',
     root: __dirname,
-    environment: "node",
-    include: ["src/**/__tests__/**/*.test.ts"],
+    environment: 'node',
+    include: ['src/**/__tests__/**/*.test.ts'],
     coverage: {
-      provider: "v8",
-      reportsDirectory: "../../coverage/packages/contracts",
+      provider: 'v8',
+      reportsDirectory: '../../coverage/packages/contracts',
     },
   },
 });

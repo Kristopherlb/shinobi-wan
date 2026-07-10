@@ -80,14 +80,14 @@ elided by the compiler and won't cause test failures if the module is missing.
 ❌ Bad (test passes even if module doesn't exist):
 
 ```typescript
-import type { Node } from "../types";
+import type { Node } from '../types';
 ```
 ````
 
 ✅ Good (test fails if module is missing):
 
 ```typescript
-import { NODE_TYPES, type Node } from "../types";
+import { NODE_TYPES, type Node } from '../types';
 ```
 
 ````

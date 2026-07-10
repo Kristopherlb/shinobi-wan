@@ -17,14 +17,14 @@ pnpm install
 # Build all packages
 pnpm nx run-many -t build
 
-# Build a specific package
-pnpm nx build @shinobi/kernel
+# Build a specific package (Nx project names are unscoped: kernel, ir, cli, ...)
+pnpm nx build kernel
 
 # Run tests
 pnpm nx run-many -t test
 
 # Run tests for a specific package
-pnpm nx test @shinobi/kernel
+pnpm nx test kernel
 
 # Lint
 pnpm nx run-many -t lint
@@ -42,9 +42,11 @@ pnpm run format:write
 cli → kernel
       ├── contracts (base types, no dependencies)
       ├── ir (graph model)
+      ├── validation (manifest/spec validation)
       ├── policy (compliance engine)
       └── binder (edge compilation)
 
+validation → contracts, ir
 adapters/aws → contracts, ir (ONLY)
 ```
 
@@ -60,6 +62,7 @@ adapters/aws → contracts, ir (ONLY)
 | -------------- | ---------------------------------------------------------------------- |
 | `contracts`    | Type definitions and interfaces (zero dependencies)                    |
 | `ir`           | Intermediate Representation: Node, Edge, DerivedArtifact types         |
+| `validation`   | Validation pipeline (schema → semantic → determinism), stable errors   |
 | `kernel`       | Graph engine: mutation API, canonical ordering, serialization          |
 | `binder`       | Edge compiler: transforms binding directives → backend-neutral intents |
 | `policy`       | Compliance evaluation: policy pack loading, rule evaluation            |
@@ -109,7 +112,7 @@ These invariants are non-negotiable and enforced at CI:
 
 ## Current State
 
-All 8 core packages are fully implemented and tested: contracts, ir, validation, kernel, binder, policy, conformance, cli, and adapter-aws.
+All 9 core packages are fully implemented and tested: contracts, ir, validation, kernel, binder, policy, conformance, cli, and adapter-aws.
 
 - **22/38 blueprints complete** (58%) across Waves A, B, and C
 - **55 node lowerers** + 4 intent lowerers in the AWS adapter

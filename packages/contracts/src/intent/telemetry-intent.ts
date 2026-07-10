@@ -1,4 +1,4 @@
-import type { Intent } from "./intent-base";
+import type { Intent } from './intent-base';
 
 /**
  * Telemetry configuration options.
@@ -20,13 +20,13 @@ export interface TelemetryConfig {
  * Represents telemetry configuration for components.
  */
 export interface TelemetryIntent extends Intent {
-  readonly type: "telemetry";
+  readonly type: 'telemetry';
 
   /** What to observe */
   readonly targetNodeRef: string;
 
   /** Type of telemetry */
-  readonly telemetryType: "metrics" | "traces" | "logs";
+  readonly telemetryType: 'metrics' | 'traces' | 'logs';
 
   /** Configuration */
   readonly config: TelemetryConfig;

@@ -17,8 +17,8 @@ components:
     type: platform
     platform: aws-eventbridge-scheduler
     config:
-      scheduleExpression: "cron(0 2 * * ? *)"
-      flexibleTimeWindow: "FLEXIBLE"
+      scheduleExpression: 'cron(0 2 * * ? *)'
+      flexibleTimeWindow: 'FLEXIBLE'
       retryPolicy:
         maximumRetryAttempts: 2
         maximumEventAgeInSeconds: 3600

@@ -1,6 +1,6 @@
-import type { KernelConfig } from "./types";
-import { ConfigError } from "./errors";
-import { deepFreeze } from "./freeze";
+import type { KernelConfig } from './types';
+import { ConfigError } from './errors';
+import { deepFreeze } from './freeze';
 
 /**
  * Regex for ${env:KEY} and ${env:KEY:fallback} tokens.
@@ -24,7 +24,7 @@ export function interpolateEnvTokens(
     return value;
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value.replace(
       ENV_TOKEN_PATTERN,
       (_match, key: string, fallback?: string) => {
@@ -47,7 +47,7 @@ export function interpolateEnvTokens(
     return value.map((item) => interpolateEnvTokens(item, environment));
   }
 
-  if (typeof value === "object") {
+  if (typeof value === 'object') {
     const result: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
       result[k] = interpolateEnvTokens(v, environment);
@@ -103,11 +103,11 @@ function deepMerge(
     if (
       existing !== null &&
       existing !== undefined &&
-      typeof existing === "object" &&
+      typeof existing === 'object' &&
       !Array.isArray(existing) &&
       value !== null &&
       value !== undefined &&
-      typeof value === "object" &&
+      typeof value === 'object' &&
       !Array.isArray(value)
     ) {
       result[key] = deepMerge(

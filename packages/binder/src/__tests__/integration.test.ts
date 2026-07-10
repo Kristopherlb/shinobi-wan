@@ -1,16 +1,16 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 import type {
   IamIntent,
   NetworkIntent,
   ConfigIntent,
-} from "@shinobi/contracts";
-import { Kernel } from "@shinobi/kernel";
-import { ComponentPlatformBinder } from "../binders/component-platform-binder";
-import { TriggersBinder } from "../binders/triggers-binder";
-import { BinderRegistry } from "../registry";
-import { makeNode, makeEdge } from "./test-helpers";
+} from '@shinobi/contracts';
+import { Kernel } from '@shinobi/kernel';
+import { ComponentPlatformBinder } from '../binders/component-platform-binder';
+import { TriggersBinder } from '../binders/triggers-binder';
+import { BinderRegistry } from '../registry';
+import { makeNode, makeEdge } from './test-helpers';
 
-describe("Kernel + ComponentPlatformBinder integration", () => {
+describe('Kernel + ComponentPlatformBinder integration', () => {
   function createKernelWithBinder() {
     const registry = new BinderRegistry();
     registry.register(new ComponentPlatformBinder());
@@ -24,25 +24,25 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
   function addComponentPlatformGraph(
     kernel: ReturnType<typeof createKernelWithBinder>,
   ) {
-    const sourceNode = makeNode({ id: "component:my-svc", type: "component" });
-    const targetNode = makeNode({ id: "platform:aws-sqs", type: "platform" });
+    const sourceNode = makeNode({ id: 'component:my-svc', type: 'component' });
+    const targetNode = makeNode({ id: 'platform:aws-sqs', type: 'platform' });
     const edge = makeEdge({
-      id: "edge:bindsTo:component:my-svc:platform:aws-sqs",
-      type: "bindsTo",
+      id: 'edge:bindsTo:component:my-svc:platform:aws-sqs',
+      type: 'bindsTo',
       source: sourceNode.id,
       target: targetNode.id,
       metadata: {
         bindingConfig: {
-          resourceType: "queue",
-          accessLevel: "write",
-          network: { port: 443, protocol: "tcp" },
+          resourceType: 'queue',
+          accessLevel: 'write',
+          network: { port: 443, protocol: 'tcp' },
           configKeys: [
             {
-              key: "QUEUE_URL",
+              key: 'QUEUE_URL',
               valueSource: {
-                type: "reference",
-                nodeRef: "platform:aws-sqs",
-                field: "url",
+                type: 'reference',
+                nodeRef: 'platform:aws-sqs',
+                field: 'url',
               },
             },
           ],
@@ -51,15 +51,15 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     });
 
     kernel.applyMutation([
-      { type: "addNode", node: sourceNode },
-      { type: "addNode", node: targetNode },
-      { type: "addEdge", edge },
+      { type: 'addNode', node: sourceNode },
+      { type: 'addNode', node: targetNode },
+      { type: 'addEdge', edge },
     ]);
 
     return { sourceNode, targetNode, edge };
   }
 
-  it("compiles a graph with ComponentPlatformBinder producing valid intents", () => {
+  it('compiles a graph with ComponentPlatformBinder producing valid intents', () => {
     const kernel = createKernelWithBinder();
     const { edge } = addComponentPlatformGraph(kernel);
 
@@ -70,34 +70,34 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     expect(result.intents).toHaveLength(3);
 
     // Verify IAM intent
-    const iam = result.intents.find((i) => i.type === "iam") as IamIntent;
+    const iam = result.intents.find((i) => i.type === 'iam') as IamIntent;
     expect(iam).toBeDefined();
     expect(iam.sourceEdgeId).toBe(edge.id);
-    expect(iam.principal.nodeRef).toBe("component:my-svc");
-    expect(iam.resource.nodeRef).toBe("platform:aws-sqs");
-    expect(iam.resource.resourceType).toBe("queue");
+    expect(iam.principal.nodeRef).toBe('component:my-svc');
+    expect(iam.resource.nodeRef).toBe('platform:aws-sqs');
+    expect(iam.resource.resourceType).toBe('queue');
     expect(iam.actions).toEqual([
-      { level: "read", action: "read" },
-      { level: "write", action: "write" },
+      { level: 'read', action: 'read' },
+      { level: 'write', action: 'write' },
     ]);
 
     // Verify network intent
     const net = result.intents.find(
-      (i) => i.type === "network",
+      (i) => i.type === 'network',
     ) as NetworkIntent;
     expect(net).toBeDefined();
-    expect(net.direction).toBe("egress");
-    expect(net.source.nodeRef).toBe("component:my-svc");
-    expect(net.destination.nodeRef).toBe("platform:aws-sqs");
+    expect(net.direction).toBe('egress');
+    expect(net.source.nodeRef).toBe('component:my-svc');
+    expect(net.destination.nodeRef).toBe('platform:aws-sqs');
 
     // Verify config intent
-    const cfg = result.intents.find((i) => i.type === "config") as ConfigIntent;
+    const cfg = result.intents.find((i) => i.type === 'config') as ConfigIntent;
     expect(cfg).toBeDefined();
-    expect(cfg.targetNodeRef).toBe("component:my-svc");
-    expect(cfg.key).toBe("QUEUE_URL");
+    expect(cfg.targetNodeRef).toBe('component:my-svc');
+    expect(cfg.key).toBe('QUEUE_URL');
   });
 
-  it("intents are sorted deterministically by (type, sourceEdgeId)", () => {
+  it('intents are sorted deterministically by (type, sourceEdgeId)', () => {
     const kernel = createKernelWithBinder();
     addComponentPlatformGraph(kernel);
 
@@ -109,7 +109,7 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     expect(types).toEqual(sortedTypes);
   });
 
-  it("result snapshot is frozen", () => {
+  it('result snapshot is frozen', () => {
     const kernel = createKernelWithBinder();
     addComponentPlatformGraph(kernel);
 
@@ -120,7 +120,7 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     expect(Object.isFrozen(result.intents)).toBe(true);
   });
 
-  it("produces deterministic output for identical inputs", () => {
+  it('produces deterministic output for identical inputs', () => {
     const k1 = createKernelWithBinder();
     addComponentPlatformGraph(k1);
     const r1 = k1.compile();
@@ -132,42 +132,42 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
   });
 
-  it("produces unbound-edge diagnostic for edges with no matching binder", () => {
+  it('produces unbound-edge diagnostic for edges with no matching binder', () => {
     const kernel = createKernelWithBinder();
 
-    const n1 = makeNode({ id: "component:a", type: "component" });
-    const n2 = makeNode({ id: "component:b", type: "component" });
+    const n1 = makeNode({ id: 'component:a', type: 'component' });
+    const n2 = makeNode({ id: 'component:b', type: 'component' });
     const unboundEdge = makeEdge({
-      id: "edge:triggers:component:a:component:b",
-      type: "triggers",
+      id: 'edge:triggers:component:a:component:b',
+      type: 'triggers',
       source: n1.id,
       target: n2.id,
     });
 
     kernel.applyMutation([
-      { type: "addNode", node: n1 },
-      { type: "addNode", node: n2 },
-      { type: "addEdge", edge: unboundEdge },
+      { type: 'addNode', node: n1 },
+      { type: 'addNode', node: n2 },
+      { type: 'addEdge', edge: unboundEdge },
     ]);
 
     const result = kernel.compile();
 
     const unboundDiag = result.bindingDiagnostics.find(
-      (d) => d.rule === "unbound-edge",
+      (d) => d.rule === 'unbound-edge',
     );
     expect(unboundDiag).toBeDefined();
-    expect(unboundDiag?.severity).toBe("warning");
-    expect(unboundDiag?.message).toContain("triggers");
+    expect(unboundDiag?.severity).toBe('warning');
+    expect(unboundDiag?.message).toContain('triggers');
   });
 
-  it("propagates binding diagnostics from the binder", () => {
+  it('propagates binding diagnostics from the binder', () => {
     const kernel = createKernelWithBinder();
 
-    const source = makeNode({ id: "component:svc", type: "component" });
-    const target = makeNode({ id: "platform:db", type: "platform" });
+    const source = makeNode({ id: 'component:svc', type: 'component' });
+    const target = makeNode({ id: 'platform:db', type: 'platform' });
     const edge = makeEdge({
-      id: "edge:bindsTo:component:svc:platform:db",
-      type: "bindsTo",
+      id: 'edge:bindsTo:component:svc:platform:db',
+      type: 'bindsTo',
       source: source.id,
       target: target.id,
       metadata: {
@@ -178,21 +178,21 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     });
 
     kernel.applyMutation([
-      { type: "addNode", node: source },
-      { type: "addNode", node: target },
-      { type: "addEdge", edge },
+      { type: 'addNode', node: source },
+      { type: 'addNode', node: target },
+      { type: 'addEdge', edge },
     ]);
 
     const result = kernel.compile();
 
     const diag = result.bindingDiagnostics.find(
-      (d) => d.rule === "missing-resource-type",
+      (d) => d.rule === 'missing-resource-type',
     );
     expect(diag).toBeDefined();
-    expect(diag?.severity).toBe("error");
+    expect(diag?.severity).toBe('error');
   });
 
-  it("BinderRegistry can be used to compose multiple binder sets", () => {
+  it('BinderRegistry can be used to compose multiple binder sets', () => {
     const registry = new BinderRegistry();
     registry.register(new ComponentPlatformBinder());
     registry.register(new TriggersBinder());
@@ -201,38 +201,38 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     expect(binders).toHaveLength(2);
 
     // Verify lookup works for both patterns
-    const bindsTo = registry.findBinder("bindsTo", "component", "platform");
+    const bindsTo = registry.findBinder('bindsTo', 'component', 'platform');
     expect(bindsTo).toBeDefined();
-    expect(bindsTo?.id).toBe("component-platform-binder");
+    expect(bindsTo?.id).toBe('component-platform-binder');
 
-    const triggers = registry.findBinder("triggers", "platform", "component");
+    const triggers = registry.findBinder('triggers', 'platform', 'component');
     expect(triggers).toBeDefined();
-    expect(triggers?.id).toBe("triggers-binder");
+    expect(triggers?.id).toBe('triggers-binder');
   });
 
-  it("compiles triggers edge with TriggersBinder producing IAM + config intents", () => {
+  it('compiles triggers edge with TriggersBinder producing IAM + config intents', () => {
     const kernel = createKernelWithBinder();
 
-    const apiGw = makeNode({ id: "platform:api-gw", type: "platform" });
-    const handler = makeNode({ id: "component:handler", type: "component" });
+    const apiGw = makeNode({ id: 'platform:api-gw', type: 'platform' });
+    const handler = makeNode({ id: 'component:handler', type: 'component' });
     const triggersEdge = makeEdge({
-      id: "edge:triggers:platform:api-gw:component:handler",
-      type: "triggers",
+      id: 'edge:triggers:platform:api-gw:component:handler',
+      type: 'triggers',
       source: apiGw.id,
       target: handler.id,
       metadata: {
         bindingConfig: {
-          resourceType: "api",
-          route: "/items",
-          method: "GET",
+          resourceType: 'api',
+          route: '/items',
+          method: 'GET',
         },
       },
     });
 
     kernel.applyMutation([
-      { type: "addNode", node: apiGw },
-      { type: "addNode", node: handler },
-      { type: "addEdge", edge: triggersEdge },
+      { type: 'addNode', node: apiGw },
+      { type: 'addNode', node: handler },
+      { type: 'addEdge', edge: triggersEdge },
     ]);
 
     const result = kernel.compile();
@@ -240,14 +240,14 @@ describe("Kernel + ComponentPlatformBinder integration", () => {
     // TriggersBinder produces 1 IAM + 2 config = 3 intents
     expect(result.intents).toHaveLength(3);
 
-    const iam = result.intents.find((i) => i.type === "iam") as IamIntent;
+    const iam = result.intents.find((i) => i.type === 'iam') as IamIntent;
     expect(iam).toBeDefined();
-    expect(iam.principal.nodeRef).toBe("platform:api-gw");
-    expect(iam.resource.nodeRef).toBe("component:handler");
-    expect(iam.actions).toEqual([{ level: "write", action: "invoke" }]);
+    expect(iam.principal.nodeRef).toBe('platform:api-gw');
+    expect(iam.resource.nodeRef).toBe('component:handler');
+    expect(iam.actions).toEqual([{ level: 'write', action: 'invoke' }]);
 
     const configs = result.intents.filter(
-      (i) => i.type === "config",
+      (i) => i.type === 'config',
     ) as ConfigIntent[];
     expect(configs).toHaveLength(2);
   });

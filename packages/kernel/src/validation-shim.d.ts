@@ -2,8 +2,8 @@
  * Shim for @shinobi/validation when that package is built without dts (dist-only).
  * Ensures kernel's dts build can resolve the module. Remove when validation emits .d.ts.
  */
-declare module "@shinobi/validation" {
-  import type { Intent } from "@shinobi/contracts";
+declare module '@shinobi/validation' {
+  import type { Intent } from '@shinobi/contracts';
 
   export interface ValidationError {
     readonly path: string;
@@ -18,12 +18,12 @@ declare module "@shinobi/validation" {
   export interface ValidationResult {
     readonly valid: boolean;
     readonly errors: ReadonlyArray<ValidationError>;
-    readonly schemaVersion: "1.0.0";
+    readonly schemaVersion: '1.0.0';
   }
 
   export interface ValidatorOptions {
     readonly strict?: boolean;
-    readonly level?: "schema" | "semantic" | "full";
+    readonly level?: 'schema' | 'semantic' | 'full';
     readonly collectAll?: boolean;
   }
 

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-import { createCli } from "./cli";
-import { invokeHarmonyTool } from "./mcp";
-import type { HarmonyToolCallRequest } from "./mcp";
+import { createCli } from './cli';
+import { invokeHarmonyTool } from './mcp';
+import type { HarmonyToolCallRequest } from './mcp';
 
 async function main(): Promise<void> {
-  const harmonyCallIndex = process.argv.indexOf("--harmony-call");
+  const harmonyCallIndex = process.argv.indexOf('--harmony-call');
   if (harmonyCallIndex >= 0) {
     const rawPayload = process.argv[harmonyCallIndex + 1];
     if (!rawPayload) {
-      process.stderr.write("Missing JSON payload for --harmony-call\n");
+      process.stderr.write('Missing JSON payload for --harmony-call\n');
       process.exitCode = 1;
       return;
     }

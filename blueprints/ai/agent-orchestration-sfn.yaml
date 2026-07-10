@@ -62,6 +62,7 @@ bindings:
     target: orchestrator
     type: triggers
     config:
+      resourceType: api
       route: /orchestrate
       method: POST
 

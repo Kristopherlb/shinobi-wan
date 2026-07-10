@@ -1,18 +1,18 @@
-import type { Node } from "@shinobi/ir";
+import type { Node } from '@shinobi/ir';
 import type {
   LoweredResource,
   LoweringContext,
   NodeLowerer,
   ResolvedDeps,
-} from "../types";
-import { shortName, createStandardTags } from "./utils";
+} from '../types';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-opensearch-serverless" →
  * OpenSearch Serverless Collection + Security Policy + Access Policy.
  */
 export class OpenSearchServerlessLowerer implements NodeLowerer {
-  readonly platform = "aws-opensearch-serverless";
+  readonly platform = 'aws-opensearch-serverless';
 
   lower(
     node: Node,
@@ -22,7 +22,7 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
-    const extraTags = (props["tags"] as Record<string, string>) ?? {};
+    const extraTags = (props['tags'] as Record<string, string>) ?? {};
 
     const resources: LoweredResource[] = [];
 
@@ -31,31 +31,31 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
     const accessPolicyName = `${name}-collection-access-policy`;
 
     const collectionType =
-      (props["collectionType"] as string) ?? "VECTORSEARCH";
-    const standbyReplicas = (props["standbyReplicas"] as string) ?? "ENABLED";
+      (props['collectionType'] as string) ?? 'VECTORSEARCH';
+    const standbyReplicas = (props['standbyReplicas'] as string) ?? 'ENABLED';
     const encryptionType =
-      (props["encryptionType"] as string) ?? "AWS_OWNED_KEY";
-    const publicAccess = props["publicAccess"] === true;
+      (props['encryptionType'] as string) ?? 'AWS_OWNED_KEY';
+    const publicAccess = props['publicAccess'] === true;
 
     // Security Policy (encryption)
     const securityPolicyConfig: Record<string, unknown> = {
-      AWSOwnedKey: encryptionType === "AWS_OWNED_KEY",
+      AWSOwnedKey: encryptionType === 'AWS_OWNED_KEY',
     };
-    if (props["kmsKeyArn"]) {
-      securityPolicyConfig["AWSOwnedKey"] = false;
-      securityPolicyConfig["KmsARN"] = props["kmsKeyArn"];
+    if (props['kmsKeyArn']) {
+      securityPolicyConfig['AWSOwnedKey'] = false;
+      securityPolicyConfig['KmsARN'] = props['kmsKeyArn'];
     }
 
     resources.push({
       name: securityPolicyName,
-      resourceType: "aws:opensearchserverless:SecurityPolicy",
+      resourceType: 'aws:opensearchserverless:SecurityPolicy',
       properties: {
         name: `${serviceName}-${name}-enc`,
-        type: "encryption",
+        type: 'encryption',
         policy: JSON.stringify({
           Rules: [
             {
-              ResourceType: "collection",
+              ResourceType: 'collection',
               Resource: [`collection/${serviceName}-${name}`],
             },
           ],
@@ -67,25 +67,25 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
     });
 
     // Access Policy
-    const allowedPrincipals = (props["allowedPrincipals"] as string[]) ?? [];
+    const allowedPrincipals = (props['allowedPrincipals'] as string[]) ?? [];
     resources.push({
       name: accessPolicyName,
-      resourceType: "aws:opensearchserverless:AccessPolicy",
+      resourceType: 'aws:opensearchserverless:AccessPolicy',
       properties: {
         name: `${serviceName}-${name}-access`,
-        type: "data",
+        type: 'data',
         policy: JSON.stringify([
           {
             Rules: [
               {
-                ResourceType: "collection",
+                ResourceType: 'collection',
                 Resource: [`collection/${serviceName}-${name}`],
-                Permission: ["aoss:*"],
+                Permission: ['aoss:*'],
               },
               {
-                ResourceType: "index",
+                ResourceType: 'index',
                 Resource: [`index/${serviceName}-${name}/*`],
-                Permission: ["aoss:*"],
+                Permission: ['aoss:*'],
               },
             ],
             Principal: allowedPrincipals,
@@ -101,16 +101,16 @@ export class OpenSearchServerlessLowerer implements NodeLowerer {
       name: `${serviceName}-${name}`,
       type: collectionType,
       standbyReplicas,
-      tags: createStandardTags(node.id, "aws-opensearch-serverless", extraTags),
+      tags: createStandardTags(node.id, 'aws-opensearch-serverless', extraTags),
     };
 
     if (!publicAccess) {
-      collectionProperties["networkAccessPolicy"] = "VPC";
+      collectionProperties['networkAccessPolicy'] = 'VPC';
     }
 
     resources.push({
       name: collectionName,
-      resourceType: "aws:opensearchserverless:Collection",
+      resourceType: 'aws:opensearchserverless:Collection',
       properties: collectionProperties,
       sourceId: node.id,
       dependsOn: [securityPolicyName, accessPolicyName],

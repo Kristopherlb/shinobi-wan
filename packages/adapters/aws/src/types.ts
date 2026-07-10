@@ -3,8 +3,8 @@ import type {
   IamIntent,
   NetworkIntent,
   ConfigIntent,
-} from "@shinobi/contracts";
-import type { Node, GraphSnapshot } from "@shinobi/ir";
+} from '@shinobi/contracts';
+import type { Node, GraphSnapshot } from '@shinobi/ir';
 
 /**
  * A single AWS resource to be created by Pulumi.
@@ -58,7 +58,7 @@ export interface AdapterConfig {
  * Diagnostic from the lowering process.
  */
 export interface LoweringDiagnostic {
-  readonly severity: "error" | "warning" | "info";
+  readonly severity: 'error' | 'warning' | 'info';
   readonly message: string;
   readonly sourceId: string;
   /** Stable machine-friendly error code when available */
@@ -67,12 +67,12 @@ export interface LoweringDiagnostic {
   readonly retriable?: boolean;
   /** Stable reason enum when retriable is true */
   readonly retriableReason?:
-    | "rate_limit"
-    | "upstream_timeout"
-    | "upstream_5xx"
-    | "transport_unavailable"
-    | "worker_unavailable"
-    | "dependency_unavailable";
+    | 'rate_limit'
+    | 'upstream_timeout'
+    | 'upstream_5xx'
+    | 'transport_unavailable'
+    | 'worker_unavailable'
+    | 'dependency_unavailable';
 }
 
 /**
@@ -93,7 +93,7 @@ export interface AdapterResult {
  * Interface for intent lowerers.
  */
 export interface IntentLowerer<T extends Intent = Intent> {
-  readonly intentType: T["type"];
+  readonly intentType: T['type'];
   lower(intent: T, context: LoweringContext): ReadonlyArray<LoweredResource>;
 }
 

@@ -1,5 +1,5 @@
-import type { IBinder } from "@shinobi/kernel";
-import type { EdgeType, NodeType } from "@shinobi/ir";
+import type { IBinder } from '@shinobi/kernel';
+import type { EdgeType, NodeType } from '@shinobi/ir';
 
 /**
  * Formats an edge pattern as a lookup key.

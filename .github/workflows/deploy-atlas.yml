@@ -6,7 +6,7 @@ name: Deploy Shinobi Atlas
 on:
   push:
     branches: [main]
-    paths: ["site/**", ".github/workflows/deploy-atlas.yml"]
+    paths: ['site/**', '.github/workflows/deploy-atlas.yml']
   workflow_dispatch:
 
 permissions:

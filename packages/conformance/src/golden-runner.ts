@@ -1,7 +1,7 @@
-import type { GraphMutation } from "@shinobi/ir";
-import { Kernel } from "@shinobi/kernel";
-import type { KernelConfig, IBinder, IPolicyEvaluator } from "@shinobi/kernel";
-import type { GoldenResult } from "./types";
+import type { GraphMutation } from '@shinobi/ir';
+import { Kernel } from '@shinobi/kernel';
+import type { KernelConfig, IBinder, IPolicyEvaluator } from '@shinobi/kernel';
+import type { GoldenResult } from './types';
 
 /**
  * Options for running a golden case.
@@ -37,7 +37,7 @@ export function runGoldenCase(options: RunGoldenCaseOptions): GoldenResult {
   if (!mutationResult.success) {
     const errorMessages = mutationResult.errors
       .map((e) => e.error.message)
-      .join("; ");
+      .join('; ');
     throw new Error(`Golden setup failed: ${errorMessages}`);
   }
 

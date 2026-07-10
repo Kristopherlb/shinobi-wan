@@ -3,7 +3,7 @@ import {
   createResult,
   type ValidationError,
   type ValidationResult,
-} from "../errors";
+} from '../errors';
 
 /**
  * Patterns that indicate wildcard resource access.
@@ -26,18 +26,18 @@ export function detectWildcardResources(
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     for (const pattern of WILDCARD_PATTERNS) {
       if (pattern.test(value)) {
         errors.push(
           createError({
             path,
-            rule: "wildcard-resource",
+            rule: 'wildcard-resource',
             message: `Wildcard resource access detected: '${value}'`,
-            severity: "error",
+            severity: 'error',
             remediation:
-              "Replace wildcard with specific resource references. Least-privilege principle requires explicit resource targeting.",
-            kernelLaw: "KL-005",
+              'Replace wildcard with specific resource references. Least-privilege principle requires explicit resource targeting.',
+            kernelLaw: 'KL-005',
           }),
         );
         break;
@@ -53,7 +53,7 @@ export function detectWildcardResources(
     return errors;
   }
 
-  if (value !== null && typeof value === "object") {
+  if (value !== null && typeof value === 'object') {
     for (const [key, val] of Object.entries(value)) {
       errors.push(...detectWildcardResources(val, `${path}.${key}`));
     }
@@ -67,17 +67,17 @@ export function detectWildcardResources(
  * Primarily checks IAM intents for wildcard resource access.
  */
 export function validateLeastPrivilege(intent: unknown): ValidationResult {
-  if (!intent || typeof intent !== "object") {
+  if (!intent || typeof intent !== 'object') {
     return createResult([]);
   }
 
   const i = intent as Record<string, unknown>;
 
   // Only validate IAM intents (where least-privilege is critical)
-  if (i.type !== "iam") {
+  if (i.type !== 'iam') {
     return createResult([]);
   }
 
-  const errors = detectWildcardResources(intent, "$");
+  const errors = detectWildcardResources(intent, '$');
   return createResult(errors);
 }

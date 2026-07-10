@@ -1,13 +1,13 @@
-import type { ContractSchemaVersion } from "../versions";
-import type { Severity } from "./severity";
-import type { RemediationHint } from "./remediation";
+import type { ContractSchemaVersion } from '../versions';
+import type { Severity } from './severity';
+import type { RemediationHint } from './remediation';
 
 /**
  * Target of a policy violation.
  */
 export interface ViolationTarget {
   /** Target type */
-  readonly type: "node" | "edge" | "artifact";
+  readonly type: 'node' | 'edge' | 'artifact';
 
   /** Target ID */
   readonly id: string;
@@ -62,12 +62,12 @@ export function createViolationId(ruleId: string, targetId: string): string {
  * Validates a violation ID format.
  */
 export function isValidViolationId(id: string): boolean {
-  if (!id || typeof id !== "string") {
+  if (!id || typeof id !== 'string') {
     return false;
   }
-  if (!id.startsWith("violation:")) {
+  if (!id.startsWith('violation:')) {
     return false;
   }
-  const parts = id.substring(10).split(":"); // Remove 'violation:'
+  const parts = id.substring(10).split(':'); // Remove 'violation:'
   return parts.length >= 2 && parts.every((p) => p.length > 0);
 }

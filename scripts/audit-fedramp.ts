@@ -12,21 +12,21 @@
  *        npx tsx scripts/audit-fedramp.ts blueprints/compute/serverless-api-etl.yaml
  */
 
-import * as fs from "node:fs";
-import * as path from "node:path";
-import { parse as parseYaml } from "yaml";
-import { createTestNode, createTestEdge } from "@shinobi/ir";
-import type { GraphMutation } from "@shinobi/ir";
-import { Kernel } from "@shinobi/kernel";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { parse as parseYaml } from 'yaml';
+import { createTestNode, createTestEdge } from '@shinobi/ir';
+import type { GraphMutation } from '@shinobi/ir';
+import { Kernel } from '@shinobi/kernel';
 import {
   ComponentPlatformBinder,
   TriggersBinder,
   BinderRegistry,
-} from "@shinobi/binder";
-import { BaselinePolicyEvaluator } from "@shinobi/policy";
-import type { Severity } from "@shinobi/contracts";
+} from '@shinobi/binder';
+import { BaselinePolicyEvaluator } from '@shinobi/policy';
+import type { Severity } from '@shinobi/contracts';
 
-const PACKS = ["Baseline", "FedRAMP-Moderate", "FedRAMP-High"] as const;
+const PACKS = ['Baseline', 'FedRAMP-Moderate', 'FedRAMP-High'] as const;
 
 interface ServiceManifest {
   service: string;
@@ -76,10 +76,10 @@ function manifestToMutations(manifest: ServiceManifest): GraphMutation[] {
     const nodeId = `${comp.type}:${comp.id}`;
     const node = createTestNode({
       id: nodeId,
-      type: comp.type as "component" | "platform",
+      type: comp.type as 'component' | 'platform',
       metadata: { properties: { platform: comp.platform, ...comp.config } },
     });
-    mutations.push({ type: "addNode", node });
+    mutations.push({ type: 'addNode', node });
   }
 
   for (const binding of manifest.bindings) {
@@ -96,19 +96,19 @@ function manifestToMutations(manifest: ServiceManifest): GraphMutation[] {
     const edgeId = `edge:${binding.type}:${sourceId}:${targetId}`;
     const edge = createTestEdge({
       id: edgeId,
-      type: binding.type as "bindsTo" | "triggers",
+      type: binding.type as 'bindsTo' | 'triggers',
       source: sourceId,
       target: targetId,
       metadata: { bindingConfig: binding.config ?? {} },
     });
-    mutations.push({ type: "addEdge", edge });
+    mutations.push({ type: 'addEdge', edge });
   }
 
   return mutations;
 }
 
 function auditBlueprint(blueprintPath: string): BlueprintAuditResult {
-  const raw = fs.readFileSync(blueprintPath, "utf8");
+  const raw = fs.readFileSync(blueprintPath, 'utf8');
   const manifest = parseYaml(raw) as ServiceManifest;
   const mutations = manifestToMutations(manifest);
 
@@ -135,11 +135,11 @@ function auditBlueprint(blueprintPath: string): BlueprintAuditResult {
       ruleId: v.ruleId,
       severity: v.severity,
       message: v.message,
-      targetId: v.target?.id ?? "unknown",
+      targetId: v.target?.id ?? 'unknown',
     }));
 
-    const hasErrors = violations.some((v) => v.severity === "error");
-    const compliant = violations.every((v) => v.severity !== "error");
+    const hasErrors = violations.some((v) => v.severity === 'error');
+    const compliant = violations.every((v) => v.severity !== 'error');
 
     packResults.push({
       policyPack: pack,
@@ -149,11 +149,11 @@ function auditBlueprint(blueprintPath: string): BlueprintAuditResult {
     });
   }
 
-  const baselineResult = packResults.find((p) => p.policyPack === "Baseline")!;
+  const baselineResult = packResults.find((p) => p.policyPack === 'Baseline')!;
 
   // Get counts from last compilation
   const kernel = new Kernel({
-    config: { policyPack: "Baseline" },
+    config: { policyPack: 'Baseline' },
     binders,
     evaluators: [evaluator],
   });
@@ -172,10 +172,10 @@ function auditBlueprint(blueprintPath: string): BlueprintAuditResult {
 }
 
 function printReport(results: BlueprintAuditResult[]): void {
-  console.log("=".repeat(72));
-  console.log("  FedRAMP Compliance Audit Report");
-  console.log("  Generated:", new Date().toISOString());
-  console.log("=".repeat(72));
+  console.log('='.repeat(72));
+  console.log('  FedRAMP Compliance Audit Report');
+  console.log('  Generated:', new Date().toISOString());
+  console.log('='.repeat(72));
 
   let allBaselineClean = true;
 
@@ -189,8 +189,8 @@ function printReport(results: BlueprintAuditResult[]): void {
     console.log();
 
     for (const pack of result.packs) {
-      const status = pack.compliant ? "COMPLIANT" : "NON-COMPLIANT";
-      const marker = pack.compliant ? "[PASS]" : "[FAIL]";
+      const status = pack.compliant ? 'COMPLIANT' : 'NON-COMPLIANT';
+      const marker = pack.compliant ? '[PASS]' : '[FAIL]';
       console.log(
         `  ${marker} ${pack.policyPack}: ${status} (${pack.violations.length} violations)`,
       );
@@ -206,7 +206,7 @@ function printReport(results: BlueprintAuditResult[]): void {
 
         for (const v of pack.violations) {
           const icon =
-            v.severity === "error" ? "X" : v.severity === "warning" ? "!" : ".";
+            v.severity === 'error' ? 'X' : v.severity === 'warning' ? '!' : '.';
           console.log(
             `    [${icon}] ${v.severity.padEnd(7)} ${v.ruleId} → ${v.targetId}`,
           );
@@ -224,12 +224,12 @@ function printReport(results: BlueprintAuditResult[]): void {
   }
 
   console.log();
-  console.log("=".repeat(72));
+  console.log('='.repeat(72));
   console.log(`  Summary: ${results.length} blueprint(s) audited`);
   console.log(
-    `  Baseline clean: ${allBaselineClean ? "YES" : "NO — action required"}`,
+    `  Baseline clean: ${allBaselineClean ? 'YES' : 'NO — action required'}`,
   );
-  console.log("=".repeat(72));
+  console.log('='.repeat(72));
 
   // JSON output for CI
   const jsonReport = {
@@ -251,7 +251,7 @@ function printReport(results: BlueprintAuditResult[]): void {
     allBaselineClean,
   };
 
-  const reportPath = path.join(process.cwd(), "audit-fedramp-report.json");
+  const reportPath = path.join(process.cwd(), 'audit-fedramp-report.json');
   fs.writeFileSync(reportPath, JSON.stringify(jsonReport, null, 2));
   console.log(`\n  JSON report written to: ${reportPath}`);
 
@@ -268,13 +268,13 @@ if (args.length > 0) {
   blueprintPaths = args.map((a) => path.resolve(a));
 } else {
   // Find all blueprint YAML files
-  const blueprintDir = path.join(process.cwd(), "blueprints");
+  const blueprintDir = path.join(process.cwd(), 'blueprints');
   blueprintPaths = [];
   for (const category of fs.readdirSync(blueprintDir)) {
     const catDir = path.join(blueprintDir, category);
     if (!fs.statSync(catDir).isDirectory()) continue;
     for (const file of fs.readdirSync(catDir)) {
-      if (file.endsWith(".yaml") || file.endsWith(".yml")) {
+      if (file.endsWith('.yaml') || file.endsWith('.yml')) {
         blueprintPaths.push(path.join(catDir, file));
       }
     }
@@ -282,7 +282,7 @@ if (args.length > 0) {
 }
 
 if (blueprintPaths.length === 0) {
-  console.error("No blueprint files found.");
+  console.error('No blueprint files found.');
   process.exit(1);
 }
 

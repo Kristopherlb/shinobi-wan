@@ -1,11 +1,11 @@
-import type { GraphSnapshot, Node, Edge, DerivedArtifact } from "@shinobi/ir";
-import { computeSemanticHash } from "@shinobi/ir";
+import type { GraphSnapshot, Node, Edge, DerivedArtifact } from '@shinobi/ir';
+import { computeSemanticHash } from '@shinobi/ir';
 import {
   createError,
   createResult,
   type ValidationError,
   type ValidationResult,
-} from "../errors";
+} from '../errors';
 
 /**
  * Entity with a semantic hash (node, edge, or artifact).
@@ -25,12 +25,12 @@ export function validateSemanticHash(
     return [
       createError({
         path: `${path}.semanticHash`,
-        rule: "semantic-hash-mismatch",
+        rule: 'semantic-hash-mismatch',
         message: `Semantic hash mismatch: stored '${entity.semanticHash}', expected '${expectedHash}'`,
-        severity: "error",
+        severity: 'error',
         remediation:
-          "Recompute the semantic hash using computeSemanticHash() after any content modification",
-        kernelLaw: "KL-001",
+          'Recompute the semantic hash using computeSemanticHash() after any content modification',
+        kernelLaw: 'KL-001',
       }),
     ];
   }

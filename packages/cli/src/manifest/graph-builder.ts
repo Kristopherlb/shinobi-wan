@@ -1,10 +1,10 @@
-import type { GraphMutation, NodeType, EdgeType } from "@shinobi/ir";
-import { createNode, createEdge } from "@shinobi/ir";
+import type { GraphMutation, NodeType, EdgeType } from '@shinobi/ir';
+import { createNode, createEdge } from '@shinobi/ir';
 import type {
   ServiceManifest,
   ManifestComponent,
   ManifestBinding,
-} from "./types";
+} from './types';
 
 /**
  * Converts a validated ServiceManifest into a sequence of GraphMutations.
@@ -23,7 +23,7 @@ export function manifestToMutations(
   // Phase 1: Create nodes from components
   for (const component of manifest.components) {
     mutations.push({
-      type: "addNode",
+      type: 'addNode',
       node: componentToNode(component),
     });
   }
@@ -43,7 +43,7 @@ export function manifestToMutations(
     }
 
     mutations.push({
-      type: "addEdge",
+      type: 'addEdge',
       edge: bindingToEdge(binding, sourceComponent, targetComponent),
     });
   }
@@ -58,7 +58,7 @@ function componentToNode(component: ManifestComponent) {
   return createNode({
     id: nodeId,
     type: nodeType,
-    provenance: { sourceFile: "manifest.yaml" },
+    provenance: { sourceFile: 'manifest.yaml' },
     metadata: {
       properties: {
         platform: component.platform,
@@ -83,7 +83,7 @@ function bindingToEdge(
     type: edgeType,
     source: sourceNodeId,
     target: targetNodeId,
-    provenance: { sourceFile: "manifest.yaml" },
+    provenance: { sourceFile: 'manifest.yaml' },
     metadata: {
       bindingConfig: binding.config as unknown as Record<string, unknown>,
     },

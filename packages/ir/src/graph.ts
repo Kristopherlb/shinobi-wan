@@ -1,14 +1,14 @@
-import type { Node, Edge, DerivedArtifact, GraphSnapshot } from "./types";
-import { ConflictError, IntegrityError } from "./errors";
-import { compareNodes, compareEdges, compareArtifacts } from "./ordering";
+import type { Node, Edge, DerivedArtifact, GraphSnapshot } from './types';
+import { ConflictError, IntegrityError } from './errors';
+import { compareNodes, compareEdges, compareArtifacts } from './ordering';
 
 /**
  * Mutation types for atomic batch operations.
  */
 export type GraphMutation =
-  | { type: "addNode"; node: Node }
-  | { type: "addEdge"; edge: Edge }
-  | { type: "addArtifact"; artifact: DerivedArtifact };
+  | { type: 'addNode'; node: Node }
+  | { type: 'addEdge'; edge: Edge }
+  | { type: 'addArtifact'; artifact: DerivedArtifact };
 
 /**
  * Result of a batch mutation operation.
@@ -186,7 +186,7 @@ export class Graph {
     artifacts: Map<string, DerivedArtifact>,
   ): boolean {
     switch (mutation.type) {
-      case "addNode": {
+      case 'addNode': {
         const existing = nodes.get(mutation.node.id);
         if (existing) {
           if (existing.semanticHash === mutation.node.semanticHash) {
@@ -202,7 +202,7 @@ export class Graph {
         return true;
       }
 
-      case "addEdge": {
+      case 'addEdge': {
         if (!nodes.has(mutation.edge.source)) {
           throw new IntegrityError(mutation.edge.source, mutation.edge.id);
         }
@@ -225,7 +225,7 @@ export class Graph {
         return true;
       }
 
-      case "addArtifact": {
+      case 'addArtifact': {
         const existing = artifacts.get(mutation.artifact.id);
         if (existing) {
           if (existing.semanticHash === mutation.artifact.semanticHash) {
@@ -248,7 +248,7 @@ export class Graph {
    */
   toSnapshot(): GraphSnapshot {
     return {
-      schemaVersion: "1.0.0",
+      schemaVersion: '1.0.0',
       nodes: Array.from(this.nodes.values()).sort(compareNodes),
       edges: Array.from(this.edges.values()).sort(compareEdges),
       artifacts: Array.from(this.artifacts.values()).sort(compareArtifacts),

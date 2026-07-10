@@ -1,11 +1,11 @@
-import { plan } from "./plan";
-import type { PlanOptions, PlanResult } from "./plan";
-import { deploy, preview } from "@shinobi/adapter-aws";
+import { plan } from './plan';
+import type { PlanOptions, PlanResult } from './plan';
+import { deploy, preview } from '@shinobi/adapter-aws';
 import type {
   DeployResult,
   PreviewResult,
   AdapterConfig,
-} from "@shinobi/adapter-aws";
+} from '@shinobi/adapter-aws';
 
 export interface UpOptions extends PlanOptions {
   readonly dryRun?: boolean;
@@ -34,13 +34,13 @@ export async function up(options: UpOptions): Promise<UpResult> {
       success: false,
       plan: planResult,
       deployed: false,
-      message: "Plan failed. Fix errors before deploying.",
+      message: 'Plan failed. Fix errors before deploying.',
     };
   }
 
   const adapterConfig: AdapterConfig = {
-    region: options.region ?? "us-east-1",
-    serviceName: planResult.validation.manifest?.service ?? "shinobi-service",
+    region: options.region ?? 'us-east-1',
+    serviceName: planResult.validation.manifest?.service ?? 'shinobi-service',
     ...(options.codePath ? { codePath: options.codePath } : {}),
   };
 
@@ -59,7 +59,7 @@ export async function up(options: UpOptions): Promise<UpResult> {
     }
 
     const changes = previewResult.changeSummary ?? {};
-    const createCount = changes["create"] ?? 0;
+    const createCount = changes['create'] ?? 0;
 
     return {
       success: true,
@@ -85,7 +85,7 @@ export async function up(options: UpOptions): Promise<UpResult> {
     };
   }
 
-  const created = deployResult.summary.resourceChanges?.["create"] ?? 0;
+  const created = deployResult.summary.resourceChanges?.['create'] ?? 0;
 
   return {
     success: true,

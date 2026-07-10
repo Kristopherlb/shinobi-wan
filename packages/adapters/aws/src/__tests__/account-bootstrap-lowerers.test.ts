@@ -1,98 +1,98 @@
-import { describe, it, expect } from "vitest";
-import { ConfigRecorderLowerer } from "../lowerers/config-recorder-lowerer";
-import { SecurityHubLowerer } from "../lowerers/securityhub-lowerer";
-import { GuardDutyLowerer } from "../lowerers/guardduty-lowerer";
-import { CloudTrailLowerer } from "../lowerers/cloudtrail-lowerer";
-import { makeNode, makeDefaultContext, makeDefaultDeps } from "./test-helpers";
+import { describe, it, expect } from 'vitest';
+import { ConfigRecorderLowerer } from '../lowerers/config-recorder-lowerer';
+import { SecurityHubLowerer } from '../lowerers/securityhub-lowerer';
+import { GuardDutyLowerer } from '../lowerers/guardduty-lowerer';
+import { CloudTrailLowerer } from '../lowerers/cloudtrail-lowerer';
+import { makeNode, makeDefaultContext, makeDefaultDeps } from './test-helpers';
 
 const DEFAULT_CONTEXT = makeDefaultContext({
-  adapterConfig: { region: "us-east-1", serviceName: "my-account" },
+  adapterConfig: { region: 'us-east-1', serviceName: 'my-account' },
 });
 const DEFAULT_DEPS = makeDefaultDeps();
 
-describe("ConfigRecorderLowerer", () => {
+describe('ConfigRecorderLowerer', () => {
   const lowerer = new ConfigRecorderLowerer();
 
-  it("has correct platform", () => {
-    expect(lowerer.platform).toBe("aws-config-recorder");
+  it('has correct platform', () => {
+    expect(lowerer.platform).toBe('aws-config-recorder');
   });
 
-  it("produces Recorder + DeliveryChannel + RecorderStatus resources", () => {
+  it('produces Recorder + DeliveryChannel + RecorderStatus resources', () => {
     const node = makeNode({
-      id: "platform:config-recorder",
-      type: "platform",
-      metadata: { properties: { platform: "aws-config-recorder" } },
+      id: 'platform:config-recorder',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-config-recorder' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(3);
-    expect(resources[0].resourceType).toBe("aws:cfg:Recorder");
-    expect(resources[1].resourceType).toBe("aws:cfg:DeliveryChannel");
-    expect(resources[2].resourceType).toBe("aws:cfg:RecorderStatus");
+    expect(resources[0].resourceType).toBe('aws:cfg:Recorder');
+    expect(resources[1].resourceType).toBe('aws:cfg:DeliveryChannel');
+    expect(resources[2].resourceType).toBe('aws:cfg:RecorderStatus');
   });
 
-  it("uses correct naming convention", () => {
+  it('uses correct naming convention', () => {
     const node = makeNode({
-      id: "platform:config-recorder",
-      type: "platform",
-      metadata: { properties: { platform: "aws-config-recorder" } },
+      id: 'platform:config-recorder',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-config-recorder' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].name).toBe("config-recorder-config-recorder");
-    expect(resources[1].name).toBe("config-recorder-config-delivery-channel");
-    expect(resources[2].name).toBe("config-recorder-config-recorder-status");
+    expect(resources[0].name).toBe('config-recorder-config-recorder');
+    expect(resources[1].name).toBe('config-recorder-config-delivery-channel');
+    expect(resources[2].name).toBe('config-recorder-config-recorder-status');
   });
 
-  it("channel depends on recorder, status depends on both", () => {
+  it('channel depends on recorder, status depends on both', () => {
     const node = makeNode({
-      id: "platform:config-recorder",
-      type: "platform",
-      metadata: { properties: { platform: "aws-config-recorder" } },
+      id: 'platform:config-recorder',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-config-recorder' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[1].dependsOn).toContain("config-recorder-config-recorder");
-    expect(resources[2].dependsOn).toContain("config-recorder-config-recorder");
+    expect(resources[1].dependsOn).toContain('config-recorder-config-recorder');
+    expect(resources[2].dependsOn).toContain('config-recorder-config-recorder');
     expect(resources[2].dependsOn).toContain(
-      "config-recorder-config-delivery-channel",
+      'config-recorder-config-delivery-channel',
     );
   });
 
-  it("defaults to allSupported recording", () => {
+  it('defaults to allSupported recording', () => {
     const node = makeNode({
-      id: "platform:config-recorder",
-      type: "platform",
-      metadata: { properties: { platform: "aws-config-recorder" } },
+      id: 'platform:config-recorder',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-config-recorder' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const group = resources[0].properties["recordingGroup"] as Record<
+    const group = resources[0].properties['recordingGroup'] as Record<
       string,
       unknown
     >;
-    expect(group["allSupported"]).toBe(true);
-    expect(group["includeGlobalResourceTypes"]).toBe(true);
+    expect(group['allSupported']).toBe(true);
+    expect(group['includeGlobalResourceTypes']).toBe(true);
   });
 
-  it("sets sourceId to node ID", () => {
+  it('sets sourceId to node ID', () => {
     const node = makeNode({
-      id: "platform:config-recorder",
-      type: "platform",
-      metadata: { properties: { platform: "aws-config-recorder" } },
+      id: 'platform:config-recorder',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-config-recorder' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     for (const r of resources) {
-      expect(r.sourceId).toBe("platform:config-recorder");
+      expect(r.sourceId).toBe('platform:config-recorder');
     }
   });
 
-  it("output is deterministic", () => {
+  it('output is deterministic', () => {
     const node = makeNode({
-      id: "platform:config-recorder",
-      type: "platform",
-      metadata: { properties: { platform: "aws-config-recorder" } },
+      id: 'platform:config-recorder',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-config-recorder' } },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -101,46 +101,46 @@ describe("ConfigRecorderLowerer", () => {
   });
 });
 
-describe("SecurityHubLowerer", () => {
+describe('SecurityHubLowerer', () => {
   const lowerer = new SecurityHubLowerer();
 
-  it("has correct platform", () => {
-    expect(lowerer.platform).toBe("aws-securityhub");
+  it('has correct platform', () => {
+    expect(lowerer.platform).toBe('aws-securityhub');
   });
 
-  it("produces Account + StandardsSubscription by default", () => {
+  it('produces Account + StandardsSubscription by default', () => {
     const node = makeNode({
-      id: "platform:security-hub",
-      type: "platform",
-      metadata: { properties: { platform: "aws-securityhub" } },
+      id: 'platform:security-hub',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-securityhub' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(2);
-    expect(resources[0].resourceType).toBe("aws:securityhub:Account");
+    expect(resources[0].resourceType).toBe('aws:securityhub:Account');
     expect(resources[1].resourceType).toBe(
-      "aws:securityhub:StandardsSubscription",
+      'aws:securityhub:StandardsSubscription',
     );
   });
 
-  it("standard depends on account", () => {
+  it('standard depends on account', () => {
     const node = makeNode({
-      id: "platform:security-hub",
-      type: "platform",
-      metadata: { properties: { platform: "aws-securityhub" } },
+      id: 'platform:security-hub',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-securityhub' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[1].dependsOn).toContain("security-hub-securityhub");
+    expect(resources[1].dependsOn).toContain('security-hub-securityhub');
   });
 
-  it("skips standards when disabled", () => {
+  it('skips standards when disabled', () => {
     const node = makeNode({
-      id: "platform:security-hub",
-      type: "platform",
+      id: 'platform:security-hub',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-securityhub",
+          platform: 'aws-securityhub',
           enableDefaultStandards: false,
         },
       },
@@ -150,24 +150,24 @@ describe("SecurityHubLowerer", () => {
     expect(resources).toHaveLength(1);
   });
 
-  it("sets sourceId to node ID", () => {
+  it('sets sourceId to node ID', () => {
     const node = makeNode({
-      id: "platform:security-hub",
-      type: "platform",
-      metadata: { properties: { platform: "aws-securityhub" } },
+      id: 'platform:security-hub',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-securityhub' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     for (const r of resources) {
-      expect(r.sourceId).toBe("platform:security-hub");
+      expect(r.sourceId).toBe('platform:security-hub');
     }
   });
 
-  it("output is deterministic", () => {
+  it('output is deterministic', () => {
     const node = makeNode({
-      id: "platform:security-hub",
-      type: "platform",
-      metadata: { properties: { platform: "aws-securityhub" } },
+      id: 'platform:security-hub',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-securityhub' } },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -176,79 +176,79 @@ describe("SecurityHubLowerer", () => {
   });
 });
 
-describe("GuardDutyLowerer", () => {
+describe('GuardDutyLowerer', () => {
   const lowerer = new GuardDutyLowerer();
 
-  it("has correct platform", () => {
-    expect(lowerer.platform).toBe("aws-guardduty");
+  it('has correct platform', () => {
+    expect(lowerer.platform).toBe('aws-guardduty');
   });
 
-  it("produces Detector resource", () => {
+  it('produces Detector resource', () => {
     const node = makeNode({
-      id: "platform:guardduty",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty", enabled: true } },
+      id: 'platform:guardduty',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty', enabled: true } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(1);
-    expect(resources[0].resourceType).toBe("aws:guardduty:Detector");
+    expect(resources[0].resourceType).toBe('aws:guardduty:Detector');
   });
 
-  it("uses correct naming convention", () => {
+  it('uses correct naming convention', () => {
     const node = makeNode({
-      id: "platform:guardduty",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty" } },
+      id: 'platform:guardduty',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].name).toBe("guardduty-guardduty-detector");
+    expect(resources[0].name).toBe('guardduty-guardduty-detector');
   });
 
-  it("defaults to enabled with S3 data source", () => {
+  it('defaults to enabled with S3 data source', () => {
     const node = makeNode({
-      id: "platform:guardduty",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty" } },
+      id: 'platform:guardduty',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].properties["enable"]).toBe(true);
-    expect(resources[0].properties["findingPublishingFrequency"]).toBe(
-      "FIFTEEN_MINUTES",
+    expect(resources[0].properties['enable']).toBe(true);
+    expect(resources[0].properties['findingPublishingFrequency']).toBe(
+      'FIFTEEN_MINUTES',
     );
   });
 
-  it("sets correct tags", () => {
+  it('sets correct tags', () => {
     const node = makeNode({
-      id: "platform:guardduty",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty" } },
+      id: 'platform:guardduty',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const tags = resources[0].properties["tags"] as Record<string, string>;
-    expect(tags["shinobi:node"]).toBe("platform:guardduty");
-    expect(tags["shinobi:platform"]).toBe("aws-guardduty");
+    const tags = resources[0].properties['tags'] as Record<string, string>;
+    expect(tags['shinobi:node']).toBe('platform:guardduty');
+    expect(tags['shinobi:platform']).toBe('aws-guardduty');
   });
 
-  it("sets sourceId to node ID", () => {
+  it('sets sourceId to node ID', () => {
     const node = makeNode({
-      id: "platform:guardduty",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty" } },
+      id: 'platform:guardduty',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].sourceId).toBe("platform:guardduty");
+    expect(resources[0].sourceId).toBe('platform:guardduty');
   });
 
-  it("output is deterministic", () => {
+  it('output is deterministic', () => {
     const node = makeNode({
-      id: "platform:guardduty",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty" } },
+      id: 'platform:guardduty',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty' } },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -257,20 +257,20 @@ describe("GuardDutyLowerer", () => {
   });
 });
 
-describe("CloudTrailLowerer", () => {
+describe('CloudTrailLowerer', () => {
   const lowerer = new CloudTrailLowerer();
 
-  it("has correct platform", () => {
-    expect(lowerer.platform).toBe("aws-cloudtrail");
+  it('has correct platform', () => {
+    expect(lowerer.platform).toBe('aws-cloudtrail');
   });
 
-  it("produces Trail + LogGroup by default", () => {
+  it('produces Trail + LogGroup by default', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
+      id: 'platform:cloudtrail',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-cloudtrail",
+          platform: 'aws-cloudtrail',
           enableLogFileValidation: true,
         },
       },
@@ -278,54 +278,54 @@ describe("CloudTrailLowerer", () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(2);
-    expect(resources[0].resourceType).toBe("aws:cloudwatch:LogGroup");
-    expect(resources[1].resourceType).toBe("aws:cloudtrail:Trail");
+    expect(resources[0].resourceType).toBe('aws:cloudwatch:LogGroup');
+    expect(resources[1].resourceType).toBe('aws:cloudtrail:Trail');
   });
 
-  it("uses correct naming convention", () => {
+  it('uses correct naming convention', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:cloudtrail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[0].name).toBe("cloudtrail-trail-log-group");
-    expect(resources[1].name).toBe("cloudtrail-trail");
+    expect(resources[0].name).toBe('cloudtrail-trail-log-group');
+    expect(resources[1].name).toBe('cloudtrail-trail');
   });
 
-  it("trail depends on log group", () => {
+  it('trail depends on log group', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:cloudtrail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    expect(resources[1].dependsOn).toContain("cloudtrail-trail-log-group");
+    expect(resources[1].dependsOn).toContain('cloudtrail-trail-log-group');
   });
 
-  it("defaults to multi-region with log validation", () => {
+  it('defaults to multi-region with log validation', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:cloudtrail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     const trail = resources[1].properties;
-    expect(trail["isMultiRegionTrail"]).toBe(true);
-    expect(trail["enableLogFileValidation"]).toBe(true);
-    expect(trail["includeGlobalServiceEvents"]).toBe(true);
+    expect(trail['isMultiRegionTrail']).toBe(true);
+    expect(trail['enableLogFileValidation']).toBe(true);
+    expect(trail['includeGlobalServiceEvents']).toBe(true);
   });
 
-  it("skips log group when cloudwatch disabled", () => {
+  it('skips log group when cloudwatch disabled', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
+      id: 'platform:cloudtrail',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-cloudtrail",
+          platform: 'aws-cloudtrail',
           cloudWatchLogsEnabled: false,
         },
       },
@@ -333,41 +333,41 @@ describe("CloudTrailLowerer", () => {
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     expect(resources).toHaveLength(1);
-    expect(resources[0].resourceType).toBe("aws:cloudtrail:Trail");
+    expect(resources[0].resourceType).toBe('aws:cloudtrail:Trail');
     expect(resources[0].dependsOn).toHaveLength(0);
   });
 
-  it("sets correct tags", () => {
+  it('sets correct tags', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:cloudtrail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const tags = resources[1].properties["tags"] as Record<string, string>;
-    expect(tags["shinobi:node"]).toBe("platform:cloudtrail");
-    expect(tags["shinobi:platform"]).toBe("aws-cloudtrail");
+    const tags = resources[1].properties['tags'] as Record<string, string>;
+    expect(tags['shinobi:node']).toBe('platform:cloudtrail');
+    expect(tags['shinobi:platform']).toBe('aws-cloudtrail');
   });
 
-  it("sets sourceId to node ID", () => {
+  it('sets sourceId to node ID', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:cloudtrail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
     for (const r of resources) {
-      expect(r.sourceId).toBe("platform:cloudtrail");
+      expect(r.sourceId).toBe('platform:cloudtrail');
     }
   });
 
-  it("output is deterministic", () => {
+  it('output is deterministic', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:cloudtrail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
     const r1 = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
@@ -375,17 +375,17 @@ describe("CloudTrailLowerer", () => {
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
   });
 
-  it("passes custom tags", () => {
+  it('passes custom tags', () => {
     const node = makeNode({
-      id: "platform:cloudtrail",
-      type: "platform",
+      id: 'platform:cloudtrail',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-cloudtrail", tags: { env: "prod" } },
+        properties: { platform: 'aws-cloudtrail', tags: { env: 'prod' } },
       },
     });
 
     const resources = lowerer.lower(node, DEFAULT_CONTEXT, DEFAULT_DEPS);
-    const tags = resources[1].properties["tags"] as Record<string, string>;
-    expect(tags["env"]).toBe("prod");
+    const tags = resources[1].properties['tags'] as Record<string, string>;
+    expect(tags['env']).toBe('prod');
   });
 });

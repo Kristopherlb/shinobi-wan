@@ -3,15 +3,15 @@ export {
   type CapabilityId,
   CAPABILITY_ID_PATTERN,
   isValidCapabilityId,
-} from "./capability-id";
+} from './capability-id';
 
 export {
   type CapabilityFieldType,
   type CapabilityDataShape,
-} from "./capability-data";
+} from './capability-data';
 
 export {
   CAPABILITY_ACTIONS,
   type CapabilityAction,
   type CapabilityContract,
-} from "./capability-contract";
+} from './capability-contract';

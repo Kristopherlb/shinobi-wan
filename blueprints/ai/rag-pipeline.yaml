@@ -173,6 +173,7 @@ bindings:
     target: query-handler
     type: triggers
     config:
+      resourceType: api
       route: /query
       method: POST
 

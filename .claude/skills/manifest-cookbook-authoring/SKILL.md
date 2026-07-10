@@ -1,7 +1,7 @@
 ---
 name: manifest-cookbook-authoring
 description: Author and maintain practical Shinobi manifest pattern cookbooks with copy-ready YAML examples, expected resource outputs, and extension guidance. Use when adding or documenting supported deployment patterns.
-argument-hint: "[pattern name] + [platforms] + [bindings]"
+argument-hint: '[pattern name] + [platforms] + [bindings]'
 ---
 
 # Manifest Cookbook Authoring Skill

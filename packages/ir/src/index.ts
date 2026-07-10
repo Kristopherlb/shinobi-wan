@@ -20,16 +20,16 @@ export type {
   ArtifactType,
   Provenance,
   GraphSnapshot,
-} from "./types";
+} from './types';
 
-export { NODE_TYPES, EDGE_TYPES, ARTIFACT_TYPES } from "./types";
+export { NODE_TYPES, EDGE_TYPES, ARTIFACT_TYPES } from './types';
 
 // Errors
-export { ValidationError, ConflictError, IntegrityError } from "./errors";
+export { ValidationError, ConflictError, IntegrityError } from './errors';
 
 // Graph
-export { Graph } from "./graph";
-export type { GraphMutation, MutationResult, MutationError } from "./graph";
+export { Graph } from './graph';
+export type { GraphMutation, MutationResult, MutationError } from './graph';
 
 // ID Generation
 export {
@@ -40,14 +40,14 @@ export {
   isValidNodeId,
   isValidEdgeId,
   isValidArtifactId,
-} from "./id-generation";
+} from './id-generation';
 
 // Ordering
-export { compareNodes, compareEdges, compareArtifacts } from "./ordering";
+export { compareNodes, compareEdges, compareArtifacts } from './ordering';
 
 // Canonicalization
-export { canonicalize, canonicalStringify } from "./canonicalization";
-export type { CanonicalValue } from "./canonicalization";
+export { canonicalize, canonicalStringify } from './canonicalization';
+export type { CanonicalValue } from './canonicalization';
 
 // Validation
 export {
@@ -55,17 +55,17 @@ export {
   validateEdge,
   validateArtifact,
   validateSnapshot,
-} from "./validation";
-export type { ValidationResult, ValidationOptions } from "./validation";
+} from './validation';
+export type { ValidationResult, ValidationOptions } from './validation';
 
 // Snapshot factory
-export { createSnapshot } from "./snapshot-factory";
+export { createSnapshot } from './snapshot-factory';
 
 // Runtime builders
-export { createNode, createEdge } from "./builders";
+export { createNode, createEdge } from './builders';
 
 // Test fixtures
-export { createTestNode, createTestEdge } from "./test-fixtures";
+export { createTestNode, createTestEdge } from './test-fixtures';
 
 // Serialization
-export { serializeGraph, deserializeGraph } from "./serialization";
+export { serializeGraph, deserializeGraph } from './serialization';

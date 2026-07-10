@@ -1,118 +1,118 @@
-import { describe, it, expect } from "vitest";
-import { resolveConfig, interpolateEnvTokens } from "../config";
-import { ConfigError } from "../errors";
-import type { KernelConfig } from "../types";
+import { describe, it, expect } from 'vitest';
+import { resolveConfig, interpolateEnvTokens } from '../config';
+import { ConfigError } from '../errors';
+import type { KernelConfig } from '../types';
 
-describe("interpolateEnvTokens", () => {
-  it("replaces ${env:KEY} with environment value", () => {
-    const result = interpolateEnvTokens("region: ${env:AWS_REGION}", {
-      AWS_REGION: "us-east-1",
+describe('interpolateEnvTokens', () => {
+  it('replaces ${env:KEY} with environment value', () => {
+    const result = interpolateEnvTokens('region: ${env:AWS_REGION}', {
+      AWS_REGION: 'us-east-1',
     });
-    expect(result).toBe("region: us-east-1");
+    expect(result).toBe('region: us-east-1');
   });
 
-  it("uses fallback when env key is missing", () => {
-    const result = interpolateEnvTokens("${env:MISSING:default-val}", {});
-    expect(result).toBe("default-val");
+  it('uses fallback when env key is missing', () => {
+    const result = interpolateEnvTokens('${env:MISSING:default-val}', {});
+    expect(result).toBe('default-val');
   });
 
-  it("uses empty string fallback", () => {
-    const result = interpolateEnvTokens("prefix-${env:OPT:}-suffix", {});
-    expect(result).toBe("prefix--suffix");
+  it('uses empty string fallback', () => {
+    const result = interpolateEnvTokens('prefix-${env:OPT:}-suffix', {});
+    expect(result).toBe('prefix--suffix');
   });
 
-  it("throws ConfigError when key is missing and no fallback", () => {
-    expect(() => interpolateEnvTokens("${env:MISSING}", {})).toThrow(
+  it('throws ConfigError when key is missing and no fallback', () => {
+    expect(() => interpolateEnvTokens('${env:MISSING}', {})).toThrow(
       ConfigError,
     );
   });
 
-  it("recursively processes objects", () => {
+  it('recursively processes objects', () => {
     const result = interpolateEnvTokens(
-      { region: "${env:REGION}", nested: { zone: "${env:ZONE}" } },
-      { REGION: "us-east-1", ZONE: "a" },
+      { region: '${env:REGION}', nested: { zone: '${env:ZONE}' } },
+      { REGION: 'us-east-1', ZONE: 'a' },
     );
-    expect(result).toEqual({ region: "us-east-1", nested: { zone: "a" } });
+    expect(result).toEqual({ region: 'us-east-1', nested: { zone: 'a' } });
   });
 
-  it("recursively processes arrays", () => {
-    const result = interpolateEnvTokens(["${env:A}", "${env:B}"], {
-      A: "1",
-      B: "2",
+  it('recursively processes arrays', () => {
+    const result = interpolateEnvTokens(['${env:A}', '${env:B}'], {
+      A: '1',
+      B: '2',
     });
-    expect(result).toEqual(["1", "2"]);
+    expect(result).toEqual(['1', '2']);
   });
 
-  it("passes primitives through unchanged", () => {
+  it('passes primitives through unchanged', () => {
     expect(interpolateEnvTokens(42, {})).toBe(42);
     expect(interpolateEnvTokens(true, {})).toBe(true);
     expect(interpolateEnvTokens(null, {})).toBe(null);
     expect(interpolateEnvTokens(undefined, {})).toBe(undefined);
   });
 
-  it("handles multiple tokens in one string", () => {
-    const result = interpolateEnvTokens("${env:A}-${env:B}", {
-      A: "x",
-      B: "y",
+  it('handles multiple tokens in one string', () => {
+    const result = interpolateEnvTokens('${env:A}-${env:B}', {
+      A: 'x',
+      B: 'y',
     });
-    expect(result).toBe("x-y");
+    expect(result).toBe('x-y');
   });
 });
 
-describe("resolveConfig", () => {
-  it("returns empty object when no layers are provided", () => {
+describe('resolveConfig', () => {
+  it('returns empty object when no layers are provided', () => {
     const result = resolveConfig({});
     expect(result).toEqual({});
   });
 
-  it("merges layers in precedence order (defaults → environment → overrides)", () => {
+  it('merges layers in precedence order (defaults → environment → overrides)', () => {
     const config: KernelConfig = {
       layers: [
-        { source: "defaults", values: { a: 1, b: 2 } },
-        { source: "environment", values: { b: 3 } },
-        { source: "overrides", values: { c: 4 } },
+        { source: 'defaults', values: { a: 1, b: 2 } },
+        { source: 'environment', values: { b: 3 } },
+        { source: 'overrides', values: { c: 4 } },
       ],
     };
     const result = resolveConfig(config);
     expect(result).toEqual({ a: 1, b: 3, c: 4 });
   });
 
-  it("deep-merges nested objects", () => {
+  it('deep-merges nested objects', () => {
     const config: KernelConfig = {
       layers: [
         {
-          source: "defaults",
-          values: { db: { host: "localhost", port: 5432 } },
+          source: 'defaults',
+          values: { db: { host: 'localhost', port: 5432 } },
         },
-        { source: "overrides", values: { db: { host: "prod-db" } } },
+        { source: 'overrides', values: { db: { host: 'prod-db' } } },
       ],
     };
     const result = resolveConfig(config);
-    expect(result).toEqual({ db: { host: "prod-db", port: 5432 } });
+    expect(result).toEqual({ db: { host: 'prod-db', port: 5432 } });
   });
 
-  it("interpolates env tokens after merging", () => {
+  it('interpolates env tokens after merging', () => {
     const config: KernelConfig = {
-      layers: [{ source: "defaults", values: { region: "${env:REGION}" } }],
-      environment: { REGION: "us-west-2" },
+      layers: [{ source: 'defaults', values: { region: '${env:REGION}' } }],
+      environment: { REGION: 'us-west-2' },
     };
     const result = resolveConfig(config);
-    expect(result).toEqual({ region: "us-west-2" });
+    expect(result).toEqual({ region: 'us-west-2' });
   });
 
-  it("returns a frozen result", () => {
+  it('returns a frozen result', () => {
     const config: KernelConfig = {
-      layers: [{ source: "defaults", values: { x: 1 } }],
+      layers: [{ source: 'defaults', values: { x: 1 } }],
     };
     const result = resolveConfig(config);
     expect(Object.isFrozen(result)).toBe(true);
   });
 
-  it("produces deterministic output for identical inputs", () => {
+  it('produces deterministic output for identical inputs', () => {
     const config: KernelConfig = {
       layers: [
-        { source: "defaults", values: { a: 1, b: 2 } },
-        { source: "overrides", values: { b: 3 } },
+        { source: 'defaults', values: { a: 1, b: 2 } },
+        { source: 'overrides', values: { b: 3 } },
       ],
       environment: {},
     };

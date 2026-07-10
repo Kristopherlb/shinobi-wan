@@ -1,4 +1,4 @@
-import type { CompilationResult } from "@shinobi/kernel";
+import type { CompilationResult } from '@shinobi/kernel';
 
 /**
  * A single golden test case definition.

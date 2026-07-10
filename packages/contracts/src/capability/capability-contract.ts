@@ -1,11 +1,11 @@
-import type { ContractSchemaVersion } from "../versions";
-import type { CapabilityId } from "./capability-id";
-import type { CapabilityDataShape } from "./capability-data";
+import type { ContractSchemaVersion } from '../versions';
+import type { CapabilityId } from './capability-id';
+import type { CapabilityDataShape } from './capability-data';
 
 /**
  * Standard action levels a capability can support.
  */
-export const CAPABILITY_ACTIONS = ["read", "write", "admin", "invoke"] as const;
+export const CAPABILITY_ACTIONS = ['read', 'write', 'admin', 'invoke'] as const;
 export type CapabilityAction = (typeof CAPABILITY_ACTIONS)[number];
 
 /**

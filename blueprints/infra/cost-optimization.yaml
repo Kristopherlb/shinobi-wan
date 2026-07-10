@@ -27,11 +27,11 @@ components:
     platform: aws-budgets
     config:
       budgetType: COST
-      limitAmount: "1000"
+      limitAmount: '1000'
       limitUnit: USD
       timeUnit: MONTHLY
       thresholdPercentage: 80
-      notificationTopicArn: "platform:cost-alerts"
+      notificationTopicArn: 'platform:cost-alerts'
 
   # AWS Config rule for compliance
   - id: s3-encryption-check

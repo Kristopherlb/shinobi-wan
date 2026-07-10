@@ -1,11 +1,11 @@
-import type { Provenance } from "./provenance";
+import type { Provenance } from './provenance';
 
 /** Runtime-available array of valid artifact types */
 export const ARTIFACT_TYPES = [
-  "iam-policy",
-  "network-rule",
-  "config-map",
-  "telemetry-config",
+  'iam-policy',
+  'network-rule',
+  'config-map',
+  'telemetry-config',
 ] as const;
 
 /** Union type derived from the runtime constant */
@@ -36,5 +36,5 @@ export interface DerivedArtifact {
   readonly provenance: Provenance;
 
   /** Schema version for forward compatibility */
-  readonly schemaVersion: "1.0.0";
+  readonly schemaVersion: '1.0.0';
 }

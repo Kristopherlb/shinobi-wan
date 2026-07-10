@@ -1,17 +1,17 @@
-import type { Node } from "@shinobi/ir";
+import type { Node } from '@shinobi/ir';
 import type {
   LoweredResource,
   LoweringContext,
   NodeLowerer,
   ResolvedDeps,
-} from "../types";
-import { shortName, createStandardTags } from "./utils";
+} from '../types';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-s3" → S3 Bucket (+ optional versioning).
  */
 export class S3Lowerer implements NodeLowerer {
-  readonly platform = "aws-s3";
+  readonly platform = 'aws-s3';
 
   lower(
     node: Node,
@@ -28,24 +28,24 @@ export class S3Lowerer implements NodeLowerer {
     // S3 Bucket
     resources.push({
       name: bucketName,
-      resourceType: "aws:s3:Bucket",
+      resourceType: 'aws:s3:Bucket',
       properties: {
         bucket: `${context.adapterConfig.serviceName}-${name}`,
-        tags: createStandardTags(node.id, "aws-s3"),
+        tags: createStandardTags(node.id, 'aws-s3'),
       },
       sourceId: node.id,
       dependsOn: [],
     });
 
     // Optional versioning
-    if (props["versioning"] === true) {
+    if (props['versioning'] === true) {
       resources.push({
         name: `${name}-versioning`,
-        resourceType: "aws:s3:BucketVersioningV2",
+        resourceType: 'aws:s3:BucketVersioningV2',
         properties: {
           bucket: { ref: bucketName },
           versioningConfiguration: {
-            status: "Enabled",
+            status: 'Enabled',
           },
         },
         sourceId: node.id,

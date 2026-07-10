@@ -1,43 +1,44 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 const ROOT = process.cwd();
 const GATES_PATH = path.join(
   ROOT,
-  "docs",
-  "operations",
-  "harmony-go-live-gates.md",
+  'docs',
+  'operations',
+  'harmony-go-live-gates.md',
 );
 const OUTPUT_PATH = path.join(
   ROOT,
-  "docs",
-  "operations",
-  "harmony-rollout-dashboard.md",
+  'docs',
+  'operations',
+  'harmony-rollout-dashboard.md',
 );
 const VALID_STATUSES = new Set([
-  "pass",
-  "fail",
-  "blocked",
-  "on-track",
-  "at-risk",
+  'pass',
+  'fail',
+  'blocked',
+  'on-track',
+  'at-risk',
 ]);
 
 function parseGateRows(content) {
   const rows = [];
-  const lines = content.split("\n");
+  const lines = content.split('\n');
   let inTable = false;
 
   for (const line of lines) {
+    // Tolerate formatter-aligned tables: cells may be padded with spaces.
     if (!inTable && /^\|\s*Gate\s*\|/.test(line)) {
       inTable = true;
       continue;
     }
     if (!inTable) continue;
-    if (!line.startsWith("|")) break;
-    if (/^\|[\s-]*\|/.test(line)) continue;
+    if (!line.startsWith('|')) break;
+    if (/^\|[\s|:-]+$/.test(line)) continue;
 
     const cols = line
-      .split("|")
+      .split('|')
       .map((v) => v.trim())
       .filter(Boolean);
     if (cols.length >= 7) {
@@ -58,18 +59,18 @@ function parseGateRows(content) {
 
 function buildDashboard(rows) {
   const count = (status) => rows.filter((row) => row.status === status).length;
-  const passCount = count("pass");
-  const blockedCount = count("blocked");
-  const atRiskCount = count("at-risk");
-  const onTrackCount = count("on-track");
-  const failCount = count("fail");
+  const passCount = count('pass');
+  const blockedCount = count('blocked');
+  const atRiskCount = count('at-risk');
+  const onTrackCount = count('on-track');
+  const failCount = count('fail');
 
   const rowText = rows
     .map(
       (row) =>
         `| ${row.gate} | ${row.phase} | ${row.owner} | ${row.status} | ${row.evidence} |`,
     )
-    .join("\n");
+    .join('\n');
 
   return `# Harmony Rollout Dashboard
 
@@ -96,21 +97,21 @@ function buildSummary(rows) {
   const count = (status) => rows.filter((row) => row.status === status).length;
   return {
     total: rows.length,
-    pass: count("pass"),
-    fail: count("fail"),
-    blocked: count("blocked"),
-    onTrack: count("on-track"),
-    atRisk: count("at-risk"),
+    pass: count('pass'),
+    fail: count('fail'),
+    blocked: count('blocked'),
+    onTrack: count('on-track'),
+    atRisk: count('at-risk'),
   };
 }
 
 function main() {
-  const write = process.argv.includes("--write");
-  const check = process.argv.includes("--check");
-  const content = fs.readFileSync(GATES_PATH, "utf8");
+  const write = process.argv.includes('--write');
+  const check = process.argv.includes('--check');
+  const content = fs.readFileSync(GATES_PATH, 'utf8');
   const rows = parseGateRows(content);
   if (rows.length === 0) {
-    throw new Error("No gate rows parsed from harmony-go-live-gates.md");
+    throw new Error('No gate rows parsed from harmony-go-live-gates.md');
   }
   for (const row of rows) {
     if (!VALID_STATUSES.has(row.status)) {
@@ -123,7 +124,7 @@ function main() {
   const dashboard = buildDashboard(rows);
   const summary = buildSummary(rows);
   if (write) {
-    fs.writeFileSync(OUTPUT_PATH, dashboard, "utf8");
+    fs.writeFileSync(OUTPUT_PATH, dashboard, 'utf8');
     console.log(`Wrote rollout dashboard: ${path.relative(ROOT, OUTPUT_PATH)}`);
   } else if (check) {
     console.log(JSON.stringify(summary, null, 2));

@@ -1,11 +1,11 @@
-import { validate } from "./validate";
-import type { ValidateResult } from "./validate";
-import { lower, lowerAsync, generatePlan } from "@shinobi/adapter-aws";
+import { validate } from './validate';
+import type { ValidateResult } from './validate';
+import { lower, lowerAsync, generatePlan } from '@shinobi/adapter-aws';
 import type {
   AdapterConfig,
   AdapterResult,
   ResourcePlan,
-} from "@shinobi/adapter-aws";
+} from '@shinobi/adapter-aws';
 
 export interface PlanOptions {
   readonly manifestPath: string;
@@ -25,7 +25,7 @@ export interface PlanResult {
 
 export interface PlanAsyncOptions extends PlanOptions {
   readonly onProgress?: (
-    phase: "validate" | "lower" | "generate-plan" | "complete",
+    phase: 'validate' | 'lower' | 'generate-plan' | 'complete',
   ) => void;
 }
 
@@ -55,8 +55,8 @@ export function plan(options: PlanOptions): PlanResult {
 
   // Build adapter config
   const adapterConfig: AdapterConfig = {
-    region: options.region ?? "us-east-1",
-    serviceName: validationResult.manifest?.service ?? "shinobi-service",
+    region: options.region ?? 'us-east-1',
+    serviceName: validationResult.manifest?.service ?? 'shinobi-service',
     ...(options.codePath ? { codePath: options.codePath } : {}),
   };
 
@@ -73,7 +73,7 @@ export function plan(options: PlanOptions): PlanResult {
       validation: validationResult,
       adapter: adapterResult,
       errors: adapterResult.diagnostics
-        .filter((d) => d.severity === "error")
+        .filter((d) => d.severity === 'error')
         .map((d) => ({ path: d.sourceId, message: d.message })),
     };
   }
@@ -96,7 +96,7 @@ export function plan(options: PlanOptions): PlanResult {
 export async function planAsync(
   options: PlanAsyncOptions,
 ): Promise<PlanResult> {
-  options.onProgress?.("validate");
+  options.onProgress?.('validate');
   const validationResult = validate({
     manifestPath: options.manifestPath,
     json: options.json,
@@ -112,12 +112,12 @@ export async function planAsync(
   }
 
   const adapterConfig: AdapterConfig = {
-    region: options.region ?? "us-east-1",
-    serviceName: validationResult.manifest?.service ?? "shinobi-service",
+    region: options.region ?? 'us-east-1',
+    serviceName: validationResult.manifest?.service ?? 'shinobi-service',
     ...(options.codePath ? { codePath: options.codePath } : {}),
   };
 
-  options.onProgress?.("lower");
+  options.onProgress?.('lower');
   const adapterResult = await lowerAsync({
     intents: validationResult.compilation.intents,
     snapshot: validationResult.compilation.snapshot,
@@ -130,14 +130,14 @@ export async function planAsync(
       validation: validationResult,
       adapter: adapterResult,
       errors: adapterResult.diagnostics
-        .filter((d) => d.severity === "error")
+        .filter((d) => d.severity === 'error')
         .map((d) => ({ path: d.sourceId, message: d.message })),
     };
   }
 
-  options.onProgress?.("generate-plan");
+  options.onProgress?.('generate-plan');
   const resourcePlan = generatePlan(adapterResult, adapterConfig);
-  options.onProgress?.("complete");
+  options.onProgress?.('complete');
   return {
     success: true,
     validation: validationResult,

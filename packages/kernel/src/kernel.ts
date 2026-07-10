@@ -7,16 +7,16 @@ import type {
   GraphSnapshot,
   GraphMutation,
   MutationResult,
-} from "@shinobi/ir";
-import { Graph } from "@shinobi/ir";
-import { validateGraph } from "@shinobi/validation";
-import type { ValidationResult } from "@shinobi/validation";
-import type { KernelConfig, CompilationResult } from "./types";
-import type { IBinder } from "./interfaces/binder-interface";
-import type { IPolicyEvaluator } from "./interfaces/policy-evaluator-interface";
-import { compilePipeline } from "./compilation-pipeline";
-import { resolveConfig } from "./config";
-import { deepFreeze } from "./freeze";
+} from '@shinobi/ir';
+import { Graph } from '@shinobi/ir';
+import { validateGraph } from '@shinobi/validation';
+import type { ValidationResult } from '@shinobi/validation';
+import type { KernelConfig, CompilationResult } from './types';
+import type { IBinder } from './interfaces/binder-interface';
+import type { IPolicyEvaluator } from './interfaces/policy-evaluator-interface';
+import { compilePipeline } from './compilation-pipeline';
+import { resolveConfig } from './config';
+import { deepFreeze } from './freeze';
 
 /**
  * Options for constructing a Kernel instance.

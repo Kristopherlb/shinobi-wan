@@ -20,7 +20,7 @@ name: holdout-request-tag
 on:
   push:
     branches:
-      - "claude/**" # all remote-session branches
+      - 'claude/**' # all remote-session branches
 
 permissions:
   contents: write # required to create tag refs

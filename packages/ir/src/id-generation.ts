@@ -1,7 +1,7 @@
-import { createHash } from "crypto";
-import { canonicalStringify } from "./canonicalization";
-import { NODE_TYPES, EDGE_TYPES, ARTIFACT_TYPES } from "./types";
-import type { NodeType, EdgeType, ArtifactType } from "./types";
+import { createHash } from 'crypto';
+import { canonicalStringify } from './canonicalization';
+import { NODE_TYPES, EDGE_TYPES, ARTIFACT_TYPES } from './types';
+import type { NodeType, EdgeType, ArtifactType } from './types';
 
 /**
  * Creates a stable node ID from type and canonical path.
@@ -38,15 +38,15 @@ export function createArtifactId(
  * Ephemeral fields to exclude from semantic hash computation.
  * These fields don't affect the semantic meaning of an entity.
  */
-const EPHEMERAL_PROVENANCE_FIELDS = new Set(["lineNumber", "derivedFrom"]);
-const EPHEMERAL_METADATA_FIELDS = new Set(["label"]);
+const EPHEMERAL_PROVENANCE_FIELDS = new Set(['lineNumber', 'derivedFrom']);
+const EPHEMERAL_METADATA_FIELDS = new Set(['label']);
 
 /**
  * Extracts the semantic projection of a value for hashing.
  * Excludes ephemeral fields that don't affect semantic meaning.
  */
 function semanticProjection(value: unknown): unknown {
-  if (value === null || typeof value !== "object") {
+  if (value === null || typeof value !== 'object') {
     return value;
   }
 
@@ -61,7 +61,7 @@ function semanticProjection(value: unknown): unknown {
     const val = obj[key];
 
     // Handle provenance field specially
-    if (key === "provenance" && typeof val === "object" && val !== null) {
+    if (key === 'provenance' && typeof val === 'object' && val !== null) {
       const provenance = val as Record<string, unknown>;
       const filtered: Record<string, unknown> = {};
 
@@ -78,7 +78,7 @@ function semanticProjection(value: unknown): unknown {
     }
 
     // Handle metadata field specially
-    if (key === "metadata" && typeof val === "object" && val !== null) {
+    if (key === 'metadata' && typeof val === 'object' && val !== null) {
       const metadata = val as Record<string, unknown>;
       const filtered: Record<string, unknown> = {};
 
@@ -95,7 +95,7 @@ function semanticProjection(value: unknown): unknown {
     }
 
     // Skip schemaVersion and semanticHash (representation fields)
-    if (key === "schemaVersion" || key === "semanticHash") {
+    if (key === 'schemaVersion' || key === 'semanticHash') {
       continue;
     }
 
@@ -113,7 +113,7 @@ function semanticProjection(value: unknown): unknown {
 export function computeSemanticHash(content: unknown): string {
   const projection = semanticProjection(content);
   const canonical = canonicalStringify(projection);
-  const hash = createHash("sha256").update(canonical).digest("hex");
+  const hash = createHash('sha256').update(canonical).digest('hex');
   return `sha256:${hash}`;
 }
 
@@ -121,11 +121,11 @@ export function computeSemanticHash(content: unknown): string {
  * Validates a node ID format.
  */
 export function isValidNodeId(id: string): boolean {
-  if (!id || typeof id !== "string") {
+  if (!id || typeof id !== 'string') {
     return false;
   }
 
-  const colonIndex = id.indexOf(":");
+  const colonIndex = id.indexOf(':');
   if (colonIndex === -1) {
     return false;
   }
@@ -144,16 +144,16 @@ export function isValidNodeId(id: string): boolean {
  * Validates an edge ID format.
  */
 export function isValidEdgeId(id: string): boolean {
-  if (!id || typeof id !== "string") {
+  if (!id || typeof id !== 'string') {
     return false;
   }
 
-  if (!id.startsWith("edge:")) {
+  if (!id.startsWith('edge:')) {
     return false;
   }
 
   const rest = id.substring(5); // Remove 'edge:'
-  const colonIndex = rest.indexOf(":");
+  const colonIndex = rest.indexOf(':');
   if (colonIndex === -1) {
     return false;
   }
@@ -172,16 +172,16 @@ export function isValidEdgeId(id: string): boolean {
  * Validates an artifact ID format.
  */
 export function isValidArtifactId(id: string): boolean {
-  if (!id || typeof id !== "string") {
+  if (!id || typeof id !== 'string') {
     return false;
   }
 
-  if (!id.startsWith("artifact:")) {
+  if (!id.startsWith('artifact:')) {
     return false;
   }
 
   const rest = id.substring(9); // Remove 'artifact:'
-  const colonIndex = rest.indexOf(":");
+  const colonIndex = rest.indexOf(':');
   if (colonIndex === -1) {
     return false;
   }

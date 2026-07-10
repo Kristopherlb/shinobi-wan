@@ -1,4 +1,4 @@
-import type { NodeLowerer } from "./types";
+import type { NodeLowerer } from './types';
 import {
   LambdaLowerer,
   SqsLowerer,
@@ -55,7 +55,7 @@ import {
   Route53RecordLowerer,
   EksAddonLowerer,
   EksGpuNodeGroupLowerer,
-} from "./lowerers";
+} from './lowerers';
 
 export interface RegisterNodeLowererOptions {
   readonly overwrite?: boolean;

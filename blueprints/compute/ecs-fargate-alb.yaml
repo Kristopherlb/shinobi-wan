@@ -21,15 +21,15 @@ components:
     type: platform
     platform: aws-vpc
     config:
-      cidrBlock: "10.0.0.0/16"
+      cidrBlock: '10.0.0.0/16'
 
   # Public subnets across 2 AZs for ALB
   - id: subnet-1a
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.1.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.1.0/24'
       availabilityZone: us-east-1a
       mapPublicIpOnLaunch: true
 
@@ -37,8 +37,8 @@ components:
     type: platform
     platform: aws-subnet
     config:
-      vpcId: "platform:app-vpc"
-      cidrBlock: "10.0.2.0/24"
+      vpcId: 'platform:app-vpc'
+      cidrBlock: '10.0.2.0/24'
       availabilityZone: us-east-1b
       mapPublicIpOnLaunch: true
 
@@ -47,27 +47,27 @@ components:
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:app-vpc"
-      description: "ALB security group — public HTTPS"
+      vpcId: 'platform:app-vpc'
+      description: 'ALB security group — public HTTPS'
       ingressRules:
         - protocol: tcp
           fromPort: 443
           toPort: 443
           cidrBlocks:
-            - "0.0.0.0/0"
+            - '0.0.0.0/0'
         - protocol: tcp
           fromPort: 80
           toPort: 80
           cidrBlocks:
-            - "0.0.0.0/0"
+            - '0.0.0.0/0'
 
   # Security group for ECS tasks — ALB-only ingress
   - id: ecs-sg
     type: platform
     platform: aws-security-group
     config:
-      vpcId: "platform:app-vpc"
-      description: "ECS tasks — ALB ingress only"
+      vpcId: 'platform:app-vpc'
+      description: 'ECS tasks — ALB ingress only'
 
   # ECR repository for container images
   - id: app-repo
@@ -88,11 +88,11 @@ components:
     type: platform
     platform: aws-ecs-task-definition
     config:
-      cpu: "256"
-      memory: "512"
+      cpu: '256'
+      memory: '512'
       containerDefinitions:
         - name: app
-          image: "ecs-fargate-alb-app-task:latest"
+          image: 'ecs-fargate-alb-app-task:latest'
           cpu: 256
           memory: 512
           portMappings:
@@ -104,14 +104,14 @@ components:
     type: platform
     platform: aws-ecs-service
     config:
-      cluster: "platform:app-cluster"
-      taskDefinition: "platform:app-task"
+      cluster: 'platform:app-cluster'
+      taskDefinition: 'platform:app-task'
       desiredCount: 2
       subnets:
-        - "platform:subnet-1a"
-        - "platform:subnet-1b"
+        - 'platform:subnet-1a'
+        - 'platform:subnet-1b'
       securityGroups:
-        - "platform:ecs-sg"
+        - 'platform:ecs-sg'
       assignPublicIp: false
 
   # Application Load Balancer
@@ -119,14 +119,14 @@ components:
     type: platform
     platform: aws-alb
     config:
-      vpcId: "platform:app-vpc"
+      vpcId: 'platform:app-vpc'
       subnets:
-        - "platform:subnet-1a"
-        - "platform:subnet-1b"
+        - 'platform:subnet-1a'
+        - 'platform:subnet-1b'
       securityGroups:
-        - "platform:alb-sg"
+        - 'platform:alb-sg'
       healthCheck:
-        path: "/health"
+        path: '/health'
         interval: 30
         timeout: 5
         healthyThreshold: 2

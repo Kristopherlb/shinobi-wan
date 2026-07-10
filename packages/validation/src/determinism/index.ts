@@ -2,10 +2,10 @@
 export {
   validateCanonicalOrdering,
   isCanonicallyOrdered,
-} from "./ordering-validator";
+} from './ordering-validator';
 
 // Hash validation
-export { validateSemanticHash, validateSnapshotHashes } from "./hash-validator";
+export { validateSemanticHash, validateSnapshotHashes } from './hash-validator';
 
 // Stable ID validation
 export {
@@ -13,4 +13,4 @@ export {
   validateStableEdgeId,
   validateStableArtifactId,
   validateSnapshotIds,
-} from "./stable-id-validator";
+} from './stable-id-validator';

@@ -4,12 +4,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: "pnpm"
+          node-version: 20
+          cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm build
@@ -17,17 +17,18 @@ jobs:
       - run: pnpm lint
       - run: pnpm conformance:check
       - run: pnpm smoke:consumer
+      - run: pnpm blueprints:check
       - run: pnpm roadmap:check
       - run: pnpm rollout:dashboard:check
   docs-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: "pnpm"
+          node-version: 20
+          cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx build cli
       - run: pnpm docs:check

@@ -1,8 +1,8 @@
-import { Graph } from "./graph";
-import { canonicalStringify } from "./canonicalization";
-import { validateSnapshot } from "./validation";
-import { ValidationError } from "./errors";
-import type { GraphSnapshot } from "./types";
+import { Graph } from './graph';
+import { canonicalStringify } from './canonicalization';
+import { validateSnapshot } from './validation';
+import { ValidationError } from './errors';
+import type { GraphSnapshot } from './types';
 
 /**
  * Serializes a Graph to a deterministic JSON string.

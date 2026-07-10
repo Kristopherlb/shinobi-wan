@@ -1,4 +1,4 @@
-import type { Severity } from "@shinobi/contracts";
+import type { Severity } from '@shinobi/contracts';
 
 /**
  * Validation error with structured diagnostics (KL-006 compliant).
@@ -37,7 +37,7 @@ export interface ValidationResult {
   readonly errors: ReadonlyArray<ValidationError>;
 
   /** Schema version for forward compatibility */
-  readonly schemaVersion: "1.0.0";
+  readonly schemaVersion: '1.0.0';
 }
 
 /**
@@ -48,7 +48,7 @@ export interface ValidatorOptions {
   readonly strict?: boolean;
 
   /** Validation level: 'schema' | 'semantic' | 'full' (default: 'full') */
-  readonly level?: "schema" | "semantic" | "full";
+  readonly level?: 'schema' | 'semantic' | 'full';
 
   /** Collect all errors vs fail-fast (default: true = collect all) */
   readonly collectAll?: boolean;
@@ -127,12 +127,12 @@ export function sortErrors(
  */
 export function createResult(errors: ValidationError[]): ValidationResult {
   const sortedErrors = sortErrors(errors);
-  const hasErrors = sortedErrors.some((e) => e.severity === "error");
+  const hasErrors = sortedErrors.some((e) => e.severity === 'error');
 
   const result: ValidationResult = {
     valid: !hasErrors,
     errors: Object.freeze(sortedErrors),
-    schemaVersion: "1.0.0",
+    schemaVersion: '1.0.0',
   };
 
   return Object.freeze(result);

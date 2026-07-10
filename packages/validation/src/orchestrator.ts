@@ -1,26 +1,26 @@
-import type { GraphSnapshot } from "@shinobi/ir";
+import type { GraphSnapshot } from '@shinobi/ir';
 import {
   createError,
   createResult,
   type ValidationResult,
   type ValidatorOptions,
-} from "./errors";
-import { validateSnapshotSchema } from "./schema/graph-validators";
+} from './errors';
+import { validateSnapshotSchema } from './schema/graph-validators';
 import {
   validateCapabilityContractSchema,
   validateIntentSchema,
   validateViolationSchema,
-} from "./schema/contract-validators";
-import { validateReferences } from "./semantic/reference-validator";
-import { detectBackendHandles } from "./semantic/forbidden-patterns";
-import { validateLeastPrivilege } from "./semantic/least-privilege";
-import { validateCanonicalOrdering } from "./determinism/ordering-validator";
-import { validateSnapshotHashes } from "./determinism/hash-validator";
-import { validateSnapshotIds } from "./determinism/stable-id-validator";
+} from './schema/contract-validators';
+import { validateReferences } from './semantic/reference-validator';
+import { detectBackendHandles } from './semantic/forbidden-patterns';
+import { validateLeastPrivilege } from './semantic/least-privilege';
+import { validateCanonicalOrdering } from './determinism/ordering-validator';
+import { validateSnapshotHashes } from './determinism/hash-validator';
+import { validateSnapshotIds } from './determinism/stable-id-validator';
 
 const DEFAULT_OPTIONS: ValidatorOptions = {
   strict: true,
-  level: "full",
+  level: 'full',
   collectAll: true,
 };
 
@@ -54,7 +54,7 @@ export function validateGraph(
   const typedSnapshot = snapshot as GraphSnapshot;
 
   // Phase 2: Semantic validation
-  if (opts.level === "semantic" || opts.level === "full") {
+  if (opts.level === 'semantic' || opts.level === 'full') {
     // Referential integrity
     const refResult = validateReferences(typedSnapshot);
     allErrors.push(...refResult.errors);
@@ -65,7 +65,7 @@ export function validateGraph(
   }
 
   // Phase 3: Determinism validation
-  if (opts.level === "full") {
+  if (opts.level === 'full') {
     // Canonical ordering
     const orderResult = validateCanonicalOrdering(typedSnapshot);
     allErrors.push(...orderResult.errors);
@@ -114,10 +114,10 @@ export function validateIntent(
   }
 
   // Semantic validation for intents
-  if (opts.level === "semantic" || opts.level === "full") {
+  if (opts.level === 'semantic' || opts.level === 'full') {
     // Check for backend handles (forbidden in intents)
-    if (intent && typeof intent === "object") {
-      const handleErrors = detectBackendHandles(intent, "$");
+    if (intent && typeof intent === 'object') {
+      const handleErrors = detectBackendHandles(intent, '$');
       allErrors.push(...handleErrors);
 
       // Least-privilege check for IAM intents

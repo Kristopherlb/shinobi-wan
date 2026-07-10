@@ -1,4 +1,4 @@
-import type { Node, Edge, DerivedArtifact } from "./types";
+import type { Node, Edge, DerivedArtifact } from './types';
 
 /**
  * Compares two nodes for canonical ordering.

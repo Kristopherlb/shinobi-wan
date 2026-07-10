@@ -1,17 +1,17 @@
-import type { Node } from "@shinobi/ir";
+import type { Node } from '@shinobi/ir';
 import type {
   LoweredResource,
   LoweringContext,
   NodeLowerer,
   ResolvedDeps,
-} from "../types";
-import { shortName, createStandardTags, makeResourceName } from "./utils";
+} from '../types';
+import { shortName, createStandardTags, makeResourceName } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-eks-addon" -> EKS Addon.
  */
 export class EksAddonLowerer implements NodeLowerer {
-  readonly platform = "aws-eks-addon";
+  readonly platform = 'aws-eks-addon';
 
   lower(
     node: Node,
@@ -20,20 +20,20 @@ export class EksAddonLowerer implements NodeLowerer {
   ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
-    const extraTags = config["tags"] as Record<string, string> | undefined;
-    const tags = createStandardTags(node.id, "aws-eks-addon", extraTags);
+    const extraTags = config['tags'] as Record<string, string> | undefined;
+    const tags = createStandardTags(node.id, 'aws-eks-addon', extraTags);
 
     const addonResourceName = `${name}-addon`;
 
-    const clusterRef = config["clusterRef"] as string | undefined;
-    const addonName = config["addonName"] as string | undefined;
-    const addonVersion = config["addonVersion"] as string | undefined;
+    const clusterRef = config['clusterRef'] as string | undefined;
+    const addonName = config['addonName'] as string | undefined;
+    const addonVersion = config['addonVersion'] as string | undefined;
     const resolveConflicts =
-      (config["resolveConflicts"] as string) ?? "OVERWRITE";
-    const serviceAccountRoleArn = config["serviceAccountRoleArn"] as
+      (config['resolveConflicts'] as string) ?? 'OVERWRITE';
+    const serviceAccountRoleArn = config['serviceAccountRoleArn'] as
       | string
       | undefined;
-    const configurationValues = config["configurationValues"] as
+    const configurationValues = config['configurationValues'] as
       | string
       | undefined;
 
@@ -55,7 +55,7 @@ export class EksAddonLowerer implements NodeLowerer {
     return [
       {
         name: addonResourceName,
-        resourceType: "aws:eks:Addon",
+        resourceType: 'aws:eks:Addon',
         properties,
         sourceId: node.id,
         dependsOn: [],

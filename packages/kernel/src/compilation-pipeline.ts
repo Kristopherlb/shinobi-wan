@@ -1,18 +1,18 @@
-import type { Intent } from "@shinobi/contracts";
-import type { GraphSnapshot, Node, Edge } from "@shinobi/ir";
-import { validateGraph, validateIntent } from "@shinobi/validation";
-import type { ValidatorOptions } from "@shinobi/validation";
+import type { Intent } from '@shinobi/contracts';
+import type { GraphSnapshot, Node, Edge } from '@shinobi/ir';
+import { validateGraph, validateIntent } from '@shinobi/validation';
+import type { ValidatorOptions } from '@shinobi/validation';
 import type {
   KernelConfig,
   CompilationResult,
   BindingDiagnostic,
   PolicyResult,
-} from "./types";
-import type { IBinder } from "./interfaces/binder-interface";
-import type { IPolicyEvaluator } from "./interfaces/policy-evaluator-interface";
-import { CompilationError, PolicyPackError } from "./errors";
-import { resolveConfig } from "./config";
-import { deepFreeze } from "./freeze";
+} from './types';
+import type { IBinder } from './interfaces/binder-interface';
+import type { IPolicyEvaluator } from './interfaces/policy-evaluator-interface';
+import { CompilationError, PolicyPackError } from './errors';
+import { resolveConfig } from './config';
+import { deepFreeze } from './freeze';
 
 /**
  * Runs the four-phase compilation pipeline:
@@ -30,7 +30,7 @@ export function compilePipeline(
   const resolvedConfig = resolveConfig(config);
   const validationOptions: ValidatorOptions = config.validationOptions ?? {
     strict: true,
-    level: "full",
+    level: 'full',
     collectAll: true,
   };
 
@@ -58,9 +58,9 @@ export function compilePipeline(
         message: e.message,
       }));
       throw new CompilationError(
-        "binding",
+        'binding',
         details,
-        "Binder emitted invalid intent",
+        'Binder emitted invalid intent',
       );
     }
   }
@@ -115,9 +115,9 @@ function bindEdges(
       // Should not happen if validation passed, but be defensive
       allDiagnostics.push({
         path: `$.edges[${edge.id}]`,
-        rule: "referential-integrity",
+        rule: 'referential-integrity',
         message: `Edge references missing node(s): source=${edge.source}, target=${edge.target}`,
-        severity: "error",
+        severity: 'error',
       });
       continue;
     }
@@ -126,9 +126,9 @@ function bindEdges(
     if (!binder) {
       allDiagnostics.push({
         path: `$.edges[${edge.id}]`,
-        rule: "unbound-edge",
+        rule: 'unbound-edge',
         message: `No binder registered for edge type="${edge.type}" source="${sourceNode.type}" target="${targetNode.type}"`,
-        severity: "warning",
+        severity: 'warning',
       });
       continue;
     }
@@ -223,7 +223,7 @@ function evaluatePolicy(
 
   return {
     violations,
-    compliant: violations.every((v) => v.severity !== "error"),
+    compliant: violations.every((v) => v.severity !== 'error'),
     policyPack,
   };
 }

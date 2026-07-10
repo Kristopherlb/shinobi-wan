@@ -1,17 +1,17 @@
-import * as fs from "fs";
-import { parseManifest, manifestToMutations } from "../manifest";
-import { Kernel } from "@shinobi/kernel";
+import * as fs from 'fs';
+import { parseManifest, manifestToMutations } from '../manifest';
+import { Kernel } from '@shinobi/kernel';
 import type {
   IBinder,
   IPolicyEvaluator,
   CompilationResult,
-} from "@shinobi/kernel";
+} from '@shinobi/kernel';
 import {
   ComponentPlatformBinder,
   TriggersBinder,
   BinderRegistry,
-} from "@shinobi/binder";
-import { BaselinePolicyEvaluator } from "@shinobi/policy";
+} from '@shinobi/binder';
+import { BaselinePolicyEvaluator } from '@shinobi/policy';
 
 export interface ValidateOptions {
   readonly manifestPath: string;
@@ -31,6 +31,8 @@ export interface ValidateResult {
     policyPack: string;
     compliant: boolean;
     violationCount: number;
+    blockingViolationCount: number;
+    advisoryViolationCount: number;
   };
   readonly compilation?: CompilationResult;
   readonly errors: ReadonlyArray<{ path: string; message: string }>;
@@ -54,7 +56,7 @@ export function validate(options: ValidateOptions): ValidateResult {
   // Read manifest file
   let yamlContent: string;
   try {
-    yamlContent = fs.readFileSync(options.manifestPath, "utf-8");
+    yamlContent = fs.readFileSync(options.manifestPath, 'utf-8');
   } catch (e) {
     return {
       success: false,
@@ -95,7 +97,7 @@ export function validate(options: ValidateOptions): ValidateResult {
     return {
       success: false,
       errors: mutResult.errors.map((e) => ({
-        path: "graph",
+        path: 'graph',
         message: e.error.message,
       })),
     };
@@ -116,10 +118,10 @@ export function validate(options: ValidateOptions): ValidateResult {
     validation: {
       valid: compilation.validation.valid,
       errorCount: compilation.validation.errors.filter(
-        (e) => e.severity === "error",
+        (e) => e.severity === 'error',
       ).length,
       warningCount: compilation.validation.errors.filter(
-        (e) => e.severity === "warning",
+        (e) => e.severity === 'warning',
       ).length,
     },
     ...(compilation.policy
@@ -128,6 +130,12 @@ export function validate(options: ValidateOptions): ValidateResult {
             policyPack: compilation.policy.policyPack,
             compliant: compilation.policy.compliant,
             violationCount: compilation.policy.violations.length,
+            blockingViolationCount: compilation.policy.violations.filter(
+              (v) => v.severity === 'error',
+            ).length,
+            advisoryViolationCount: compilation.policy.violations.filter(
+              (v) => v.severity !== 'error',
+            ).length,
           },
         }
       : {}),

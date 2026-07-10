@@ -1,9 +1,9 @@
-import type { Edge } from "@shinobi/ir";
-import type { LoweredResource, LoweringContext } from "./types";
-import { shortName } from "./lowerers/utils";
+import type { Edge } from '@shinobi/ir';
+import type { LoweredResource, LoweringContext } from './types';
+import { shortName } from './lowerers/utils';
 
 interface EdgeIntegrationTemplate {
-  readonly edgeType: "bindsTo" | "triggers";
+  readonly edgeType: 'bindsTo' | 'triggers';
   readonly sourcePlatform: string;
   readonly targetPlatform: string;
   readonly generate: (
@@ -16,27 +16,27 @@ interface EdgeIntegrationTemplate {
 
 const EDGE_INTEGRATION_TEMPLATES: ReadonlyArray<EdgeIntegrationTemplate> = [
   {
-    edgeType: "bindsTo",
-    sourcePlatform: "aws-lambda",
-    targetPlatform: "aws-sqs",
+    edgeType: 'bindsTo',
+    sourcePlatform: 'aws-lambda',
+    targetPlatform: 'aws-sqs',
     generate: generateEventSourceMapping,
   },
   {
-    edgeType: "triggers",
-    sourcePlatform: "aws-apigateway",
-    targetPlatform: "aws-lambda",
+    edgeType: 'triggers',
+    sourcePlatform: 'aws-apigateway',
+    targetPlatform: 'aws-lambda',
     generate: generateApiGatewayLambdaIntegration,
   },
   {
-    edgeType: "triggers",
-    sourcePlatform: "aws-eventbridge-scheduler",
-    targetPlatform: "aws-lambda",
+    edgeType: 'triggers',
+    sourcePlatform: 'aws-eventbridge-scheduler',
+    targetPlatform: 'aws-lambda',
     generate: generateEventBridgeLambdaTarget,
   },
   {
-    edgeType: "triggers",
-    sourcePlatform: "aws-eventbridge-scheduler",
-    targetPlatform: "aws-stepfunctions",
+    edgeType: 'triggers',
+    sourcePlatform: 'aws-eventbridge-scheduler',
+    targetPlatform: 'aws-stepfunctions',
     generate: generateEventBridgeStepFunctionsTarget,
   },
 ];
@@ -55,10 +55,10 @@ export function generateEdgeIntegrations(
     const targetNode = context.snapshot.nodes.find((n) => n.id === edge.target);
     if (!sourceNode || !targetNode) continue;
 
-    const sourcePlatform = sourceNode.metadata.properties["platform"] as
+    const sourcePlatform = sourceNode.metadata.properties['platform'] as
       | string
       | undefined;
-    const targetPlatform = targetNode.metadata.properties["platform"] as
+    const targetPlatform = targetNode.metadata.properties['platform'] as
       | string
       | undefined;
     if (!sourcePlatform || !targetPlatform) continue;
@@ -89,14 +89,14 @@ function generateEventSourceMapping(
   return [
     {
       name: `${lambdaName}-${sqsName}-event-mapping`,
-      resourceType: "aws:lambda:EventSourceMapping",
+      resourceType: 'aws:lambda:EventSourceMapping',
       properties: {
         functionName: { ref: `${lambdaName}-function` },
         eventSourceArn: { ref: `${sqsName}-queue` },
         batchSize: 10,
         enabled: true,
         tags: {
-          "shinobi:edge": edge.id,
+          'shinobi:edge': edge.id,
         },
       },
       sourceId: edge.id,
@@ -116,7 +116,7 @@ function generateApiGatewayLambdaIntegration(
   const route = bindingConfig?.route;
   const method = bindingConfig?.method;
 
-  const routeKey = route && method ? `${method} ${route}` : "$default";
+  const routeKey = route && method ? `${method} ${route}` : '$default';
 
   const integrationName = `${apiName}-${lambdaName}-integration`;
   const routeName = `${apiName}-${lambdaName}-route`;
@@ -125,14 +125,14 @@ function generateApiGatewayLambdaIntegration(
   return [
     {
       name: integrationName,
-      resourceType: "aws:apigatewayv2:Integration",
+      resourceType: 'aws:apigatewayv2:Integration',
       properties: {
         apiId: { ref: `${apiName}-api` },
-        integrationType: "AWS_PROXY",
+        integrationType: 'AWS_PROXY',
         integrationUri: { ref: `${lambdaName}-function` },
-        payloadFormatVersion: "2.0",
+        payloadFormatVersion: '2.0',
         tags: {
-          "shinobi:edge": edge.id,
+          'shinobi:edge': edge.id,
         },
       },
       sourceId: edge.id,
@@ -140,7 +140,7 @@ function generateApiGatewayLambdaIntegration(
     },
     {
       name: routeName,
-      resourceType: "aws:apigatewayv2:Route",
+      resourceType: 'aws:apigatewayv2:Route',
       properties: {
         apiId: { ref: `${apiName}-api` },
         routeKey,
@@ -151,14 +151,14 @@ function generateApiGatewayLambdaIntegration(
     },
     {
       name: permissionName,
-      resourceType: "aws:lambda:Permission",
+      resourceType: 'aws:lambda:Permission',
       properties: {
-        action: "lambda:InvokeFunction",
+        action: 'lambda:InvokeFunction',
         function: { ref: `${lambdaName}-function` },
-        principal: "apigateway.amazonaws.com",
+        principal: 'apigateway.amazonaws.com',
         sourceArn: { ref: `${apiName}-api` },
         tags: {
-          "shinobi:edge": edge.id,
+          'shinobi:edge': edge.id,
         },
       },
       sourceId: edge.id,
@@ -175,13 +175,13 @@ function generateEventBridgeLambdaTarget(
   return [
     {
       name: `${schedulerName}-${targetName}-target`,
-      resourceType: "aws:scheduler:ScheduleTarget",
+      resourceType: 'aws:scheduler:ScheduleTarget',
       properties: {
         scheduleArn: { ref: `${schedulerName}-schedule` },
         arn: { ref: `${targetName}-function` },
         roleArn: { ref: `${schedulerName}-exec-role` },
         tags: {
-          "shinobi:edge": edge.id,
+          'shinobi:edge': edge.id,
         },
       },
       sourceId: edge.id,
@@ -198,13 +198,13 @@ function generateEventBridgeStepFunctionsTarget(
   return [
     {
       name: `${schedulerName}-${targetName}-target`,
-      resourceType: "aws:scheduler:ScheduleTarget",
+      resourceType: 'aws:scheduler:ScheduleTarget',
       properties: {
         scheduleArn: { ref: `${schedulerName}-schedule` },
         arn: { ref: `${targetName}-state-machine` },
         roleArn: { ref: `${schedulerName}-exec-role` },
         tags: {
-          "shinobi:edge": edge.id,
+          'shinobi:edge': edge.id,
         },
       },
       sourceId: edge.id,

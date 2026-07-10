@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { BaselinePolicyEvaluator } from "../evaluators/baseline-policy-evaluator";
-import type { PolicyEvaluationContext } from "@shinobi/kernel";
-import { makeNode, makeSnapshot } from "./test-helpers";
+import { describe, it, expect } from 'vitest';
+import { BaselinePolicyEvaluator } from '../evaluators/baseline-policy-evaluator';
+import type { PolicyEvaluationContext } from '@shinobi/kernel';
+import { makeNode, makeSnapshot } from './test-helpers';
 
 const evaluator = new BaselinePolicyEvaluator();
 
@@ -17,3112 +17,3112 @@ function makeComputeContext(
   };
 }
 
-describe("sqs-dlq-missing", () => {
-  it("fires when SQS queue lacks deadLetterQueue config", () => {
+describe('sqs-dlq-missing', () => {
+  it('fires when SQS queue lacks deadLetterQueue config', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:work-queue",
-          type: "platform",
-          metadata: { properties: { platform: "aws-sqs" } },
+          id: 'platform:work-queue',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-sqs' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const dlqViolations = violations.filter(
-      (v) => v.ruleId === "sqs-dlq-missing",
+      (v) => v.ruleId === 'sqs-dlq-missing',
     );
     expect(dlqViolations).toHaveLength(1);
-    expect(dlqViolations[0].target.type).toBe("node");
-    expect(dlqViolations[0].target.id).toBe("platform:work-queue");
+    expect(dlqViolations[0].target.type).toBe('node');
+    expect(dlqViolations[0].target.id).toBe('platform:work-queue');
   });
 
-  it("does not fire when deadLetterQueue is true", () => {
+  it('does not fire when deadLetterQueue is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:q",
-          type: "platform",
+          id: 'platform:q',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-sqs", deadLetterQueue: true },
+            properties: { platform: 'aws-sqs', deadLetterQueue: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "sqs-dlq-missing"),
+      violations.filter((v) => v.ruleId === 'sqs-dlq-missing'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:q",
-      type: "platform",
-      metadata: { properties: { platform: "aws-sqs" } },
+      id: 'platform:q',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-sqs' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
-    expect(baseline.find((v) => v.ruleId === "sqs-dlq-missing")?.severity).toBe(
-      "info",
+    expect(baseline.find((v) => v.ruleId === 'sqs-dlq-missing')?.severity).toBe(
+      'info',
     );
-    expect(moderate.find((v) => v.ruleId === "sqs-dlq-missing")?.severity).toBe(
-      "warning",
+    expect(moderate.find((v) => v.ruleId === 'sqs-dlq-missing')?.severity).toBe(
+      'warning',
     );
-    expect(high.find((v) => v.ruleId === "sqs-dlq-missing")?.severity).toBe(
-      "error",
+    expect(high.find((v) => v.ruleId === 'sqs-dlq-missing')?.severity).toBe(
+      'error',
     );
   });
 });
 
-describe("lambda-timeout-excessive", () => {
-  it("fires when Lambda timeout exceeds 900s", () => {
+describe('lambda-timeout-excessive', () => {
+  it('fires when Lambda timeout exceeds 900s', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "component:slow",
-          type: "component",
-          metadata: { properties: { platform: "aws-lambda", timeout: 1200 } },
+          id: 'component:slow',
+          type: 'component',
+          metadata: { properties: { platform: 'aws-lambda', timeout: 1200 } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const timeoutViolations = violations.filter(
-      (v) => v.ruleId === "lambda-timeout-excessive",
+      (v) => v.ruleId === 'lambda-timeout-excessive',
     );
     expect(timeoutViolations).toHaveLength(1);
-    expect(timeoutViolations[0].message).toContain("1200s");
+    expect(timeoutViolations[0].message).toContain('1200s');
   });
 
-  it("does not fire when timeout is exactly 900s", () => {
+  it('does not fire when timeout is exactly 900s', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "component:ok",
-          type: "component",
-          metadata: { properties: { platform: "aws-lambda", timeout: 900 } },
+          id: 'component:ok',
+          type: 'component',
+          metadata: { properties: { platform: 'aws-lambda', timeout: 900 } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "lambda-timeout-excessive"),
+      violations.filter((v) => v.ruleId === 'lambda-timeout-excessive'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when timeout is not set", () => {
+  it('does not fire when timeout is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "component:handler",
-          type: "component",
-          metadata: { properties: { platform: "aws-lambda" } },
+          id: 'component:handler',
+          type: 'component',
+          metadata: { properties: { platform: 'aws-lambda' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "lambda-timeout-excessive"),
+      violations.filter((v) => v.ruleId === 'lambda-timeout-excessive'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "component:slow",
-      type: "component",
-      metadata: { properties: { platform: "aws-lambda", timeout: 1200 } },
+      id: 'component:slow',
+      type: 'component',
+      metadata: { properties: { platform: 'aws-lambda', timeout: 1200 } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "lambda-timeout-excessive")?.severity,
-    ).toBe("warning");
+      baseline.find((v) => v.ruleId === 'lambda-timeout-excessive')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "lambda-timeout-excessive")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'lambda-timeout-excessive')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("telemetry-tracing-disabled", () => {
-  it("fires when Lambda lacks tracing config", () => {
+describe('telemetry-tracing-disabled', () => {
+  it('fires when Lambda lacks tracing config', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "component:handler",
-          type: "component",
-          metadata: { properties: { platform: "aws-lambda" } },
+          id: 'component:handler',
+          type: 'component',
+          metadata: { properties: { platform: 'aws-lambda' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const tracingViolations = violations.filter(
-      (v) => v.ruleId === "telemetry-tracing-disabled",
+      (v) => v.ruleId === 'telemetry-tracing-disabled',
     );
     expect(tracingViolations).toHaveLength(1);
-    expect(tracingViolations[0].target.id).toBe("component:handler");
+    expect(tracingViolations[0].target.id).toBe('component:handler');
   });
 
-  it("does not fire when tracing is true", () => {
+  it('does not fire when tracing is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "component:handler",
-          type: "component",
-          metadata: { properties: { platform: "aws-lambda", tracing: true } },
+          id: 'component:handler',
+          type: 'component',
+          metadata: { properties: { platform: 'aws-lambda', tracing: true } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "telemetry-tracing-disabled"),
+      violations.filter((v) => v.ruleId === 'telemetry-tracing-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "component:handler",
-      type: "component",
-      metadata: { properties: { platform: "aws-lambda" } },
+      id: 'component:handler',
+      type: 'component',
+      metadata: { properties: { platform: 'aws-lambda' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "telemetry-tracing-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'telemetry-tracing-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "telemetry-tracing-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'telemetry-tracing-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "telemetry-tracing-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'telemetry-tracing-disabled')?.severity,
+    ).toBe('error');
   });
 
-  it("does not fire for non-Lambda platforms", () => {
+  it('does not fire for non-Lambda platforms', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:queue",
-          type: "platform",
-          metadata: { properties: { platform: "aws-sqs" } },
+          id: 'platform:queue',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-sqs' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "telemetry-tracing-disabled"),
+      violations.filter((v) => v.ruleId === 'telemetry-tracing-disabled'),
     ).toHaveLength(0);
   });
 });
 
-describe("cloudfront-ssl-protocol-weak", () => {
-  it("fires when CloudFront uses weak SSL protocol", () => {
+describe('cloudfront-ssl-protocol-weak', () => {
+  it('fires when CloudFront uses weak SSL protocol', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cdn",
-          type: "platform",
+          id: 'platform:cdn',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-cloudfront",
-              minimumProtocolVersion: "TLSv1",
+              platform: 'aws-cloudfront',
+              minimumProtocolVersion: 'TLSv1',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const sslViolations = violations.filter(
-      (v) => v.ruleId === "cloudfront-ssl-protocol-weak",
+      (v) => v.ruleId === 'cloudfront-ssl-protocol-weak',
     );
     expect(sslViolations).toHaveLength(1);
-    expect(sslViolations[0].target.type).toBe("node");
-    expect(sslViolations[0].target.id).toBe("platform:cdn");
+    expect(sslViolations[0].target.type).toBe('node');
+    expect(sslViolations[0].target.id).toBe('platform:cdn');
   });
 
-  it("does not fire when using TLSv1.2_2021", () => {
+  it('does not fire when using TLSv1.2_2021', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cdn",
-          type: "platform",
+          id: 'platform:cdn',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-cloudfront",
-              minimumProtocolVersion: "TLSv1.2_2021",
+              platform: 'aws-cloudfront',
+              minimumProtocolVersion: 'TLSv1.2_2021',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "cloudfront-ssl-protocol-weak"),
+      violations.filter((v) => v.ruleId === 'cloudfront-ssl-protocol-weak'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when minimumProtocolVersion is not set", () => {
+  it('does not fire when minimumProtocolVersion is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cdn",
-          type: "platform",
-          metadata: { properties: { platform: "aws-cloudfront" } },
+          id: 'platform:cdn',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-cloudfront' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "cloudfront-ssl-protocol-weak"),
+      violations.filter((v) => v.ruleId === 'cloudfront-ssl-protocol-weak'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:cdn",
-      type: "platform",
+      id: 'platform:cdn',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-cloudfront",
-          minimumProtocolVersion: "SSLv3",
+          platform: 'aws-cloudfront',
+          minimumProtocolVersion: 'SSLv3',
         },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "cloudfront-ssl-protocol-weak")
+      baseline.find((v) => v.ruleId === 'cloudfront-ssl-protocol-weak')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "cloudfront-ssl-protocol-weak")
+      moderate.find((v) => v.ruleId === 'cloudfront-ssl-protocol-weak')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "cloudfront-ssl-protocol-weak")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'cloudfront-ssl-protocol-weak')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("waf-not-attached", () => {
-  it("fires when CloudFront lacks wafAclArn", () => {
+describe('waf-not-attached', () => {
+  it('fires when CloudFront lacks wafAclArn', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cdn",
-          type: "platform",
-          metadata: { properties: { platform: "aws-cloudfront" } },
+          id: 'platform:cdn',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-cloudfront' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const wafViolations = violations.filter(
-      (v) => v.ruleId === "waf-not-attached",
+      (v) => v.ruleId === 'waf-not-attached',
     );
     expect(wafViolations).toHaveLength(1);
-    expect(wafViolations[0].target.id).toBe("platform:cdn");
+    expect(wafViolations[0].target.id).toBe('platform:cdn');
   });
 
-  it("does not fire when wafAclArn is set", () => {
+  it('does not fire when wafAclArn is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cdn",
-          type: "platform",
+          id: 'platform:cdn',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-cloudfront",
-              wafAclArn: "arn:aws:wafv2:...",
+              platform: 'aws-cloudfront',
+              wafAclArn: 'arn:aws:wafv2:...',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "waf-not-attached"),
+      violations.filter((v) => v.ruleId === 'waf-not-attached'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:cdn",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudfront" } },
+      id: 'platform:cdn',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudfront' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "waf-not-attached")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'waf-not-attached')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "waf-not-attached")?.severity,
-    ).toBe("warning");
-    expect(high.find((v) => v.ruleId === "waf-not-attached")?.severity).toBe(
-      "error",
+      moderate.find((v) => v.ruleId === 'waf-not-attached')?.severity,
+    ).toBe('warning');
+    expect(high.find((v) => v.ruleId === 'waf-not-attached')?.severity).toBe(
+      'error',
     );
   });
 });
 
-describe("s3-public-access-not-blocked", () => {
-  it("fires when S3 bucket has publicAccess enabled", () => {
+describe('s3-public-access-not-blocked', () => {
+  it('fires when S3 bucket has publicAccess enabled', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:assets",
-          type: "platform",
-          metadata: { properties: { platform: "aws-s3", publicAccess: true } },
+          id: 'platform:assets',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-s3', publicAccess: true } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const publicViolations = violations.filter(
-      (v) => v.ruleId === "s3-public-access-not-blocked",
+      (v) => v.ruleId === 's3-public-access-not-blocked',
     );
     expect(publicViolations).toHaveLength(1);
-    expect(publicViolations[0].target.id).toBe("platform:assets");
+    expect(publicViolations[0].target.id).toBe('platform:assets');
   });
 
-  it("does not fire when publicAccess is not set", () => {
+  it('does not fire when publicAccess is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:assets",
-          type: "platform",
-          metadata: { properties: { platform: "aws-s3" } },
+          id: 'platform:assets',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-s3' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "s3-public-access-not-blocked"),
+      violations.filter((v) => v.ruleId === 's3-public-access-not-blocked'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when publicAccess is false", () => {
+  it('does not fire when publicAccess is false', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:assets",
-          type: "platform",
-          metadata: { properties: { platform: "aws-s3", publicAccess: false } },
+          id: 'platform:assets',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-s3', publicAccess: false } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "s3-public-access-not-blocked"),
+      violations.filter((v) => v.ruleId === 's3-public-access-not-blocked'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:assets",
-      type: "platform",
-      metadata: { properties: { platform: "aws-s3", publicAccess: true } },
+      id: 'platform:assets',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-s3', publicAccess: true } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "s3-public-access-not-blocked")
+      baseline.find((v) => v.ruleId === 's3-public-access-not-blocked')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "s3-public-access-not-blocked")
+      moderate.find((v) => v.ruleId === 's3-public-access-not-blocked')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "s3-public-access-not-blocked")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 's3-public-access-not-blocked')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("stepfunctions-logging-disabled", () => {
-  it("fires when Step Functions lacks logging config", () => {
+describe('stepfunctions-logging-disabled', () => {
+  it('fires when Step Functions lacks logging config', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workflow",
-          type: "platform",
-          metadata: { properties: { platform: "aws-stepfunctions" } },
+          id: 'platform:workflow',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-stepfunctions' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const logViolations = violations.filter(
-      (v) => v.ruleId === "stepfunctions-logging-disabled",
+      (v) => v.ruleId === 'stepfunctions-logging-disabled',
     );
     expect(logViolations).toHaveLength(1);
-    expect(logViolations[0].target.id).toBe("platform:workflow");
+    expect(logViolations[0].target.id).toBe('platform:workflow');
   });
 
-  it("does not fire when logging is true", () => {
+  it('does not fire when logging is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workflow",
-          type: "platform",
+          id: 'platform:workflow',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-stepfunctions", logging: true },
+            properties: { platform: 'aws-stepfunctions', logging: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "stepfunctions-logging-disabled"),
+      violations.filter((v) => v.ruleId === 'stepfunctions-logging-disabled'),
     ).toHaveLength(0);
   });
 
-  it("does not fire for non-Step Functions platforms", () => {
+  it('does not fire for non-Step Functions platforms', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:queue",
-          type: "platform",
-          metadata: { properties: { platform: "aws-sqs" } },
+          id: 'platform:queue',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-sqs' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "stepfunctions-logging-disabled"),
+      violations.filter((v) => v.ruleId === 'stepfunctions-logging-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:workflow",
-      type: "platform",
-      metadata: { properties: { platform: "aws-stepfunctions" } },
+      id: 'platform:workflow',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-stepfunctions' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "stepfunctions-logging-disabled")
+      baseline.find((v) => v.ruleId === 'stepfunctions-logging-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "stepfunctions-logging-disabled")
+      moderate.find((v) => v.ruleId === 'stepfunctions-logging-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "stepfunctions-logging-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'stepfunctions-logging-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("eventbridge-retry-missing", () => {
-  it("fires when EventBridge schedule lacks retry policy", () => {
+describe('eventbridge-retry-missing', () => {
+  it('fires when EventBridge schedule lacks retry policy', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cron",
-          type: "platform",
-          metadata: { properties: { platform: "aws-eventbridge-scheduler" } },
+          id: 'platform:cron',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-eventbridge-scheduler' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const retryViolations = violations.filter(
-      (v) => v.ruleId === "eventbridge-retry-missing",
+      (v) => v.ruleId === 'eventbridge-retry-missing',
     );
     expect(retryViolations).toHaveLength(1);
-    expect(retryViolations[0].target.id).toBe("platform:cron");
+    expect(retryViolations[0].target.id).toBe('platform:cron');
   });
 
-  it("does not fire when retryPolicy is set", () => {
+  it('does not fire when retryPolicy is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:cron",
-          type: "platform",
+          id: 'platform:cron',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eventbridge-scheduler",
+              platform: 'aws-eventbridge-scheduler',
               retryPolicy: { maximumRetryAttempts: 2 },
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eventbridge-retry-missing"),
+      violations.filter((v) => v.ruleId === 'eventbridge-retry-missing'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:cron",
-      type: "platform",
-      metadata: { properties: { platform: "aws-eventbridge-scheduler" } },
+      id: 'platform:cron',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-eventbridge-scheduler' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "eventbridge-retry-missing")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'eventbridge-retry-missing')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "eventbridge-retry-missing")?.severity,
-    ).toBe("info");
+      moderate.find((v) => v.ruleId === 'eventbridge-retry-missing')?.severity,
+    ).toBe('info');
     expect(
-      high.find((v) => v.ruleId === "eventbridge-retry-missing")?.severity,
-    ).toBe("warning");
+      high.find((v) => v.ruleId === 'eventbridge-retry-missing')?.severity,
+    ).toBe('warning');
   });
 });
 
-describe("ecs-task-public-ip", () => {
-  it("fires when ECS service assigns public IP", () => {
+describe('ecs-task-public-ip', () => {
+  it('fires when ECS service assigns public IP', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:web-svc",
-          type: "platform",
+          id: 'platform:web-svc',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-ecs-service", assignPublicIp: true },
+            properties: { platform: 'aws-ecs-service', assignPublicIp: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const ecsViolations = violations.filter(
-      (v) => v.ruleId === "ecs-task-public-ip",
+      (v) => v.ruleId === 'ecs-task-public-ip',
     );
     expect(ecsViolations).toHaveLength(1);
-    expect(ecsViolations[0].target.id).toBe("platform:web-svc");
+    expect(ecsViolations[0].target.id).toBe('platform:web-svc');
   });
 
-  it("does not fire when assignPublicIp is not set", () => {
+  it('does not fire when assignPublicIp is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:web-svc",
-          type: "platform",
-          metadata: { properties: { platform: "aws-ecs-service" } },
+          id: 'platform:web-svc',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-ecs-service' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "ecs-task-public-ip"),
+      violations.filter((v) => v.ruleId === 'ecs-task-public-ip'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:web-svc",
-      type: "platform",
+      id: 'platform:web-svc',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-ecs-service", assignPublicIp: true },
+        properties: { platform: 'aws-ecs-service', assignPublicIp: true },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "ecs-task-public-ip")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'ecs-task-public-ip')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "ecs-task-public-ip")?.severity,
-    ).toBe("warning");
-    expect(high.find((v) => v.ruleId === "ecs-task-public-ip")?.severity).toBe(
-      "error",
+      moderate.find((v) => v.ruleId === 'ecs-task-public-ip')?.severity,
+    ).toBe('warning');
+    expect(high.find((v) => v.ruleId === 'ecs-task-public-ip')?.severity).toBe(
+      'error',
     );
   });
 });
 
-describe("alb-access-logs-disabled", () => {
-  it("fires when ALB lacks access logging", () => {
+describe('alb-access-logs-disabled', () => {
+  it('fires when ALB lacks access logging', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:web-lb",
-          type: "platform",
-          metadata: { properties: { platform: "aws-alb" } },
+          id: 'platform:web-lb',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-alb' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const albViolations = violations.filter(
-      (v) => v.ruleId === "alb-access-logs-disabled",
+      (v) => v.ruleId === 'alb-access-logs-disabled',
     );
     expect(albViolations).toHaveLength(1);
-    expect(albViolations[0].target.id).toBe("platform:web-lb");
+    expect(albViolations[0].target.id).toBe('platform:web-lb');
   });
 
-  it("does not fire when accessLogs is true", () => {
+  it('does not fire when accessLogs is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:web-lb",
-          type: "platform",
-          metadata: { properties: { platform: "aws-alb", accessLogs: true } },
+          id: 'platform:web-lb',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-alb', accessLogs: true } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "alb-access-logs-disabled"),
+      violations.filter((v) => v.ruleId === 'alb-access-logs-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:web-lb",
-      type: "platform",
-      metadata: { properties: { platform: "aws-alb" } },
+      id: 'platform:web-lb',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-alb' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "alb-access-logs-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'alb-access-logs-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "alb-access-logs-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'alb-access-logs-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "alb-access-logs-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'alb-access-logs-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("ecr-image-scan-disabled", () => {
-  it("fires when ECR repo has scanOnPush set to false", () => {
+describe('ecr-image-scan-disabled', () => {
+  it('fires when ECR repo has scanOnPush set to false', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:images",
-          type: "platform",
-          metadata: { properties: { platform: "aws-ecr", scanOnPush: false } },
+          id: 'platform:images',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-ecr', scanOnPush: false } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const ecrViolations = violations.filter(
-      (v) => v.ruleId === "ecr-image-scan-disabled",
+      (v) => v.ruleId === 'ecr-image-scan-disabled',
     );
     expect(ecrViolations).toHaveLength(1);
-    expect(ecrViolations[0].target.id).toBe("platform:images");
+    expect(ecrViolations[0].target.id).toBe('platform:images');
   });
 
-  it("does not fire when scanOnPush is not set (defaults to enabled)", () => {
+  it('does not fire when scanOnPush is not set (defaults to enabled)', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:images",
-          type: "platform",
-          metadata: { properties: { platform: "aws-ecr" } },
+          id: 'platform:images',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-ecr' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "ecr-image-scan-disabled"),
+      violations.filter((v) => v.ruleId === 'ecr-image-scan-disabled'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when scanOnPush is true", () => {
+  it('does not fire when scanOnPush is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:images",
-          type: "platform",
-          metadata: { properties: { platform: "aws-ecr", scanOnPush: true } },
+          id: 'platform:images',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-ecr', scanOnPush: true } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "ecr-image-scan-disabled"),
+      violations.filter((v) => v.ruleId === 'ecr-image-scan-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:images",
-      type: "platform",
-      metadata: { properties: { platform: "aws-ecr", scanOnPush: false } },
+      id: 'platform:images',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-ecr', scanOnPush: false } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "ecr-image-scan-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'ecr-image-scan-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "ecr-image-scan-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'ecr-image-scan-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "ecr-image-scan-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'ecr-image-scan-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("eks-endpoint-public-access", () => {
-  it("fires when EKS cluster has public endpoint enabled", () => {
+describe('eks-endpoint-public-access', () => {
+  it('fires when EKS cluster has public endpoint enabled', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-cluster",
-          type: "platform",
+          id: 'platform:my-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-cluster",
+              platform: 'aws-eks-cluster',
               endpointPublicAccess: true,
-              enabledClusterLogTypes: ["api"],
+              enabledClusterLogTypes: ['api'],
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const eksViolations = violations.filter(
-      (v) => v.ruleId === "eks-endpoint-public-access",
+      (v) => v.ruleId === 'eks-endpoint-public-access',
     );
     expect(eksViolations).toHaveLength(1);
-    expect(eksViolations[0].target.type).toBe("node");
-    expect(eksViolations[0].target.id).toBe("platform:my-cluster");
+    expect(eksViolations[0].target.type).toBe('node');
+    expect(eksViolations[0].target.id).toBe('platform:my-cluster');
   });
 
-  it("does not fire when endpointPublicAccess is false", () => {
+  it('does not fire when endpointPublicAccess is false', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-cluster",
-          type: "platform",
+          id: 'platform:my-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-cluster",
+              platform: 'aws-eks-cluster',
               endpointPublicAccess: false,
-              enabledClusterLogTypes: ["api"],
+              enabledClusterLogTypes: ['api'],
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-endpoint-public-access"),
+      violations.filter((v) => v.ruleId === 'eks-endpoint-public-access'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when endpointPublicAccess is not set", () => {
+  it('does not fire when endpointPublicAccess is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-cluster",
-          type: "platform",
+          id: 'platform:my-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-cluster",
-              enabledClusterLogTypes: ["api"],
+              platform: 'aws-eks-cluster',
+              enabledClusterLogTypes: ['api'],
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-endpoint-public-access"),
+      violations.filter((v) => v.ruleId === 'eks-endpoint-public-access'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:my-cluster",
-      type: "platform",
+      id: 'platform:my-cluster',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-eks-cluster",
+          platform: 'aws-eks-cluster',
           endpointPublicAccess: true,
-          enabledClusterLogTypes: ["api"],
+          enabledClusterLogTypes: ['api'],
         },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "eks-endpoint-public-access")?.severity,
-    ).toBe("warning");
+      baseline.find((v) => v.ruleId === 'eks-endpoint-public-access')?.severity,
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "eks-endpoint-public-access")?.severity,
-    ).toBe("error");
+      moderate.find((v) => v.ruleId === 'eks-endpoint-public-access')?.severity,
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "eks-endpoint-public-access")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'eks-endpoint-public-access')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("sfn-max-recursion", () => {
-  it("fires when maxRecursionDepth exceeds 50", () => {
+describe('sfn-max-recursion', () => {
+  it('fires when maxRecursionDepth exceeds 50', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:agent-workflow",
-          type: "platform",
+          id: 'platform:agent-workflow',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-stepfunctions",
+              platform: 'aws-stepfunctions',
               logging: true,
               maxRecursionDepth: 75,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const recursionViolations = violations.filter(
-      (v) => v.ruleId === "sfn-max-recursion",
+      (v) => v.ruleId === 'sfn-max-recursion',
     );
     expect(recursionViolations).toHaveLength(1);
-    expect(recursionViolations[0].target.type).toBe("node");
-    expect(recursionViolations[0].target.id).toBe("platform:agent-workflow");
-    expect(recursionViolations[0].message).toContain("75");
+    expect(recursionViolations[0].target.type).toBe('node');
+    expect(recursionViolations[0].target.id).toBe('platform:agent-workflow');
+    expect(recursionViolations[0].message).toContain('75');
   });
 
-  it("does not fire when maxRecursionDepth is within limits", () => {
+  it('does not fire when maxRecursionDepth is within limits', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workflow",
-          type: "platform",
+          id: 'platform:workflow',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-stepfunctions",
+              platform: 'aws-stepfunctions',
               logging: true,
               maxRecursionDepth: 25,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "sfn-max-recursion"),
+      violations.filter((v) => v.ruleId === 'sfn-max-recursion'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when maxRecursionDepth is not set", () => {
+  it('does not fire when maxRecursionDepth is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workflow",
-          type: "platform",
+          id: 'platform:workflow',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-stepfunctions", logging: true },
+            properties: { platform: 'aws-stepfunctions', logging: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "sfn-max-recursion"),
+      violations.filter((v) => v.ruleId === 'sfn-max-recursion'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:workflow",
-      type: "platform",
+      id: 'platform:workflow',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-stepfunctions",
+          platform: 'aws-stepfunctions',
           logging: true,
           maxRecursionDepth: 75,
         },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "sfn-max-recursion")?.severity,
-    ).toBe("warning");
+      baseline.find((v) => v.ruleId === 'sfn-max-recursion')?.severity,
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "sfn-max-recursion")?.severity,
-    ).toBe("warning");
-    expect(high.find((v) => v.ruleId === "sfn-max-recursion")?.severity).toBe(
-      "error",
+      moderate.find((v) => v.ruleId === 'sfn-max-recursion')?.severity,
+    ).toBe('warning');
+    expect(high.find((v) => v.ruleId === 'sfn-max-recursion')?.severity).toBe(
+      'error',
     );
   });
 });
 
-describe("eks-logging-disabled", () => {
-  it("fires when EKS cluster has no log types configured", () => {
+describe('eks-logging-disabled', () => {
+  it('fires when EKS cluster has no log types configured', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-cluster",
-          type: "platform",
-          metadata: { properties: { platform: "aws-eks-cluster" } },
+          id: 'platform:my-cluster',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-eks-cluster' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const logViolations = violations.filter(
-      (v) => v.ruleId === "eks-logging-disabled",
+      (v) => v.ruleId === 'eks-logging-disabled',
     );
     expect(logViolations).toHaveLength(1);
-    expect(logViolations[0].target.type).toBe("node");
-    expect(logViolations[0].target.id).toBe("platform:my-cluster");
+    expect(logViolations[0].target.type).toBe('node');
+    expect(logViolations[0].target.id).toBe('platform:my-cluster');
   });
 
-  it("fires when enabledClusterLogTypes is empty array", () => {
+  it('fires when enabledClusterLogTypes is empty array', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-cluster",
-          type: "platform",
+          id: 'platform:my-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-cluster",
+              platform: 'aws-eks-cluster',
               enabledClusterLogTypes: [],
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-logging-disabled"),
+      violations.filter((v) => v.ruleId === 'eks-logging-disabled'),
     ).toHaveLength(1);
   });
 
-  it("does not fire when enabledClusterLogTypes has entries", () => {
+  it('does not fire when enabledClusterLogTypes has entries', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-cluster",
-          type: "platform",
+          id: 'platform:my-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-cluster",
-              enabledClusterLogTypes: ["api", "audit"],
+              platform: 'aws-eks-cluster',
+              enabledClusterLogTypes: ['api', 'audit'],
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-logging-disabled"),
+      violations.filter((v) => v.ruleId === 'eks-logging-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:my-cluster",
-      type: "platform",
-      metadata: { properties: { platform: "aws-eks-cluster" } },
+      id: 'platform:my-cluster',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-eks-cluster' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "eks-logging-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'eks-logging-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "eks-logging-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'eks-logging-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "eks-logging-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'eks-logging-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("secrets-rotation-disabled", () => {
-  it("fires when SecretsManager secret lacks rotation", () => {
+describe('secrets-rotation-disabled', () => {
+  it('fires when SecretsManager secret lacks rotation', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-creds",
-          type: "platform",
-          metadata: { properties: { platform: "aws-secretsmanager" } },
+          id: 'platform:db-creds',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-secretsmanager' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const rotationViolations = violations.filter(
-      (v) => v.ruleId === "secrets-rotation-disabled",
+      (v) => v.ruleId === 'secrets-rotation-disabled',
     );
     expect(rotationViolations).toHaveLength(1);
-    expect(rotationViolations[0].target.type).toBe("node");
-    expect(rotationViolations[0].target.id).toBe("platform:db-creds");
+    expect(rotationViolations[0].target.type).toBe('node');
+    expect(rotationViolations[0].target.id).toBe('platform:db-creds');
   });
 
-  it("does not fire when rotationEnabled is true", () => {
+  it('does not fire when rotationEnabled is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-creds",
-          type: "platform",
+          id: 'platform:db-creds',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-secretsmanager",
+              platform: 'aws-secretsmanager',
               rotationEnabled: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "secrets-rotation-disabled"),
+      violations.filter((v) => v.ruleId === 'secrets-rotation-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:db-creds",
-      type: "platform",
-      metadata: { properties: { platform: "aws-secretsmanager" } },
+      id: 'platform:db-creds',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-secretsmanager' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "secrets-rotation-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'secrets-rotation-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "secrets-rotation-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'secrets-rotation-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "secrets-rotation-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'secrets-rotation-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("kms-key-rotation-disabled", () => {
-  it("fires when symmetric KMS key lacks rotation", () => {
+describe('kms-key-rotation-disabled', () => {
+  it('fires when symmetric KMS key lacks rotation', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-key",
-          type: "platform",
+          id: 'platform:my-key',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-kms", enableKeyRotation: false },
+            properties: { platform: 'aws-kms', enableKeyRotation: false },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const kmsViolations = violations.filter(
-      (v) => v.ruleId === "kms-key-rotation-disabled",
+      (v) => v.ruleId === 'kms-key-rotation-disabled',
     );
     expect(kmsViolations).toHaveLength(1);
-    expect(kmsViolations[0].target.type).toBe("node");
-    expect(kmsViolations[0].target.id).toBe("platform:my-key");
+    expect(kmsViolations[0].target.type).toBe('node');
+    expect(kmsViolations[0].target.id).toBe('platform:my-key');
   });
 
-  it("does not fire when enableKeyRotation is true", () => {
+  it('does not fire when enableKeyRotation is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-key",
-          type: "platform",
+          id: 'platform:my-key',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-kms", enableKeyRotation: true },
+            properties: { platform: 'aws-kms', enableKeyRotation: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "kms-key-rotation-disabled"),
+      violations.filter((v) => v.ruleId === 'kms-key-rotation-disabled'),
     ).toHaveLength(0);
   });
 
-  it("does not fire for asymmetric keys", () => {
+  it('does not fire for asymmetric keys', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:my-key",
-          type: "platform",
+          id: 'platform:my-key',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-kms",
-              keySpec: "RSA_2048",
+              platform: 'aws-kms',
+              keySpec: 'RSA_2048',
               enableKeyRotation: false,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "kms-key-rotation-disabled"),
+      violations.filter((v) => v.ruleId === 'kms-key-rotation-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:my-key",
-      type: "platform",
+      id: 'platform:my-key',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-kms", enableKeyRotation: false },
+        properties: { platform: 'aws-kms', enableKeyRotation: false },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "kms-key-rotation-disabled")?.severity,
-    ).toBe("warning");
+      baseline.find((v) => v.ruleId === 'kms-key-rotation-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "kms-key-rotation-disabled")?.severity,
-    ).toBe("error");
+      moderate.find((v) => v.ruleId === 'kms-key-rotation-disabled')?.severity,
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "kms-key-rotation-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'kms-key-rotation-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("elasticache-encryption-disabled", () => {
-  it("fires when ElastiCache lacks encryption", () => {
+describe('elasticache-encryption-disabled', () => {
+  it('fires when ElastiCache lacks encryption', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:redis",
-          type: "platform",
-          metadata: { properties: { platform: "aws-elasticache" } },
+          id: 'platform:redis',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-elasticache' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const encViolations = violations.filter(
-      (v) => v.ruleId === "elasticache-encryption-disabled",
+      (v) => v.ruleId === 'elasticache-encryption-disabled',
     );
     expect(encViolations).toHaveLength(1);
-    expect(encViolations[0].target.type).toBe("node");
-    expect(encViolations[0].target.id).toBe("platform:redis");
+    expect(encViolations[0].target.type).toBe('node');
+    expect(encViolations[0].target.id).toBe('platform:redis');
   });
 
-  it("does not fire when both encryption flags are true", () => {
+  it('does not fire when both encryption flags are true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:redis",
-          type: "platform",
+          id: 'platform:redis',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-elasticache",
+              platform: 'aws-elasticache',
               atRestEncryptionEnabled: true,
               transitEncryptionEnabled: true,
-              authToken: "secret",
+              authToken: 'secret',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "elasticache-encryption-disabled"),
+      violations.filter((v) => v.ruleId === 'elasticache-encryption-disabled'),
     ).toHaveLength(0);
   });
 
-  it("fires when only transit encryption is missing", () => {
+  it('fires when only transit encryption is missing', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:redis",
-          type: "platform",
+          id: 'platform:redis',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-elasticache",
+              platform: 'aws-elasticache',
               atRestEncryptionEnabled: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "elasticache-encryption-disabled"),
+      violations.filter((v) => v.ruleId === 'elasticache-encryption-disabled'),
     ).toHaveLength(1);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:redis",
-      type: "platform",
-      metadata: { properties: { platform: "aws-elasticache" } },
+      id: 'platform:redis',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-elasticache' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "elasticache-encryption-disabled")
+      baseline.find((v) => v.ruleId === 'elasticache-encryption-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "elasticache-encryption-disabled")
+      moderate.find((v) => v.ruleId === 'elasticache-encryption-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "elasticache-encryption-disabled")
+      high.find((v) => v.ruleId === 'elasticache-encryption-disabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("elasticache-auth-disabled", () => {
-  it("fires when ElastiCache lacks AUTH token", () => {
+describe('elasticache-auth-disabled', () => {
+  it('fires when ElastiCache lacks AUTH token', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:redis",
-          type: "platform",
+          id: 'platform:redis',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-elasticache",
+              platform: 'aws-elasticache',
               atRestEncryptionEnabled: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const authViolations = violations.filter(
-      (v) => v.ruleId === "elasticache-auth-disabled",
+      (v) => v.ruleId === 'elasticache-auth-disabled',
     );
     expect(authViolations).toHaveLength(1);
-    expect(authViolations[0].target.id).toBe("platform:redis");
+    expect(authViolations[0].target.id).toBe('platform:redis');
   });
 
-  it("does not fire when transit encryption and authToken are set", () => {
+  it('does not fire when transit encryption and authToken are set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:redis",
-          type: "platform",
+          id: 'platform:redis',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-elasticache",
+              platform: 'aws-elasticache',
               transitEncryptionEnabled: true,
               atRestEncryptionEnabled: true,
-              authToken: "super-secret",
+              authToken: 'super-secret',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "elasticache-auth-disabled"),
+      violations.filter((v) => v.ruleId === 'elasticache-auth-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:redis",
-      type: "platform",
-      metadata: { properties: { platform: "aws-elasticache" } },
+      id: 'platform:redis',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-elasticache' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "elasticache-auth-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'elasticache-auth-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "elasticache-auth-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'elasticache-auth-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "elasticache-auth-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'elasticache-auth-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("budget-threshold-missing", () => {
-  it("fires when budget has no threshold or notification topic", () => {
+describe('budget-threshold-missing', () => {
+  it('fires when budget has no threshold or notification topic', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:monthly-budget",
-          type: "platform",
-          metadata: { properties: { platform: "aws-budgets" } },
+          id: 'platform:monthly-budget',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-budgets' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const budgetViolations = violations.filter(
-      (v) => v.ruleId === "budget-threshold-missing",
+      (v) => v.ruleId === 'budget-threshold-missing',
     );
     expect(budgetViolations).toHaveLength(1);
-    expect(budgetViolations[0].target.id).toBe("platform:monthly-budget");
+    expect(budgetViolations[0].target.id).toBe('platform:monthly-budget');
   });
 
-  it("does not fire when thresholdPercentage is set", () => {
+  it('does not fire when thresholdPercentage is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:monthly-budget",
-          type: "platform",
+          id: 'platform:monthly-budget',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-budgets", thresholdPercentage: 80 },
+            properties: { platform: 'aws-budgets', thresholdPercentage: 80 },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "budget-threshold-missing"),
+      violations.filter((v) => v.ruleId === 'budget-threshold-missing'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when notificationTopicArn is set", () => {
+  it('does not fire when notificationTopicArn is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:monthly-budget",
-          type: "platform",
+          id: 'platform:monthly-budget',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-budgets",
-              notificationTopicArn: "arn:aws:sns:...",
+              platform: 'aws-budgets',
+              notificationTopicArn: 'arn:aws:sns:...',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "budget-threshold-missing"),
+      violations.filter((v) => v.ruleId === 'budget-threshold-missing'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:monthly-budget",
-      type: "platform",
-      metadata: { properties: { platform: "aws-budgets" } },
+      id: 'platform:monthly-budget',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-budgets' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "budget-threshold-missing")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'budget-threshold-missing')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "budget-threshold-missing")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'budget-threshold-missing')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "budget-threshold-missing")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'budget-threshold-missing')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("bedrock-guardrails-disabled", () => {
-  it("fires when Bedrock lacks guardrails", () => {
+describe('bedrock-guardrails-disabled', () => {
+  it('fires when Bedrock lacks guardrails', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:llm",
-          type: "platform",
-          metadata: { properties: { platform: "aws-bedrock" } },
+          id: 'platform:llm',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-bedrock' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const bedrockViolations = violations.filter(
-      (v) => v.ruleId === "bedrock-guardrails-disabled",
+      (v) => v.ruleId === 'bedrock-guardrails-disabled',
     );
     expect(bedrockViolations).toHaveLength(1);
-    expect(bedrockViolations[0].target.id).toBe("platform:llm");
+    expect(bedrockViolations[0].target.id).toBe('platform:llm');
   });
 
-  it("does not fire when guardrailEnabled is true", () => {
+  it('does not fire when guardrailEnabled is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:llm",
-          type: "platform",
+          id: 'platform:llm',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-bedrock", guardrailEnabled: true },
+            properties: { platform: 'aws-bedrock', guardrailEnabled: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "bedrock-guardrails-disabled"),
+      violations.filter((v) => v.ruleId === 'bedrock-guardrails-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:llm",
-      type: "platform",
-      metadata: { properties: { platform: "aws-bedrock" } },
+      id: 'platform:llm',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-bedrock' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "bedrock-guardrails-disabled")
+      baseline.find((v) => v.ruleId === 'bedrock-guardrails-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "bedrock-guardrails-disabled")
+      moderate.find((v) => v.ruleId === 'bedrock-guardrails-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "bedrock-guardrails-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'bedrock-guardrails-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("sagemaker-vpc-disabled", () => {
-  it("fires when SageMaker model has no VPC config", () => {
+describe('sagemaker-vpc-disabled', () => {
+  it('fires when SageMaker model has no VPC config', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:model",
-          type: "platform",
+          id: 'platform:model',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-sagemaker-batch-transform" },
+            properties: { platform: 'aws-sagemaker-batch-transform' },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const vpcViolations = violations.filter(
-      (v) => v.ruleId === "sagemaker-vpc-disabled",
+      (v) => v.ruleId === 'sagemaker-vpc-disabled',
     );
     expect(vpcViolations).toHaveLength(1);
-    expect(vpcViolations[0].target.id).toBe("platform:model");
+    expect(vpcViolations[0].target.id).toBe('platform:model');
   });
 
-  it("fires when vpcConfig has empty subnetIds", () => {
+  it('fires when vpcConfig has empty subnetIds', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:model",
-          type: "platform",
+          id: 'platform:model',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-sagemaker-batch-transform",
-              vpcConfig: { subnetIds: [], securityGroupIds: ["sg-1"] },
+              platform: 'aws-sagemaker-batch-transform',
+              vpcConfig: { subnetIds: [], securityGroupIds: ['sg-1'] },
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "sagemaker-vpc-disabled"),
+      violations.filter((v) => v.ruleId === 'sagemaker-vpc-disabled'),
     ).toHaveLength(1);
   });
 
-  it("does not fire when vpcConfig has subnets", () => {
+  it('does not fire when vpcConfig has subnets', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:model",
-          type: "platform",
+          id: 'platform:model',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-sagemaker-batch-transform",
+              platform: 'aws-sagemaker-batch-transform',
               vpcConfig: {
-                subnetIds: ["subnet-1"],
-                securityGroupIds: ["sg-1"],
+                subnetIds: ['subnet-1'],
+                securityGroupIds: ['sg-1'],
               },
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "sagemaker-vpc-disabled"),
+      violations.filter((v) => v.ruleId === 'sagemaker-vpc-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:model",
-      type: "platform",
-      metadata: { properties: { platform: "aws-sagemaker-batch-transform" } },
+      id: 'platform:model',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-sagemaker-batch-transform' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "sagemaker-vpc-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'sagemaker-vpc-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "sagemaker-vpc-disabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'sagemaker-vpc-disabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "sagemaker-vpc-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'sagemaker-vpc-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("opensearch-encryption-disabled", () => {
-  it("fires when OpenSearch domain lacks encryption", () => {
+describe('opensearch-encryption-disabled', () => {
+  it('fires when OpenSearch domain lacks encryption', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:search",
-          type: "platform",
-          metadata: { properties: { platform: "aws-opensearch" } },
+          id: 'platform:search',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-opensearch' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const encViolations = violations.filter(
-      (v) => v.ruleId === "opensearch-encryption-disabled",
+      (v) => v.ruleId === 'opensearch-encryption-disabled',
     );
     expect(encViolations).toHaveLength(1);
-    expect(encViolations[0].target.type).toBe("node");
-    expect(encViolations[0].target.id).toBe("platform:search");
+    expect(encViolations[0].target.type).toBe('node');
+    expect(encViolations[0].target.id).toBe('platform:search');
   });
 
-  it("does not fire when both encryption flags are true", () => {
+  it('does not fire when both encryption flags are true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:search",
-          type: "platform",
+          id: 'platform:search',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-opensearch",
+              platform: 'aws-opensearch',
               encryptionAtRest: true,
               nodeToNodeEncryption: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "opensearch-encryption-disabled"),
+      violations.filter((v) => v.ruleId === 'opensearch-encryption-disabled'),
     ).toHaveLength(0);
   });
 
-  it("fires when only encryptionAtRest is true", () => {
+  it('fires when only encryptionAtRest is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:search",
-          type: "platform",
+          id: 'platform:search',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-opensearch", encryptionAtRest: true },
+            properties: { platform: 'aws-opensearch', encryptionAtRest: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "opensearch-encryption-disabled"),
+      violations.filter((v) => v.ruleId === 'opensearch-encryption-disabled'),
     ).toHaveLength(1);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:search",
-      type: "platform",
-      metadata: { properties: { platform: "aws-opensearch" } },
+      id: 'platform:search',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-opensearch' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "opensearch-encryption-disabled")
+      baseline.find((v) => v.ruleId === 'opensearch-encryption-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "opensearch-encryption-disabled")
+      moderate.find((v) => v.ruleId === 'opensearch-encryption-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "opensearch-encryption-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'opensearch-encryption-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("opensearch-public-access", () => {
-  it("fires when OpenSearch domain has publicAccess=true", () => {
+describe('opensearch-public-access', () => {
+  it('fires when OpenSearch domain has publicAccess=true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:search",
-          type: "platform",
+          id: 'platform:search',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-opensearch", publicAccess: true },
+            properties: { platform: 'aws-opensearch', publicAccess: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const pubViolations = violations.filter(
-      (v) => v.ruleId === "opensearch-public-access",
+      (v) => v.ruleId === 'opensearch-public-access',
     );
     expect(pubViolations).toHaveLength(1);
-    expect(pubViolations[0].target.id).toBe("platform:search");
+    expect(pubViolations[0].target.id).toBe('platform:search');
   });
 
-  it("does not fire when publicAccess is false", () => {
+  it('does not fire when publicAccess is false', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:search",
-          type: "platform",
+          id: 'platform:search',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-opensearch", publicAccess: false },
+            properties: { platform: 'aws-opensearch', publicAccess: false },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "opensearch-public-access"),
+      violations.filter((v) => v.ruleId === 'opensearch-public-access'),
     ).toHaveLength(0);
   });
 
-  it("fires for OpenSearch Serverless with publicAccess=true", () => {
+  it('fires for OpenSearch Serverless with publicAccess=true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:vectors",
-          type: "platform",
+          id: 'platform:vectors',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-opensearch-serverless",
+              platform: 'aws-opensearch-serverless',
               publicAccess: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const pubViolations = violations.filter(
-      (v) => v.ruleId === "opensearch-public-access",
+      (v) => v.ruleId === 'opensearch-public-access',
     );
     expect(pubViolations).toHaveLength(1);
-    expect(pubViolations[0].target.id).toBe("platform:vectors");
+    expect(pubViolations[0].target.id).toBe('platform:vectors');
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:search",
-      type: "platform",
+      id: 'platform:search',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-opensearch", publicAccess: true },
+        properties: { platform: 'aws-opensearch', publicAccess: true },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "opensearch-public-access")?.severity,
-    ).toBe("warning");
+      baseline.find((v) => v.ruleId === 'opensearch-public-access')?.severity,
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "opensearch-public-access")?.severity,
-    ).toBe("error");
+      moderate.find((v) => v.ruleId === 'opensearch-public-access')?.severity,
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "opensearch-public-access")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'opensearch-public-access')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("firehose-encryption-disabled", () => {
-  it("fires when Firehose lacks encryption", () => {
+describe('firehose-encryption-disabled', () => {
+  it('fires when Firehose lacks encryption', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:stream",
-          type: "platform",
-          metadata: { properties: { platform: "aws-kinesis-firehose" } },
+          id: 'platform:stream',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-kinesis-firehose' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const encViolations = violations.filter(
-      (v) => v.ruleId === "firehose-encryption-disabled",
+      (v) => v.ruleId === 'firehose-encryption-disabled',
     );
     expect(encViolations).toHaveLength(1);
-    expect(encViolations[0].target.id).toBe("platform:stream");
+    expect(encViolations[0].target.id).toBe('platform:stream');
   });
 
-  it("does not fire when encryptionEnabled is true", () => {
+  it('does not fire when encryptionEnabled is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:stream",
-          type: "platform",
+          id: 'platform:stream',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-kinesis-firehose",
+              platform: 'aws-kinesis-firehose',
               encryptionEnabled: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "firehose-encryption-disabled"),
+      violations.filter((v) => v.ruleId === 'firehose-encryption-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:stream",
-      type: "platform",
-      metadata: { properties: { platform: "aws-kinesis-firehose" } },
+      id: 'platform:stream',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-kinesis-firehose' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "firehose-encryption-disabled")
+      baseline.find((v) => v.ruleId === 'firehose-encryption-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "firehose-encryption-disabled")
+      moderate.find((v) => v.ruleId === 'firehose-encryption-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "firehose-encryption-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'firehose-encryption-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("rds-encryption-disabled", () => {
-  it("fires when RDS cluster lacks storage encryption", () => {
+describe('rds-encryption-disabled', () => {
+  it('fires when RDS cluster lacks storage encryption', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-cluster",
-          type: "platform",
-          metadata: { properties: { platform: "aws-rds-cluster" } },
+          id: 'platform:db-cluster',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-rds-cluster' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const rdsViolations = violations.filter(
-      (v) => v.ruleId === "rds-encryption-disabled",
+      (v) => v.ruleId === 'rds-encryption-disabled',
     );
     expect(rdsViolations).toHaveLength(1);
-    expect(rdsViolations[0].target.type).toBe("node");
-    expect(rdsViolations[0].target.id).toBe("platform:db-cluster");
+    expect(rdsViolations[0].target.type).toBe('node');
+    expect(rdsViolations[0].target.id).toBe('platform:db-cluster');
   });
 
-  it("does not fire when storageEncrypted is true", () => {
+  it('does not fire when storageEncrypted is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-cluster",
-          type: "platform",
+          id: 'platform:db-cluster',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-rds-cluster", storageEncrypted: true },
+            properties: { platform: 'aws-rds-cluster', storageEncrypted: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "rds-encryption-disabled"),
+      violations.filter((v) => v.ruleId === 'rds-encryption-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:db-cluster",
-      type: "platform",
-      metadata: { properties: { platform: "aws-rds-cluster" } },
+      id: 'platform:db-cluster',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-rds-cluster' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "rds-encryption-disabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'rds-encryption-disabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "rds-encryption-disabled")?.severity,
-    ).toBe("error");
+      moderate.find((v) => v.ruleId === 'rds-encryption-disabled')?.severity,
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "rds-encryption-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'rds-encryption-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("rds-public-access", () => {
-  it("fires when RDS cluster has publicAccess=true", () => {
+describe('rds-public-access', () => {
+  it('fires when RDS cluster has publicAccess=true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-cluster",
-          type: "platform",
+          id: 'platform:db-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-rds-cluster",
+              platform: 'aws-rds-cluster',
               publicAccess: true,
               storageEncrypted: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const pubViolations = violations.filter(
-      (v) => v.ruleId === "rds-public-access",
+      (v) => v.ruleId === 'rds-public-access',
     );
     expect(pubViolations).toHaveLength(1);
-    expect(pubViolations[0].target.id).toBe("platform:db-cluster");
+    expect(pubViolations[0].target.id).toBe('platform:db-cluster');
   });
 
-  it("does not fire when publicAccess is false", () => {
+  it('does not fire when publicAccess is false', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-cluster",
-          type: "platform",
+          id: 'platform:db-cluster',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-rds-cluster",
+              platform: 'aws-rds-cluster',
               publicAccess: false,
               storageEncrypted: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "rds-public-access"),
+      violations.filter((v) => v.ruleId === 'rds-public-access'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when publicAccess is not set", () => {
+  it('does not fire when publicAccess is not set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:db-cluster",
-          type: "platform",
+          id: 'platform:db-cluster',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-rds-cluster", storageEncrypted: true },
+            properties: { platform: 'aws-rds-cluster', storageEncrypted: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "rds-public-access"),
+      violations.filter((v) => v.ruleId === 'rds-public-access'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:db-cluster",
-      type: "platform",
+      id: 'platform:db-cluster',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-rds-cluster",
+          platform: 'aws-rds-cluster',
           publicAccess: true,
           storageEncrypted: true,
         },
       },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "rds-public-access")?.severity,
-    ).toBe("warning");
+      baseline.find((v) => v.ruleId === 'rds-public-access')?.severity,
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "rds-public-access")?.severity,
-    ).toBe("error");
-    expect(high.find((v) => v.ruleId === "rds-public-access")?.severity).toBe(
-      "error",
+      moderate.find((v) => v.ruleId === 'rds-public-access')?.severity,
+    ).toBe('error');
+    expect(high.find((v) => v.ruleId === 'rds-public-access')?.severity).toBe(
+      'error',
     );
   });
 });
 
-describe("cloudtrail-log-validation-disabled", () => {
-  it("fires when CloudTrail lacks log file validation", () => {
+describe('cloudtrail-log-validation-disabled', () => {
+  it('fires when CloudTrail lacks log file validation', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:trail",
-          type: "platform",
-          metadata: { properties: { platform: "aws-cloudtrail" } },
+          id: 'platform:trail',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-cloudtrail' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const trailViolations = violations.filter(
-      (v) => v.ruleId === "cloudtrail-log-validation-disabled",
+      (v) => v.ruleId === 'cloudtrail-log-validation-disabled',
     );
     expect(trailViolations).toHaveLength(1);
-    expect(trailViolations[0].target.type).toBe("node");
-    expect(trailViolations[0].target.id).toBe("platform:trail");
+    expect(trailViolations[0].target.type).toBe('node');
+    expect(trailViolations[0].target.id).toBe('platform:trail');
   });
 
-  it("does not fire when enableLogFileValidation is true", () => {
+  it('does not fire when enableLogFileValidation is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:trail",
-          type: "platform",
+          id: 'platform:trail',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-cloudtrail",
+              platform: 'aws-cloudtrail',
               enableLogFileValidation: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "cloudtrail-log-validation-disabled",
+        (v) => v.ruleId === 'cloudtrail-log-validation-disabled',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:trail",
-      type: "platform",
-      metadata: { properties: { platform: "aws-cloudtrail" } },
+      id: 'platform:trail',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-cloudtrail' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "cloudtrail-log-validation-disabled")
+      baseline.find((v) => v.ruleId === 'cloudtrail-log-validation-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      moderate.find((v) => v.ruleId === "cloudtrail-log-validation-disabled")
+      moderate.find((v) => v.ruleId === 'cloudtrail-log-validation-disabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
     expect(
-      high.find((v) => v.ruleId === "cloudtrail-log-validation-disabled")
+      high.find((v) => v.ruleId === 'cloudtrail-log-validation-disabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("guardduty-not-enabled", () => {
-  it("fires when GuardDuty is explicitly disabled", () => {
+describe('guardduty-not-enabled', () => {
+  it('fires when GuardDuty is explicitly disabled', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:gd",
-          type: "platform",
+          id: 'platform:gd',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-guardduty", enabled: false },
+            properties: { platform: 'aws-guardduty', enabled: false },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const gdViolations = violations.filter(
-      (v) => v.ruleId === "guardduty-not-enabled",
+      (v) => v.ruleId === 'guardduty-not-enabled',
     );
     expect(gdViolations).toHaveLength(1);
-    expect(gdViolations[0].target.type).toBe("node");
-    expect(gdViolations[0].target.id).toBe("platform:gd");
+    expect(gdViolations[0].target.type).toBe('node');
+    expect(gdViolations[0].target.id).toBe('platform:gd');
   });
 
-  it("does not fire when enabled is true", () => {
+  it('does not fire when enabled is true', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:gd",
-          type: "platform",
+          id: 'platform:gd',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-guardduty", enabled: true },
+            properties: { platform: 'aws-guardduty', enabled: true },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "guardduty-not-enabled"),
+      violations.filter((v) => v.ruleId === 'guardduty-not-enabled'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when enabled is not set (defaults to true)", () => {
+  it('does not fire when enabled is not set (defaults to true)', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:gd",
-          type: "platform",
-          metadata: { properties: { platform: "aws-guardduty" } },
+          id: 'platform:gd',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-guardduty' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "guardduty-not-enabled"),
+      violations.filter((v) => v.ruleId === 'guardduty-not-enabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:gd",
-      type: "platform",
-      metadata: { properties: { platform: "aws-guardduty", enabled: false } },
+      id: 'platform:gd',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-guardduty', enabled: false } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "guardduty-not-enabled")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'guardduty-not-enabled')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "guardduty-not-enabled")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'guardduty-not-enabled')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "guardduty-not-enabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'guardduty-not-enabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("glue-job-security-config-missing", () => {
-  it("fires when Glue job lacks security configuration", () => {
+describe('glue-job-security-config-missing', () => {
+  it('fires when Glue job lacks security configuration', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:etl-job",
-          type: "platform",
-          metadata: { properties: { platform: "aws-glue-job" } },
+          id: 'platform:etl-job',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-glue-job' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const glueViolations = violations.filter(
-      (v) => v.ruleId === "glue-job-security-config-missing",
+      (v) => v.ruleId === 'glue-job-security-config-missing',
     );
     expect(glueViolations).toHaveLength(1);
-    expect(glueViolations[0].target.id).toBe("platform:etl-job");
+    expect(glueViolations[0].target.id).toBe('platform:etl-job');
   });
 
-  it("does not fire when securityConfiguration is set", () => {
+  it('does not fire when securityConfiguration is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:etl-job",
-          type: "platform",
+          id: 'platform:etl-job',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-glue-job",
-              securityConfiguration: "my-sec-config",
+              platform: 'aws-glue-job',
+              securityConfiguration: 'my-sec-config',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "glue-job-security-config-missing"),
+      violations.filter((v) => v.ruleId === 'glue-job-security-config-missing'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:etl-job",
-      type: "platform",
-      metadata: { properties: { platform: "aws-glue-job" } },
+      id: 'platform:etl-job',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-glue-job' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "glue-job-security-config-missing")
+      baseline.find((v) => v.ruleId === 'glue-job-security-config-missing')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "glue-job-security-config-missing")
+      moderate.find((v) => v.ruleId === 'glue-job-security-config-missing')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "glue-job-security-config-missing")
+      high.find((v) => v.ruleId === 'glue-job-security-config-missing')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("athena-workgroup-encryption-disabled", () => {
-  it("fires when Athena workgroup has no encryption option", () => {
+describe('athena-workgroup-encryption-disabled', () => {
+  it('fires when Athena workgroup has no encryption option', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workgroup",
-          type: "platform",
-          metadata: { properties: { platform: "aws-athena-workgroup" } },
+          id: 'platform:workgroup',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-athena-workgroup' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const athenaViolations = violations.filter(
-      (v) => v.ruleId === "athena-workgroup-encryption-disabled",
+      (v) => v.ruleId === 'athena-workgroup-encryption-disabled',
     );
     expect(athenaViolations).toHaveLength(1);
   });
 
-  it("fires when encryption option is NONE", () => {
+  it('fires when encryption option is NONE', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workgroup",
-          type: "platform",
+          id: 'platform:workgroup',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-athena-workgroup",
-              encryptionOption: "NONE",
+              platform: 'aws-athena-workgroup',
+              encryptionOption: 'NONE',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "athena-workgroup-encryption-disabled",
+        (v) => v.ruleId === 'athena-workgroup-encryption-disabled',
       ),
     ).toHaveLength(1);
   });
 
-  it("does not fire when encryption option is SSE_S3", () => {
+  it('does not fire when encryption option is SSE_S3', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workgroup",
-          type: "platform",
+          id: 'platform:workgroup',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-athena-workgroup",
-              encryptionOption: "SSE_S3",
+              platform: 'aws-athena-workgroup',
+              encryptionOption: 'SSE_S3',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "athena-workgroup-encryption-disabled",
+        (v) => v.ruleId === 'athena-workgroup-encryption-disabled',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:workgroup",
-      type: "platform",
-      metadata: { properties: { platform: "aws-athena-workgroup" } },
+      id: 'platform:workgroup',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-athena-workgroup' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "athena-workgroup-encryption-disabled")
+      baseline.find((v) => v.ruleId === 'athena-workgroup-encryption-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "athena-workgroup-encryption-disabled")
+      moderate.find((v) => v.ruleId === 'athena-workgroup-encryption-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "athena-workgroup-encryption-disabled")
+      high.find((v) => v.ruleId === 'athena-workgroup-encryption-disabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("athena-workgroup-bytes-limit-missing", () => {
-  it("fires when Athena workgroup lacks bytes cutoff", () => {
+describe('athena-workgroup-bytes-limit-missing', () => {
+  it('fires when Athena workgroup lacks bytes cutoff', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workgroup",
-          type: "platform",
-          metadata: { properties: { platform: "aws-athena-workgroup" } },
+          id: 'platform:workgroup',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-athena-workgroup' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "athena-workgroup-bytes-limit-missing",
+        (v) => v.ruleId === 'athena-workgroup-bytes-limit-missing',
       ),
     ).toHaveLength(1);
   });
 
-  it("does not fire when bytesScannedCutoffPerQuery is set", () => {
+  it('does not fire when bytesScannedCutoffPerQuery is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:workgroup",
-          type: "platform",
+          id: 'platform:workgroup',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-athena-workgroup",
+              platform: 'aws-athena-workgroup',
               bytesScannedCutoffPerQuery: 1073741824,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "athena-workgroup-bytes-limit-missing",
+        (v) => v.ruleId === 'athena-workgroup-bytes-limit-missing',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:workgroup",
-      type: "platform",
-      metadata: { properties: { platform: "aws-athena-workgroup" } },
+      id: 'platform:workgroup',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-athena-workgroup' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
-      baseline.find((v) => v.ruleId === "athena-workgroup-bytes-limit-missing")
+      baseline.find((v) => v.ruleId === 'athena-workgroup-bytes-limit-missing')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "athena-workgroup-bytes-limit-missing")
+      moderate.find((v) => v.ruleId === 'athena-workgroup-bytes-limit-missing')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      high.find((v) => v.ruleId === "athena-workgroup-bytes-limit-missing")
+      high.find((v) => v.ruleId === 'athena-workgroup-bytes-limit-missing')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
   });
 });
 
-describe("sagemaker-pipeline-parallelism-missing", () => {
-  it("fires when SageMaker pipeline lacks parallelism config", () => {
+describe('sagemaker-pipeline-parallelism-missing', () => {
+  it('fires when SageMaker pipeline lacks parallelism config', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:training-pipeline",
-          type: "platform",
-          metadata: { properties: { platform: "aws-sagemaker-pipeline" } },
+          id: 'platform:training-pipeline',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-sagemaker-pipeline' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "sagemaker-pipeline-parallelism-missing",
+        (v) => v.ruleId === 'sagemaker-pipeline-parallelism-missing',
       ),
     ).toHaveLength(1);
   });
 
-  it("does not fire when parallelismConfiguration is set", () => {
+  it('does not fire when parallelismConfiguration is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:training-pipeline",
-          type: "platform",
+          id: 'platform:training-pipeline',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-sagemaker-pipeline",
+              platform: 'aws-sagemaker-pipeline',
               parallelismConfiguration: { maxParallelExecutionSteps: 5 },
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "sagemaker-pipeline-parallelism-missing",
+        (v) => v.ruleId === 'sagemaker-pipeline-parallelism-missing',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:pipeline",
-      type: "platform",
-      metadata: { properties: { platform: "aws-sagemaker-pipeline" } },
+      id: 'platform:pipeline',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-sagemaker-pipeline' } },
     });
 
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
 
     expect(
       baseline.find(
-        (v) => v.ruleId === "sagemaker-pipeline-parallelism-missing",
+        (v) => v.ruleId === 'sagemaker-pipeline-parallelism-missing',
       )?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
       moderate.find(
-        (v) => v.ruleId === "sagemaker-pipeline-parallelism-missing",
+        (v) => v.ruleId === 'sagemaker-pipeline-parallelism-missing',
       )?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      high.find((v) => v.ruleId === "sagemaker-pipeline-parallelism-missing")
+      high.find((v) => v.ruleId === 'sagemaker-pipeline-parallelism-missing')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
   });
 });
 
-describe("msk-encryption-in-transit-disabled", () => {
-  it("fires when MSK encryption in transit is not TLS", () => {
+describe('msk-encryption-in-transit-disabled', () => {
+  it('fires when MSK encryption in transit is not TLS', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:msk",
-          type: "platform",
+          id: 'platform:msk',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-msk-cluster",
-              encryptionInTransit: "TLS_PLAINTEXT",
+              platform: 'aws-msk-cluster',
+              encryptionInTransit: 'TLS_PLAINTEXT',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "msk-encryption-in-transit-disabled",
+        (v) => v.ruleId === 'msk-encryption-in-transit-disabled',
       ),
     ).toHaveLength(1);
   });
 
-  it("does not fire when encryption is TLS", () => {
+  it('does not fire when encryption is TLS', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:msk",
-          type: "platform",
+          id: 'platform:msk',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-msk-cluster",
-              encryptionInTransit: "TLS",
+              platform: 'aws-msk-cluster',
+              encryptionInTransit: 'TLS',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "msk-encryption-in-transit-disabled",
+        (v) => v.ruleId === 'msk-encryption-in-transit-disabled',
       ),
     ).toHaveLength(0);
   });
 
-  it("does not fire when encryption is not set (defaults to TLS)", () => {
+  it('does not fire when encryption is not set (defaults to TLS)', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:msk",
-          type: "platform",
-          metadata: { properties: { platform: "aws-msk-cluster" } },
+          id: 'platform:msk',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-msk-cluster' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "msk-encryption-in-transit-disabled",
+        (v) => v.ruleId === 'msk-encryption-in-transit-disabled',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:msk",
-      type: "platform",
+      id: 'platform:msk',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-msk-cluster",
-          encryptionInTransit: "PLAINTEXT",
+          platform: 'aws-msk-cluster',
+          encryptionInTransit: 'PLAINTEXT',
         },
       },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "msk-encryption-in-transit-disabled")
+      baseline.find((v) => v.ruleId === 'msk-encryption-in-transit-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "msk-encryption-in-transit-disabled")
+      high.find((v) => v.ruleId === 'msk-encryption-in-transit-disabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("msk-authentication-disabled", () => {
-  it("fires when MSK has no client authentication", () => {
+describe('msk-authentication-disabled', () => {
+  it('fires when MSK has no client authentication', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:msk",
-          type: "platform",
-          metadata: { properties: { platform: "aws-msk-cluster" } },
+          id: 'platform:msk',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-msk-cluster' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "msk-authentication-disabled"),
+      violations.filter((v) => v.ruleId === 'msk-authentication-disabled'),
     ).toHaveLength(1);
   });
 
-  it("does not fire when SASL-IAM is enabled", () => {
+  it('does not fire when SASL-IAM is enabled', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:msk",
-          type: "platform",
+          id: 'platform:msk',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-msk-cluster",
+              platform: 'aws-msk-cluster',
               clientAuthentication: { sasl: { iam: true } },
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "msk-authentication-disabled"),
+      violations.filter((v) => v.ruleId === 'msk-authentication-disabled'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:msk",
-      type: "platform",
-      metadata: { properties: { platform: "aws-msk-cluster" } },
+      id: 'platform:msk',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-msk-cluster' } },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "msk-authentication-disabled")
+      baseline.find((v) => v.ruleId === 'msk-authentication-disabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      high.find((v) => v.ruleId === "msk-authentication-disabled")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'msk-authentication-disabled')?.severity,
+    ).toBe('error');
   });
 });
 
-describe("transit-gateway-auto-accept-enabled", () => {
-  it("fires when auto-accept is enable", () => {
+describe('transit-gateway-auto-accept-enabled', () => {
+  it('fires when auto-accept is enable', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:tgw",
-          type: "platform",
+          id: 'platform:tgw',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-transit-gateway",
-              autoAcceptSharedAttachments: "enable",
+              platform: 'aws-transit-gateway',
+              autoAcceptSharedAttachments: 'enable',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "transit-gateway-auto-accept-enabled",
+        (v) => v.ruleId === 'transit-gateway-auto-accept-enabled',
       ),
     ).toHaveLength(1);
   });
 
-  it("does not fire when auto-accept is disable", () => {
+  it('does not fire when auto-accept is disable', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:tgw",
-          type: "platform",
+          id: 'platform:tgw',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-transit-gateway",
-              autoAcceptSharedAttachments: "disable",
+              platform: 'aws-transit-gateway',
+              autoAcceptSharedAttachments: 'disable',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "transit-gateway-auto-accept-enabled",
+        (v) => v.ruleId === 'transit-gateway-auto-accept-enabled',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:tgw",
-      type: "platform",
+      id: 'platform:tgw',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-transit-gateway",
-          autoAcceptSharedAttachments: "enable",
+          platform: 'aws-transit-gateway',
+          autoAcceptSharedAttachments: 'enable',
         },
       },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "transit-gateway-auto-accept-enabled")
+      baseline.find((v) => v.ruleId === 'transit-gateway-auto-accept-enabled')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      high.find((v) => v.ruleId === "transit-gateway-auto-accept-enabled")
+      high.find((v) => v.ruleId === 'transit-gateway-auto-accept-enabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("network-firewall-logging-disabled", () => {
-  it("fires when logging is false", () => {
+describe('network-firewall-logging-disabled', () => {
+  it('fires when logging is false', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:fw",
-          type: "platform",
+          id: 'platform:fw',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-network-firewall",
+              platform: 'aws-network-firewall',
               loggingEnabled: false,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "network-firewall-logging-disabled",
+        (v) => v.ruleId === 'network-firewall-logging-disabled',
       ),
     ).toHaveLength(1);
   });
 
-  it("does not fire when logging is true or unset", () => {
+  it('does not fire when logging is true or unset', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:fw",
-          type: "platform",
-          metadata: { properties: { platform: "aws-network-firewall" } },
+          id: 'platform:fw',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-network-firewall' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
       violations.filter(
-        (v) => v.ruleId === "network-firewall-logging-disabled",
+        (v) => v.ruleId === 'network-firewall-logging-disabled',
       ),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:fw",
-      type: "platform",
+      id: 'platform:fw',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-network-firewall", loggingEnabled: false },
+        properties: { platform: 'aws-network-firewall', loggingEnabled: false },
       },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "network-firewall-logging-disabled")
+      baseline.find((v) => v.ruleId === 'network-firewall-logging-disabled')
         ?.severity,
-    ).toBe("warning");
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "network-firewall-logging-disabled")
+      high.find((v) => v.ruleId === 'network-firewall-logging-disabled')
         ?.severity,
-    ).toBe("error");
+    ).toBe('error');
   });
 });
 
-describe("route53-health-check-missing", () => {
-  it("fires when public zone lacks health check", () => {
+describe('route53-health-check-missing', () => {
+  it('fires when public zone lacks health check', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:zone",
-          type: "platform",
+          id: 'platform:zone',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-route53-zone",
-              zoneName: "example.com",
+              platform: 'aws-route53-zone',
+              zoneName: 'example.com',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "route53-health-check-missing"),
+      violations.filter((v) => v.ruleId === 'route53-health-check-missing'),
     ).toHaveLength(1);
   });
 
-  it("does not fire when health check is configured", () => {
+  it('does not fire when health check is configured', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:zone",
-          type: "platform",
+          id: 'platform:zone',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-route53-zone",
-              zoneName: "example.com",
-              healthCheck: { fqdn: "example.com", type: "HTTPS" },
+              platform: 'aws-route53-zone',
+              zoneName: 'example.com',
+              healthCheck: { fqdn: 'example.com', type: 'HTTPS' },
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "route53-health-check-missing"),
+      violations.filter((v) => v.ruleId === 'route53-health-check-missing'),
     ).toHaveLength(0);
   });
 
-  it("does not fire for private zones", () => {
+  it('does not fire for private zones', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:zone",
-          type: "platform",
+          id: 'platform:zone',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-route53-zone",
-              zoneName: "internal.example.com",
+              platform: 'aws-route53-zone',
+              zoneName: 'internal.example.com',
               isPrivate: true,
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "route53-health-check-missing"),
+      violations.filter((v) => v.ruleId === 'route53-health-check-missing'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:zone",
-      type: "platform",
+      id: 'platform:zone',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-route53-zone", zoneName: "example.com" },
+        properties: { platform: 'aws-route53-zone', zoneName: 'example.com' },
       },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "route53-health-check-missing")
+      baseline.find((v) => v.ruleId === 'route53-health-check-missing')
         ?.severity,
-    ).toBe("info");
+    ).toBe('info');
     expect(
-      high.find((v) => v.ruleId === "route53-health-check-missing")?.severity,
-    ).toBe("warning");
+      high.find((v) => v.ruleId === 'route53-health-check-missing')?.severity,
+    ).toBe('warning');
   });
 });
 
-describe("eks-gpu-spot-capacity", () => {
-  it("fires when GPU node group uses SPOT capacity", () => {
+describe('eks-gpu-spot-capacity', () => {
+  it('fires when GPU node group uses SPOT capacity', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:gpu-nodes",
-          type: "platform",
+          id: 'platform:gpu-nodes',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-gpu-node-group",
-              capacityType: "SPOT",
+              platform: 'aws-eks-gpu-node-group',
+              capacityType: 'SPOT',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const gpuViolations = violations.filter(
-      (v) => v.ruleId === "eks-gpu-spot-capacity",
+      (v) => v.ruleId === 'eks-gpu-spot-capacity',
     );
     expect(gpuViolations).toHaveLength(1);
-    expect(gpuViolations[0].target.id).toBe("platform:gpu-nodes");
+    expect(gpuViolations[0].target.id).toBe('platform:gpu-nodes');
   });
 
-  it("does not fire when capacity is ON_DEMAND", () => {
+  it('does not fire when capacity is ON_DEMAND', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:gpu-nodes",
-          type: "platform",
+          id: 'platform:gpu-nodes',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-gpu-node-group",
-              capacityType: "ON_DEMAND",
+              platform: 'aws-eks-gpu-node-group',
+              capacityType: 'ON_DEMAND',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-gpu-spot-capacity"),
+      violations.filter((v) => v.ruleId === 'eks-gpu-spot-capacity'),
     ).toHaveLength(0);
   });
 
-  it("does not fire when capacityType is not set (defaults to ON_DEMAND)", () => {
+  it('does not fire when capacityType is not set (defaults to ON_DEMAND)', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:gpu-nodes",
-          type: "platform",
-          metadata: { properties: { platform: "aws-eks-gpu-node-group" } },
+          id: 'platform:gpu-nodes',
+          type: 'platform',
+          metadata: { properties: { platform: 'aws-eks-gpu-node-group' } },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-gpu-spot-capacity"),
+      violations.filter((v) => v.ruleId === 'eks-gpu-spot-capacity'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:gpu-nodes",
-      type: "platform",
+      id: 'platform:gpu-nodes',
+      type: 'platform',
       metadata: {
         properties: {
-          platform: "aws-eks-gpu-node-group",
-          capacityType: "SPOT",
+          platform: 'aws-eks-gpu-node-group',
+          capacityType: 'SPOT',
         },
       },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "eks-gpu-spot-capacity")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'eks-gpu-spot-capacity')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "eks-gpu-spot-capacity")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'eks-gpu-spot-capacity')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "eks-gpu-spot-capacity")?.severity,
-    ).toBe("warning");
+      high.find((v) => v.ruleId === 'eks-gpu-spot-capacity')?.severity,
+    ).toBe('warning');
   });
 });
 
-describe("eks-addon-version-unset", () => {
-  it("fires when addon has no version pinned", () => {
+describe('eks-addon-version-unset', () => {
+  it('fires when addon has no version pinned', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:vpc-cni",
-          type: "platform",
+          id: 'platform:vpc-cni',
+          type: 'platform',
           metadata: {
-            properties: { platform: "aws-eks-addon", addonName: "vpc-cni" },
+            properties: { platform: 'aws-eks-addon', addonName: 'vpc-cni' },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     const addonViolations = violations.filter(
-      (v) => v.ruleId === "eks-addon-version-unset",
+      (v) => v.ruleId === 'eks-addon-version-unset',
     );
     expect(addonViolations).toHaveLength(1);
-    expect(addonViolations[0].target.id).toBe("platform:vpc-cni");
+    expect(addonViolations[0].target.id).toBe('platform:vpc-cni');
   });
 
-  it("does not fire when addonVersion is set", () => {
+  it('does not fire when addonVersion is set', () => {
     const ctx = makeComputeContext(
       [
         makeNode({
-          id: "platform:vpc-cni",
-          type: "platform",
+          id: 'platform:vpc-cni',
+          type: 'platform',
           metadata: {
             properties: {
-              platform: "aws-eks-addon",
-              addonName: "vpc-cni",
-              addonVersion: "v1.14.1-eksbuild.1",
+              platform: 'aws-eks-addon',
+              addonName: 'vpc-cni',
+              addonVersion: 'v1.14.1-eksbuild.1',
             },
           },
         }),
       ],
-      "Baseline",
+      'Baseline',
     );
     const violations = evaluator.evaluate(ctx);
     expect(
-      violations.filter((v) => v.ruleId === "eks-addon-version-unset"),
+      violations.filter((v) => v.ruleId === 'eks-addon-version-unset'),
     ).toHaveLength(0);
   });
 
-  it("severity escalates across packs", () => {
+  it('severity escalates across packs', () => {
     const node = makeNode({
-      id: "platform:vpc-cni",
-      type: "platform",
+      id: 'platform:vpc-cni',
+      type: 'platform',
       metadata: {
-        properties: { platform: "aws-eks-addon", addonName: "vpc-cni" },
+        properties: { platform: 'aws-eks-addon', addonName: 'vpc-cni' },
       },
     });
-    const baseline = evaluator.evaluate(makeComputeContext([node], "Baseline"));
+    const baseline = evaluator.evaluate(makeComputeContext([node], 'Baseline'));
     const moderate = evaluator.evaluate(
-      makeComputeContext([node], "FedRAMP-Moderate"),
+      makeComputeContext([node], 'FedRAMP-Moderate'),
     );
-    const high = evaluator.evaluate(makeComputeContext([node], "FedRAMP-High"));
+    const high = evaluator.evaluate(makeComputeContext([node], 'FedRAMP-High'));
     expect(
-      baseline.find((v) => v.ruleId === "eks-addon-version-unset")?.severity,
-    ).toBe("info");
+      baseline.find((v) => v.ruleId === 'eks-addon-version-unset')?.severity,
+    ).toBe('info');
     expect(
-      moderate.find((v) => v.ruleId === "eks-addon-version-unset")?.severity,
-    ).toBe("warning");
+      moderate.find((v) => v.ruleId === 'eks-addon-version-unset')?.severity,
+    ).toBe('warning');
     expect(
-      high.find((v) => v.ruleId === "eks-addon-version-unset")?.severity,
-    ).toBe("error");
+      high.find((v) => v.ruleId === 'eks-addon-version-unset')?.severity,
+    ).toBe('error');
   });
 });

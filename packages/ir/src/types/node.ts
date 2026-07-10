@@ -1,12 +1,12 @@
-import type { Provenance } from "./provenance";
+import type { Provenance } from './provenance';
 
 /** Runtime-available array of valid node types */
 export const NODE_TYPES = [
-  "component",
-  "capability",
-  "platform",
-  "config",
-  "secret",
+  'component',
+  'capability',
+  'platform',
+  'config',
+  'secret',
 ] as const;
 
 /** Union type derived from the runtime constant */
@@ -40,5 +40,5 @@ export interface Node {
   readonly metadata: NodeMetadata;
 
   /** Schema version for forward compatibility */
-  readonly schemaVersion: "1.0.0";
+  readonly schemaVersion: '1.0.0';
 }

@@ -3,7 +3,7 @@
  * Provides stable path and rule for programmatic consumption.
  */
 export class ValidationError extends Error {
-  readonly name = "ValidationError" as const;
+  readonly name = 'ValidationError' as const;
 
   constructor(
     readonly path: string,
@@ -18,7 +18,7 @@ export class ValidationError extends Error {
  * but different semantic content.
  */
 export class ConflictError extends Error {
-  readonly name = "ConflictError" as const;
+  readonly name = 'ConflictError' as const;
 
   constructor(
     readonly id: string,
@@ -36,7 +36,7 @@ export class ConflictError extends Error {
  * (e.g., edge references a non-existent node).
  */
 export class IntegrityError extends Error {
-  readonly name = "IntegrityError" as const;
+  readonly name = 'IntegrityError' as const;
 
   constructor(
     readonly missingRef: string,

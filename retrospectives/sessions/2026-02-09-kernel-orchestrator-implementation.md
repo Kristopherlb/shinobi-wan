@@ -179,11 +179,11 @@ When constructing GraphSnapshot objects in tests, ALWAYS sort via canonical
 comparators. Use this pattern:
 
 ```typescript
-import { compareNodes, compareEdges, compareArtifacts } from "@shinobi/ir";
+import { compareNodes, compareEdges, compareArtifacts } from '@shinobi/ir';
 
 function makeSnapshot(nodes: Node[], edges: Edge[]): GraphSnapshot {
   return {
-    schemaVersion: "1.0.0",
+    schemaVersion: '1.0.0',
     nodes: [...nodes].sort(compareNodes),
     edges: [...edges].sort(compareEdges),
     artifacts: [],

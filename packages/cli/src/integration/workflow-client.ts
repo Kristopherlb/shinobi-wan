@@ -1,7 +1,7 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from 'crypto';
 
 export interface OperationStatusRecord {
-  status: "running" | "succeeded" | "failed" | "cancelled" | "timed_out";
+  status: 'running' | 'succeeded' | 'failed' | 'cancelled' | 'timed_out';
   traceId: string;
   toolId: string;
   startedAt: string;
@@ -53,11 +53,11 @@ function resolveWorkflowConfig(
   const dispatchUrl =
     env.SHINOBI_HARMONY_DISPATCH_URL ??
     (statusBaseUrl
-      ? `${statusBaseUrl.replace(/\/$/, "")}/operations/dispatch`
+      ? `${statusBaseUrl.replace(/\/$/, '')}/operations/dispatch`
       : undefined);
 
   if (!workflowName || !taskQueue || !statusBaseUrl || !dispatchUrl) {
-    throw new Error("Harmony workflow wiring is incomplete");
+    throw new Error('Harmony workflow wiring is incomplete');
   }
 
   return { workflowName, taskQueue, statusBaseUrl, dispatchUrl };
@@ -70,7 +70,7 @@ async function parseJson(response: Response): Promise<unknown> {
 }
 
 function asString(value: unknown, field: string): string {
-  if (typeof value !== "string" || value.length === 0) {
+  if (typeof value !== 'string' || value.length === 0) {
     throw new Error(`Workflow dispatch response missing '${field}'`);
   }
   return value;
@@ -89,8 +89,8 @@ export function createHttpWorkflowClient(
       const submittedAt = new Date().toISOString();
 
       const response = await fetch(cfg.dispatchUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           operationId,
           workflowId,
@@ -104,23 +104,23 @@ export function createHttpWorkflowClient(
       if (!response.ok) {
         const errorBody = await parseJson(response);
         const details =
-          typeof errorBody === "object" && errorBody !== null
+          typeof errorBody === 'object' && errorBody !== null
             ? JSON.stringify(errorBody)
-            : String(errorBody ?? "");
+            : String(errorBody ?? '');
         throw new Error(
-          `Workflow dispatch failed with ${response.status}${details ? `: ${details}` : ""}`,
+          `Workflow dispatch failed with ${response.status}${details ? `: ${details}` : ''}`,
         );
       }
 
       const payload = (await parseJson(response)) as Record<string, unknown>;
       return {
-        operationId: asString(payload["operationId"], "operationId"),
-        workflowId: asString(payload["workflowId"], "workflowId"),
-        submittedAt: asString(payload["submittedAt"], "submittedAt"),
-        statusUrl: asString(payload["statusUrl"], "statusUrl"),
-        ...(typeof payload["cancelUrl"] === "string" &&
-        payload["cancelUrl"].length > 0
-          ? { cancelUrl: payload["cancelUrl"] }
+        operationId: asString(payload['operationId'], 'operationId'),
+        workflowId: asString(payload['workflowId'], 'workflowId'),
+        submittedAt: asString(payload['submittedAt'], 'submittedAt'),
+        statusUrl: asString(payload['statusUrl'], 'statusUrl'),
+        ...(typeof payload['cancelUrl'] === 'string' &&
+        payload['cancelUrl'].length > 0
+          ? { cancelUrl: payload['cancelUrl'] }
           : {}),
       };
     },
@@ -129,8 +129,8 @@ export function createHttpWorkflowClient(
       operationId: string,
     ): Promise<OperationStatusRecord | undefined> {
       const cfg = resolveWorkflowConfig(env);
-      const url = `${cfg.statusBaseUrl.replace(/\/$/, "")}/operations/${operationId}`;
-      const response = await fetch(url, { method: "GET" });
+      const url = `${cfg.statusBaseUrl.replace(/\/$/, '')}/operations/${operationId}`;
+      const response = await fetch(url, { method: 'GET' });
       if (response.status === 404) return undefined;
       if (!response.ok) {
         throw new Error(
@@ -138,21 +138,21 @@ export function createHttpWorkflowClient(
         );
       }
       const payload = await parseJson(response);
-      if (!payload || typeof payload !== "object") return undefined;
+      if (!payload || typeof payload !== 'object') return undefined;
       const record = payload as Record<string, unknown>;
       return {
         status: asString(
-          record["status"],
-          "status",
-        ) as OperationStatusRecord["status"],
-        traceId: asString(record["traceId"], "traceId"),
-        toolId: asString(record["toolId"], "toolId"),
-        startedAt: asString(record["startedAt"], "startedAt"),
-        ...(typeof record["completedAt"] === "string"
-          ? { completedAt: record["completedAt"] }
+          record['status'],
+          'status',
+        ) as OperationStatusRecord['status'],
+        traceId: asString(record['traceId'], 'traceId'),
+        toolId: asString(record['toolId'], 'toolId'),
+        startedAt: asString(record['startedAt'], 'startedAt'),
+        ...(typeof record['completedAt'] === 'string'
+          ? { completedAt: record['completedAt'] }
           : {}),
-        ...(typeof record["error"] === "string"
-          ? { error: record["error"] }
+        ...(typeof record['error'] === 'string'
+          ? { error: record['error'] }
           : {}),
       };
     },

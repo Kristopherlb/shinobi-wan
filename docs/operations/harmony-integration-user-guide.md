@@ -57,28 +57,28 @@ For a separate Harmony repo, integrate through a runtime boundary:
 ### Option A: CLI subprocess bridge (fastest for separate repo)
 
 ```typescript
-import { spawn } from "node:child_process";
+import { spawn } from 'node:child_process';
 
-const SHINOBI_MAIN = "/absolute/path/to/Shinobi-wan/packages/cli/dist/main.js";
+const SHINOBI_MAIN = '/absolute/path/to/Shinobi-wan/packages/cli/dist/main.js';
 
 export function runShinobiPlan(
   manifestPath: string,
   traceId: string,
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    const proc = spawn("node", [SHINOBI_MAIN, "plan", manifestPath, "--json"], {
+    const proc = spawn('node', [SHINOBI_MAIN, 'plan', manifestPath, '--json'], {
       env: { ...process.env, SHINOBI_TRACE_ID: traceId },
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
-    let stdout = "";
-    let stderr = "";
-    proc.stdout.on("data", (chunk) => {
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (chunk) => {
       stdout += String(chunk);
     });
-    proc.stderr.on("data", (chunk) => {
+    proc.stderr.on('data', (chunk) => {
       stderr += String(chunk);
     });
-    proc.on("close", (code) => {
+    proc.on('close', (code) => {
       if (code !== 0) {
         reject(new Error(`shinobi plan failed (exit ${code}): ${stderr}`));
         return;

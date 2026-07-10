@@ -44,7 +44,7 @@ name: holdout-request-tag
 on:
   push:
     branches:
-      - "claude/optimization-executor-setup-wo9ywx"
+      - 'claude/optimization-executor-setup-wo9ywx'
 permissions:
   contents: write
 jobs:
@@ -96,7 +96,7 @@ name: holdout-request-tag
 on:
   push:
     branches:
-      - "claude/**" # all remote-session branches
+      - 'claude/**' # all remote-session branches
 permissions:
   contents: write
 jobs:
@@ -154,7 +154,7 @@ Two options, in order of preference:
    name: holdout-request-tag
    on:
      push:
-       branches: ["claude/**"]
+       branches: ['claude/**']
    permissions:
      contents: write
    jobs:

@@ -1,7 +1,7 @@
 ---
 name: retrospective
 description: Continuous improvement through checkpoints, analysis, and retrospectives. Use during and after projects to capture learnings, reduce repeated friction, and keep plans aligned to reality.
-argument-hint: "[topic or project name] + [time window] + [artifacts changed]"
+argument-hint: '[topic or project name] + [time window] + [artifacts changed]'
 ---
 
 # Retrospective Skill

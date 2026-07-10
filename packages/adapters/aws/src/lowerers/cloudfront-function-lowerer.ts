@@ -1,11 +1,11 @@
-import type { Node } from "@shinobi/ir";
+import type { Node } from '@shinobi/ir';
 import type {
   LoweredResource,
   LoweringContext,
   NodeLowerer,
   ResolvedDeps,
-} from "../types";
-import { shortName, createStandardTags } from "./utils";
+} from '../types';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-cloudfront-function" → CloudFront Function.
@@ -14,7 +14,7 @@ import { shortName, createStandardTags } from "./utils";
  *   - Function (viewer-request or viewer-response)
  */
 export class CloudFrontFunctionLowerer implements NodeLowerer {
-  readonly platform = "aws-cloudfront-function";
+  readonly platform = 'aws-cloudfront-function';
 
   lower(
     node: Node,
@@ -29,20 +29,20 @@ export class CloudFrontFunctionLowerer implements NodeLowerer {
 
     const funcName = `${name}-cf-function`;
 
-    const runtime = (props["runtime"] as string) ?? "cloudfront-js-2.0";
-    const code = (props["code"] as string) ?? "// placeholder";
-    const comment = (props["comment"] as string) ?? `${serviceName}-${name}`;
+    const runtime = (props['runtime'] as string) ?? 'cloudfront-js-2.0';
+    const code = (props['code'] as string) ?? '// placeholder';
+    const comment = (props['comment'] as string) ?? `${serviceName}-${name}`;
 
     resources.push({
       name: funcName,
-      resourceType: "aws:cloudfront:Function",
+      resourceType: 'aws:cloudfront:Function',
       properties: {
         name: `${serviceName}-${name}`,
         runtime,
         code,
         comment,
         publish: true,
-        tags: createStandardTags(node.id, "aws-cloudfront-function"),
+        tags: createStandardTags(node.id, 'aws-cloudfront-function'),
       },
       sourceId: node.id,
       dependsOn: [],

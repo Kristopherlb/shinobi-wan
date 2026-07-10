@@ -1,18 +1,18 @@
-import type { Node } from "@shinobi/ir";
+import type { Node } from '@shinobi/ir';
 import type {
   LoweredResource,
   LoweringContext,
   NodeLowerer,
   ResolvedDeps,
-} from "../types";
-import { shortName, createStandardTags } from "./utils";
+} from '../types';
+import { shortName, createStandardTags } from './utils';
 
 /**
  * Lowers a platform node with platform "aws-nat-gateway" ->
  * Elastic IP + NAT Gateway.
  */
 export class NatGatewayLowerer implements NodeLowerer {
-  readonly platform = "aws-nat-gateway";
+  readonly platform = 'aws-nat-gateway';
 
   lower(
     node: Node,
@@ -21,14 +21,14 @@ export class NatGatewayLowerer implements NodeLowerer {
   ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const config = node.metadata.properties;
-    const extraTags = config["tags"] as Record<string, string> | undefined;
-    const tags = createStandardTags(node.id, "aws-nat-gateway", extraTags);
+    const extraTags = config['tags'] as Record<string, string> | undefined;
+    const tags = createStandardTags(node.id, 'aws-nat-gateway', extraTags);
 
     const eipName = `${name}-eip`;
     const natName = `${name}-nat`;
 
-    const subnetRef = config["subnetRef"] as string | undefined;
-    const connectivityType = (config["connectivityType"] as string) ?? "public";
+    const subnetRef = config['subnetRef'] as string | undefined;
+    const connectivityType = (config['connectivityType'] as string) ?? 'public';
 
     const natProperties: Record<string, unknown> = {
       allocationId: { ref: `${eipName}.allocationId` },
@@ -44,9 +44,9 @@ export class NatGatewayLowerer implements NodeLowerer {
 
     resources.push({
       name: eipName,
-      resourceType: "aws:ec2:Eip",
+      resourceType: 'aws:ec2:Eip',
       properties: {
-        domain: "vpc",
+        domain: 'vpc',
         tags,
       },
       sourceId: node.id,
@@ -55,7 +55,7 @@ export class NatGatewayLowerer implements NodeLowerer {
 
     resources.push({
       name: natName,
-      resourceType: "aws:ec2:NatGateway",
+      resourceType: 'aws:ec2:NatGateway',
       properties: natProperties,
       sourceId: node.id,
       dependsOn: [eipName],

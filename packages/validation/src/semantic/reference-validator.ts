@@ -1,10 +1,10 @@
-import type { GraphSnapshot, Edge, DerivedArtifact } from "@shinobi/ir";
+import type { GraphSnapshot, Edge, DerivedArtifact } from '@shinobi/ir';
 import {
   createError,
   createResult,
   type ValidationError,
   type ValidationResult,
-} from "../errors";
+} from '../errors';
 
 /**
  * Validates that an edge's source and target nodes exist.
@@ -20,11 +20,11 @@ export function validateEdgeReferences(
     errors.push(
       createError({
         path: `$.edges[${index}].source`,
-        rule: "dangling-edge-source",
+        rule: 'dangling-edge-source',
         message: `Edge source '${edge.source}' references non-existent node`,
-        severity: "error",
+        severity: 'error',
         remediation:
-          "Ensure the source node exists in the graph before creating edges",
+          'Ensure the source node exists in the graph before creating edges',
       }),
     );
   }
@@ -33,11 +33,11 @@ export function validateEdgeReferences(
     errors.push(
       createError({
         path: `$.edges[${index}].target`,
-        rule: "dangling-edge-target",
+        rule: 'dangling-edge-target',
         message: `Edge target '${edge.target}' references non-existent node`,
-        severity: "error",
+        severity: 'error',
         remediation:
-          "Ensure the target node exists in the graph before creating edges",
+          'Ensure the target node exists in the graph before creating edges',
       }),
     );
   }
@@ -57,11 +57,11 @@ export function validateArtifactReferences(
     return [
       createError({
         path: `$.artifacts[${index}].sourceNodeId`,
-        rule: "dangling-artifact-source",
+        rule: 'dangling-artifact-source',
         message: `Artifact sourceNodeId '${artifact.sourceNodeId}' references non-existent node`,
-        severity: "error",
+        severity: 'error',
         remediation:
-          "Ensure the source node exists in the graph before creating artifacts",
+          'Ensure the source node exists in the graph before creating artifacts',
       }),
     ];
   }

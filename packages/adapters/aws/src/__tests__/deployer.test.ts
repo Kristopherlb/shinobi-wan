@@ -1,25 +1,25 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { ResourcePlan, PlannedResource } from "../program-generator";
-import type { AdapterConfig } from "../types";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ResourcePlan, PlannedResource } from '../program-generator';
+import type { AdapterConfig } from '../types';
 
 // Mock the pulumi-program module
-vi.mock("../pulumi-program", () => ({
+vi.mock('../pulumi-program', () => ({
   createPulumiProgram: vi.fn(() => async () => ({
-    "test-output": "test-value",
+    'test-output': 'test-value',
   })),
 }));
 
 // Mock @pulumi/pulumi/automation — all functions inline (no top-level refs)
-vi.mock("@pulumi/pulumi/automation", () => {
+vi.mock('@pulumi/pulumi/automation', () => {
   const stack = {
     setConfig: vi.fn().mockResolvedValue(undefined),
     up: vi.fn().mockResolvedValue({
       outputs: {
-        "my-function-arn": {
-          value: "arn:aws:lambda:us-east-1:123456789012:function:my-fn",
+        'my-function-arn': {
+          value: 'arn:aws:lambda:us-east-1:123456789012:function:my-fn',
         },
-        "my-queue-url": {
-          value: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue",
+        'my-queue-url': {
+          value: 'https://sqs.us-east-1.amazonaws.com/123456789012/my-queue',
         },
       },
       summary: {
@@ -40,9 +40,9 @@ vi.mock("@pulumi/pulumi/automation", () => {
 });
 
 // Import after mocks
-import { deploy, preview, classifyError } from "../deployer";
-import type { DeployerEvent } from "../deployer";
-import * as automation from "@pulumi/pulumi/automation";
+import { deploy, preview, classifyError } from '../deployer';
+import type { DeployerEvent } from '../deployer';
+import * as automation from '@pulumi/pulumi/automation';
 
 // Access the mock stack via the module
 function getMockStack() {
@@ -58,8 +58,8 @@ function getMockStack() {
 }
 
 const DEFAULT_CONFIG: AdapterConfig = {
-  region: "us-east-1",
-  serviceName: "test-service",
+  region: 'us-east-1',
+  serviceName: 'test-service',
 };
 
 function makePlannedResource(
@@ -76,31 +76,31 @@ function makePlan(resources?: PlannedResource[]): ResourcePlan {
   return {
     resources: resources ?? [
       makePlannedResource({
-        name: "my-role",
-        resourceType: "aws:iam:Role",
-        properties: { assumeRolePolicy: "{}" },
+        name: 'my-role',
+        resourceType: 'aws:iam:Role',
+        properties: { assumeRolePolicy: '{}' },
       }),
       makePlannedResource({
-        name: "my-function",
-        resourceType: "aws:lambda:Function",
-        properties: { functionName: "test" },
+        name: 'my-function',
+        resourceType: 'aws:lambda:Function',
+        properties: { functionName: 'test' },
       }),
     ],
     outputs: {
-      "my-function-arn": "${my-function.arn}",
+      'my-function-arn': '${my-function.arn}',
     },
   };
 }
 
-describe("deploy", () => {
+describe('deploy', () => {
   beforeEach(() => {
     const mockStack = getMockStack();
     vi.clearAllMocks();
     // Re-set defaults after clear
     mockStack.up.mockResolvedValue({
       outputs: {
-        "my-function-arn": {
-          value: "arn:aws:lambda:us-east-1:123456789012:function:my-fn",
+        'my-function-arn': {
+          value: 'arn:aws:lambda:us-east-1:123456789012:function:my-fn',
         },
       },
       summary: {
@@ -113,66 +113,66 @@ describe("deploy", () => {
     ).mockResolvedValue(mockStack);
   });
 
-  it("creates a stack with correct project and stack name", async () => {
+  it('creates a stack with correct project and stack name', async () => {
     await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
       expect.objectContaining({
-        stackName: "test-service-us-east-1",
-        projectName: "test-service",
+        stackName: 'test-service-us-east-1',
+        projectName: 'test-service',
       }),
     );
   });
 
-  it("sets aws:region config", async () => {
+  it('sets aws:region config', async () => {
     const mockStack = getMockStack();
     await deploy(makePlan(), DEFAULT_CONFIG);
 
-    expect(mockStack.setConfig).toHaveBeenCalledWith("aws:region", {
-      value: "us-east-1",
+    expect(mockStack.setConfig).toHaveBeenCalledWith('aws:region', {
+      value: 'us-east-1',
     });
   });
 
-  it("calls stack.up()", async () => {
+  it('calls stack.up()', async () => {
     const mockStack = getMockStack();
     await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(mockStack.up).toHaveBeenCalled();
   });
 
-  it("returns success result with outputs", async () => {
+  it('returns success result with outputs', async () => {
     const result = await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(true);
-    expect(result.stackName).toBe("test-service-us-east-1");
-    expect(result.outputs["my-function-arn"]).toBe(
-      "arn:aws:lambda:us-east-1:123456789012:function:my-fn",
+    expect(result.stackName).toBe('test-service-us-east-1');
+    expect(result.outputs['my-function-arn']).toBe(
+      'arn:aws:lambda:us-east-1:123456789012:function:my-fn',
     );
   });
 
-  it("returns resource changes in summary", async () => {
+  it('returns resource changes in summary', async () => {
     const result = await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(result.summary.resourceChanges).toEqual({ create: 5 });
   });
 
-  it("uses custom stack name when provided", async () => {
-    await deploy(makePlan(), DEFAULT_CONFIG, { stackName: "custom-stack" });
+  it('uses custom stack name when provided', async () => {
+    await deploy(makePlan(), DEFAULT_CONFIG, { stackName: 'custom-stack' });
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
-      expect.objectContaining({ stackName: "custom-stack" }),
+      expect.objectContaining({ stackName: 'custom-stack' }),
     );
   });
 
-  it("uses custom project name when provided", async () => {
-    await deploy(makePlan(), DEFAULT_CONFIG, { projectName: "custom-project" });
+  it('uses custom project name when provided', async () => {
+    await deploy(makePlan(), DEFAULT_CONFIG, { projectName: 'custom-project' });
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
-      expect.objectContaining({ projectName: "custom-project" }),
+      expect.objectContaining({ projectName: 'custom-project' }),
     );
   });
 
-  it("passes onOutput callback", async () => {
+  it('passes onOutput callback', async () => {
     const mockStack = getMockStack();
     const onOutput = vi.fn();
     await deploy(makePlan(), DEFAULT_CONFIG, { onOutput });
@@ -182,30 +182,30 @@ describe("deploy", () => {
     );
   });
 
-  it("returns failure result on error", async () => {
+  it('returns failure result on error', async () => {
     const mockStack = getMockStack();
     mockStack.up.mockRejectedValueOnce(
-      new Error("AWS credentials not configured"),
+      new Error('AWS credentials not configured'),
     );
 
     const result = await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("AWS credentials not configured");
+    expect(result.error).toBe('AWS credentials not configured');
     expect(result.outputs).toEqual({});
   });
 
-  it("handles non-Error thrown values", async () => {
+  it('handles non-Error thrown values', async () => {
     const mockStack = getMockStack();
-    mockStack.up.mockRejectedValueOnce("string error");
+    mockStack.up.mockRejectedValueOnce('string error');
 
     const result = await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("string error");
+    expect(result.error).toBe('string error');
   });
 
-  it("handles empty plan", async () => {
+  it('handles empty plan', async () => {
     const mockStack = getMockStack();
     mockStack.up.mockResolvedValueOnce({
       outputs: {},
@@ -219,7 +219,7 @@ describe("deploy", () => {
   });
 });
 
-describe("preview", () => {
+describe('preview', () => {
   beforeEach(() => {
     const mockStack = getMockStack();
     vi.clearAllMocks();
@@ -232,42 +232,42 @@ describe("preview", () => {
     ).mockResolvedValue(mockStack);
   });
 
-  it("creates a stack with correct names", async () => {
+  it('creates a stack with correct names', async () => {
     await preview(makePlan(), DEFAULT_CONFIG);
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
       expect.objectContaining({
-        stackName: "test-service-us-east-1",
-        projectName: "test-service",
+        stackName: 'test-service-us-east-1',
+        projectName: 'test-service',
       }),
     );
   });
 
-  it("sets aws:region config", async () => {
+  it('sets aws:region config', async () => {
     const mockStack = getMockStack();
     await preview(makePlan(), DEFAULT_CONFIG);
 
-    expect(mockStack.setConfig).toHaveBeenCalledWith("aws:region", {
-      value: "us-east-1",
+    expect(mockStack.setConfig).toHaveBeenCalledWith('aws:region', {
+      value: 'us-east-1',
     });
   });
 
-  it("calls stack.preview()", async () => {
+  it('calls stack.preview()', async () => {
     const mockStack = getMockStack();
     await preview(makePlan(), DEFAULT_CONFIG);
 
     expect(mockStack.preview).toHaveBeenCalled();
   });
 
-  it("returns success result with change summary", async () => {
+  it('returns success result with change summary', async () => {
     const result = await preview(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(true);
-    expect(result.stackName).toBe("test-service-us-east-1");
+    expect(result.stackName).toBe('test-service-us-east-1');
     expect(result.changeSummary).toEqual({ create: 5, update: 0, delete: 0 });
   });
 
-  it("passes onOutput callback", async () => {
+  it('passes onOutput callback', async () => {
     const mockStack = getMockStack();
     const onOutput = vi.fn();
     await preview(makePlan(), DEFAULT_CONFIG, { onOutput });
@@ -277,100 +277,100 @@ describe("preview", () => {
     );
   });
 
-  it("returns failure result on error", async () => {
+  it('returns failure result on error', async () => {
     const mockStack = getMockStack();
-    mockStack.preview.mockRejectedValueOnce(new Error("Stack not found"));
+    mockStack.preview.mockRejectedValueOnce(new Error('Stack not found'));
 
     const result = await preview(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Stack not found");
+    expect(result.error).toBe('Stack not found');
   });
 
-  it("uses custom stack name when provided", async () => {
-    await preview(makePlan(), DEFAULT_CONFIG, { stackName: "preview-stack" });
+  it('uses custom stack name when provided', async () => {
+    await preview(makePlan(), DEFAULT_CONFIG, { stackName: 'preview-stack' });
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
-      expect.objectContaining({ stackName: "preview-stack" }),
+      expect.objectContaining({ stackName: 'preview-stack' }),
     );
   });
 });
 
-describe("classifyError", () => {
-  it("classifies AWS credential errors", () => {
+describe('classifyError', () => {
+  it('classifies AWS credential errors', () => {
     const result = classifyError(
-      new Error("NoCredentialProviders: no valid providers"),
+      new Error('NoCredentialProviders: no valid providers'),
     );
 
-    expect(result.category).toBe("aws-credentials");
+    expect(result.category).toBe('aws-credentials');
     expect(result.retryable).toBe(false);
     expect(result.originalError).toBeInstanceOf(Error);
   });
 
-  it("classifies ExpiredToken as aws-credentials", () => {
+  it('classifies ExpiredToken as aws-credentials', () => {
     const result = classifyError(
       new Error(
-        "ExpiredToken: the security token included in the request is expired",
+        'ExpiredToken: the security token included in the request is expired',
       ),
     );
 
-    expect(result.category).toBe("aws-credentials");
+    expect(result.category).toBe('aws-credentials');
     expect(result.retryable).toBe(false);
   });
 
-  it("classifies stack conflict errors as non-retryable", () => {
-    const result = classifyError(new Error("Stack is already being updated"));
+  it('classifies stack conflict errors as non-retryable', () => {
+    const result = classifyError(new Error('Stack is already being updated'));
 
-    expect(result.category).toBe("stack-conflict");
+    expect(result.category).toBe('stack-conflict');
     expect(result.retryable).toBe(false);
   });
 
-  it("classifies timeout errors as retryable", () => {
-    const result = classifyError(new Error("Operation timed out"));
+  it('classifies timeout errors as retryable', () => {
+    const result = classifyError(new Error('Operation timed out'));
 
-    expect(result.category).toBe("timeout");
+    expect(result.category).toBe('timeout');
     expect(result.retryable).toBe(true);
-    expect(result.retriableReason).toBe("upstream_timeout");
+    expect(result.retriableReason).toBe('upstream_timeout');
   });
 
-  it("classifies rate limit errors as retryable with rate_limit reason", () => {
-    const result = classifyError(new Error("429 Too Many Requests"));
-    expect(result.code).toBe("RATE_LIMIT");
+  it('classifies rate limit errors as retryable with rate_limit reason', () => {
+    const result = classifyError(new Error('429 Too Many Requests'));
+    expect(result.code).toBe('RATE_LIMIT');
     expect(result.retryable).toBe(true);
-    expect(result.retriableReason).toBe("rate_limit");
+    expect(result.retriableReason).toBe('rate_limit');
   });
 
-  it("classifies pulumi runtime errors", () => {
-    const result = classifyError(new Error("failed to load plugin"));
+  it('classifies pulumi runtime errors', () => {
+    const result = classifyError(new Error('failed to load plugin'));
 
-    expect(result.category).toBe("pulumi-runtime");
+    expect(result.category).toBe('pulumi-runtime');
     expect(result.retryable).toBe(false);
   });
 
-  it("classifies unknown errors as retryable (dependency-unavailable)", () => {
-    const result = classifyError(new Error("Something unexpected happened"));
+  it('classifies unknown errors as retryable (dependency-unavailable)', () => {
+    const result = classifyError(new Error('Something unexpected happened'));
 
-    expect(result.category).toBe("unknown");
+    expect(result.category).toBe('unknown');
     expect(result.retryable).toBe(true);
-    expect(result.retriableReason).toBe("dependency_unavailable");
+    expect(result.retriableReason).toBe('dependency_unavailable');
   });
 
-  it("handles non-Error values", () => {
-    const result = classifyError("string error");
+  it('handles non-Error values', () => {
+    const result = classifyError('string error');
 
-    expect(result.category).toBe("unknown");
-    expect(result.message).toBe("string error");
+    expect(result.category).toBe('unknown');
+    expect(result.message).toBe('string error');
     expect(result.originalError).toBeUndefined();
-    expect(result.retriableReason).toBe("dependency_unavailable");
+    expect(result.retriableReason).toBe('dependency_unavailable');
   });
 });
 
-describe("error detail in results", () => {
+describe('error detail in results', () => {
   beforeEach(() => {
     const mockStack = getMockStack();
     vi.clearAllMocks();
     mockStack.up.mockResolvedValue({
-      outputs: { "my-function-arn": { value: "arn:test" } },
+      outputs: { 'my-function-arn': { value: 'arn:test' } },
       summary: { resourceChanges: { create: 5 } },
     });
     mockStack.preview.mockResolvedValue({
@@ -382,33 +382,33 @@ describe("error detail in results", () => {
     ).mockResolvedValue(mockStack);
   });
 
-  it("deploy includes errorDetail for AWS credential errors", async () => {
+  it('deploy includes errorDetail for AWS credential errors', async () => {
     const mockStack = getMockStack();
     mockStack.up.mockRejectedValueOnce(
-      new Error("NoCredentialProviders: no valid providers"),
+      new Error('NoCredentialProviders: no valid providers'),
     );
 
     const result = await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(false);
-    expect(result.errorDetail?.category).toBe("aws-credentials");
+    expect(result.errorDetail?.category).toBe('aws-credentials');
     expect(result.errorDetail?.retryable).toBe(false);
   });
 
-  it("preview includes errorDetail for stack conflict errors", async () => {
+  it('preview includes errorDetail for stack conflict errors', async () => {
     const mockStack = getMockStack();
     mockStack.preview.mockRejectedValueOnce(
-      new Error("Stack is already being updated"),
+      new Error('Stack is already being updated'),
     );
 
     const result = await preview(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(false);
-    expect(result.errorDetail?.category).toBe("stack-conflict");
+    expect(result.errorDetail?.category).toBe('stack-conflict');
     expect(result.errorDetail?.retryable).toBe(false);
   });
 
-  it("deploy with timeout fires timeout error", async () => {
+  it('deploy with timeout fires timeout error', async () => {
     const mockStack = getMockStack();
     mockStack.up.mockImplementationOnce(
       () => new Promise((resolve) => setTimeout(resolve, 5000)),
@@ -417,12 +417,12 @@ describe("error detail in results", () => {
     const result = await deploy(makePlan(), DEFAULT_CONFIG, { timeoutMs: 50 });
 
     expect(result.success).toBe(false);
-    expect(result.errorDetail?.category).toBe("timeout");
+    expect(result.errorDetail?.category).toBe('timeout');
     expect(result.errorDetail?.retryable).toBe(true);
-    expect(result.errorDetail?.retriableReason).toBe("upstream_timeout");
+    expect(result.errorDetail?.retriableReason).toBe('upstream_timeout');
   });
 
-  it("success result has no errorDetail", async () => {
+  it('success result has no errorDetail', async () => {
     const result = await deploy(makePlan(), DEFAULT_CONFIG);
 
     expect(result.success).toBe(true);
@@ -430,12 +430,12 @@ describe("error detail in results", () => {
   });
 });
 
-describe("onEvent callbacks", () => {
+describe('onEvent callbacks', () => {
   beforeEach(() => {
     const mockStack = getMockStack();
     vi.clearAllMocks();
     mockStack.up.mockResolvedValue({
-      outputs: { "my-function-arn": { value: "arn:test" } },
+      outputs: { 'my-function-arn': { value: 'arn:test' } },
       summary: { resourceChanges: { create: 5 } },
     });
     mockStack.preview.mockResolvedValue({
@@ -447,38 +447,38 @@ describe("onEvent callbacks", () => {
     ).mockResolvedValue(mockStack);
   });
 
-  it("deploy emits progress events on success", async () => {
+  it('deploy emits progress events on success', async () => {
     const events: DeployerEvent[] = [];
     await deploy(makePlan(), DEFAULT_CONFIG, {
       onEvent: (e) => events.push(e),
     });
 
     expect(events.map((e) => e.type)).toEqual([
-      "stack-creating",
-      "stack-configuring",
-      "deploying",
-      "complete",
+      'stack-creating',
+      'stack-configuring',
+      'deploying',
+      'complete',
     ]);
   });
 
-  it("preview emits progress events on success", async () => {
+  it('preview emits progress events on success', async () => {
     const events: DeployerEvent[] = [];
     await preview(makePlan(), DEFAULT_CONFIG, {
       onEvent: (e) => events.push(e),
     });
 
     expect(events.map((e) => e.type)).toEqual([
-      "stack-creating",
-      "stack-configuring",
-      "previewing",
-      "complete",
+      'stack-creating',
+      'stack-configuring',
+      'previewing',
+      'complete',
     ]);
   });
 
-  it("deploy emits error event on failure", async () => {
+  it('deploy emits error event on failure', async () => {
     const mockStack = getMockStack();
     mockStack.up.mockRejectedValueOnce(
-      new Error("ExpiredToken: token expired"),
+      new Error('ExpiredToken: token expired'),
     );
 
     const events: DeployerEvent[] = [];
@@ -486,21 +486,21 @@ describe("onEvent callbacks", () => {
       onEvent: (e) => events.push(e),
     });
 
-    const errorEvent = events.find((e) => e.type === "error");
+    const errorEvent = events.find((e) => e.type === 'error');
     expect(errorEvent).toBeDefined();
-    expect(errorEvent?.type === "error" && errorEvent.error.category).toBe(
-      "aws-credentials",
+    expect(errorEvent?.type === 'error' && errorEvent.error.category).toBe(
+      'aws-credentials',
     );
   });
 
-  it("all events include stackName", async () => {
+  it('all events include stackName', async () => {
     const events: DeployerEvent[] = [];
     await deploy(makePlan(), DEFAULT_CONFIG, {
       onEvent: (e) => events.push(e),
     });
 
     for (const event of events) {
-      expect(event.stackName).toBe("test-service-us-east-1");
+      expect(event.stackName).toBe('test-service-us-east-1');
     }
   });
 });

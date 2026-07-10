@@ -42,7 +42,7 @@ html {
 body {
   margin: 0;
   font-family:
-    "Inter",
+    'Inter',
     system-ui,
     -apple-system,
     Segoe UI,
@@ -81,7 +81,7 @@ svg {
 }
 code,
 .mono {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 .wrap {
   max-width: var(--maxw);
@@ -398,7 +398,7 @@ h3 {
 }
 .stage::before {
   /* connector arrow */
-  content: "";
+  content: '';
   position: absolute;
   left: -26px;
   top: 50%;
@@ -408,7 +408,7 @@ h3 {
   transform: translateY(-50%);
 }
 .stage::after {
-  content: "";
+  content: '';
   position: absolute;
   left: -7px;
   top: 50%;
@@ -526,7 +526,7 @@ h3 {
   gap: 10px;
 }
 .card::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 0;
@@ -816,7 +816,7 @@ h3 {
   gap: 7px;
 }
 .codechip {
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   padding: 4px 9px;
   border-radius: 7px;
@@ -825,7 +825,7 @@ h3 {
   color: #9fe6ff;
 }
 .cfgchip {
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   padding: 4px 9px;
   border-radius: 7px;
@@ -834,7 +834,7 @@ h3 {
   color: var(--text-2);
 }
 .filepath {
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12.5px;
   color: var(--text-2);
   display: flex;
@@ -1153,7 +1153,7 @@ a.pill.cat:hover {
   border-radius: 12px;
   padding: 18px 20px;
   overflow-x: auto;
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12.8px;
   line-height: 1.7;
   color: #c6d4e8;

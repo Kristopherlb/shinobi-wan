@@ -1,5 +1,5 @@
-import type { Node, Edge } from "./types";
-import { computeSemanticHash } from "./id-generation";
+import type { Node, Edge } from './types';
+import { computeSemanticHash } from './id-generation';
 
 /**
  * Creates a test Node with sensible defaults and auto-computed semanticHash.
@@ -7,13 +7,13 @@ import { computeSemanticHash } from "./id-generation";
  * Only `id` and `type` are required. All other fields have test defaults.
  */
 export function createTestNode(
-  overrides: { id: string; type: Node["type"] } & Partial<Node>,
+  overrides: { id: string; type: Node['type'] } & Partial<Node>,
 ): Node {
   const base = {
-    schemaVersion: "1.0.0" as const,
-    provenance: { sourceFile: "test.ts" },
+    schemaVersion: '1.0.0' as const,
+    provenance: { sourceFile: 'test.ts' },
     metadata: { properties: {} },
-    semanticHash: "",
+    semanticHash: '',
   };
   const node = { ...base, ...overrides };
   if (!node.semanticHash) {
@@ -30,16 +30,16 @@ export function createTestNode(
 export function createTestEdge(
   overrides: {
     id: string;
-    type: Edge["type"];
+    type: Edge['type'];
     source: string;
     target: string;
   } & Partial<Edge>,
 ): Edge {
   const base = {
-    schemaVersion: "1.0.0" as const,
-    provenance: { sourceFile: "test.ts" },
+    schemaVersion: '1.0.0' as const,
+    provenance: { sourceFile: 'test.ts' },
     metadata: { bindingConfig: {} },
-    semanticHash: "",
+    semanticHash: '',
   };
   const edge = { ...base, ...overrides };
   if (!edge.semanticHash) {
