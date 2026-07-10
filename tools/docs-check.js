@@ -70,7 +70,7 @@ function checkCliExamples(files) {
 
   const cliSource = read(path.join(ROOT, "packages/cli/src/cli.ts"));
   const declared = new Set();
-  const declRegex = /\.command\('([a-z-]+)'\)/g;
+  const declRegex = /\.command\(['"]([a-z-]+)['"]\)/g;
   let match;
   while ((match = declRegex.exec(cliSource)) !== null) {
     declared.add(match[1]);

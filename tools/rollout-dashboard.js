@@ -28,13 +28,13 @@ function parseGateRows(content) {
   let inTable = false;
 
   for (const line of lines) {
-    if (!inTable && line.startsWith("| Gate |")) {
+    if (!inTable && /^\|\s*Gate\s*\|/.test(line)) {
       inTable = true;
       continue;
     }
     if (!inTable) continue;
     if (!line.startsWith("|")) break;
-    if (line.startsWith("|---")) continue;
+    if (/^\|[\s-]*\|/.test(line)) continue;
 
     const cols = line
       .split("|")
