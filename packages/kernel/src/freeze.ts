@@ -5,7 +5,7 @@
  * Idempotent: calling on an already-frozen object is a no-op.
  */
 export function deepFreeze<T>(obj: T): Readonly<T> {
-  if (obj === null || obj === undefined || typeof obj !== 'object') {
+  if (obj === null || obj === undefined || typeof obj !== "object") {
     return obj;
   }
 

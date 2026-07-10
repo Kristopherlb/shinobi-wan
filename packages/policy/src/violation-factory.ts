@@ -1,6 +1,11 @@
-import type { Violation, ViolationTarget, Severity, RemediationHint } from '@shinobi/contracts';
-import { CONTRACT_SCHEMA_VERSION, createViolationId } from '@shinobi/contracts';
-import { deepFreeze } from '@shinobi/kernel';
+import type {
+  Violation,
+  ViolationTarget,
+  Severity,
+  RemediationHint,
+} from "@shinobi/contracts";
+import { CONTRACT_SCHEMA_VERSION, createViolationId } from "@shinobi/contracts";
+import { deepFreeze } from "@shinobi/kernel";
 
 /**
  * Options for creating a Violation.

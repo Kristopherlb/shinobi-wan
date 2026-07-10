@@ -1,70 +1,76 @@
-import { describe, it, expect } from 'vitest';
-import { ConfigIntentLowerer } from '../lowerers/config-lowerer';
-import { makeConfigIntent, makeContext } from './test-helpers';
+import { describe, it, expect } from "vitest";
+import { ConfigIntentLowerer } from "../lowerers/config-lowerer";
+import { makeConfigIntent, makeContext } from "./test-helpers";
 
 const lowerer = new ConfigIntentLowerer();
 
-describe('ConfigIntentLowerer', () => {
-  it('produces an SSM Parameter resource', () => {
+describe("ConfigIntentLowerer", () => {
+  it("produces an SSM Parameter resource", () => {
     const intent = makeConfigIntent();
     const resources = lowerer.lower(intent, makeContext());
 
     expect(resources).toHaveLength(1);
-    expect(resources[0].resourceType).toBe('aws:ssm:Parameter');
+    expect(resources[0].resourceType).toBe("aws:ssm:Parameter");
   });
 
-  it('name includes service, target, and key', () => {
+  it("name includes service, target, and key", () => {
     const intent = makeConfigIntent();
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].name).toBe('my-lambda-sqs-api-handler-QUEUE_URL');
+    expect(resources[0].name).toBe("my-lambda-sqs-api-handler-QUEUE_URL");
   });
 
-  it('SSM parameter path follows naming convention', () => {
+  it("SSM parameter path follows naming convention", () => {
     const intent = makeConfigIntent();
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['name']).toBe('/my-lambda-sqs/api-handler/QUEUE_URL');
+    expect(resources[0].properties["name"]).toBe(
+      "/my-lambda-sqs/api-handler/QUEUE_URL",
+    );
   });
 
-  it('resolves reference value source to ref', () => {
+  it("resolves reference value source to ref", () => {
     const intent = makeConfigIntent({
-      valueSource: { type: 'reference', nodeRef: 'work-queue', field: 'url' },
+      valueSource: { type: "reference", nodeRef: "work-queue", field: "url" },
     });
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['value']).toEqual({ ref: 'work-queue-queue.url' });
+    expect(resources[0].properties["value"]).toEqual({
+      ref: "work-queue-queue.url",
+    });
   });
 
-  it('resolves literal value source to string', () => {
+  it("resolves literal value source to string", () => {
     const intent = makeConfigIntent({
-      valueSource: { type: 'literal', value: 'some-value' },
+      valueSource: { type: "literal", value: "some-value" },
     });
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['value']).toBe('some-value');
+    expect(resources[0].properties["value"]).toBe("some-value");
   });
 
-  it('resolves secret value source to secretRef', () => {
+  it("resolves secret value source to secretRef", () => {
     const intent = makeConfigIntent({
-      valueSource: { type: 'secret', secretRef: 'my-secret' },
+      valueSource: { type: "secret", secretRef: "my-secret" },
     });
     const resources = lowerer.lower(intent, makeContext());
 
-    expect(resources[0].properties['value']).toEqual({ secretRef: 'my-secret' });
+    expect(resources[0].properties["value"]).toEqual({
+      secretRef: "my-secret",
+    });
   });
 
-  it('carries tags with shinobi metadata', () => {
+  it("carries tags with shinobi metadata", () => {
     const intent = makeConfigIntent();
     const resources = lowerer.lower(intent, makeContext());
 
-    const tags = resources[0].properties['tags'] as Record<string, string>;
-    expect(tags['shinobi:target']).toBe('component:api-handler');
-    expect(tags['shinobi:key']).toBe('QUEUE_URL');
-    expect(tags['shinobi:edge']).toBe(intent.sourceEdgeId);
+    const tags = resources[0].properties["tags"] as Record<string, string>;
+    expect(tags["shinobi:target"]).toBe("component:api-handler");
+    expect(tags["shinobi:key"]).toBe("QUEUE_URL");
+    expect(tags["shinobi:edge"]).toBe(intent.sourceEdgeId);
   });
 
-  it('determinism: identical input produces identical output', () => {
+  it("determinism: identical input produces identical output", () => {
     const intent = makeConfigIntent();
     const ctx = makeContext();
     const r1 = lowerer.lower(intent, ctx);

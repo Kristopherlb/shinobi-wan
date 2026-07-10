@@ -1,4 +1,4 @@
-import type { Intent } from './intent-base';
+import type { Intent } from "./intent-base";
 
 /**
  * Network endpoint in a network intent.
@@ -22,7 +22,7 @@ export interface NetworkEndpoint {
  */
 export interface NetworkProtocol {
   /** Protocol type */
-  readonly protocol: 'tcp' | 'udp' | 'any';
+  readonly protocol: "tcp" | "udp" | "any";
 
   /** Allowed ports (optional) */
   readonly ports?: ReadonlyArray<number>;
@@ -35,10 +35,10 @@ export interface NetworkProtocol {
  * No security group IDs, VPC references, or provider-specific fields.
  */
 export interface NetworkIntent extends Intent {
-  readonly type: 'network';
+  readonly type: "network";
 
   /** Direction of traffic */
-  readonly direction: 'ingress' | 'egress';
+  readonly direction: "ingress" | "egress";
 
   /** Source of traffic */
   readonly source: NetworkEndpoint;

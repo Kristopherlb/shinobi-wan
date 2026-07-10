@@ -1,43 +1,54 @@
-import { describe, it, expect } from 'vitest';
-import { lower } from '../adapter';
-import { generatePlan } from '../program-generator';
-import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from '../lowerer-registry';
-import type { NodeLowerer, LoweredResource } from '../types';
-import { makeContext, makeIamIntent, makeNetworkIntent, makeConfigIntent, DEFAULT_ADAPTER_CONFIG } from './test-helpers';
+import { describe, it, expect } from "vitest";
+import { lower } from "../adapter";
+import { generatePlan } from "../program-generator";
+import {
+  NodeLowererRegistry,
+  createDefaultNodeLowererRegistry,
+} from "../lowerer-registry";
+import type { NodeLowerer, LoweredResource } from "../types";
+import {
+  makeContext,
+  makeIamIntent,
+  makeNetworkIntent,
+  makeConfigIntent,
+  DEFAULT_ADAPTER_CONFIG,
+} from "./test-helpers";
 
-describe('lower (adapter orchestrator)', () => {
-  it('produces resources from all intent types', () => {
+describe("lower (adapter orchestrator)", () => {
+  it("produces resources from all intent types", () => {
     const result = lower(makeContext());
 
     expect(result.success).toBe(true);
     expect(result.resources.length).toBeGreaterThan(0);
 
     const types = new Set(result.resources.map((r) => r.resourceType));
-    expect(types.has('aws:iam:Role')).toBe(true);
-    expect(types.has('aws:iam:Policy')).toBe(true);
-    expect(types.has('aws:iam:RolePolicyAttachment')).toBe(true);
-    expect(types.has('aws:ssm:Parameter')).toBe(true);
+    expect(types.has("aws:iam:Role")).toBe(true);
+    expect(types.has("aws:iam:Policy")).toBe(true);
+    expect(types.has("aws:iam:RolePolicyAttachment")).toBe(true);
+    expect(types.has("aws:ssm:Parameter")).toBe(true);
   });
 
-  it('produces node resources for Lambda and SQS', () => {
+  it("produces node resources for Lambda and SQS", () => {
     const result = lower(makeContext());
 
     const types = new Set(result.resources.map((r) => r.resourceType));
-    expect(types.has('aws:lambda:Function')).toBe(true);
-    expect(types.has('aws:sqs:Queue')).toBe(true);
+    expect(types.has("aws:lambda:Function")).toBe(true);
+    expect(types.has("aws:sqs:Queue")).toBe(true);
   });
 
-  it('produces EventSourceMapping for Lambda→SQS binding', () => {
+  it("produces EventSourceMapping for Lambda→SQS binding", () => {
     const result = lower(makeContext());
 
-    const esm = result.resources.find((r) => r.resourceType === 'aws:lambda:EventSourceMapping');
+    const esm = result.resources.find(
+      (r) => r.resourceType === "aws:lambda:EventSourceMapping",
+    );
     expect(esm).toBeDefined();
-    expect(esm?.name).toBe('api-handler-work-queue-event-mapping');
-    expect(esm?.dependsOn).toContain('api-handler-function');
-    expect(esm?.dependsOn).toContain('work-queue-queue');
+    expect(esm?.name).toBe("api-handler-work-queue-event-mapping");
+    expect(esm?.dependsOn).toContain("api-handler-function");
+    expect(esm?.dependsOn).toContain("work-queue-queue");
   });
 
-  it('resources are sorted deterministically by name', () => {
+  it("resources are sorted deterministically by name", () => {
     const result = lower(makeContext());
 
     const names = result.resources.map((r) => r.name);
@@ -45,7 +56,7 @@ describe('lower (adapter orchestrator)', () => {
     expect(names).toEqual(sorted);
   });
 
-  it('deduplicates resources by name', () => {
+  it("deduplicates resources by name", () => {
     const result = lower(makeContext());
 
     const names = result.resources.map((r) => r.name);
@@ -53,52 +64,67 @@ describe('lower (adapter orchestrator)', () => {
     expect(names.length).toBe(unique.size);
   });
 
-  it('populates resourceMap tracking intent→resource names', () => {
+  it("populates resourceMap tracking intent→resource names", () => {
     const result = lower(makeContext());
 
     // The edge that generated the intents should have resource entries
-    const edgeResources = result.resourceMap['edge:bindsTo:component:api-handler:platform:work-queue'];
+    const edgeResources =
+      result.resourceMap[
+        "edge:bindsTo:component:api-handler:platform:work-queue"
+      ];
     expect(edgeResources).toBeDefined();
     expect(edgeResources.length).toBeGreaterThan(0);
   });
 
-  it('Lambda function references the IAM role', () => {
+  it("Lambda function references the IAM role", () => {
     const result = lower(makeContext());
 
-    const lambda = result.resources.find((r) => r.resourceType === 'aws:lambda:Function');
-    expect(lambda?.properties['role']).toEqual({ ref: 'api-handler-exec-role' });
+    const lambda = result.resources.find(
+      (r) => r.resourceType === "aws:lambda:Function",
+    );
+    expect(lambda?.properties["role"]).toEqual({
+      ref: "api-handler-exec-role",
+    });
   });
 
-  it('Lambda function includes QUEUE_URL env var', () => {
+  it("Lambda function includes QUEUE_URL env var", () => {
     const result = lower(makeContext());
 
-    const lambda = result.resources.find((r) => r.resourceType === 'aws:lambda:Function');
-    const env = lambda?.properties['environment'] as Record<string, unknown> | undefined;
-    expect(env?.['variables']).toBeDefined();
-    const vars = env?.['variables'] as Record<string, unknown>;
-    expect(vars['QUEUE_URL']).toBeDefined();
+    const lambda = result.resources.find(
+      (r) => r.resourceType === "aws:lambda:Function",
+    );
+    const env = lambda?.properties["environment"] as
+      | Record<string, unknown>
+      | undefined;
+    expect(env?.["variables"]).toBeDefined();
+    const vars = env?.["variables"] as Record<string, unknown>;
+    expect(vars["QUEUE_URL"]).toBeDefined();
   });
 
-  it('SSM config parameter uses canonical lowered queue ref', () => {
+  it("SSM config parameter uses canonical lowered queue ref", () => {
     const result = lower(makeContext());
 
     const ssmParam = result.resources.find(
-      (r) => r.resourceType === 'aws:ssm:Parameter' && r.name.includes('QUEUE_URL'),
+      (r) =>
+        r.resourceType === "aws:ssm:Parameter" && r.name.includes("QUEUE_URL"),
     );
     expect(ssmParam).toBeDefined();
-    expect(ssmParam?.properties['value']).toEqual({ ref: 'work-queue-queue.url' });
+    expect(ssmParam?.properties["value"]).toEqual({
+      ref: "work-queue-queue.url",
+    });
   });
 
-  it('silently skips telemetry intents', () => {
+  it("silently skips telemetry intents", () => {
     const ctx = makeContext({
       intents: [
         makeIamIntent(),
         {
-          type: 'telemetry' as const,
-          schemaVersion: '1.0.0' as const,
-          sourceEdgeId: 'edge:bindsTo:component:api-handler:platform:work-queue',
-          targetNodeRef: 'component:api-handler',
-          telemetryType: 'logs' as const,
+          type: "telemetry" as const,
+          schemaVersion: "1.0.0" as const,
+          sourceEdgeId:
+            "edge:bindsTo:component:api-handler:platform:work-queue",
+          targetNodeRef: "component:api-handler",
+          telemetryType: "logs" as const,
           config: { enabled: true },
         },
       ],
@@ -107,41 +133,43 @@ describe('lower (adapter orchestrator)', () => {
     const result = lower(ctx);
     expect(result.success).toBe(true);
     // No warning for telemetry
-    expect(result.diagnostics.some((d) => d.message.includes('telemetry'))).toBe(false);
+    expect(
+      result.diagnostics.some((d) => d.message.includes("telemetry")),
+    ).toBe(false);
   });
 
-  it('records explicit warning when network intents are not lowered', () => {
+  it("records explicit warning when network intents are not lowered", () => {
     const result = lower(makeContext());
     expect(
       result.diagnostics.some((d) =>
-        d.message.includes('Network intent lowering is not yet supported'),
+        d.message.includes("Network intent lowering is not yet supported"),
       ),
     ).toBe(true);
   });
 
-  it('determinism: identical input produces identical output', () => {
+  it("determinism: identical input produces identical output", () => {
     const ctx = makeContext();
     const r1 = lower(ctx);
     const r2 = lower(ctx);
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
   });
 
-  it('registry path and legacy lookup produce equivalent results', () => {
+  it("registry path and legacy lookup produce equivalent results", () => {
     const ctx = makeContext();
     const fromRegistry = lower(ctx);
     const fromLegacy = lower(ctx, { useLegacyNodeLowererLookup: true });
     expect(JSON.stringify(fromRegistry)).toBe(JSON.stringify(fromLegacy));
   });
 
-  it('supports custom node lowerer registry injection', () => {
+  it("supports custom node lowerer registry injection", () => {
     const registry = createDefaultNodeLowererRegistry();
     const customLambdaLowerer: NodeLowerer = {
-      platform: 'aws-lambda',
+      platform: "aws-lambda",
       lower(node): ReadonlyArray<LoweredResource> {
         return [
           {
-            name: `${node.id.replace(':', '-')}-custom`,
-            resourceType: 'test:custom:Lambda',
+            name: `${node.id.replace(":", "-")}-custom`,
+            resourceType: "test:custom:Lambda",
             properties: {},
             sourceId: node.id,
             dependsOn: [],
@@ -152,17 +180,19 @@ describe('lower (adapter orchestrator)', () => {
     registry.register(customLambdaLowerer, { overwrite: true });
 
     const result = lower(makeContext(), { nodeLowererRegistry: registry });
-    expect(result.resources.some((r) => r.resourceType === 'test:custom:Lambda')).toBe(true);
+    expect(
+      result.resources.some((r) => r.resourceType === "test:custom:Lambda"),
+    ).toBe(true);
   });
 
-  it('marks lowering as failed when an intent lowerer throws', () => {
+  it("marks lowering as failed when an intent lowerer throws", () => {
     const ctx = makeContext({
       intents: [
         makeIamIntent({
           resource: {
-            nodeRef: 'platform:missing',
-            resourceType: 'queue',
-            scope: 'specific',
+            nodeRef: "platform:missing",
+            resourceType: "queue",
+            scope: "specific",
           },
         }),
       ],
@@ -170,39 +200,43 @@ describe('lower (adapter orchestrator)', () => {
 
     const result = lower(ctx);
     expect(result.success).toBe(false);
-    expect(result.diagnostics.some((d) => d.severity === 'error')).toBe(true);
+    expect(result.diagnostics.some((d) => d.severity === "error")).toBe(true);
     expect(
       result.diagnostics.some((d) =>
-        d.message.includes('references unknown resource node "platform:missing"'),
+        d.message.includes(
+          'references unknown resource node "platform:missing"',
+        ),
       ),
     ).toBe(true);
   });
 
-  it('no upward leakage: resources never contain AWS ARN values', () => {
+  it("no upward leakage: resources never contain AWS ARN values", () => {
     const result = lower(makeContext());
 
     for (const r of result.resources) {
       const json = JSON.stringify(r.properties);
       // The only ARN allowed is the managed policy reference
       const withoutManagedPolicy = json.replace(
-        'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-        ''
+        "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+        "",
       );
       // No other arn: patterns should exist
-      expect(withoutManagedPolicy).not.toMatch(/arn:aws:[a-z]+:[a-z0-9-]*:\d{12}:/);
+      expect(withoutManagedPolicy).not.toMatch(
+        /arn:aws:[a-z]+:[a-z0-9-]*:\d{12}:/,
+      );
     }
   });
 });
 
-describe('generatePlan', () => {
-  it('produces a plan from adapter result', () => {
+describe("generatePlan", () => {
+  it("produces a plan from adapter result", () => {
     const result = lower(makeContext());
     const plan = generatePlan(result, DEFAULT_ADAPTER_CONFIG);
 
     expect(plan.resources.length).toBeGreaterThan(0);
   });
 
-  it('resources are topologically sorted (deps before dependents)', () => {
+  it("resources are topologically sorted (deps before dependents)", () => {
     const result = lower(makeContext());
     const plan = generatePlan(result, DEFAULT_ADAPTER_CONFIG);
 
@@ -219,16 +253,16 @@ describe('generatePlan', () => {
     }
   });
 
-  it('plan includes Lambda and SQS outputs', () => {
+  it("plan includes Lambda and SQS outputs", () => {
     const result = lower(makeContext());
     const plan = generatePlan(result, DEFAULT_ADAPTER_CONFIG);
 
     const outputKeys = Object.keys(plan.outputs);
-    expect(outputKeys.some((k) => k.includes('function'))).toBe(true);
-    expect(outputKeys.some((k) => k.includes('queue'))).toBe(true);
+    expect(outputKeys.some((k) => k.includes("function"))).toBe(true);
+    expect(outputKeys.some((k) => k.includes("queue"))).toBe(true);
   });
 
-  it('determinism: identical input produces identical plan', () => {
+  it("determinism: identical input produces identical plan", () => {
     const result = lower(makeContext());
     const p1 = generatePlan(result, DEFAULT_ADAPTER_CONFIG);
     const p2 = generatePlan(result, DEFAULT_ADAPTER_CONFIG);

@@ -1,14 +1,23 @@
-import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName, createStandardTags } from './utils';
+import type { Node } from "@shinobi/ir";
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from "../types";
+import { shortName, createStandardTags } from "./utils";
 
 /**
  * Lowers a platform node with platform "aws-apigateway" → API Gateway HTTP API + Stage.
  */
 export class ApiGatewayLowerer implements NodeLowerer {
-  readonly platform = 'aws-apigateway';
+  readonly platform = "aws-apigateway";
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
 
     const resources: LoweredResource[] = [];
@@ -19,11 +28,11 @@ export class ApiGatewayLowerer implements NodeLowerer {
     // API Gateway HTTP API
     resources.push({
       name: apiName,
-      resourceType: 'aws:apigatewayv2:Api',
+      resourceType: "aws:apigatewayv2:Api",
       properties: {
         name: `${context.adapterConfig.serviceName}-${name}`,
-        protocolType: 'HTTP',
-        tags: createStandardTags(node.id, 'aws-apigateway'),
+        protocolType: "HTTP",
+        tags: createStandardTags(node.id, "aws-apigateway"),
       },
       sourceId: node.id,
       dependsOn: [],
@@ -32,12 +41,12 @@ export class ApiGatewayLowerer implements NodeLowerer {
     // Default stage with auto-deploy
     resources.push({
       name: stageName,
-      resourceType: 'aws:apigatewayv2:Stage',
+      resourceType: "aws:apigatewayv2:Stage",
       properties: {
         apiId: { ref: apiName },
-        name: '$default',
+        name: "$default",
         autoDeploy: true,
-        tags: createStandardTags(node.id, 'aws-apigateway'),
+        tags: createStandardTags(node.id, "aws-apigateway"),
       },
       sourceId: node.id,
       dependsOn: [apiName],

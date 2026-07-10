@@ -1,4 +1,4 @@
-import type { ConfigValueSource } from '@shinobi/contracts';
+import type { ConfigValueSource } from "@shinobi/contracts";
 
 /**
  * A binding entry in the service manifest.
@@ -6,7 +6,7 @@ import type { ConfigValueSource } from '@shinobi/contracts';
 export interface ManifestBinding {
   readonly source: string;
   readonly target: string;
-  readonly type: 'bindsTo' | 'triggers' | 'dependsOn' | 'contains';
+  readonly type: "bindsTo" | "triggers" | "dependsOn" | "contains";
   readonly config: ManifestBindingConfig;
 }
 
@@ -19,7 +19,7 @@ export interface ManifestBindingConfig {
   readonly actions?: ReadonlyArray<string>;
   readonly network?: {
     readonly port?: number;
-    readonly protocol?: 'tcp' | 'udp' | 'any';
+    readonly protocol?: "tcp" | "udp" | "any";
   };
   readonly configKeys?: ReadonlyArray<{
     readonly key: string;
@@ -32,7 +32,7 @@ export interface ManifestBindingConfig {
  */
 export interface ManifestComponent {
   readonly id: string;
-  readonly type: 'component' | 'platform';
+  readonly type: "component" | "platform";
   readonly platform: string;
   readonly config?: Readonly<Record<string, unknown>>;
 }

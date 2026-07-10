@@ -11,12 +11,12 @@
 
 ## Measured Results
 
-| Metric | Target | Observed | Status |
-|---|---|---|---|
-| validate p95 latency | <= 2s | 1.4s | pass |
-| plan p95 latency | <= 5s | 3.2s | pass |
-| non-validation error rate | <= 1% | 0.3% | pass |
-| trace/audit field presence | 100% | 100% | pass |
+| Metric                     | Target | Observed | Status |
+| -------------------------- | ------ | -------- | ------ |
+| validate p95 latency       | <= 2s  | 1.4s     | pass   |
+| plan p95 latency           | <= 5s  | 3.2s     | pass   |
+| non-validation error rate  | <= 1%  | 0.3%     | pass   |
+| trace/audit field presence | 100%   | 100%     | pass   |
 
 ## Evidence Sources
 

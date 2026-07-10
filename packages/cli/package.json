@@ -1,22 +1,22 @@
 {
-    "name": "@shinobi/cli",
-    "version": "0.0.1",
-    "main": "src/index.ts",
-    "bin": {
-        "shinobi": "./dist/main.js"
-    },
-    "dependencies": {
-        "@shinobi/adapter-aws": "workspace:*",
-        "@shinobi/binder": "workspace:*",
-        "@shinobi/contracts": "workspace:*",
-        "@shinobi/ir": "workspace:*",
-        "@shinobi/kernel": "workspace:*",
-        "@shinobi/policy": "workspace:*",
-        "commander": "^12.0.0",
-        "js-yaml": "^4.1.0"
-    },
-    "devDependencies": {
-        "@types/js-yaml": "^4.0.9",
-        "tsup": "^8.5.1"
-    }
+  "name": "@shinobi/cli",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "bin": {
+    "shinobi": "./dist/main.js"
+  },
+  "dependencies": {
+    "@shinobi/adapter-aws": "workspace:*",
+    "@shinobi/binder": "workspace:*",
+    "@shinobi/contracts": "workspace:*",
+    "@shinobi/ir": "workspace:*",
+    "@shinobi/kernel": "workspace:*",
+    "@shinobi/policy": "workspace:*",
+    "commander": "^12.0.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "tsup": "^8.5.1"
+  }
 }

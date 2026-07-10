@@ -6,12 +6,8 @@
     "kind": "node",
     "tagline": "Install and version-manage a managed Kubernetes add-on on your EKS cluster.",
     "description": "Provisions an EKS managed add-on (such as VPC CNI, CoreDNS, or kube-proxy) attached to an existing cluster. Reach for this when you want AWS to install and keep a cluster component up to date instead of managing the manifests yourself.",
-    "provisions": [
-      "An EKS managed add-on bound to a named cluster"
-    ],
-    "resourceTypes": [
-      "aws:eks:Addon"
-    ],
+    "provisions": ["An EKS managed add-on bound to a named cluster"],
+    "resourceTypes": ["aws:eks:Addon"],
     "configKeys": [
       "clusterRef",
       "addonName",
@@ -34,10 +30,7 @@
       "An EKS Kubernetes cluster",
       "A CloudWatch log group for control-plane logs"
     ],
-    "resourceTypes": [
-      "aws:eks:Cluster",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:eks:Cluster", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "version",
       "endpointPrivateAccess",
@@ -57,12 +50,8 @@
     "kind": "node",
     "tagline": "Add a pool of GPU-backed worker nodes to your Kubernetes cluster for ML and accelerated workloads.",
     "description": "Provisions an EKS managed node group sized for GPU instances, pre-labeled and tainted so only GPU workloads schedule onto it. Defaults to g5.xlarge instances with the GPU-optimized AMI. Reach for this when you need accelerated compute for training or inference on Kubernetes.",
-    "provisions": [
-      "An EKS GPU node group with GPU labels and taints"
-    ],
-    "resourceTypes": [
-      "aws:eks:NodeGroup"
-    ],
+    "provisions": ["An EKS GPU node group with GPU labels and taints"],
+    "resourceTypes": ["aws:eks:NodeGroup"],
     "configKeys": [
       "clusterRef",
       "instanceTypes",
@@ -85,12 +74,8 @@
     "kind": "node",
     "tagline": "Attach a managed pool of auto-scaling worker nodes to your Kubernetes cluster.",
     "description": "Provisions an EKS managed node group with configurable instance types and scaling bounds, joined to an existing cluster. Defaults to t3.medium instances scaling between 1 and 4 nodes. Reach for this when your cluster needs compute capacity to run pods.",
-    "provisions": [
-      "An EKS managed worker node group"
-    ],
-    "resourceTypes": [
-      "aws:eks:NodeGroup"
-    ],
+    "provisions": ["An EKS managed worker node group"],
+    "resourceTypes": ["aws:eks:NodeGroup"],
     "configKeys": [
       "clusterName",
       "subnetIds",
@@ -110,12 +95,8 @@
     "kind": "node",
     "tagline": "Create a logical home for your Fargate and ECS container workloads.",
     "description": "Provisions an ECS cluster with Container Insights enabled by default, optionally configured with capacity providers and Exec support. Reach for this as the grouping layer your task definitions and services run inside.",
-    "provisions": [
-      "An ECS cluster with Container Insights"
-    ],
-    "resourceTypes": [
-      "aws:ecs:Cluster"
-    ],
+    "provisions": ["An ECS cluster with Container Insights"],
+    "resourceTypes": ["aws:ecs:Cluster"],
     "configKeys": [
       "containerInsights",
       "executeCommand",
@@ -136,9 +117,7 @@
     "provisions": [
       "An ECS Fargate service with VPC networking and optional load balancer integration"
     ],
-    "resourceTypes": [
-      "aws:ecs:Service"
-    ],
+    "resourceTypes": ["aws:ecs:Service"],
     "configKeys": [
       "cluster",
       "taskDefinition",
@@ -164,10 +143,7 @@
       "An ECS Fargate task definition",
       "A CloudWatch log group for container logs"
     ],
-    "resourceTypes": [
-      "aws:ecs:TaskDefinition",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:ecs:TaskDefinition", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "containerDefinitions",
       "cpu",
@@ -185,14 +161,8 @@
     "kind": "node",
     "tagline": "Fire your workloads on a cron or rate schedule with built-in retry policy.",
     "description": "Provisions an EventBridge Scheduler schedule plus its schedule group, so a target runs on a recurring expression like rate(1 hour) or a cron. Supports flexible time windows and retry policy. Reach for this when you need time-based triggers without standing up extra infrastructure.",
-    "provisions": [
-      "An EventBridge schedule",
-      "A schedule group"
-    ],
-    "resourceTypes": [
-      "aws:scheduler:Schedule",
-      "aws:scheduler:ScheduleGroup"
-    ],
+    "provisions": ["An EventBridge schedule", "A schedule group"],
+    "resourceTypes": ["aws:scheduler:Schedule", "aws:scheduler:ScheduleGroup"],
     "configKeys": [
       "scheduleExpression",
       "flexibleTimeWindow",
@@ -212,9 +182,7 @@
     "provisions": [
       "A Lambda function with environment variables and execution role wiring"
     ],
-    "resourceTypes": [
-      "aws:lambda:Function"
-    ],
+    "resourceTypes": ["aws:lambda:Function"],
     "configKeys": [
       "runtime",
       "handler",
@@ -239,10 +207,7 @@
       "A Step Functions state machine",
       "A CloudWatch log group for execution logs"
     ],
-    "resourceTypes": [
-      "aws:sfn:StateMachine",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:sfn:StateMachine", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "type",
       "definition",
@@ -260,14 +225,8 @@
     "kind": "node",
     "tagline": "Run serverless Spark or Python ETL jobs over your data lake.",
     "description": "Provisions an AWS Glue job with configurable worker type, worker count, retries, and timeout, plus a CloudWatch log group. Reach for this to run managed extract-transform-load work on large datasets without provisioning a cluster.",
-    "provisions": [
-      "A Glue ETL job",
-      "A CloudWatch log group for job logs"
-    ],
-    "resourceTypes": [
-      "aws:glue:Job",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "provisions": ["A Glue ETL job", "A CloudWatch log group for job logs"],
+    "resourceTypes": ["aws:glue:Job", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "glueVersion",
       "command",
@@ -290,12 +249,8 @@
     "kind": "node",
     "tagline": "Run serverless SQL queries straight over data in S3 with cost and encryption guardrails.",
     "description": "Provisions an Athena workgroup with an encrypted results location, CloudWatch metrics, and an optional per-query data scan limit. Reach for this when teams need to query data lake content with SQL and you want to govern where results land and how much they cost.",
-    "provisions": [
-      "An Athena workgroup with encrypted query results"
-    ],
-    "resourceTypes": [
-      "aws:athena:Workgroup"
-    ],
+    "provisions": ["An Athena workgroup with encrypted query results"],
+    "resourceTypes": ["aws:athena:Workgroup"],
     "configKeys": [
       "outputLocation",
       "enforceWorkgroupConfiguration",
@@ -319,16 +274,8 @@
       "A Glue catalog database",
       "One Glue catalog table per configured table"
     ],
-    "resourceTypes": [
-      "aws:glue:CatalogDatabase",
-      "aws:glue:CatalogTable"
-    ],
-    "configKeys": [
-      "databaseName",
-      "description",
-      "locationUri",
-      "tables"
-    ],
+    "resourceTypes": ["aws:glue:CatalogDatabase", "aws:glue:CatalogTable"],
+    "configKeys": ["databaseName", "description", "locationUri", "tables"],
     "sourceFile": "packages/adapters/aws/src/lowerers/glue-catalog-lowerer.ts",
     "complexity": "moderate"
   },
@@ -339,12 +286,8 @@
     "kind": "node",
     "tagline": "Automatically discover and catalog the schema of data sitting in S3.",
     "description": "Provisions a Glue crawler that scans S3 targets on a schedule and writes inferred table schemas into a catalog database. Reach for this when you want schemas kept in sync with evolving data instead of defining tables by hand.",
-    "provisions": [
-      "A Glue crawler bound to S3 targets and a catalog database"
-    ],
-    "resourceTypes": [
-      "aws:glue:Crawler"
-    ],
+    "provisions": ["A Glue crawler bound to S3 targets and a catalog database"],
+    "resourceTypes": ["aws:glue:Crawler"],
     "configKeys": [
       "databaseName",
       "s3Targets",
@@ -364,12 +307,8 @@
     "kind": "node",
     "tagline": "Buffer and deliver streaming records to OpenSearch or S3 with no servers to run.",
     "description": "Provisions a Kinesis Data Firehose delivery stream that batches incoming records and ships them to an OpenSearch domain or an S3 bucket, with configurable buffering and optional server-side encryption. Reach for this to land high-volume event or log streams into searchable or archival storage.",
-    "provisions": [
-      "A Kinesis Firehose delivery stream"
-    ],
-    "resourceTypes": [
-      "aws:kinesis:FirehoseDeliveryStream"
-    ],
+    "provisions": ["A Kinesis Firehose delivery stream"],
+    "resourceTypes": ["aws:kinesis:FirehoseDeliveryStream"],
     "configKeys": [
       "destinationType",
       "s3BackupMode",
@@ -394,10 +333,7 @@
       "An MSK Kafka cluster",
       "A CloudWatch log group for broker logs"
     ],
-    "resourceTypes": [
-      "aws:msk:Cluster",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:msk:Cluster", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "kafkaVersion",
       "numberOfBrokerNodes",
@@ -423,16 +359,9 @@
     "kind": "node",
     "tagline": "Define reusable Kafka broker settings to apply to your MSK clusters.",
     "description": "Provisions an MSK configuration holding server properties and supported Kafka versions that a cluster can reference. Reach for this to centralize and version broker tuning instead of baking it into each cluster.",
-    "provisions": [
-      "An MSK configuration profile"
-    ],
-    "resourceTypes": [
-      "aws:msk:Configuration"
-    ],
-    "configKeys": [
-      "kafkaVersions",
-      "serverProperties"
-    ],
+    "provisions": ["An MSK configuration profile"],
+    "resourceTypes": ["aws:msk:Configuration"],
+    "configKeys": ["kafkaVersions", "serverProperties"],
     "sourceFile": "packages/adapters/aws/src/lowerers/msk-configuration-lowerer.ts",
     "complexity": "simple"
   },
@@ -447,10 +376,7 @@
       "An OpenSearch domain",
       "A CloudWatch log group for slow logs"
     ],
-    "resourceTypes": [
-      "aws:opensearch:Domain",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:opensearch:Domain", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "engineVersion",
       "instanceType",
@@ -502,16 +428,9 @@
     "kind": "node",
     "tagline": "Store and retrieve key-value and document data at any scale with pay-per-request billing.",
     "description": "Provisions a DynamoDB table with a hash key and optional range key, defaulting to on-demand (pay-per-request) billing. Reach for this when you want a fast, fully managed NoSQL store with predictable latency and no capacity planning.",
-    "provisions": [
-      "A DynamoDB table"
-    ],
-    "resourceTypes": [
-      "aws:dynamodb:Table"
-    ],
-    "configKeys": [
-      "keySchema",
-      "billingMode"
-    ],
+    "provisions": ["A DynamoDB table"],
+    "resourceTypes": ["aws:dynamodb:Table"],
+    "configKeys": ["keySchema", "billingMode"],
     "sourceFile": "packages/adapters/aws/src/lowerers/dynamodb-lowerer.ts",
     "complexity": "simple"
   },
@@ -522,10 +441,7 @@
     "kind": "node",
     "tagline": "Add a managed Redis cache to cut latency and offload your database.",
     "description": "Provisions an ElastiCache for Redis replication group plus its subnet group, with in-transit and at-rest encryption on by default and optional auth tokens. Reach for this to cache hot data, store sessions, or back rate limiters.",
-    "provisions": [
-      "A Redis replication group",
-      "A cache subnet group"
-    ],
+    "provisions": ["A Redis replication group", "A cache subnet group"],
     "resourceTypes": [
       "aws:elasticache:ReplicationGroup",
       "aws:elasticache:SubnetGroup"
@@ -646,17 +562,9 @@
     "kind": "node",
     "tagline": "Run lightweight JavaScript at CloudFront edge locations to tweak requests and responses.",
     "description": "Provisions a CloudFront Function that executes on viewer-request or viewer-response at the edge. Reach for this for fast, low-overhead URL rewrites, header manipulation, or redirects close to your users.",
-    "provisions": [
-      "A CloudFront edge function"
-    ],
-    "resourceTypes": [
-      "aws:cloudfront:Function"
-    ],
-    "configKeys": [
-      "runtime",
-      "code",
-      "comment"
-    ],
+    "provisions": ["A CloudFront edge function"],
+    "resourceTypes": ["aws:cloudfront:Function"],
+    "configKeys": ["runtime", "code", "comment"],
     "sourceFile": "packages/adapters/aws/src/lowerers/cloudfront-function-lowerer.ts",
     "complexity": "simple"
   },
@@ -667,17 +575,9 @@
     "kind": "intent",
     "tagline": "Materialize a binding's configuration value as a managed SSM parameter.",
     "description": "Compiles each config intent emitted by a binding into an SSM Parameter Store entry, resolving literal, reference, or secret value sources. Components reference these parameters through environment variables, keeping configuration out of code. This is an intent lowerer that runs automatically based on edges in the graph.",
-    "provisions": [
-      "An SSM parameter holding a resolved configuration value"
-    ],
-    "resourceTypes": [
-      "aws:ssm:Parameter"
-    ],
-    "configKeys": [
-      "key",
-      "valueSource",
-      "targetNodeRef"
-    ],
+    "provisions": ["An SSM parameter holding a resolved configuration value"],
+    "resourceTypes": ["aws:ssm:Parameter"],
+    "configKeys": ["key", "valueSource", "targetNodeRef"],
     "sourceFile": "packages/adapters/aws/src/lowerers/config-lowerer.ts",
     "complexity": "simple"
   },
@@ -699,12 +599,7 @@
       "aws:iam:Policy",
       "aws:iam:RolePolicyAttachment"
     ],
-    "configKeys": [
-      "principal",
-      "resourceType",
-      "accessLevel",
-      "actions"
-    ],
+    "configKeys": ["principal", "resourceType", "accessLevel", "actions"],
     "sourceFile": "packages/adapters/aws/src/lowerers/iam-lowerer.ts",
     "complexity": "complex"
   },
@@ -715,12 +610,8 @@
     "kind": "node",
     "tagline": "Register a SageMaker model so workflows can run large offline inference jobs against it.",
     "description": "Provisions a SageMaker model definition (container image, model artifacts, and execution role) that batch transform jobs invoke at runtime, typically driven by Step Functions. Reach for this when you need to score large datasets offline rather than serve live requests.",
-    "provisions": [
-      "A SageMaker model definition"
-    ],
-    "resourceTypes": [
-      "aws:sagemaker:Model"
-    ],
+    "provisions": ["A SageMaker model definition"],
+    "resourceTypes": ["aws:sagemaker:Model"],
     "configKeys": [
       "executionRoleArn",
       "modelImage",
@@ -770,10 +661,7 @@
       "A SageMaker pipeline",
       "A CloudWatch log group for pipeline logs"
     ],
-    "resourceTypes": [
-      "aws:sagemaker:Pipeline",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:sagemaker:Pipeline", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "pipelineDefinition",
       "pipelineDescription",
@@ -794,10 +682,7 @@
       "A Bedrock guardrail",
       "An optional CloudWatch log group for invocation logs"
     ],
-    "resourceTypes": [
-      "aws:bedrock:Guardrail",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "resourceTypes": ["aws:bedrock:Guardrail", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "guardrailEnabled",
       "contentFilterConfig",
@@ -814,12 +699,8 @@
     "kind": "node",
     "tagline": "Fan out messages and notifications to many subscribers with a single publish.",
     "description": "Provisions an SNS topic that delivers each published message to all of its subscribers (queues, functions, email, and more). Reach for this for event fan-out, alerts, and decoupled pub/sub notifications.",
-    "provisions": [
-      "An SNS topic"
-    ],
-    "resourceTypes": [
-      "aws:sns:Topic"
-    ],
+    "provisions": ["An SNS topic"],
+    "resourceTypes": ["aws:sns:Topic"],
     "configKeys": [],
     "sourceFile": "packages/adapters/aws/src/lowerers/sns-lowerer.ts",
     "complexity": "simple"
@@ -831,13 +712,8 @@
     "kind": "node",
     "tagline": "Decouple producers and consumers with a durable, at-least-once message queue.",
     "description": "Provisions an SQS queue with configurable visibility and retention, and when dead-letter handling is enabled, also creates a DLQ and wires up a redrive policy. Reach for this to buffer work, smooth out spikes, and isolate failures between services.",
-    "provisions": [
-      "An SQS queue",
-      "An optional dead-letter queue"
-    ],
-    "resourceTypes": [
-      "aws:sqs:Queue"
-    ],
+    "provisions": ["An SQS queue", "An optional dead-letter queue"],
+    "resourceTypes": ["aws:sqs:Queue"],
     "configKeys": [
       "deadLetterQueue",
       "maxReceiveCount",
@@ -855,14 +731,8 @@
     "kind": "node",
     "tagline": "Expose your functions and services over a managed, public HTTP endpoint.",
     "description": "Provisions an API Gateway HTTP API plus an auto-deploying default stage. Routes and integrations to Lambda are generated from trigger edges in the graph. Reach for this to give your backend a clean, scalable HTTP front door.",
-    "provisions": [
-      "An HTTP API",
-      "A default auto-deploy stage"
-    ],
-    "resourceTypes": [
-      "aws:apigatewayv2:Api",
-      "aws:apigatewayv2:Stage"
-    ],
+    "provisions": ["An HTTP API", "A default auto-deploy stage"],
+    "resourceTypes": ["aws:apigatewayv2:Api", "aws:apigatewayv2:Stage"],
     "configKeys": [],
     "sourceFile": "packages/adapters/aws/src/lowerers/apigateway-lowerer.ts",
     "complexity": "simple"
@@ -874,18 +744,9 @@
     "kind": "node",
     "tagline": "Give private subnet resources outbound internet access without exposing them inbound.",
     "description": "Provisions a NAT gateway plus the Elastic IP it needs, placed in a subnet you reference. Reach for this so workloads in private subnets can reach the internet (for updates or API calls) while staying unreachable from outside.",
-    "provisions": [
-      "A NAT gateway",
-      "An Elastic IP"
-    ],
-    "resourceTypes": [
-      "aws:ec2:NatGateway",
-      "aws:ec2:Eip"
-    ],
-    "configKeys": [
-      "subnetRef",
-      "connectivityType"
-    ],
+    "provisions": ["A NAT gateway", "An Elastic IP"],
+    "resourceTypes": ["aws:ec2:NatGateway", "aws:ec2:Eip"],
+    "configKeys": ["subnetRef", "connectivityType"],
     "sourceFile": "packages/adapters/aws/src/lowerers/nat-gateway-lowerer.ts",
     "complexity": "simple"
   },
@@ -896,12 +757,8 @@
     "kind": "node",
     "tagline": "Point a hostname at an IP, alias, or other target within a hosted zone.",
     "description": "Provisions a Route 53 DNS record (standard with TTL or alias) inside a referenced hosted zone. Reach for this to map names to load balancers, CloudFront distributions, or addresses.",
-    "provisions": [
-      "A Route 53 DNS record"
-    ],
-    "resourceTypes": [
-      "aws:route53:Record"
-    ],
+    "provisions": ["A Route 53 DNS record"],
+    "resourceTypes": ["aws:route53:Record"],
     "configKeys": [
       "zoneRef",
       "recordName",
@@ -920,21 +777,9 @@
     "kind": "node",
     "tagline": "Manage DNS for a domain, public or private, with optional health checks.",
     "description": "Provisions a Route 53 hosted zone for a domain name, optionally scoped private to a VPC, and an optional health check. Reach for this as the authoritative DNS container that your records live in.",
-    "provisions": [
-      "A Route 53 hosted zone",
-      "An optional health check"
-    ],
-    "resourceTypes": [
-      "aws:route53:Zone",
-      "aws:route53:HealthCheck"
-    ],
-    "configKeys": [
-      "zoneName",
-      "isPrivate",
-      "vpcId",
-      "comment",
-      "healthCheck"
-    ],
+    "provisions": ["A Route 53 hosted zone", "An optional health check"],
+    "resourceTypes": ["aws:route53:Zone", "aws:route53:HealthCheck"],
+    "configKeys": ["zoneName", "isPrivate", "vpcId", "comment", "healthCheck"],
     "sourceFile": "packages/adapters/aws/src/lowerers/route53-zone-lowerer.ts",
     "complexity": "simple"
   },
@@ -950,16 +795,8 @@
       "Ingress rules",
       "A default egress rule"
     ],
-    "resourceTypes": [
-      "aws:ec2:SecurityGroup",
-      "aws:ec2:SecurityGroupRule"
-    ],
-    "configKeys": [
-      "vpcId",
-      "description",
-      "ingressRules",
-      "tags"
-    ],
+    "resourceTypes": ["aws:ec2:SecurityGroup", "aws:ec2:SecurityGroupRule"],
+    "configKeys": ["vpcId", "description", "ingressRules", "tags"],
     "sourceFile": "packages/adapters/aws/src/lowerers/security-group-lowerer.ts",
     "complexity": "moderate"
   },
@@ -970,11 +807,7 @@
     "kind": "node",
     "tagline": "Carve out an IP range within your VPC with its own route table.",
     "description": "Provisions a subnet plus a route table and the association binding them, inside a referenced VPC. Supports an availability zone and public-IP-on-launch toggle. Reach for this to segment your network into public and private tiers.",
-    "provisions": [
-      "A subnet",
-      "A route table",
-      "A route table association"
-    ],
+    "provisions": ["A subnet", "A route table", "A route table association"],
     "resourceTypes": [
       "aws:ec2:Subnet",
       "aws:ec2:RouteTable",
@@ -997,10 +830,7 @@
     "kind": "node",
     "tagline": "Connect many VPCs and on-prem networks through a single central routing hub.",
     "description": "Provisions a Transit Gateway plus an associated route table, with default route table association and propagation enabled. Reach for this to build hub-and-spoke network topologies that link multiple VPCs and external networks.",
-    "provisions": [
-      "A Transit Gateway",
-      "A Transit Gateway route table"
-    ],
+    "provisions": ["A Transit Gateway", "A Transit Gateway route table"],
     "resourceTypes": [
       "aws:ec2transitgateway:TransitGateway",
       "aws:ec2transitgateway:RouteTable"
@@ -1023,12 +853,8 @@
     "kind": "node",
     "tagline": "Plug a VPC into your Transit Gateway hub across specific subnets.",
     "description": "Provisions a Transit Gateway VPC attachment that connects a referenced VPC to a Transit Gateway through chosen subnets. Reach for this to wire each spoke VPC into the central network hub.",
-    "provisions": [
-      "A Transit Gateway VPC attachment"
-    ],
-    "resourceTypes": [
-      "aws:ec2transitgateway:VpcAttachment"
-    ],
+    "provisions": ["A Transit Gateway VPC attachment"],
+    "resourceTypes": ["aws:ec2transitgateway:VpcAttachment"],
     "configKeys": [
       "transitGatewayRef",
       "vpcRef",
@@ -1089,15 +915,8 @@
       "An X-Ray IAM policy",
       "A policy attachment to the target's execution role"
     ],
-    "resourceTypes": [
-      "aws:iam:Policy",
-      "aws:iam:RolePolicyAttachment"
-    ],
-    "configKeys": [
-      "telemetryType",
-      "config.enabled",
-      "targetNodeRef"
-    ],
+    "resourceTypes": ["aws:iam:Policy", "aws:iam:RolePolicyAttachment"],
+    "configKeys": ["telemetryType", "config.enabled", "targetNodeRef"],
     "sourceFile": "packages/adapters/aws/src/lowerers/telemetry-lowerer.ts",
     "complexity": "simple"
   },
@@ -1108,14 +927,8 @@
     "kind": "node",
     "tagline": "Record every API call in your account for security auditing and compliance.",
     "description": "Provisions a CloudTrail trail (multi-region with log file validation by default) and an optional CloudWatch log group for the events. Reach for this to capture an immutable audit log of who did what in your AWS account.",
-    "provisions": [
-      "A CloudTrail trail",
-      "An optional CloudWatch log group"
-    ],
-    "resourceTypes": [
-      "aws:cloudtrail:Trail",
-      "aws:cloudwatch:LogGroup"
-    ],
+    "provisions": ["A CloudTrail trail", "An optional CloudWatch log group"],
+    "resourceTypes": ["aws:cloudtrail:Trail", "aws:cloudwatch:LogGroup"],
     "configKeys": [
       "isMultiRegionTrail",
       "enableLogFileValidation",
@@ -1136,12 +949,8 @@
     "kind": "node",
     "tagline": "Stream matching CloudWatch log events on to another destination in real time.",
     "description": "Provisions a CloudWatch Logs subscription filter that forwards log events matching a pattern to a destination such as a Lambda, Firehose, or Kinesis stream. Reach for this to route logs into downstream processing or analytics.",
-    "provisions": [
-      "A CloudWatch Logs subscription filter"
-    ],
-    "resourceTypes": [
-      "aws:cloudwatch:LogSubscriptionFilter"
-    ],
+    "provisions": ["A CloudWatch Logs subscription filter"],
+    "resourceTypes": ["aws:cloudwatch:LogSubscriptionFilter"],
     "configKeys": [
       "filterPattern",
       "distribution",
@@ -1158,12 +967,8 @@
     "kind": "node",
     "tagline": "Set a spending limit and get alerted before costs blow past it.",
     "description": "Provisions an AWS Budget with a cost or usage limit and optional threshold notifications delivered to an SNS topic. Reach for this to keep cloud spend visible and trigger alerts when a service or account approaches its budget.",
-    "provisions": [
-      "An AWS Budget with optional notifications"
-    ],
-    "resourceTypes": [
-      "aws:budgets:Budget"
-    ],
+    "provisions": ["An AWS Budget with optional notifications"],
+    "resourceTypes": ["aws:budgets:Budget"],
     "configKeys": [
       "budgetType",
       "limitAmount",
@@ -1211,12 +1016,8 @@
     "kind": "node",
     "tagline": "Evaluate your resources against a managed or custom compliance rule.",
     "description": "Provisions an AWS Config rule (managed or custom Lambda-backed) that checks resources for compliance, with optional input parameters, scope, and evaluation frequency. Reach for this to continuously enforce configuration standards.",
-    "provisions": [
-      "An AWS Config rule"
-    ],
-    "resourceTypes": [
-      "aws:cfg:Rule"
-    ],
+    "provisions": ["An AWS Config rule"],
+    "resourceTypes": ["aws:cfg:Rule"],
     "configKeys": [
       "source",
       "inputParameters",
@@ -1233,17 +1034,9 @@
     "kind": "node",
     "tagline": "Issue and auto-renew a managed TLS certificate for your domains.",
     "description": "Provisions an ACM certificate for a domain (DNS validation by default), with optional subject alternative names. Reach for this to enable HTTPS on load balancers, API Gateway, and CloudFront without buying or rotating certificates manually.",
-    "provisions": [
-      "An ACM TLS certificate"
-    ],
-    "resourceTypes": [
-      "aws:acm:Certificate"
-    ],
-    "configKeys": [
-      "domainName",
-      "validationMethod",
-      "subjectAlternativeNames"
-    ],
+    "provisions": ["An ACM TLS certificate"],
+    "resourceTypes": ["aws:acm:Certificate"],
+    "configKeys": ["domainName", "validationMethod", "subjectAlternativeNames"],
     "sourceFile": "packages/adapters/aws/src/lowerers/acm-lowerer.ts",
     "complexity": "simple"
   },
@@ -1254,12 +1047,8 @@
     "kind": "node",
     "tagline": "Continuously monitor your account for malicious activity and unauthorized behavior.",
     "description": "Provisions a GuardDuty detector with configurable finding frequency and data sources for S3, Kubernetes audit logs, and EC2 malware scanning. Reach for this to get managed, intelligent threat detection across your AWS account.",
-    "provisions": [
-      "A GuardDuty detector"
-    ],
-    "resourceTypes": [
-      "aws:guardduty:Detector"
-    ],
+    "provisions": ["A GuardDuty detector"],
+    "resourceTypes": ["aws:guardduty:Detector"],
     "configKeys": [
       "enabled",
       "findingPublishingFrequency",
@@ -1277,19 +1066,9 @@
     "kind": "node",
     "tagline": "Manage a customer-managed encryption key with automatic rotation and a friendly alias.",
     "description": "Provisions a KMS key (with rotation enabled by default for symmetric keys) plus an alias for easy reference. Reach for this to encrypt data across S3, RDS, secrets, and other services under a key you control.",
-    "provisions": [
-      "A KMS key",
-      "A KMS alias"
-    ],
-    "resourceTypes": [
-      "aws:kms:Key",
-      "aws:kms:Alias"
-    ],
-    "configKeys": [
-      "keySpec",
-      "enableKeyRotation",
-      "deletionWindowInDays"
-    ],
+    "provisions": ["A KMS key", "A KMS alias"],
+    "resourceTypes": ["aws:kms:Key", "aws:kms:Alias"],
+    "configKeys": ["keySpec", "enableKeyRotation", "deletionWindowInDays"],
     "sourceFile": "packages/adapters/aws/src/lowerers/kms-lowerer.ts",
     "complexity": "simple"
   },
@@ -1331,20 +1110,12 @@
     "kind": "node",
     "tagline": "Store credentials and secrets securely with optional automatic rotation.",
     "description": "Provisions a Secrets Manager secret, optionally encrypted with a referenced KMS key and optionally set to rotate on a schedule. Reach for this to keep database passwords, API keys, and tokens out of code and configuration.",
-    "provisions": [
-      "A Secrets Manager secret",
-      "An optional rotation schedule"
-    ],
+    "provisions": ["A Secrets Manager secret", "An optional rotation schedule"],
     "resourceTypes": [
       "aws:secretsmanager:Secret",
       "aws:secretsmanager:SecretRotation"
     ],
-    "configKeys": [
-      "kmsKeyId",
-      "rotationEnabled",
-      "rotationDays",
-      "tags"
-    ],
+    "configKeys": ["kmsKeyId", "rotationEnabled", "rotationDays", "tags"],
     "sourceFile": "packages/adapters/aws/src/lowerers/secretsmanager-lowerer.ts",
     "complexity": "moderate"
   },
@@ -1363,10 +1134,7 @@
       "aws:securityhub:Account",
       "aws:securityhub:StandardsSubscription"
     ],
-    "configKeys": [
-      "enableDefaultStandards",
-      "standardsArn"
-    ],
+    "configKeys": ["enableDefaultStandards", "standardsArn"],
     "sourceFile": "packages/adapters/aws/src/lowerers/securityhub-lowerer.ts",
     "complexity": "simple"
   },
@@ -1377,17 +1145,9 @@
     "kind": "node",
     "tagline": "Shield your apps from common web exploits with managed rule groups.",
     "description": "Provisions a WAFv2 Web ACL with AWS managed rule groups (common rule set, known bad inputs, IP reputation) by default, scoped to CloudFront or regional resources. Reach for this to block SQL injection, bad bots, and other Layer 7 attacks in front of your applications.",
-    "provisions": [
-      "A WAFv2 Web ACL with managed rule groups"
-    ],
-    "resourceTypes": [
-      "aws:wafv2:WebAcl"
-    ],
-    "configKeys": [
-      "scope",
-      "defaultAction",
-      "managedRules"
-    ],
+    "provisions": ["A WAFv2 Web ACL with managed rule groups"],
+    "resourceTypes": ["aws:wafv2:WebAcl"],
+    "configKeys": ["scope", "defaultAction", "managedRules"],
     "sourceFile": "packages/adapters/aws/src/lowerers/waf-lowerer.ts",
     "complexity": "moderate"
   },
@@ -1398,14 +1158,8 @@
     "kind": "node",
     "tagline": "Host your Docker images privately with vulnerability scanning and lifecycle cleanup.",
     "description": "Provisions an ECR repository with immutable tags and scan-on-push enabled by default, plus an optional lifecycle policy that expires old images. Reach for this as the private registry your ECS and EKS workloads pull images from.",
-    "provisions": [
-      "An ECR repository",
-      "An optional lifecycle policy"
-    ],
-    "resourceTypes": [
-      "aws:ecr:Repository",
-      "aws:ecr:LifecyclePolicy"
-    ],
+    "provisions": ["An ECR repository", "An optional lifecycle policy"],
+    "resourceTypes": ["aws:ecr:Repository", "aws:ecr:LifecyclePolicy"],
     "configKeys": [
       "imageTagMutability",
       "scanOnPush",
@@ -1423,17 +1177,9 @@
     "kind": "node",
     "tagline": "Store any amount of files and objects durably, with optional versioning.",
     "description": "Provisions an S3 bucket and, when enabled, object versioning. Reach for this for static assets, data lake storage, backups, and any blob storage your application needs.",
-    "provisions": [
-      "An S3 bucket",
-      "Optional bucket versioning"
-    ],
-    "resourceTypes": [
-      "aws:s3:Bucket",
-      "aws:s3:BucketVersioningV2"
-    ],
-    "configKeys": [
-      "versioning"
-    ],
+    "provisions": ["An S3 bucket", "Optional bucket versioning"],
+    "resourceTypes": ["aws:s3:Bucket", "aws:s3:BucketVersioningV2"],
+    "configKeys": ["versioning"],
     "sourceFile": "packages/adapters/aws/src/lowerers/s3-lowerer.ts",
     "complexity": "simple"
   },

@@ -1,5 +1,5 @@
-import type { NetworkIntent } from '@shinobi/contracts';
-import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
+import type { NetworkIntent } from "@shinobi/contracts";
+import type { LoweredResource, LoweringContext, IntentLowerer } from "../types";
 
 /**
  * Network intent lowering is currently unsupported in this adapter.
@@ -8,9 +8,12 @@ import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
  * emit pseudo-resources that might imply deployable enforcement.
  */
 export class NetworkIntentLowerer implements IntentLowerer<NetworkIntent> {
-  readonly intentType = 'network' as const;
+  readonly intentType = "network" as const;
 
-  lower(_intent: NetworkIntent, _context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    _intent: NetworkIntent,
+    _context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     return [];
   }
 }

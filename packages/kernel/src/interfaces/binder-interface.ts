@@ -1,5 +1,5 @@
-import type { EdgeType, NodeType } from '@shinobi/ir';
-import type { BindingContext, BinderOutput } from '../types';
+import type { EdgeType, NodeType } from "@shinobi/ir";
+import type { BindingContext, BinderOutput } from "../types";
 
 /**
  * Describes which edge patterns a binder supports.

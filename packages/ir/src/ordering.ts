@@ -1,4 +1,4 @@
-import type { Node, Edge, DerivedArtifact } from './types';
+import type { Node, Edge, DerivedArtifact } from "./types";
 
 /**
  * Compares two nodes for canonical ordering.
@@ -63,7 +63,10 @@ export function compareEdges(a: Edge, b: Edge): number {
  *
  * This comparator is total - no two distinct artifacts compare equal.
  */
-export function compareArtifacts(a: DerivedArtifact, b: DerivedArtifact): number {
+export function compareArtifacts(
+  a: DerivedArtifact,
+  b: DerivedArtifact,
+): number {
   // Primary: sort by type
   const typeCompare = a.type.localeCompare(b.type);
   if (typeCompare !== 0) {

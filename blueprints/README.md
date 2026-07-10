@@ -4,9 +4,9 @@ Production-ready YAML manifests for common infrastructure patterns.
 
 ## Compute Blueprints
 
-| Blueprint | Description | File |
-|-----------|-------------|------|
-| BP-004 | Serverless API → Queue → ETL → S3 | `compute/serverless-api-etl.yaml` |
+| Blueprint | Description                       | File                              |
+| --------- | --------------------------------- | --------------------------------- |
+| BP-004    | Serverless API → Queue → ETL → S3 | `compute/serverless-api-etl.yaml` |
 
 ## Usage
 

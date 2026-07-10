@@ -1,15 +1,15 @@
 import type {
   AsyncOperationHandle,
   ToolResponseEnvelope,
-} from '../integration';
+} from "../integration";
 
 export type HarmonyToolId =
-  | 'golden.shinobi.validate_plan'
-  | 'golden.shinobi.plan_change'
-  | 'golden.shinobi.apply_change'
-  | 'golden.shinobi.rollback_change'
-  | 'golden.shinobi.read_entities'
-  | 'golden.shinobi.read_activity';
+  | "golden.shinobi.validate_plan"
+  | "golden.shinobi.plan_change"
+  | "golden.shinobi.apply_change"
+  | "golden.shinobi.rollback_change"
+  | "golden.shinobi.read_entities"
+  | "golden.shinobi.read_activity";
 
 export interface HarmonyToolCallRequest<TInput = Record<string, unknown>> {
   readonly toolId: HarmonyToolId;
@@ -31,7 +31,7 @@ export interface ApplyApprovalEvidence {
   readonly approvalId: string;
   readonly approverRole: string;
   readonly approverId: string;
-  readonly decision: 'approved';
+  readonly decision: "approved";
   readonly decidedAt: string;
   readonly slaMinutes: number;
 }
@@ -39,7 +39,7 @@ export interface ApplyApprovalEvidence {
 export interface ApplyChangeInput extends PlanChangeInput {
   readonly planFingerprint: string;
   readonly idempotencyKey: string;
-  readonly mode?: 'start' | 'await';
+  readonly mode?: "start" | "await";
   readonly approval?: ApplyApprovalEvidence;
 }
 

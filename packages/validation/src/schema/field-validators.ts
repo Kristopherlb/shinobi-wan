@@ -1,6 +1,6 @@
-import { createError, type ValidationError } from '../errors';
+import { createError, type ValidationError } from "../errors";
 
-type FieldType = 'string' | 'number' | 'boolean' | 'object' | 'array';
+type FieldType = "string" | "number" | "boolean" | "object" | "array";
 
 /**
  * Field definition for required fields validation.
@@ -17,7 +17,7 @@ export function hasRequiredField(
   obj: Record<string, unknown>,
   basePath: string,
   fieldName: string,
-  expectedType: FieldType
+  expectedType: FieldType,
 ): ValidationError[] {
   const value = obj[fieldName];
 
@@ -25,33 +25,33 @@ export function hasRequiredField(
     return [
       createError({
         path: basePath,
-        rule: 'missing-required-field',
+        rule: "missing-required-field",
         message: `Required field '${fieldName}' is missing`,
-        severity: 'error',
+        severity: "error",
       }),
     ];
   }
 
   // Type checking
-  if (expectedType === 'array') {
+  if (expectedType === "array") {
     if (!Array.isArray(value)) {
       return [
         createError({
           path: basePath,
-          rule: 'invalid-field-type',
+          rule: "invalid-field-type",
           message: `Field '${fieldName}' has wrong type: expected array, got ${typeof value}`,
-          severity: 'error',
+          severity: "error",
         }),
       ];
     }
-  } else if (expectedType === 'object') {
-    if (typeof value !== 'object' || Array.isArray(value)) {
+  } else if (expectedType === "object") {
+    if (typeof value !== "object" || Array.isArray(value)) {
       return [
         createError({
           path: basePath,
-          rule: 'invalid-field-type',
-          message: `Field '${fieldName}' has wrong type: expected object, got ${Array.isArray(value) ? 'array' : typeof value}`,
-          severity: 'error',
+          rule: "invalid-field-type",
+          message: `Field '${fieldName}' has wrong type: expected object, got ${Array.isArray(value) ? "array" : typeof value}`,
+          severity: "error",
         }),
       ];
     }
@@ -59,9 +59,9 @@ export function hasRequiredField(
     return [
       createError({
         path: basePath,
-        rule: 'invalid-field-type',
+        rule: "invalid-field-type",
         message: `Field '${fieldName}' has wrong type: expected ${expectedType}, got ${typeof value}`,
-        severity: 'error',
+        severity: "error",
       }),
     ];
   }
@@ -75,12 +75,12 @@ export function hasRequiredField(
 export function hasRequiredFields(
   obj: Record<string, unknown>,
   basePath: string,
-  fields: RequiredFieldDef[]
+  fields: RequiredFieldDef[],
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
   for (const { field, type } of fields) {
-    const fieldPath = basePath === '$' ? `$.${field}` : `${basePath}.${field}`;
+    const fieldPath = basePath === "$" ? `$.${field}` : `${basePath}.${field}`;
     errors.push(...hasRequiredField(obj, fieldPath, field, type));
   }
 
@@ -93,20 +93,20 @@ export function hasRequiredFields(
 export function rejectUnknownFields(
   obj: Record<string, unknown>,
   basePath: string,
-  knownFields: Set<string>
+  knownFields: Set<string>,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
   for (const key of Object.keys(obj)) {
     if (!knownFields.has(key)) {
-      const fieldPath = basePath === '$' ? `$.${key}` : `${basePath}.${key}`;
+      const fieldPath = basePath === "$" ? `$.${key}` : `${basePath}.${key}`;
       errors.push(
         createError({
           path: fieldPath,
-          rule: 'unknown-field',
+          rule: "unknown-field",
           message: `Unknown field '${key}'`,
-          severity: 'error',
-        })
+          severity: "error",
+        }),
       );
     }
   }
@@ -120,15 +120,15 @@ export function rejectUnknownFields(
 export function validateEnumField(
   value: string,
   path: string,
-  allowedValues: readonly string[]
+  allowedValues: readonly string[],
 ): ValidationError[] {
   if (!allowedValues.includes(value)) {
     return [
       createError({
         path,
-        rule: 'invalid-enum-value',
-        message: `Invalid value '${value}', must be one of: ${allowedValues.join(', ')}`,
-        severity: 'error',
+        rule: "invalid-enum-value",
+        message: `Invalid value '${value}', must be one of: ${allowedValues.join(", ")}`,
+        severity: "error",
         allowedValues: [...allowedValues],
       }),
     ];
@@ -140,25 +140,28 @@ export function validateEnumField(
 /**
  * Validates that a value is a non-empty string.
  */
-export function validateStringField(value: string, path: string): ValidationError[] {
-  if (typeof value !== 'string') {
+export function validateStringField(
+  value: string,
+  path: string,
+): ValidationError[] {
+  if (typeof value !== "string") {
     return [
       createError({
         path,
-        rule: 'invalid-field-type',
-        message: 'Expected string',
-        severity: 'error',
+        rule: "invalid-field-type",
+        message: "Expected string",
+        severity: "error",
       }),
     ];
   }
 
-  if (value === '') {
+  if (value === "") {
     return [
       createError({
         path,
-        rule: 'empty-string',
-        message: 'String cannot be empty',
-        severity: 'error',
+        rule: "empty-string",
+        message: "String cannot be empty",
+        severity: "error",
       }),
     ];
   }

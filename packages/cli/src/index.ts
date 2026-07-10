@@ -5,7 +5,7 @@
  */
 
 // Manifest parsing
-export { parseManifest, manifestToMutations } from './manifest';
+export { parseManifest, manifestToMutations } from "./manifest";
 export type {
   ServiceManifest,
   ManifestComponent,
@@ -13,10 +13,10 @@ export type {
   ManifestBindingConfig,
   ManifestError,
   ManifestParseResult,
-} from './manifest';
+} from "./manifest";
 
 // Commands
-export { validate, plan, planAsync, up } from './commands';
+export { validate, plan, planAsync, up } from "./commands";
 export type {
   ValidateOptions,
   ValidateResult,
@@ -25,10 +25,10 @@ export type {
   PlanAsyncOptions,
   UpOptions,
   UpResult,
-} from './commands';
+} from "./commands";
 
 // Harmony integration contracts
-export { getOperationPolicy, getIntegrationFeatureFlags } from './integration';
+export { getOperationPolicy, getIntegrationFeatureFlags } from "./integration";
 export type {
   OperationClass,
   OperationPolicy,
@@ -36,15 +36,15 @@ export type {
   ToolErrorEnvelope,
   AsyncOperationHandle,
   IntegrationFeatureFlags,
-} from './integration';
+} from "./integration";
 
 // Harmony MCP wrapper integration
-export { invokeHarmonyTool, getOperationStatus } from './mcp';
+export { invokeHarmonyTool, getOperationStatus } from "./mcp";
 export type {
   HarmonyToolId,
   HarmonyToolCallRequest,
   HarmonyToolCallResult,
-} from './mcp';
+} from "./mcp";
 
 // CLI entry point
-export { createCli } from './cli';
+export { createCli } from "./cli";

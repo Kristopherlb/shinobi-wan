@@ -1,11 +1,11 @@
-import type { Provenance } from './provenance';
+import type { Provenance } from "./provenance";
 
 /** Runtime-available array of valid edge types */
 export const EDGE_TYPES = [
-  'bindsTo',
-  'triggers',
-  'dependsOn',
-  'contains',
+  "bindsTo",
+  "triggers",
+  "dependsOn",
+  "contains",
 ] as const;
 
 /** Union type derived from the runtime constant */
@@ -43,5 +43,5 @@ export interface Edge {
   readonly metadata: EdgeMetadata;
 
   /** Schema version for forward compatibility */
-  readonly schemaVersion: '1.0.0';
+  readonly schemaVersion: "1.0.0";
 }

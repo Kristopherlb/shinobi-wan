@@ -1,19 +1,28 @@
-import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName, createStandardTags } from './utils';
+import type { Node } from "@shinobi/ir";
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from "../types";
+import { shortName, createStandardTags } from "./utils";
 
 /**
  * Lowers a platform node with platform "aws-sqs" → SQS Queue resource.
  * When config.deadLetterQueue is true, also emits a DLQ and sets redrivePolicy.
  */
 export class SqsLowerer implements NodeLowerer {
-  readonly platform = 'aws-sqs';
+  readonly platform = "aws-sqs";
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
-    const hasDlq = props['deadLetterQueue'] === true;
-    const maxReceiveCount = (props['maxReceiveCount'] as number) ?? 3;
+    const hasDlq = props["deadLetterQueue"] === true;
+    const maxReceiveCount = (props["maxReceiveCount"] as number) ?? 3;
 
     const resources: LoweredResource[] = [];
 
@@ -21,11 +30,14 @@ export class SqsLowerer implements NodeLowerer {
     if (hasDlq) {
       resources.push({
         name: `${name}-dlq`,
-        resourceType: 'aws:sqs:Queue',
+        resourceType: "aws:sqs:Queue",
         properties: {
           name: `${context.adapterConfig.serviceName}-${name}-dlq`,
-          messageRetentionSeconds: (props['dlqMessageRetention'] as number) ?? 1209600, // 14 days
-          tags: createStandardTags(node.id, 'aws-sqs', { 'shinobi:role': 'dead-letter-queue' }),
+          messageRetentionSeconds:
+            (props["dlqMessageRetention"] as number) ?? 1209600, // 14 days
+          tags: createStandardTags(node.id, "aws-sqs", {
+            "shinobi:role": "dead-letter-queue",
+          }),
         },
         sourceId: node.id,
         dependsOn: [],
@@ -35,11 +47,12 @@ export class SqsLowerer implements NodeLowerer {
     // Main SQS Queue
     resources.push({
       name: `${name}-queue`,
-      resourceType: 'aws:sqs:Queue',
+      resourceType: "aws:sqs:Queue",
       properties: {
         name: `${context.adapterConfig.serviceName}-${name}`,
-        visibilityTimeoutSeconds: (props['visibilityTimeout'] as number) ?? 30,
-        messageRetentionSeconds: (props['messageRetention'] as number) ?? 345600,
+        visibilityTimeoutSeconds: (props["visibilityTimeout"] as number) ?? 30,
+        messageRetentionSeconds:
+          (props["messageRetention"] as number) ?? 345600,
         ...(hasDlq
           ? {
               redrivePolicy: JSON.stringify({
@@ -48,7 +61,7 @@ export class SqsLowerer implements NodeLowerer {
               }),
             }
           : {}),
-        tags: createStandardTags(node.id, 'aws-sqs'),
+        tags: createStandardTags(node.id, "aws-sqs"),
       },
       sourceId: node.id,
       dependsOn: hasDlq ? [`${name}-dlq`] : [],

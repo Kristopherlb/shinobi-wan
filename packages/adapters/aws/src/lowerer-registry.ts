@@ -1,4 +1,4 @@
-import type { NodeLowerer } from './types';
+import type { NodeLowerer } from "./types";
 import {
   LambdaLowerer,
   SqsLowerer,
@@ -55,7 +55,7 @@ import {
   Route53RecordLowerer,
   EksAddonLowerer,
   EksGpuNodeGroupLowerer,
-} from './lowerers';
+} from "./lowerers";
 
 export interface RegisterNodeLowererOptions {
   readonly overwrite?: boolean;
@@ -71,7 +71,9 @@ export class NodeLowererRegistry {
   register(lowerer: NodeLowerer, options?: RegisterNodeLowererOptions): void {
     const existing = this.byPlatform.get(lowerer.platform);
     if (existing && !options?.overwrite) {
-      throw new Error(`Node lowerer already registered for platform '${lowerer.platform}'`);
+      throw new Error(
+        `Node lowerer already registered for platform '${lowerer.platform}'`,
+      );
     }
     this.byPlatform.set(lowerer.platform, lowerer);
   }

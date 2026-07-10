@@ -17,16 +17,16 @@ Decision owner group: Shared (Shinobi + Harmony)
 
 ## Async Apply Contract Evidence
 
-| Field | Required | Evidence |
-|---|---|---|
-| `operationId` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `traceId` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `workflowId` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `submittedAt` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `statusUrl` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `terminalStates` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `terminalStateRetryable` | yes | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
-| `cancelUrl` | optional | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| Field                    | Required | Evidence                                                      |
+| ------------------------ | -------- | ------------------------------------------------------------- |
+| `operationId`            | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `traceId`                | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `workflowId`             | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `submittedAt`            | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `statusUrl`              | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `terminalStates`         | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `terminalStateRetryable` | yes      | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
+| `cancelUrl`              | optional | `packages/cli/src/integration/__tests__/async-handle.test.ts` |
 
 ## Decision
 
@@ -38,8 +38,8 @@ Decision owner group: Shared (Shinobi + Harmony)
 
 ## Approval Record
 
-| Role | Name | Decision | Timestamp | Notes |
-|---|---|---|---|---|
-| Shinobi Owner | Kristopher Bowles | approve-go-restricted | 2026-02-17T08:00:00.000Z | Gate evidence validated and contracts green |
-| Harmony Owner | harmony-owner | approve-go-restricted | 2026-02-17T08:00:00.000Z | Approval wiring and external artifacts validated |
+| Role                  | Name                | Decision              | Timestamp                | Notes                                                    |
+| --------------------- | ------------------- | --------------------- | ------------------------ | -------------------------------------------------------- |
+| Shinobi Owner         | Kristopher Bowles   | approve-go-restricted | 2026-02-17T08:00:00.000Z | Gate evidence validated and contracts green              |
+| Harmony Owner         | harmony-owner       | approve-go-restricted | 2026-02-17T08:00:00.000Z | Approval wiring and external artifacts validated         |
 | Shared Final Sign-off | Shared review board | approve-go-restricted | 2026-02-17T08:05:00.000Z | Restricted apply only; full apply requires future review |

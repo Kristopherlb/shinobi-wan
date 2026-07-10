@@ -1,13 +1,13 @@
-import type { PlanResult } from '../commands/plan';
-import type { UpResult } from '../commands/up';
-import type { ValidateResult } from '../commands/validate';
-import { getOperationPolicy } from './policy';
+import type { PlanResult } from "../commands/plan";
+import type { UpResult } from "../commands/up";
+import type { ValidateResult } from "../commands/validate";
+import { getOperationPolicy } from "./policy";
 import type {
   OperationClass,
   RetriableReason,
   ToolErrorEnvelope,
   ToolResponseEnvelope,
-} from './types';
+} from "./types";
 
 export interface EnvelopeOptions {
   readonly toolId: string;
@@ -26,20 +26,23 @@ function buildErrorEnvelope(
   retriableReason?: RetriableReason,
   details?: Readonly<Record<string, unknown>>,
 ): ToolErrorEnvelope {
-  const category = code === 'INPUT_VALIDATION_FAILED'
-    ? 'validation'
-    : code === 'UNAUTHORIZED' || code === 'APPROVAL_REQUIRED'
-      ? 'authorization'
-      : code === 'CONFLICT'
-        ? 'conflict'
-        : code.includes('UPSTREAM') || code === 'AUTH_FAILURE'
-          ? 'upstream'
-          : code === 'RUNNER_ERROR'
-            ? 'runtime'
-            : 'unknown';
+  const category =
+    code === "INPUT_VALIDATION_FAILED"
+      ? "validation"
+      : code === "UNAUTHORIZED" || code === "APPROVAL_REQUIRED"
+        ? "authorization"
+        : code === "CONFLICT"
+          ? "conflict"
+          : code.includes("UPSTREAM") || code === "AUTH_FAILURE"
+            ? "upstream"
+            : code === "RUNNER_ERROR"
+              ? "runtime"
+              : "unknown";
 
   if (retriable && !retriableReason) {
-    throw new Error(`retriableReason is required when retriable=true for code '${code}'`);
+    throw new Error(
+      `retriableReason is required when retriable=true for code '${code}'`,
+    );
   }
 
   const base = {
@@ -101,9 +104,9 @@ export function envelopeValidateResult(
     false,
     undefined,
     buildErrorEnvelope(
-      'INPUT_VALIDATION_FAILED',
-      'cli.validate',
-      firstError?.message ?? 'Validation failed',
+      "INPUT_VALIDATION_FAILED",
+      "cli.validate",
+      firstError?.message ?? "Validation failed",
       options.traceId,
       false,
       undefined,
@@ -126,9 +129,9 @@ export function envelopePlanResult(
     false,
     undefined,
     buildErrorEnvelope(
-      'INPUT_VALIDATION_FAILED',
-      'cli.plan',
-      firstError?.message ?? 'Plan failed',
+      "INPUT_VALIDATION_FAILED",
+      "cli.plan",
+      firstError?.message ?? "Plan failed",
       options.traceId,
       false,
       undefined,
@@ -163,18 +166,18 @@ export function envelopeUpResult(
     );
   }
 
-  const isPreviewFailure = result.message.startsWith('Preview failed');
+  const isPreviewFailure = result.message.startsWith("Preview failed");
   return buildEnvelope(
     options,
     false,
     undefined,
     buildErrorEnvelope(
-      isPreviewFailure ? 'UPSTREAM_UNAVAILABLE' : 'RUNNER_ERROR',
-      'cli.up',
+      isPreviewFailure ? "UPSTREAM_UNAVAILABLE" : "RUNNER_ERROR",
+      "cli.up",
       result.message,
       options.traceId,
       isPreviewFailure,
-      isPreviewFailure ? 'transport_unavailable' : undefined,
+      isPreviewFailure ? "transport_unavailable" : undefined,
     ),
   );
 }

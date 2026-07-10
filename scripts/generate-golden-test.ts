@@ -13,9 +13,9 @@
  * Output: Prints the full test file to stdout.
  */
 
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { parse as parseYaml } from "yaml";
 
 interface ManifestComponent {
   id: string;
@@ -40,12 +40,12 @@ interface ServiceManifest {
 
 // --- CLI argument parsing ---
 const args = process.argv.slice(2);
-const blueprintIdx = args.indexOf('--blueprint');
-const bpIdIdx = args.indexOf('--bp-id');
+const blueprintIdx = args.indexOf("--blueprint");
+const bpIdIdx = args.indexOf("--bp-id");
 
 if (blueprintIdx === -1 || bpIdIdx === -1) {
   console.error(
-    'Usage: npx tsx --tsconfig tsconfig.scripts.json scripts/generate-golden-test.ts --blueprint <path> --bp-id <id>',
+    "Usage: npx tsx --tsconfig tsconfig.scripts.json scripts/generate-golden-test.ts --blueprint <path> --bp-id <id>",
   );
   process.exit(1);
 }
@@ -54,7 +54,7 @@ const blueprintPath = args[blueprintIdx + 1];
 const bpId = args[bpIdIdx + 1];
 
 if (!blueprintPath || !bpId) {
-  console.error('Both --blueprint and --bp-id are required');
+  console.error("Both --blueprint and --bp-id are required");
   process.exit(1);
 }
 
@@ -65,7 +65,7 @@ if (!fs.existsSync(resolvedPath)) {
 }
 
 // --- Parse YAML ---
-const raw = fs.readFileSync(resolvedPath, 'utf8');
+const raw = fs.readFileSync(resolvedPath, "utf8");
 const manifest = parseYaml(raw) as ServiceManifest;
 
 // --- Derive metadata ---
@@ -76,11 +76,11 @@ const nodeCount = components.length;
 const edgeCount = bindings.length;
 
 // Determine if platform-only (no component-type nodes)
-const hasComponents = components.some((c) => c.type === 'component');
+const hasComponents = components.some((c) => c.type === "component");
 const componentToplatformEdges = bindings.filter((b) => {
   const sourceComp = components.find((c) => c.id === b.source);
   const targetComp = components.find((c) => c.id === b.target);
-  return sourceComp?.type === 'component' && targetComp?.type === 'platform';
+  return sourceComp?.type === "component" && targetComp?.type === "platform";
 });
 
 // Intent count heuristic
@@ -88,14 +88,19 @@ let intentCountEstimate: number;
 let intentComment: string;
 if (!hasComponents) {
   intentCountEstimate = 0;
-  intentComment = 'platform-to-platform edges do not produce intents';
+  intentComment = "platform-to-platform edges do not produce intents";
 } else {
   // triggers edges produce ~3 intents (iam + 2 config), bindsTo edges produce ~3 (iam + network + config)
   const triggersEdges = bindings.filter((b) => {
     const sourceComp = components.find((c) => c.id === b.source);
-    return b.type === 'triggers' || (sourceComp?.type !== 'component' && b.type === 'triggers');
+    return (
+      b.type === "triggers" ||
+      (sourceComp?.type !== "component" && b.type === "triggers")
+    );
   }).length;
-  const bindsToEdges = componentToplatformEdges.filter((b) => b.type === 'bindsTo').length;
+  const bindsToEdges = componentToplatformEdges.filter(
+    (b) => b.type === "bindsTo",
+  ).length;
   intentCountEstimate = triggersEdges * 3 + bindsToEdges * 3;
   intentComment = `TODO: verify intent count (~${intentCountEstimate} estimated: ~3 per component→platform edge)`;
 }
@@ -104,12 +109,12 @@ if (!hasComponents) {
 const fileBaseName = path.basename(blueprintPath, path.extname(blueprintPath));
 
 // --- Extract YAML comment header ---
-const yamlLines = raw.split('\n');
+const yamlLines = raw.split("\n");
 const headerComments: string[] = [];
 for (const line of yamlLines) {
-  if (line.startsWith('#')) {
-    headerComments.push(line.replace(/^#\s?/, '').trim());
-  } else if (line.trim() === '') {
+  if (line.startsWith("#")) {
+    headerComments.push(line.replace(/^#\s?/, "").trim());
+  } else if (line.trim() === "") {
     continue;
   } else {
     break;
@@ -118,23 +123,28 @@ for (const line of yamlLines) {
 
 // --- Helper: format a value as TypeScript literal ---
 function formatValue(value: unknown, indent: number): string {
-  const pad = ' '.repeat(indent);
-  if (value === null || value === undefined) return 'undefined';
-  if (typeof value === 'string') return `'${value.replace(/'/g, "\\'")}'`;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  const pad = " ".repeat(indent);
+  if (value === null || value === undefined) return "undefined";
+  if (typeof value === "string") return `'${value.replace(/'/g, "\\'")}'`;
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
   if (Array.isArray(value)) {
-    if (value.length === 0) return '[]';
-    if (value.every((v) => typeof v === 'string')) {
-      return `[${value.map((v) => `'${v}'`).join(', ')}]`;
+    if (value.length === 0) return "[]";
+    if (value.every((v) => typeof v === "string")) {
+      return `[${value.map((v) => `'${v}'`).join(", ")}]`;
     }
-    const items = value.map((v) => `${pad}  ${formatValue(v, indent + 2)}`).join(',\n');
+    const items = value
+      .map((v) => `${pad}  ${formatValue(v, indent + 2)}`)
+      .join(",\n");
     return `[\n${items},\n${pad}]`;
   }
-  if (typeof value === 'object') {
+  if (typeof value === "object") {
     const entries = Object.entries(value as Record<string, unknown>);
-    if (entries.length === 0) return '{}';
-    const lines = entries.map(([k, v]) => `${pad}  ${k}: ${formatValue(v, indent + 2)}`);
-    return `{\n${lines.join(',\n')},\n${pad}}`;
+    if (entries.length === 0) return "{}";
+    const lines = entries.map(
+      ([k, v]) => `${pad}  ${k}: ${formatValue(v, indent + 2)}`,
+    );
+    return `{\n${lines.join(",\n")},\n${pad}}`;
   }
   return String(value);
 }
@@ -147,7 +157,7 @@ function toVarName(id: string): string {
 // --- Helper: convert binding to camelCase variable name ---
 function toEdgeVarName(binding: ManifestBinding): string {
   const sourceName = toVarName(binding.source);
-  const verb = binding.type === 'triggers' ? 'Triggers' : 'Binds';
+  const verb = binding.type === "triggers" ? "Triggers" : "Binds";
   const targetName = toVarName(binding.target);
   return `${sourceName}${verb}${targetName.charAt(0).toUpperCase() + targetName.slice(1)}`;
 }
@@ -184,7 +194,7 @@ function generateEdgeCode(binding: ManifestBinding): string {
 
   const configFormatted = binding.config
     ? formatValue(binding.config, 8)
-    : '{}';
+    : "{}";
 
   return `  const ${varName} = createTestEdge({
     id: '${edgeId}',
@@ -214,21 +224,21 @@ import { runGoldenCase } from '../golden-runner';
 /**
  * Golden test for Blueprint ${bpId}: ${serviceName}
  *
-${architectureLines.map((l) => ` * ${l}`).join('\n')}
+${architectureLines.map((l) => ` * ${l}`).join("\n")}
  *
- * ${!hasComponents ? 'This is a platform-only blueprint — all nodes are platform type.\n * Platform-to-platform bindsTo edges produce zero intents because\n * ComponentPlatformBinder only fires for component→platform edges.' : 'This blueprint has component→platform edges that produce intents.'}
+ * ${!hasComponents ? "This is a platform-only blueprint — all nodes are platform type.\n * Platform-to-platform bindsTo edges produce zero intents because\n * ComponentPlatformBinder only fires for component→platform edges." : "This blueprint has component→platform edges that produce intents."}
  *
  * Gates: determinism (G-001), compilation (G-002), policy evaluation
  */
 
 function setupBlueprint(): ReadonlyArray<GraphMutation> {
-${components.map(generateNodeCode).join('\n\n')}
+${components.map(generateNodeCode).join("\n\n")}
 
-${bindings.map(generateEdgeCode).join('\n\n')}
+${bindings.map(generateEdgeCode).join("\n\n")}
 
   return [
-${components.map((c) => `    { type: 'addNode', node: ${toVarName(c.id)} },`).join('\n')}
-${bindings.map((b) => `    { type: 'addEdge', edge: ${toEdgeVarName(b)} },`).join('\n')}
+${components.map((c) => `    { type: 'addNode', node: ${toVarName(c.id)} },`).join("\n")}
+${bindings.map((b) => `    { type: 'addEdge', edge: ${toEdgeVarName(b)} },`).join("\n")}
   ];
 }
 
@@ -263,10 +273,10 @@ describe('Golden: Blueprint ${bpId} — ${serviceName}', () => {
 
     expect(compilation.snapshot.nodes).toHaveLength(${nodeCount});
     const ids = compilation.snapshot.nodes.map((n) => n.id);
-${nodeIds.map((id) => `    expect(ids).toContain('${id}');`).join('\n')}
+${nodeIds.map((id) => `    expect(ids).toContain('${id}');`).join("\n")}
   });
 
-  it('contains ${edgeCount === 1 ? '1 edge' : `all ${edgeCount} edges`}', () => {
+  it('contains ${edgeCount === 1 ? "1 edge" : `all ${edgeCount} edges`}', () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
       config: { policyPack: 'Baseline' },
@@ -277,7 +287,7 @@ ${nodeIds.map((id) => `    expect(ids).toContain('${id}');`).join('\n')}
     expect(compilation.snapshot.edges).toHaveLength(${edgeCount});
   });
 
-  it('emits ${intentCountEstimate === 0 ? 'zero' : intentCountEstimate} intents (${intentComment})', () => {
+  it('emits ${intentCountEstimate === 0 ? "zero" : intentCountEstimate} intents (${intentComment})', () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
       config: { policyPack: 'Baseline' },

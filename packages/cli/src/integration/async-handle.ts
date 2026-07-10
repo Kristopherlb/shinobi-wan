@@ -1,5 +1,8 @@
-import { TERMINAL_OPERATION_STATES, TERMINAL_STATE_RETRYABLE } from './contract';
-import type { AsyncOperationHandle } from './types';
+import {
+  TERMINAL_OPERATION_STATES,
+  TERMINAL_STATE_RETRYABLE,
+} from "./contract";
+import type { AsyncOperationHandle } from "./types";
 
 export interface CreateAsyncOperationHandleInput {
   readonly operationId: string;

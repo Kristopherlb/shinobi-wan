@@ -1,6 +1,6 @@
-import type { TelemetryIntent } from '@shinobi/contracts';
-import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
-import { shortName } from './utils';
+import type { TelemetryIntent } from "@shinobi/contracts";
+import type { LoweredResource, LoweringContext, IntentLowerer } from "../types";
+import { shortName } from "./utils";
 
 /**
  * Lowers TelemetryIntent → X-Ray tracing configuration resources.
@@ -10,9 +10,12 @@ import { shortName } from './utils';
  * The Lambda lowerer handles the actual tracingConfig on the function.
  */
 export class TelemetryIntentLowerer implements IntentLowerer<TelemetryIntent> {
-  readonly intentType = 'telemetry' as const;
+  readonly intentType = "telemetry" as const;
 
-  lower(intent: TelemetryIntent, _context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    intent: TelemetryIntent,
+    _context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     if (!intent.config.enabled) {
       return [];
     }
@@ -20,31 +23,31 @@ export class TelemetryIntentLowerer implements IntentLowerer<TelemetryIntent> {
     const resources: LoweredResource[] = [];
     const targetName = shortName(intent.targetNodeRef);
 
-    if (intent.telemetryType === 'traces') {
+    if (intent.telemetryType === "traces") {
       // X-Ray tracing policy — grants permissions for trace data
       const policyName = `${targetName}-xray-policy`;
       resources.push({
         name: policyName,
-        resourceType: 'aws:iam:Policy',
+        resourceType: "aws:iam:Policy",
         properties: {
           policy: JSON.stringify({
-            Version: '2012-10-17',
+            Version: "2012-10-17",
             Statement: [
               {
-                Effect: 'Allow',
+                Effect: "Allow",
                 Action: [
-                  'xray:PutTraceSegments',
-                  'xray:PutTelemetryRecords',
-                  'xray:GetSamplingRules',
-                  'xray:GetSamplingTargets',
+                  "xray:PutTraceSegments",
+                  "xray:PutTelemetryRecords",
+                  "xray:GetSamplingRules",
+                  "xray:GetSamplingTargets",
                 ],
-                Resource: '*',
+                Resource: "*",
               },
             ],
           }),
           tags: {
-            'shinobi:telemetry': intent.telemetryType,
-            'shinobi:target': intent.targetNodeRef,
+            "shinobi:telemetry": intent.telemetryType,
+            "shinobi:target": intent.targetNodeRef,
           },
         },
         sourceId: intent.sourceEdgeId,
@@ -55,7 +58,7 @@ export class TelemetryIntentLowerer implements IntentLowerer<TelemetryIntent> {
       const attachmentName = `${targetName}-xray-policy-attachment`;
       resources.push({
         name: attachmentName,
-        resourceType: 'aws:iam:RolePolicyAttachment',
+        resourceType: "aws:iam:RolePolicyAttachment",
         properties: {
           role: { ref: `${targetName}-exec-role` },
           policyArn: { ref: policyName },

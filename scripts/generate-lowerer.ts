@@ -20,15 +20,17 @@
  * - ARN pattern stub for resolveArnPatternFromNode()
  */
 
-import { writeFileSync, existsSync } from 'fs';
-import { resolve } from 'path';
+import { writeFileSync, existsSync } from "fs";
+import { resolve } from "path";
 
 const args = process.argv.slice(2);
-const platformIdx = args.indexOf('--platform');
-const resourceTypeIdx = args.indexOf('--resource-type');
+const platformIdx = args.indexOf("--platform");
+const resourceTypeIdx = args.indexOf("--resource-type");
 
 if (platformIdx === -1 || resourceTypeIdx === -1) {
-  console.error('Usage: npx tsx scripts/generate-lowerer.ts --platform <aws-xxx> --resource-type <type>');
+  console.error(
+    "Usage: npx tsx scripts/generate-lowerer.ts --platform <aws-xxx> --resource-type <type>",
+  );
   process.exit(1);
 }
 
@@ -36,20 +38,20 @@ const platform = args[platformIdx + 1];
 const resourceType = args[resourceTypeIdx + 1];
 
 if (!platform || !resourceType) {
-  console.error('Both --platform and --resource-type are required');
+  console.error("Both --platform and --resource-type are required");
   process.exit(1);
 }
 
 // Derive names
-const platformSuffix = platform.replace(/^aws-/, '');
+const platformSuffix = platform.replace(/^aws-/, "");
 const className = platformSuffix
-  .split('-')
+  .split("-")
   .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-  .join('');
+  .join("");
 const lowererClassName = `${className}Lowerer`;
 const fileName = `${platformSuffix}-lowerer`;
 
-const ADAPTERS_DIR = resolve(__dirname, '../packages/adapters/aws/src');
+const ADAPTERS_DIR = resolve(__dirname, "../packages/adapters/aws/src");
 const LOWERER_PATH = resolve(ADAPTERS_DIR, `lowerers/${fileName}.ts`);
 const TEST_PATH = resolve(ADAPTERS_DIR, `__tests__/${fileName}.test.ts`);
 
@@ -60,7 +62,7 @@ if (existsSync(LOWERER_PATH)) {
 }
 
 // Determine Pulumi resource type placeholder
-const pulumiType = `aws:${platformSuffix.replace(/-/g, ':')}:Resource`;
+const pulumiType = `aws:${platformSuffix.replace(/-/g, ":")}:Resource`;
 
 // Generate lowerer source
 const lowererSource = `import type { Node } from '@shinobi/ir';
@@ -192,28 +194,30 @@ writeFileSync(TEST_PATH, testSource);
 
 console.log(`Created lowerer: ${LOWERER_PATH}`);
 console.log(`Created tests:   ${TEST_PATH}`);
-console.log('');
-console.log('=== Manual additions needed ===');
-console.log('');
+console.log("");
+console.log("=== Manual additions needed ===");
+console.log("");
 console.log(`// lowerers/index.ts:`);
 console.log(`export { ${lowererClassName} } from './${fileName}';`);
-console.log('');
+console.log("");
 console.log(`// lowerer-registry.ts (in createDefaultNodeLowererRegistry):`);
 console.log(`registry.register(new ${lowererClassName}());`);
-console.log('');
+console.log("");
 console.log(`// iam-lowerer.ts ACTION_MAP:`);
 console.log(`  ${resourceType}: {`);
 console.log(`    read: ['TODO:GetItem'],`);
 console.log(`    write: ['TODO:PutItem'],`);
 console.log(`    admin: ['TODO:*'],`);
 console.log(`  },`);
-console.log('');
+console.log("");
 console.log(`// reference-utils.ts PLATFORM_REF_MAP:`);
-console.log(`  '${platform}': { suffix: '${resourceType}', defaultField: 'arn' },`);
-console.log('');
+console.log(
+  `  '${platform}': { suffix: '${resourceType}', defaultField: 'arn' },`,
+);
+console.log("");
 console.log(`// program-generator.ts OUTPUT_MAP:`);
 console.log(`  '${pulumiType}': [{ suffix: 'arn', field: 'arn' }],`);
-console.log('');
+console.log("");
 console.log(`// iam-lowerer.ts resolveArnPatternFromNode():`);
 console.log(`      case '${platform}':`);
 console.log(`        return \`arn:aws:TODO:*:*:\${name}\`;`);

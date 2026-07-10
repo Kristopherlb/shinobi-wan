@@ -6,10 +6,10 @@
  */
 
 // Binders
-export { ComponentPlatformBinder, TriggersBinder } from './binders';
+export { ComponentPlatformBinder, TriggersBinder } from "./binders";
 
 // Registry
-export { BinderRegistry } from './registry';
+export { BinderRegistry } from "./registry";
 
 // Intent factories
 export {
@@ -17,4 +17,4 @@ export {
   createNetworkIntent,
   createConfigIntent,
   createTelemetryIntent,
-} from './intent-factories';
+} from "./intent-factories";

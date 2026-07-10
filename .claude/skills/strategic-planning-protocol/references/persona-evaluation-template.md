@@ -4,28 +4,28 @@ Use this template to evaluate a plan from each of the 5 required personas.
 
 ## Scoring Rubric
 
-| Score | Meaning | Criteria |
-|-------|---------|----------|
-| 9-10 | **Excellent** | All needs addressed, patterns documented, no gaps identified |
-| 7-8 | **Good** | Most needs addressed, minor gaps can be resolved during execution |
-| 5-6 | **Adequate** | Core needs addressed, but significant gaps require pre-work |
-| 3-4 | **Weak** | Major concerns, substantial pre-work or plan revision needed |
-| 1-2 | **Poor** | Fundamental misalignment, plan needs significant rethinking |
+| Score | Meaning       | Criteria                                                          |
+| ----- | ------------- | ----------------------------------------------------------------- |
+| 9-10  | **Excellent** | All needs addressed, patterns documented, no gaps identified      |
+| 7-8   | **Good**      | Most needs addressed, minor gaps can be resolved during execution |
+| 5-6   | **Adequate**  | Core needs addressed, but significant gaps require pre-work       |
+| 3-4   | **Weak**      | Major concerns, substantial pre-work or plan revision needed      |
+| 1-2   | **Poor**      | Fundamental misalignment, plan needs significant rethinking       |
 
 ---
 
 ## Persona 1: Agent (AI Assistant)
 
-**Alignment Score:** _/10
+**Alignment Score:** \_/10
 
 ### Evaluation
 
-| Aspect | Current Plan | Gap | Mitigation |
-|--------|--------------|-----|------------|
-| Tool Discovery | | | |
-| Determinism | | | |
-| Context Propagation | | | |
-| HITL Clarity | | | |
+| Aspect              | Current Plan | Gap | Mitigation |
+| ------------------- | ------------ | --- | ---------- |
+| Tool Discovery      |              |     |            |
+| Determinism         |              |     |            |
+| Context Propagation |              |     |            |
+| HITL Clarity        |              |     |            |
 
 ### Generative Prompts
 
@@ -47,6 +47,7 @@ Walk through each phase as if you are an AI agent. Ask:
    - If unclear → Gap: Output schema or status indicators
 
 ### Key Questions
+
 - Are all new capabilities registered in the MCP manifest?
 - Will the sync generator pick up new artifacts?
 - Is workflow code deterministic (no Date, Math.random, setTimeout)?
@@ -54,22 +55,23 @@ Walk through each phase as if you are an AI agent. Ask:
 - Is GoldenContext extended and propagated correctly?
 
 ### Missing Skills for Agent Persona
+
 - [ ] _skill-name_ - _why needed_
 
 ---
 
 ## Persona 2: Developer (Platform Contributor)
 
-**Alignment Score:** _/10
+**Alignment Score:** \_/10
 
 ### Evaluation
 
-| Aspect | Current Plan | Gap | Mitigation |
-|--------|--------------|-----|------------|
-| Dogfooding | | | |
-| Clear Patterns | | | |
-| Fast Feedback | | | |
-| Minimal Boilerplate | | | |
+| Aspect              | Current Plan | Gap | Mitigation |
+| ------------------- | ------------ | --- | ---------- |
+| Dogfooding          |              |     |            |
+| Clear Patterns      |              |     |            |
+| Fast Feedback       |              |     |            |
+| Minimal Boilerplate |              |     |            |
 
 ### Generative Prompts
 
@@ -91,28 +93,30 @@ Walk through as a new developer implementing a similar feature. Ask:
    - Each item → Gap: Should be a pattern, not copy-paste
 
 ### Key Questions
+
 - Did we use platform patterns to build this feature?
 - Are the patterns documented in skills?
 - Do tests run quickly with good coverage?
 - Are generators available for repetitive scaffolding?
 
 ### Missing Skills for Developer Persona
+
 - [ ] _skill-name_ - _why needed_
 
 ---
 
 ## Persona 3: End User (Platform Operator)
 
-**Alignment Score:** _/10
+**Alignment Score:** \_/10
 
 ### Evaluation
 
-| Aspect | Current Plan | Gap | Mitigation |
-|--------|--------------|-----|------------|
-| Usability | | | |
-| Response Speed | | | |
-| Clear Workflows | | | |
-| Minimal Training | | | |
+| Aspect           | Current Plan | Gap | Mitigation |
+| ---------------- | ------------ | --- | ---------- |
+| Usability        |              |     |            |
+| Response Speed   |              |     |            |
+| Clear Workflows  |              |     |            |
+| Minimal Training |              |     |            |
 
 ### Generative Prompts
 
@@ -134,6 +138,7 @@ Walk through as an SRE at 3am trying to use this system. Ask:
    - Each term → Gap: Glossary or tooltips needed
 
 ### Key Questions
+
 - Is the UI intuitive for the target user?
 - Are UX mockups or user flows defined?
 - Are SLOs/performance targets specified?
@@ -141,23 +146,24 @@ Walk through as an SRE at 3am trying to use this system. Ask:
 - Is there an onboarding guide?
 
 ### Missing Skills for End User Persona
+
 - [ ] _skill-name_ - _why needed_
 
 ---
 
 ## Persona 4: Platform Engineering Leadership
 
-**Alignment Score:** _/10
+**Alignment Score:** \_/10
 
 ### Evaluation
 
-| Aspect | Current Plan | Gap | Mitigation |
-|--------|--------------|-----|------------|
-| ROI | | | |
-| Compliance | | | |
-| Security | | | |
-| Strategic Alignment | | | |
-| Observability | | | |
+| Aspect              | Current Plan | Gap | Mitigation |
+| ------------------- | ------------ | --- | ---------- |
+| ROI                 |              |     |            |
+| Compliance          |              |     |            |
+| Security            |              |     |            |
+| Strategic Alignment |              |     |            |
+| Observability       |              |     |            |
 
 ### Generative Prompts
 
@@ -179,6 +185,7 @@ Walk through as if presenting to your VP next quarter. Ask:
    - If unclear → Gap: Observability (dashboards, alerts)
 
 ### Key Questions
+
 - What metrics demonstrate business value?
 - Is baseline captured for comparison?
 - Are OSCAL/certification gates defined?
@@ -187,26 +194,27 @@ Walk through as if presenting to your VP next quarter. Ask:
 - Are dashboards and alerts planned?
 
 ### Missing Skills for Leadership Persona
+
 - [ ] _skill-name_ - _why needed_
 
 ---
 
-## Persona 5: Domain Expert (_____________)
+## Persona 5: Domain Expert (**\*\***\_**\*\***)
 
-**Role:** _____________ (e.g., SRE, Release Engineer, Security Analyst)
+**Role:** **\*\***\_**\*\*** (e.g., SRE, Release Engineer, Security Analyst)
 
 **Why this persona:** _Explain why they are the primary beneficiary_
 
-**Alignment Score:** _/10
+**Alignment Score:** \_/10
 
 ### Evaluation
 
-| Aspect | Current Plan | Gap | Mitigation |
-|--------|--------------|-----|------------|
-| _Domain-specific 1_ | | | |
-| _Domain-specific 2_ | | | |
-| _Domain-specific 3_ | | | |
-| _Domain-specific 4_ | | | |
+| Aspect              | Current Plan | Gap | Mitigation |
+| ------------------- | ------------ | --- | ---------- |
+| _Domain-specific 1_ |              |     |            |
+| _Domain-specific 2_ |              |     |            |
+| _Domain-specific 3_ |              |     |            |
+| _Domain-specific 4_ |              |     |            |
 
 ### Generative Prompts
 
@@ -228,24 +236,26 @@ Walk through as the primary beneficiary of this system. Ask:
    - Each item → Gap: Configuration, extension point, or docs
 
 ### Key Questions
+
 - _Domain-specific question 1_
 - _Domain-specific question 2_
 - _Domain-specific question 3_
 
 ### Missing Skills for Domain Expert Persona
+
 - [ ] _skill-name_ - _why needed_
 
 ---
 
 ## Summary
 
-| Persona | Score | Critical Gaps | Mitigation Priority |
-|---------|-------|---------------|---------------------|
-| Agent | /10 | | |
-| Developer | /10 | | |
-| End User | /10 | | |
-| Leadership | /10 | | |
-| Domain Expert | /10 | | |
+| Persona       | Score | Critical Gaps | Mitigation Priority |
+| ------------- | ----- | ------------- | ------------------- |
+| Agent         | /10   |               |                     |
+| Developer     | /10   |               |                     |
+| End User      | /10   |               |                     |
+| Leadership    | /10   |               |                     |
+| Domain Expert | /10   |               |                     |
 
 **Overall Readiness:** _Ready / Needs Pre-Work / Needs Rethink_
 
@@ -255,14 +265,10 @@ Walk through as the primary beneficiary of this system. Ask:
 
 Based on gap analysis:
 
-1. **P0 (Blocker):**
-   - 
+1. ## **P0 (Blocker):**
 
-2. **P1 (High):**
-   - 
+2. ## **P1 (High):**
 
-3. **P2 (Medium):**
-   - 
+3. ## **P2 (Medium):**
 
-4. **P3 (Low):**
-   - 
+4. ## **P3 (Low):**

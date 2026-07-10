@@ -6,7 +6,13 @@
 /** Error payload within an envelope (no functions, JSON-serializable). */
 export interface ToolErrorEnvelope {
   readonly code: string;
-  readonly category: 'validation' | 'authorization' | 'upstream' | 'runtime' | 'conflict' | 'unknown';
+  readonly category:
+    | "validation"
+    | "authorization"
+    | "upstream"
+    | "runtime"
+    | "conflict"
+    | "unknown";
   readonly source: string;
   readonly traceId: string;
   readonly message: string;
@@ -19,7 +25,7 @@ export interface ToolErrorEnvelope {
 export interface ToolResponseMetadata {
   readonly toolId: string;
   readonly contractVersion: string;
-  readonly operationClass: 'read' | 'plan' | 'apply';
+  readonly operationClass: "read" | "plan" | "apply";
   readonly traceId: string;
   readonly timestamp: string;
 }

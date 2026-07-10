@@ -38,12 +38,12 @@ product work.
 
 ### The golden-path contract (what a case asserts)
 
-| Case class | Input shape | Correct behavior |
-|---|---|---|
-| `plan_golden` | valid manifest | `success == true`; the lowered resource set (name, resourceType, dependsOn, properties), restricted to the case's frozen resource-type families, exactly matches the reference projection |
-| `invalid_schema` | manifest broken by construction (missing `service`, unknown platform, dangling binding target, missing `resourceType`, duplicate ids, …) | `success == false` with structured errors whose **paths** match the reference (KL-002: stable paths; message wording is free to improve) |
-| `policy_pack` | valid manifest × `--policy-pack` ∈ {Baseline, FedRAMP-Moderate, FedRAMP-High} | `validate --json` projection matches: `success`, `validation.valid/errorCount/warningCount`, `policy.policyPack/compliant/violationCount` |
-| `envelope` | any manifest, including ones current lowerers mishandle | stdout parses as JSON with a boolean `success` — the CLI **never crashes with a stack trace** (KL-002/KL-006). Content beyond the envelope is not scored, so repairing a broken lowerer is never punished |
+| Case class       | Input shape                                                                                                                              | Correct behavior                                                                                                                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `plan_golden`    | valid manifest                                                                                                                           | `success == true`; the lowered resource set (name, resourceType, dependsOn, properties), restricted to the case's frozen resource-type families, exactly matches the reference projection                 |
+| `invalid_schema` | manifest broken by construction (missing `service`, unknown platform, dangling binding target, missing `resourceType`, duplicate ids, …) | `success == false` with structured errors whose **paths** match the reference (KL-002: stable paths; message wording is free to improve)                                                                  |
+| `policy_pack`    | valid manifest × `--policy-pack` ∈ {Baseline, FedRAMP-Moderate, FedRAMP-High}                                                            | `validate --json` projection matches: `success`, `validation.valid/errorCount/warningCount`, `policy.policyPack/compliant/violationCount`                                                                 |
+| `envelope`       | any manifest, including ones current lowerers mishandle                                                                                  | stdout parses as JSON with a boolean `success` — the CLI **never crashes with a stack trace** (KL-002/KL-006). Content beyond the envelope is not scored, so repairing a broken lowerer is never punished |
 
 Projections are computed by `harness/lib/proj.py` — the SAME code at
 generation time and scoring time. Warning diagnostics and resource types
@@ -59,7 +59,7 @@ Captured at reference SHA `4a748b3`:
    with `TypeError: resource.dependsOn is not iterable`
    (`topologicalSort` in the plan generator; the ECS-cluster lowerer emits a
    resource without `dependsOn`). This is why `blueprints/compute/
-   ecs-fargate-alb.yaml` crashes. The `envelope` eval class fails on every
+ecs-fargate-alb.yaml` crashes. The `envelope` eval class fails on every
    such case until fixed.
 2. **Shipped blueprints that do not plan**: 8 more of the 25 shipped
    manifests fail `plan` — `$.service`/`$.components` schema errors

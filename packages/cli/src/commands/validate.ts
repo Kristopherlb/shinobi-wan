@@ -1,9 +1,17 @@
-import * as fs from 'fs';
-import { parseManifest, manifestToMutations } from '../manifest';
-import { Kernel } from '@shinobi/kernel';
-import type { IBinder, IPolicyEvaluator, CompilationResult } from '@shinobi/kernel';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
-import { BaselinePolicyEvaluator } from '@shinobi/policy';
+import * as fs from "fs";
+import { parseManifest, manifestToMutations } from "../manifest";
+import { Kernel } from "@shinobi/kernel";
+import type {
+  IBinder,
+  IPolicyEvaluator,
+  CompilationResult,
+} from "@shinobi/kernel";
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from "@shinobi/binder";
+import { BaselinePolicyEvaluator } from "@shinobi/policy";
 
 export interface ValidateOptions {
   readonly manifestPath: string;
@@ -14,8 +22,16 @@ export interface ValidateOptions {
 export interface ValidateResult {
   readonly success: boolean;
   readonly manifest?: { service: string; components: number; bindings: number };
-  readonly validation?: { valid: boolean; errorCount: number; warningCount: number };
-  readonly policy?: { policyPack: string; compliant: boolean; violationCount: number };
+  readonly validation?: {
+    valid: boolean;
+    errorCount: number;
+    warningCount: number;
+  };
+  readonly policy?: {
+    policyPack: string;
+    compliant: boolean;
+    violationCount: number;
+  };
   readonly compilation?: CompilationResult;
   readonly errors: ReadonlyArray<{ path: string; message: string }>;
 }
@@ -38,11 +54,16 @@ export function validate(options: ValidateOptions): ValidateResult {
   // Read manifest file
   let yamlContent: string;
   try {
-    yamlContent = fs.readFileSync(options.manifestPath, 'utf-8');
+    yamlContent = fs.readFileSync(options.manifestPath, "utf-8");
   } catch (e) {
     return {
       success: false,
-      errors: [{ path: options.manifestPath, message: `Cannot read file: ${(e as Error).message}` }],
+      errors: [
+        {
+          path: options.manifestPath,
+          message: `Cannot read file: ${(e as Error).message}`,
+        },
+      ],
     };
   }
 
@@ -62,9 +83,10 @@ export function validate(options: ValidateOptions): ValidateResult {
   const kernel = new Kernel({
     binders: createBinders(),
     evaluators: createEvaluators(),
-    config: (options.policyPack || manifest.policyPack)
-      ? { policyPack: options.policyPack ?? manifest.policyPack }
-      : {},
+    config:
+      options.policyPack || manifest.policyPack
+        ? { policyPack: options.policyPack ?? manifest.policyPack }
+        : {},
   });
 
   // Apply mutations
@@ -73,7 +95,7 @@ export function validate(options: ValidateOptions): ValidateResult {
     return {
       success: false,
       errors: mutResult.errors.map((e) => ({
-        path: 'graph',
+        path: "graph",
         message: e.error.message,
       })),
     };
@@ -84,7 +106,8 @@ export function validate(options: ValidateOptions): ValidateResult {
 
   // Build result
   const result: ValidateResult = {
-    success: compilation.validation.valid && (compilation.policy?.compliant ?? true),
+    success:
+      compilation.validation.valid && (compilation.policy?.compliant ?? true),
     manifest: {
       service: manifest.service,
       components: manifest.components.length,
@@ -92,8 +115,12 @@ export function validate(options: ValidateOptions): ValidateResult {
     },
     validation: {
       valid: compilation.validation.valid,
-      errorCount: compilation.validation.errors.filter((e) => e.severity === 'error').length,
-      warningCount: compilation.validation.errors.filter((e) => e.severity === 'warning').length,
+      errorCount: compilation.validation.errors.filter(
+        (e) => e.severity === "error",
+      ).length,
+      warningCount: compilation.validation.errors.filter(
+        (e) => e.severity === "warning",
+      ).length,
     },
     ...(compilation.policy
       ? {

@@ -8,8 +8,8 @@
  * Usage: npx tsx --tsconfig tsconfig.scripts.json scripts/audit-gate-coverage.ts
  */
 
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 interface GateDefinition {
   gateId: string;
@@ -49,7 +49,7 @@ interface CoverageReport {
  * Parse gates.md markdown table to extract gate definitions.
  */
 function parseGatesFile(gatesPath: string): Map<string, GateDefinition> {
-  const content = fs.readFileSync(gatesPath, 'utf8');
+  const content = fs.readFileSync(gatesPath, "utf8");
   const gates = new Map<string, GateDefinition>();
 
   // Match table rows: | G-001 | S1, S13 | SCHEMA | Graph IR validates against schema |
@@ -73,11 +73,11 @@ function parseGatesFile(gatesPath: string): Map<string, GateDefinition> {
  * Scan a test file for gate ID references and extract surrounding test names.
  */
 function scanTestFile(filePath: string): Map<string, TestReference[]> {
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, "utf8");
   const fileName = path.basename(filePath);
   const refs = new Map<string, TestReference[]>();
 
-  const lines = content.split('\n');
+  const lines = content.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -87,7 +87,7 @@ function scanTestFile(filePath: string): Map<string, TestReference[]> {
       const gateId = gateMatch[0];
 
       // Find the closest enclosing it() or describe() test name
-      let testName = '';
+      let testName = "";
       for (let j = i; j >= 0; j--) {
         const itMatch = lines[j].match(/it\(\s*[`'"](.*?)[`'"]/);
         if (itMatch) {
@@ -120,7 +120,7 @@ function scanTestFile(filePath: string): Map<string, TestReference[]> {
 
 // Main
 const rootDir = process.cwd();
-const gatesPath = path.join(rootDir, 'docs/conformance/gates.md');
+const gatesPath = path.join(rootDir, "docs/conformance/gates.md");
 
 if (!fs.existsSync(gatesPath)) {
   console.error(`Gates file not found: ${gatesPath}`);
@@ -130,21 +130,24 @@ if (!fs.existsSync(gatesPath)) {
 const gates = parseGatesFile(gatesPath);
 
 if (gates.size === 0) {
-  console.error('No gates found in gates.md');
+  console.error("No gates found in gates.md");
   process.exit(1);
 }
 
 // Scan all conformance test files (excluding snapshots)
-const conformanceTestDir = path.join(rootDir, 'packages/conformance/src/__tests__');
+const conformanceTestDir = path.join(
+  rootDir,
+  "packages/conformance/src/__tests__",
+);
 const testFiles: string[] = [];
 
 function findTestFiles(dir: string): void {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       // Skip __snapshots__
-      if (entry.name === '__snapshots__') continue;
+      if (entry.name === "__snapshots__") continue;
       findTestFiles(path.join(dir, entry.name));
-    } else if (entry.name.endsWith('.test.ts')) {
+    } else if (entry.name.endsWith(".test.ts")) {
       testFiles.push(path.join(dir, entry.name));
     }
   }
@@ -186,10 +189,12 @@ const coveredCount = covered.length;
 const percentage = Math.round((coveredCount / total) * 100);
 
 // Print report
-console.log('Gate Coverage Report');
-console.log('====================');
+console.log("Gate Coverage Report");
+console.log("====================");
 
-for (const [gateId, gate] of [...gates.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+for (const [gateId, gate] of [...gates.entries()].sort(([a], [b]) =>
+  a.localeCompare(b),
+)) {
   const refs = allRefs.get(gateId);
   const typeLabel = gate.type.padEnd(12);
 
@@ -201,7 +206,7 @@ for (const [gateId, gate] of [...gates.entries()].sort(([a], [b]) => a.localeCom
     }
     const fileSummary = [...fileGroups.entries()]
       .map(([f, count]) => `${f} (${count} tests)`)
-      .join(', ');
+      .join(", ");
     console.log(`${gateId}  ${typeLabel} \u2705  ${fileSummary}`);
   } else {
     console.log(`${gateId}  ${typeLabel} \u274C  NOT COVERED`);
@@ -218,6 +223,6 @@ const report: CoverageReport = {
   stats: { total, covered: coveredCount, percentage },
 };
 
-const reportPath = path.join(rootDir, 'gate-coverage-report.json');
+const reportPath = path.join(rootDir, "gate-coverage-report.json");
 fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
 console.log(`\nJSON report written to: ${reportPath}`);

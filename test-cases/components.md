@@ -3,6 +3,7 @@
 Purpose: capture **component config precedence**, **framework deltas**, and **validation/capability contract** semantics from the Shinobi test suite, reframed for V3 as backend-neutral graph behaviors.
 
 Related canonical laws/patterns (see `README.md`):
+
 - Kernel Laws: **KL-007** (ConfigPrecedence), **KL-006** (ExplainableDiagnostics), **KL-002** (SchemaAndSpecValidation), **KL-003** (CapabilityCompatibilityMatrix), **KL-001** (DeterministicCompilation)
 - Patterns: **P-005** (TriadMatrixBehavior)
 
@@ -50,4 +51,3 @@ TODO: Inventory which deltas are expected and which are forbidden (i.e., “pack
 ### Determinism (KL-001)
 
 - Component synthesis and emitted facts/intents are deterministic for identical conceptual inputs.
-

@@ -20,14 +20,14 @@ name: holdout-request-tag
 on:
   push:
     branches:
-      - "claude/**"   # all remote-session branches
+      - "claude/**" # all remote-session branches
 
 permissions:
-  contents: write     # required to create tag refs
+  contents: write # required to create tag refs
 
 concurrency:
   group: holdout-request-tag
-  cancel-in-progress: false   # serialize; concurrent tag creation would race
+  cancel-in-progress: false # serialize; concurrent tag creation would race
 
 jobs:
   create-tags:
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0   # the target commit must be reachable, not just the tip
+          fetch-depth: 0 # the target commit must be reachable, not just the tip
 
       - name: Create pending holdout-request tags
         run: |

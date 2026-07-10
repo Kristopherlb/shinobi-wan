@@ -1,5 +1,5 @@
-import type { Node, Edge, DerivedArtifact, GraphSnapshot } from './types';
-import { compareNodes, compareEdges, compareArtifacts } from './ordering';
+import type { Node, Edge, DerivedArtifact, GraphSnapshot } from "./types";
+import { compareNodes, compareEdges, compareArtifacts } from "./ordering";
 
 /**
  * Creates a GraphSnapshot with canonical ordering enforced.
@@ -10,10 +10,10 @@ import { compareNodes, compareEdges, compareArtifacts } from './ordering';
 export function createSnapshot(
   nodes: ReadonlyArray<Node>,
   edges: ReadonlyArray<Edge>,
-  artifacts: ReadonlyArray<DerivedArtifact> = []
+  artifacts: ReadonlyArray<DerivedArtifact> = [],
 ): GraphSnapshot {
   return {
-    schemaVersion: '1.0.0',
+    schemaVersion: "1.0.0",
     nodes: [...nodes].sort(compareNodes),
     edges: [...edges].sort(compareEdges),
     artifacts: [...artifacts].sort(compareArtifacts),

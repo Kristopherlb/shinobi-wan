@@ -1,9 +1,9 @@
-import type { ContractSchemaVersion } from '../versions';
+import type { ContractSchemaVersion } from "../versions";
 
 /**
  * Intent types supported by the system.
  */
-export const INTENT_TYPES = ['iam', 'network', 'config', 'telemetry'] as const;
+export const INTENT_TYPES = ["iam", "network", "config", "telemetry"] as const;
 export type IntentType = (typeof INTENT_TYPES)[number];
 
 /**

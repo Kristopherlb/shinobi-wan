@@ -1,5 +1,10 @@
-import type { GraphSnapshot, Edge, DerivedArtifact } from '@shinobi/ir';
-import { createError, createResult, type ValidationError, type ValidationResult } from '../errors';
+import type { GraphSnapshot, Edge, DerivedArtifact } from "@shinobi/ir";
+import {
+  createError,
+  createResult,
+  type ValidationError,
+  type ValidationResult,
+} from "../errors";
 
 /**
  * Validates that an edge's source and target nodes exist.
@@ -7,7 +12,7 @@ import { createError, createResult, type ValidationError, type ValidationResult 
 export function validateEdgeReferences(
   edge: Edge,
   index: number,
-  nodeIds: Set<string>
+  nodeIds: Set<string>,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -15,11 +20,12 @@ export function validateEdgeReferences(
     errors.push(
       createError({
         path: `$.edges[${index}].source`,
-        rule: 'dangling-edge-source',
+        rule: "dangling-edge-source",
         message: `Edge source '${edge.source}' references non-existent node`,
-        severity: 'error',
-        remediation: 'Ensure the source node exists in the graph before creating edges',
-      })
+        severity: "error",
+        remediation:
+          "Ensure the source node exists in the graph before creating edges",
+      }),
     );
   }
 
@@ -27,11 +33,12 @@ export function validateEdgeReferences(
     errors.push(
       createError({
         path: `$.edges[${index}].target`,
-        rule: 'dangling-edge-target',
+        rule: "dangling-edge-target",
         message: `Edge target '${edge.target}' references non-existent node`,
-        severity: 'error',
-        remediation: 'Ensure the target node exists in the graph before creating edges',
-      })
+        severity: "error",
+        remediation:
+          "Ensure the target node exists in the graph before creating edges",
+      }),
     );
   }
 
@@ -44,16 +51,17 @@ export function validateEdgeReferences(
 export function validateArtifactReferences(
   artifact: DerivedArtifact,
   index: number,
-  nodeIds: Set<string>
+  nodeIds: Set<string>,
 ): ValidationError[] {
   if (!nodeIds.has(artifact.sourceNodeId)) {
     return [
       createError({
         path: `$.artifacts[${index}].sourceNodeId`,
-        rule: 'dangling-artifact-source',
+        rule: "dangling-artifact-source",
         message: `Artifact sourceNodeId '${artifact.sourceNodeId}' references non-existent node`,
-        severity: 'error',
-        remediation: 'Ensure the source node exists in the graph before creating artifacts',
+        severity: "error",
+        remediation:
+          "Ensure the source node exists in the graph before creating artifacts",
       }),
     ];
   }
@@ -79,7 +87,9 @@ export function validateReferences(snapshot: GraphSnapshot): ValidationResult {
 
   // Validate artifact references
   for (let i = 0; i < snapshot.artifacts.length; i++) {
-    errors.push(...validateArtifactReferences(snapshot.artifacts[i], i, nodeIds));
+    errors.push(
+      ...validateArtifactReferences(snapshot.artifacts[i], i, nodeIds),
+    );
   }
 
   return createResult(errors);

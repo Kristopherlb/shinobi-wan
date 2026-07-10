@@ -1,10 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import type { IamIntent, NetworkIntent, ConfigIntent } from '@shinobi/contracts';
-import type { GraphMutation } from '@shinobi/ir';
-import { createTestNode, createTestEdge } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
-import { runGoldenCase } from '../golden-runner';
-import type { GoldenCase } from '../types';
+import { describe, it, expect } from "vitest";
+import type {
+  IamIntent,
+  NetworkIntent,
+  ConfigIntent,
+} from "@shinobi/contracts";
+import type { GraphMutation } from "@shinobi/ir";
+import { createTestNode, createTestEdge } from "@shinobi/ir";
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from "@shinobi/binder";
+import { runGoldenCase } from "../golden-runner";
+import type { GoldenCase } from "../types";
 
 /*──────────────────────────────────────────────────────────────────────────────
  * G-020 (COMPAT)     – Binder declares compatibility matrix
@@ -13,25 +21,25 @@ import type { GoldenCase } from '../types';
  *────────────────────────────────────────────────────────────────────────────*/
 
 function binderSetup(): ReadonlyArray<GraphMutation> {
-  const source = createTestNode({ id: 'component:my-svc', type: 'component' });
-  const target = createTestNode({ id: 'platform:aws-sqs', type: 'platform' });
+  const source = createTestNode({ id: "component:my-svc", type: "component" });
+  const target = createTestNode({ id: "platform:aws-sqs", type: "platform" });
   const edge = createTestEdge({
-    id: 'edge:bindsTo:component:my-svc:platform:aws-sqs',
-    type: 'bindsTo',
+    id: "edge:bindsTo:component:my-svc:platform:aws-sqs",
+    type: "bindsTo",
     source: source.id,
     target: target.id,
     metadata: {
       bindingConfig: {
-        resourceType: 'queue',
-        accessLevel: 'write',
-        network: { port: 443, protocol: 'tcp' },
+        resourceType: "queue",
+        accessLevel: "write",
+        network: { port: 443, protocol: "tcp" },
         configKeys: [
           {
-            key: 'QUEUE_URL',
+            key: "QUEUE_URL",
             valueSource: {
-              type: 'reference',
-              nodeRef: 'platform:aws-sqs',
-              field: 'url',
+              type: "reference",
+              nodeRef: "platform:aws-sqs",
+              field: "url",
             },
           },
         ],
@@ -40,9 +48,9 @@ function binderSetup(): ReadonlyArray<GraphMutation> {
   });
 
   return [
-    { type: 'addNode', node: source },
-    { type: 'addNode', node: target },
-    { type: 'addEdge', edge },
+    { type: "addNode", node: source },
+    { type: "addNode", node: target },
+    { type: "addEdge", edge },
   ];
 }
 
@@ -52,64 +60,81 @@ function createBinders() {
   return registry.getBinders();
 }
 
-describe('Golden: Binder (G-020, G-022, G-023)', () => {
+describe("Golden: Binder (G-020, G-022, G-023)", () => {
   const CASE_COMPAT: GoldenCase = {
-    id: 'golden:binder:compat-matrix',
-    description: 'ComponentPlatformBinder declares explicit edge type support',
-    gates: ['G-020'],
+    id: "golden:binder:compat-matrix",
+    description: "ComponentPlatformBinder declares explicit edge type support",
+    gates: ["G-020"],
   };
 
   const CASE_DETERMINISM: GoldenCase = {
-    id: 'golden:binder:determinism',
-    description: 'Binder output is deterministic across runs',
-    gates: ['G-022'],
+    id: "golden:binder:determinism",
+    description: "Binder output is deterministic across runs",
+    gates: ["G-022"],
   };
 
   const CASE_INTENTS: GoldenCase = {
-    id: 'golden:binder:required-intents',
-    description: 'Binder emits config, iam, and network intents in canonical order',
-    gates: ['G-023'],
+    id: "golden:binder:required-intents",
+    description:
+      "Binder emits config, iam, and network intents in canonical order",
+    gates: ["G-023"],
   };
 
   describe(`${CASE_COMPAT.id} — ${CASE_COMPAT.description}`, () => {
-    it('G-020: ComponentPlatformBinder declares supportedEdgeTypes', () => {
+    it("G-020: ComponentPlatformBinder declares supportedEdgeTypes", () => {
       const binder = new ComponentPlatformBinder();
 
       expect(binder.supportedEdgeTypes).toBeDefined();
       expect(binder.supportedEdgeTypes.length).toBeGreaterThan(0);
 
       const pattern = binder.supportedEdgeTypes[0];
-      expect(pattern.edgeType).toBe('bindsTo');
-      expect(pattern.sourceType).toBe('component');
-      expect(pattern.targetType).toBe('platform');
+      expect(pattern.edgeType).toBe("bindsTo");
+      expect(pattern.sourceType).toBe("component");
+      expect(pattern.targetType).toBe("platform");
     });
 
-    it('G-020: BinderRegistry can look up by edge pattern', () => {
+    it("G-020: BinderRegistry can look up by edge pattern", () => {
       const registry = new BinderRegistry();
       registry.register(new ComponentPlatformBinder());
 
-      const found = registry.findBinder('bindsTo', 'component', 'platform');
+      const found = registry.findBinder("bindsTo", "component", "platform");
       expect(found).toBeDefined();
-      expect(found?.id).toBe('component-platform-binder');
+      expect(found?.id).toBe("component-platform-binder");
 
       // Non-matching pattern returns undefined
-      const notFound = registry.findBinder('triggers', 'component', 'component');
+      const notFound = registry.findBinder(
+        "triggers",
+        "component",
+        "component",
+      );
       expect(notFound).toBeUndefined();
     });
   });
 
   describe(`${CASE_DETERMINISM.id} — ${CASE_DETERMINISM.description}`, () => {
-    it('G-022: two identical compilations with binder produce byte-identical JSON', () => {
-      const r1 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
-      const r2 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
+    it("G-022: two identical compilations with binder produce byte-identical JSON", () => {
+      const r1 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
 
       expect(r1.serialized).toBe(r2.serialized);
       expect(r1.serialized).toMatchSnapshot();
     });
 
-    it('G-022: intents are in identical order across runs', () => {
-      const r1 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
-      const r2 = runGoldenCase({ setup: binderSetup, binders: createBinders() });
+    it("G-022: intents are in identical order across runs", () => {
+      const r1 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: binderSetup,
+        binders: createBinders(),
+      });
 
       const types1 = r1.compilation.intents.map((i) => i.type);
       const types2 = r2.compilation.intents.map((i) => i.type);
@@ -118,7 +143,7 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
   });
 
   describe(`${CASE_INTENTS.id} — ${CASE_INTENTS.description}`, () => {
-    it('G-023: produces exactly 3 intents: config, iam, network', () => {
+    it("G-023: produces exactly 3 intents: config, iam, network", () => {
       const { compilation } = runGoldenCase({
         setup: binderSetup,
         binders: createBinders(),
@@ -128,59 +153,71 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
 
       const types = compilation.intents.map((i) => i.type);
       // Canonical order: config < iam < network
-      expect(types).toEqual(['config', 'iam', 'network']);
+      expect(types).toEqual(["config", "iam", "network"]);
     });
 
-    it('G-023: IAM intent has correct structure', () => {
+    it("G-023: IAM intent has correct structure", () => {
       const { compilation } = runGoldenCase({
         setup: binderSetup,
         binders: createBinders(),
       });
 
-      const iam = compilation.intents.find((i) => i.type === 'iam') as IamIntent;
+      const iam = compilation.intents.find(
+        (i) => i.type === "iam",
+      ) as IamIntent;
       expect(iam).toBeDefined();
-      expect(iam.schemaVersion).toBe('1.0.0');
-      expect(iam.sourceEdgeId).toBe('edge:bindsTo:component:my-svc:platform:aws-sqs');
-      expect(iam.principal.nodeRef).toBe('component:my-svc');
-      expect(iam.resource.nodeRef).toBe('platform:aws-sqs');
-      expect(iam.resource.resourceType).toBe('queue');
+      expect(iam.schemaVersion).toBe("1.0.0");
+      expect(iam.sourceEdgeId).toBe(
+        "edge:bindsTo:component:my-svc:platform:aws-sqs",
+      );
+      expect(iam.principal.nodeRef).toBe("component:my-svc");
+      expect(iam.resource.nodeRef).toBe("platform:aws-sqs");
+      expect(iam.resource.resourceType).toBe("queue");
       // write → ['read', 'write']
       expect(iam.actions).toEqual([
-        { level: 'read', action: 'read' },
-        { level: 'write', action: 'write' },
+        { level: "read", action: "read" },
+        { level: "write", action: "write" },
       ]);
     });
 
-    it('G-023: network intent has correct structure', () => {
+    it("G-023: network intent has correct structure", () => {
       const { compilation } = runGoldenCase({
         setup: binderSetup,
         binders: createBinders(),
       });
 
-      const net = compilation.intents.find((i) => i.type === 'network') as NetworkIntent;
+      const net = compilation.intents.find(
+        (i) => i.type === "network",
+      ) as NetworkIntent;
       expect(net).toBeDefined();
-      expect(net.schemaVersion).toBe('1.0.0');
-      expect(net.sourceEdgeId).toBe('edge:bindsTo:component:my-svc:platform:aws-sqs');
-      expect(net.direction).toBe('egress');
-      expect(net.source.nodeRef).toBe('component:my-svc');
-      expect(net.destination.nodeRef).toBe('platform:aws-sqs');
+      expect(net.schemaVersion).toBe("1.0.0");
+      expect(net.sourceEdgeId).toBe(
+        "edge:bindsTo:component:my-svc:platform:aws-sqs",
+      );
+      expect(net.direction).toBe("egress");
+      expect(net.source.nodeRef).toBe("component:my-svc");
+      expect(net.destination.nodeRef).toBe("platform:aws-sqs");
     });
 
-    it('G-023: config intent has correct structure', () => {
+    it("G-023: config intent has correct structure", () => {
       const { compilation } = runGoldenCase({
         setup: binderSetup,
         binders: createBinders(),
       });
 
-      const cfg = compilation.intents.find((i) => i.type === 'config') as ConfigIntent;
+      const cfg = compilation.intents.find(
+        (i) => i.type === "config",
+      ) as ConfigIntent;
       expect(cfg).toBeDefined();
-      expect(cfg.schemaVersion).toBe('1.0.0');
-      expect(cfg.sourceEdgeId).toBe('edge:bindsTo:component:my-svc:platform:aws-sqs');
-      expect(cfg.targetNodeRef).toBe('component:my-svc');
-      expect(cfg.key).toBe('QUEUE_URL');
+      expect(cfg.schemaVersion).toBe("1.0.0");
+      expect(cfg.sourceEdgeId).toBe(
+        "edge:bindsTo:component:my-svc:platform:aws-sqs",
+      );
+      expect(cfg.targetNodeRef).toBe("component:my-svc");
+      expect(cfg.key).toBe("QUEUE_URL");
     });
 
-    it('G-023: no backend-specific handles in intents (KL-004)', () => {
+    it("G-023: no backend-specific handles in intents (KL-004)", () => {
       const { compilation } = runGoldenCase({
         setup: binderSetup,
         binders: createBinders(),
@@ -188,9 +225,9 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
 
       const serialized = JSON.stringify(compilation.intents);
       // No provider-specific patterns should appear
-      expect(serialized).not.toContain('arn:');
-      expect(serialized).not.toContain('aws:');
-      expect(serialized).not.toContain('pulumi.');
+      expect(serialized).not.toContain("arn:");
+      expect(serialized).not.toContain("aws:");
+      expect(serialized).not.toContain("pulumi.");
     });
   });
 });
@@ -200,26 +237,32 @@ describe('Golden: Binder (G-020, G-022, G-023)', () => {
  *────────────────────────────────────────────────────────────────────────────*/
 
 function triggersSetup(): ReadonlyArray<GraphMutation> {
-  const platform = createTestNode({ id: 'platform:aws-apigateway', type: 'platform' });
-  const component = createTestNode({ id: 'component:api-handler', type: 'component' });
+  const platform = createTestNode({
+    id: "platform:aws-apigateway",
+    type: "platform",
+  });
+  const component = createTestNode({
+    id: "component:api-handler",
+    type: "component",
+  });
   const edge = createTestEdge({
-    id: 'edge:triggers:platform:aws-apigateway:component:api-handler',
-    type: 'triggers',
+    id: "edge:triggers:platform:aws-apigateway:component:api-handler",
+    type: "triggers",
     source: platform.id,
     target: component.id,
     metadata: {
       bindingConfig: {
-        resourceType: 'api',
-        route: '/items',
-        method: 'POST',
+        resourceType: "api",
+        route: "/items",
+        method: "POST",
       },
     },
   });
 
   return [
-    { type: 'addNode', node: platform },
-    { type: 'addNode', node: component },
-    { type: 'addEdge', edge },
+    { type: "addNode", node: platform },
+    { type: "addNode", node: component },
+    { type: "addEdge", edge },
   ];
 }
 
@@ -229,42 +272,54 @@ function createTriggersBinders() {
   return registry.getBinders();
 }
 
-describe('Golden: TriggersBinder (G-020, G-022, G-023)', () => {
-  describe('G-020: TriggersBinder declares triggers edge type', () => {
-    it('declares supportedEdgeTypes for triggers', () => {
+describe("Golden: TriggersBinder (G-020, G-022, G-023)", () => {
+  describe("G-020: TriggersBinder declares triggers edge type", () => {
+    it("declares supportedEdgeTypes for triggers", () => {
       const binder = new TriggersBinder();
 
       expect(binder.supportedEdgeTypes).toBeDefined();
       expect(binder.supportedEdgeTypes.length).toBeGreaterThan(0);
 
       const pattern = binder.supportedEdgeTypes[0];
-      expect(pattern.edgeType).toBe('triggers');
-      expect(pattern.sourceType).toBe('platform');
-      expect(pattern.targetType).toBe('component');
+      expect(pattern.edgeType).toBe("triggers");
+      expect(pattern.sourceType).toBe("platform");
+      expect(pattern.targetType).toBe("component");
     });
 
-    it('BinderRegistry can look up TriggersBinder by edge pattern', () => {
+    it("BinderRegistry can look up TriggersBinder by edge pattern", () => {
       const registry = new BinderRegistry();
       registry.register(new TriggersBinder());
 
-      const found = registry.findBinder('triggers', 'platform', 'component');
+      const found = registry.findBinder("triggers", "platform", "component");
       expect(found).toBeDefined();
-      expect(found?.id).toBe('triggers-binder');
+      expect(found?.id).toBe("triggers-binder");
     });
   });
 
-  describe('G-022: TriggersBinder determinism', () => {
-    it('two identical compilations produce byte-identical JSON', () => {
-      const r1 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
-      const r2 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
+  describe("G-022: TriggersBinder determinism", () => {
+    it("two identical compilations produce byte-identical JSON", () => {
+      const r1 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
 
       expect(r1.serialized).toBe(r2.serialized);
       expect(r1.serialized).toMatchSnapshot();
     });
 
-    it('intents are in identical order across runs', () => {
-      const r1 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
-      const r2 = runGoldenCase({ setup: triggersSetup, binders: createTriggersBinders() });
+    it("intents are in identical order across runs", () => {
+      const r1 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
+      const r2 = runGoldenCase({
+        setup: triggersSetup,
+        binders: createTriggersBinders(),
+      });
 
       const types1 = r1.compilation.intents.map((i) => i.type);
       const types2 = r2.compilation.intents.map((i) => i.type);
@@ -272,8 +327,8 @@ describe('Golden: TriggersBinder (G-020, G-022, G-023)', () => {
     });
   });
 
-  describe('G-023: TriggersBinder emits required intents', () => {
-    it('produces exactly 3 intents: config, config, iam (canonical order)', () => {
+  describe("G-023: TriggersBinder emits required intents", () => {
+    it("produces exactly 3 intents: config, config, iam (canonical order)", () => {
       const { compilation } = runGoldenCase({
         setup: triggersSetup,
         binders: createTriggersBinders(),
@@ -282,47 +337,53 @@ describe('Golden: TriggersBinder (G-020, G-022, G-023)', () => {
       expect(compilation.intents).toHaveLength(3);
 
       const types = compilation.intents.map((i) => i.type);
-      expect(types).toEqual(['config', 'config', 'iam']);
+      expect(types).toEqual(["config", "config", "iam"]);
     });
 
-    it('IAM intent has invoke action', () => {
+    it("IAM intent has invoke action", () => {
       const { compilation } = runGoldenCase({
         setup: triggersSetup,
         binders: createTriggersBinders(),
       });
 
-      const iam = compilation.intents.find((i) => i.type === 'iam') as IamIntent;
+      const iam = compilation.intents.find(
+        (i) => i.type === "iam",
+      ) as IamIntent;
       expect(iam).toBeDefined();
-      expect(iam.schemaVersion).toBe('1.0.0');
-      expect(iam.sourceEdgeId).toBe('edge:triggers:platform:aws-apigateway:component:api-handler');
-      expect(iam.principal.nodeRef).toBe('platform:aws-apigateway');
-      expect(iam.resource.nodeRef).toBe('component:api-handler');
-      expect(iam.actions).toEqual([{ level: 'write', action: 'invoke' }]);
+      expect(iam.schemaVersion).toBe("1.0.0");
+      expect(iam.sourceEdgeId).toBe(
+        "edge:triggers:platform:aws-apigateway:component:api-handler",
+      );
+      expect(iam.principal.nodeRef).toBe("platform:aws-apigateway");
+      expect(iam.resource.nodeRef).toBe("component:api-handler");
+      expect(iam.actions).toEqual([{ level: "write", action: "invoke" }]);
     });
 
-    it('config intents have API_GATEWAY_URL and API_ROUTE keys', () => {
+    it("config intents have API_GATEWAY_URL and API_ROUTE keys", () => {
       const { compilation } = runGoldenCase({
         setup: triggersSetup,
         binders: createTriggersBinders(),
       });
 
-      const configs = compilation.intents.filter((i) => i.type === 'config') as ConfigIntent[];
+      const configs = compilation.intents.filter(
+        (i) => i.type === "config",
+      ) as ConfigIntent[];
       expect(configs).toHaveLength(2);
 
       const keys = configs.map((c) => c.key).sort();
-      expect(keys).toEqual(['API_GATEWAY_URL', 'API_ROUTE']);
+      expect(keys).toEqual(["API_GATEWAY_URL", "API_ROUTE"]);
     });
 
-    it('no backend-specific handles in intents (KL-004)', () => {
+    it("no backend-specific handles in intents (KL-004)", () => {
       const { compilation } = runGoldenCase({
         setup: triggersSetup,
         binders: createTriggersBinders(),
       });
 
       const serialized = JSON.stringify(compilation.intents);
-      expect(serialized).not.toContain('arn:');
-      expect(serialized).not.toContain('aws:');
-      expect(serialized).not.toContain('pulumi.');
+      expect(serialized).not.toContain("arn:");
+      expect(serialized).not.toContain("aws:");
+      expect(serialized).not.toContain("pulumi.");
     });
   });
 });

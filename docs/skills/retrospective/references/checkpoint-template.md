@@ -17,13 +17,16 @@ Use this template to save progress during long-running work.
 _What's been completed and what remains._
 
 ### Completed
+
 - [x] Item 1
 - [x] Item 2
 
 ### In Progress
+
 - [ ] Current work item
 
 ### Remaining
+
 - [ ] Future item 1
 - [ ] Future item 2
 
@@ -42,10 +45,10 @@ _What have you discovered that wasn't obvious at the start?_
 
 _What slowed you down or caused frustration?_
 
-| Issue | Impact | Potential Solution |
-|-------|--------|-------------------|
-| [Issue 1] | [Time/effort lost] | [Idea to fix] |
-| [Issue 2] | [Time/effort lost] | [Idea to fix] |
+| Issue     | Impact             | Potential Solution |
+| --------- | ------------------ | ------------------ |
+| [Issue 1] | [Time/effort lost] | [Idea to fix]      |
+| [Issue 2] | [Time/effort lost] | [Idea to fix]      |
 
 ---
 

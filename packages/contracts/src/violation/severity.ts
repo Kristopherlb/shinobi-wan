@@ -1,7 +1,7 @@
 /**
  * Standard severity levels for policy violations.
  */
-export const SEVERITY_LEVELS = ['error', 'warning', 'info'] as const;
+export const SEVERITY_LEVELS = ["error", "warning", "info"] as const;
 
 /**
  * Severity level type.

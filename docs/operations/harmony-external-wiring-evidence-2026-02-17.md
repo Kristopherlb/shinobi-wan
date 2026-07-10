@@ -6,14 +6,14 @@ Confirm required workflow/status wiring artifacts and environment controls for r
 
 ## Required Wiring Artifacts
 
-| Artifact | Source | Status |
-|---|---|---|
-| workflow name | `SHINOBI_HARMONY_WORKFLOW_NAME` | pass |
-| task queue | `SHINOBI_HARMONY_TASK_QUEUE` | pass |
-| status base URL | `SHINOBI_HARMONY_STATUS_BASE_URL` | pass |
-| dispatch URL | `SHINOBI_HARMONY_DISPATCH_URL` | pass |
-| apply enablement flag | `SHINOBI_APPLY_ENABLED` | pass |
-| apply mode flag | `SHINOBI_APPLY_MODE` | pass |
+| Artifact              | Source                            | Status |
+| --------------------- | --------------------------------- | ------ |
+| workflow name         | `SHINOBI_HARMONY_WORKFLOW_NAME`   | pass   |
+| task queue            | `SHINOBI_HARMONY_TASK_QUEUE`      | pass   |
+| status base URL       | `SHINOBI_HARMONY_STATUS_BASE_URL` | pass   |
+| dispatch URL          | `SHINOBI_HARMONY_DISPATCH_URL`    | pass   |
+| apply enablement flag | `SHINOBI_APPLY_ENABLED`           | pass   |
+| apply mode flag       | `SHINOBI_APPLY_MODE`              | pass   |
 
 ## Contract Validation Coverage
 

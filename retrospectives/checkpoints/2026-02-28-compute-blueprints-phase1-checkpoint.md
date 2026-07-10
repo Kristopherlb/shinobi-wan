@@ -8,6 +8,7 @@
 ## Progress
 
 ### Completed
+
 - [x] Phase 0a: Lowerer generator script (`scripts/generate-lowerer.ts`)
 - [x] Phase 0b: Policy rule generator script (`scripts/generate-policy-rule.ts`)
 - [x] Phase 0c: Blueprint YAML template (`blueprints/_template.yaml`)
@@ -22,6 +23,7 @@
 - [x] Updated existing tests to accommodate new rules (rules.test.ts, golden-triad-resources.test.ts)
 
 ### Remaining
+
 - [ ] Phase 2: Blueprint #8 — Static Site + CDN + WAF
 - [ ] Phase 3: Blueprint #7 — Scheduled Batch Processing
 - [ ] Phase 4: Blueprint #6 — ECS Fargate + ALB
@@ -43,11 +45,11 @@
 
 ## Friction Points
 
-| Issue | Impact | Potential Solution |
-|-------|--------|-------------------|
-| Hardcoded test counts in `rules.test.ts` | Test broke when adding new rules | Use dynamic assertion like `>= 7` or separate by category |
-| Golden snapshot staleness | Had to run `--update` after rule changes | Consider auto-detecting snapshot drift in CI |
-| `compilation.violations` vs `compilation.policy?.violations` | Initial golden test used wrong path | Add a type assertion helper to catch this at compile time |
+| Issue                                                        | Impact                                   | Potential Solution                                        |
+| ------------------------------------------------------------ | ---------------------------------------- | --------------------------------------------------------- |
+| Hardcoded test counts in `rules.test.ts`                     | Test broke when adding new rules         | Use dynamic assertion like `>= 7` or separate by category |
+| Golden snapshot staleness                                    | Had to run `--update` after rule changes | Consider auto-detecting snapshot drift in CI              |
+| `compilation.violations` vs `compilation.policy?.violations` | Initial golden test used wrong path      | Add a type assertion helper to catch this at compile time |
 
 ---
 

@@ -1,6 +1,11 @@
-import type { Node } from '@shinobi/ir';
-import type { LoweredResource, LoweringContext, NodeLowerer, ResolvedDeps } from '../types';
-import { shortName, createStandardTags } from './utils';
+import type { Node } from "@shinobi/ir";
+import type {
+  LoweredResource,
+  LoweringContext,
+  NodeLowerer,
+  ResolvedDeps,
+} from "../types";
+import { shortName, createStandardTags } from "./utils";
 
 /**
  * Lowers a platform node with platform "aws-acm" → ACM Certificate.
@@ -9,9 +14,13 @@ import { shortName, createStandardTags } from './utils';
  *   - Certificate (DNS validation)
  */
 export class AcmLowerer implements NodeLowerer {
-  readonly platform = 'aws-acm';
+  readonly platform = "aws-acm";
 
-  lower(node: Node, context: LoweringContext, _resolvedDeps: ResolvedDeps): ReadonlyArray<LoweredResource> {
+  lower(
+    node: Node,
+    context: LoweringContext,
+    _resolvedDeps: ResolvedDeps,
+  ): ReadonlyArray<LoweredResource> {
     const name = shortName(node.id);
     const props = node.metadata.properties;
     const serviceName = context.adapterConfig.serviceName;
@@ -20,23 +29,25 @@ export class AcmLowerer implements NodeLowerer {
 
     const certName = `${name}-cert`;
 
-    const domainName = (props['domainName'] as string) ?? `${serviceName}.example.com`;
-    const validationMethod = (props['validationMethod'] as string) ?? 'DNS';
+    const domainName =
+      (props["domainName"] as string) ?? `${serviceName}.example.com`;
+    const validationMethod = (props["validationMethod"] as string) ?? "DNS";
 
     const certProperties: Record<string, unknown> = {
       domainName,
       validationMethod,
-      tags: createStandardTags(node.id, 'aws-acm'),
+      tags: createStandardTags(node.id, "aws-acm"),
     };
 
     // Add Subject Alternative Names if provided
-    if (props['subjectAlternativeNames']) {
-      certProperties['subjectAlternativeNames'] = props['subjectAlternativeNames'];
+    if (props["subjectAlternativeNames"]) {
+      certProperties["subjectAlternativeNames"] =
+        props["subjectAlternativeNames"];
     }
 
     resources.push({
       name: certName,
-      resourceType: 'aws:acm:Certificate',
+      resourceType: "aws:acm:Certificate",
       properties: certProperties,
       sourceId: node.id,
       dependsOn: [],

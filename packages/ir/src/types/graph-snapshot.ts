@@ -1,6 +1,6 @@
-import type { Node } from './node';
-import type { Edge } from './edge';
-import type { DerivedArtifact } from './derived-artifact';
+import type { Node } from "./node";
+import type { Edge } from "./edge";
+import type { DerivedArtifact } from "./derived-artifact";
 
 /**
  * GraphSnapshot is the serializable envelope containing
@@ -8,7 +8,7 @@ import type { DerivedArtifact } from './derived-artifact';
  */
 export interface GraphSnapshot {
   /** Envelope schema version */
-  readonly schemaVersion: '1.0.0';
+  readonly schemaVersion: "1.0.0";
 
   /** All nodes in canonical order */
   readonly nodes: ReadonlyArray<Node>;

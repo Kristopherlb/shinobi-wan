@@ -56,6 +56,7 @@ flowchart TD
 ```
 
 **Direction Options:**
+
 - `TD` or `TB` - Top to Bottom
 - `BT` - Bottom to Top
 - `LR` - Left to Right
@@ -254,12 +255,14 @@ classDiagram
 ```
 
 **Visibility Modifiers:**
+
 - `+` Public
 - `-` Private
 - `#` Protected
 - `~` Package/Internal
 
 **Method Classifiers:**
+
 - `*` Abstract method
 - `$` Static method
 
@@ -446,6 +449,7 @@ erDiagram
 ```
 
 **Symbols:**
+
 - `|` - Exactly one
 - `o` - Zero or one
 - `{` - One or more
@@ -486,6 +490,7 @@ erDiagram
 ```
 
 **Attribute Keys:**
+
 - `PK` - Primary Key
 - `FK` - Foreign Key
 - `UK` - Unique Key
@@ -832,16 +837,19 @@ block-beta
 ## Best Practices Summary
 
 ### 1. Keep It Simple
+
 - Start with the minimum elements needed
 - Add complexity only when necessary
 - Break large diagrams into smaller focused ones
 
 ### 2. Use Consistent Styling
+
 - Maintain the same shapes for similar concepts
 - Use consistent colors for categories
 - Keep labeling style uniform
 
 ### 3. Choose the Right Diagram Type
+
 - **Flowcharts**: Processes, decisions, workflows
 - **Sequence**: API calls, service interactions, protocols
 - **Class**: Object-oriented design, type relationships
@@ -852,16 +860,19 @@ block-beta
 - **Journey**: User experience, touchpoints
 
 ### 4. Label Everything Clearly
+
 - Use descriptive names, not abbreviations
 - Add relationship labels when not obvious
 - Include notes for complex logic
 
 ### 5. Direction and Layout
+
 - Choose direction based on reading flow (LR for timelines, TB for hierarchies)
 - Use subgraphs to group related elements
 - Position important elements prominently
 
 ### 6. Version Control
+
 - Keep diagrams in code repositories
 - Update diagrams when code changes
 - Review diagram changes in PRs
@@ -871,6 +882,7 @@ block-beta
 ## Platform Support
 
 Mermaid diagrams render automatically in:
+
 - **GitHub** - Markdown files and comments
 - **GitLab** - Markdown files and wikis
 - **Notion** - Code blocks with mermaid language
@@ -885,10 +897,13 @@ Mermaid diagrams render automatically in:
 ## Common Troubleshooting
 
 ### Reserved Words
+
 Avoid using `end` as a node ID in lowercase. Use `End`, `END`, or wrap in quotes.
 
 ### Special Characters
+
 Escape special characters or wrap text in quotes:
+
 ```mermaid
 flowchart LR
     A["Node with (parentheses)"]
@@ -896,7 +911,9 @@ flowchart LR
 ```
 
 ### Long Labels
+
 Use markdown strings for formatting:
+
 ```mermaid
 flowchart LR
     A["`**Bold** and
@@ -905,4 +922,4 @@ flowchart LR
 
 ---
 
-*This reference is part of the docs-with-mermaid Claude Code skill.*
+_This reference is part of the docs-with-mermaid Claude Code skill._

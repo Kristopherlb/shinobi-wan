@@ -1,14 +1,14 @@
-import type { Node, Edge, DerivedArtifact, GraphSnapshot } from './types';
-import { ConflictError, IntegrityError } from './errors';
-import { compareNodes, compareEdges, compareArtifacts } from './ordering';
+import type { Node, Edge, DerivedArtifact, GraphSnapshot } from "./types";
+import { ConflictError, IntegrityError } from "./errors";
+import { compareNodes, compareEdges, compareArtifacts } from "./ordering";
 
 /**
  * Mutation types for atomic batch operations.
  */
 export type GraphMutation =
-  | { type: 'addNode'; node: Node }
-  | { type: 'addEdge'; edge: Edge }
-  | { type: 'addArtifact'; artifact: DerivedArtifact };
+  | { type: "addNode"; node: Node }
+  | { type: "addEdge"; edge: Edge }
+  | { type: "addArtifact"; artifact: DerivedArtifact };
 
 /**
  * Result of a batch mutation operation.
@@ -63,7 +63,11 @@ export class Graph {
       if (existing.semanticHash === node.semanticHash) {
         return; // Idempotent - same content
       }
-      throw new ConflictError(node.id, existing.semanticHash, node.semanticHash);
+      throw new ConflictError(
+        node.id,
+        existing.semanticHash,
+        node.semanticHash,
+      );
     }
     this.nodes.set(node.id, node);
   }
@@ -87,7 +91,11 @@ export class Graph {
       if (existing.semanticHash === edge.semanticHash) {
         return; // Idempotent - same content
       }
-      throw new ConflictError(edge.id, existing.semanticHash, edge.semanticHash);
+      throw new ConflictError(
+        edge.id,
+        existing.semanticHash,
+        edge.semanticHash,
+      );
     }
     this.edges.set(edge.id, edge);
   }
@@ -103,7 +111,11 @@ export class Graph {
       if (existing.semanticHash === artifact.semanticHash) {
         return; // Idempotent - same content
       }
-      throw new ConflictError(artifact.id, existing.semanticHash, artifact.semanticHash);
+      throw new ConflictError(
+        artifact.id,
+        existing.semanticHash,
+        artifact.semanticHash,
+      );
     }
     this.artifacts.set(artifact.id, artifact);
   }
@@ -128,7 +140,7 @@ export class Graph {
           mutation,
           nodesCopy,
           edgesCopy,
-          artifactsCopy
+          artifactsCopy,
         );
         if (wasApplied) {
           appliedCount++;
@@ -171,10 +183,10 @@ export class Graph {
     mutation: GraphMutation,
     nodes: Map<string, Node>,
     edges: Map<string, Edge>,
-    artifacts: Map<string, DerivedArtifact>
+    artifacts: Map<string, DerivedArtifact>,
   ): boolean {
     switch (mutation.type) {
-      case 'addNode': {
+      case "addNode": {
         const existing = nodes.get(mutation.node.id);
         if (existing) {
           if (existing.semanticHash === mutation.node.semanticHash) {
@@ -183,14 +195,14 @@ export class Graph {
           throw new ConflictError(
             mutation.node.id,
             existing.semanticHash,
-            mutation.node.semanticHash
+            mutation.node.semanticHash,
           );
         }
         nodes.set(mutation.node.id, mutation.node);
         return true;
       }
 
-      case 'addEdge': {
+      case "addEdge": {
         if (!nodes.has(mutation.edge.source)) {
           throw new IntegrityError(mutation.edge.source, mutation.edge.id);
         }
@@ -206,14 +218,14 @@ export class Graph {
           throw new ConflictError(
             mutation.edge.id,
             existing.semanticHash,
-            mutation.edge.semanticHash
+            mutation.edge.semanticHash,
           );
         }
         edges.set(mutation.edge.id, mutation.edge);
         return true;
       }
 
-      case 'addArtifact': {
+      case "addArtifact": {
         const existing = artifacts.get(mutation.artifact.id);
         if (existing) {
           if (existing.semanticHash === mutation.artifact.semanticHash) {
@@ -222,7 +234,7 @@ export class Graph {
           throw new ConflictError(
             mutation.artifact.id,
             existing.semanticHash,
-            mutation.artifact.semanticHash
+            mutation.artifact.semanticHash,
           );
         }
         artifacts.set(mutation.artifact.id, mutation.artifact);
@@ -236,7 +248,7 @@ export class Graph {
    */
   toSnapshot(): GraphSnapshot {
     return {
-      schemaVersion: '1.0.0',
+      schemaVersion: "1.0.0",
       nodes: Array.from(this.nodes.values()).sort(compareNodes),
       edges: Array.from(this.edges.values()).sort(compareEdges),
       artifacts: Array.from(this.artifacts.values()).sort(compareArtifacts),

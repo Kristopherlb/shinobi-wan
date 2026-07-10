@@ -62,7 +62,7 @@ over-frequent requests anyway, so there's no benefit to asking often.
 2. **[script]** Later — next cycle or two — check:
    `scripts/target-repo/check-holdout-status.sh <tag-name>`
    Returns `{"status": "pending"}` or `{"status": "success"/"failure",
-   "description": "holdout: <score> [<ci_low>,<ci_high>]"}`.
+"description": "holdout: <score> [<ci_low>,<ci_high>]"}`.
 
 3. **[judgment — this is the one that matters most]** If the description
    contains `DIVERGENCE flagged`: **stop the dev-only loop.** This means
@@ -84,6 +84,7 @@ over-frequent requests anyway, so there's no benefit to asking often.
 
 Check `log.jsonl`-derived state (surfaced via the holdout status, plus
 your own dev history) against goal.md's stop conditions each cycle:
+
 - Bar hit on holdout (interval lower bound ≥ bar) → write the Final
   Report, stop.
 - Budget exhausted (`status.sh` reports elapsed/spend) → stop regardless

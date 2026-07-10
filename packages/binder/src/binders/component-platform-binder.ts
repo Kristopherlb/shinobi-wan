@@ -1,15 +1,25 @@
-import type { Intent } from '@shinobi/contracts';
-import type { IBinder, SupportedEdgePattern, BindingContext, BinderOutput, BindingDiagnostic } from '@shinobi/kernel';
-import { createIamIntent, createNetworkIntent, createConfigIntent } from '../intent-factories';
+import type { Intent } from "@shinobi/contracts";
+import type {
+  IBinder,
+  SupportedEdgePattern,
+  BindingContext,
+  BinderOutput,
+  BindingDiagnostic,
+} from "@shinobi/kernel";
+import {
+  createIamIntent,
+  createNetworkIntent,
+  createConfigIntent,
+} from "../intent-factories";
 
 /**
  * Access level → IAM action mapping.
  * Each level includes all lower levels' actions.
  */
 const ACCESS_LEVEL_ACTIONS: Record<string, ReadonlyArray<string>> = {
-  read: ['read'],
-  write: ['read', 'write'],
-  admin: ['read', 'write', 'admin'],
+  read: ["read"],
+  write: ["read", "write"],
+  admin: ["read", "write", "admin"],
 };
 
 /**
@@ -18,17 +28,22 @@ const ACCESS_LEVEL_ACTIONS: Record<string, ReadonlyArray<string>> = {
 interface BindingConfig {
   readonly accessLevel?: string;
   readonly resourceType?: string;
-  readonly scope?: 'specific' | 'pattern';
+  readonly scope?: "specific" | "pattern";
   readonly actions?: ReadonlyArray<string>;
   readonly network?: {
     readonly port?: number;
-    readonly protocol?: 'tcp' | 'udp' | 'any';
+    readonly protocol?: "tcp" | "udp" | "any";
   };
   readonly configKeys?: ReadonlyArray<{
     readonly key: string;
-    readonly valueSource: { readonly type: 'literal'; readonly value: string | number | boolean }
-      | { readonly type: 'reference'; readonly nodeRef: string; readonly field: string }
-      | { readonly type: 'secret'; readonly secretRef: string };
+    readonly valueSource:
+      | { readonly type: "literal"; readonly value: string | number | boolean }
+      | {
+          readonly type: "reference";
+          readonly nodeRef: string;
+          readonly field: string;
+        }
+      | { readonly type: "secret"; readonly secretRef: string };
   }>;
 }
 
@@ -40,10 +55,10 @@ interface BindingConfig {
  * all intent types. It reads binding directives from edge.metadata.bindingConfig.
  */
 export class ComponentPlatformBinder implements IBinder {
-  readonly id = 'component-platform-binder';
+  readonly id = "component-platform-binder";
 
   readonly supportedEdgeTypes: ReadonlyArray<SupportedEdgePattern> = [
-    { edgeType: 'bindsTo', sourceType: 'component', targetType: 'platform' },
+    { edgeType: "bindsTo", sourceType: "component", targetType: "platform" },
   ];
 
   compileEdge(context: BindingContext): BinderOutput {
@@ -57,23 +72,24 @@ export class ComponentPlatformBinder implements IBinder {
     if (!bindingConfig.resourceType) {
       diagnostics.push({
         path: `$.edges[${edge.id}].metadata.bindingConfig.resourceType`,
-        rule: 'missing-resource-type',
+        rule: "missing-resource-type",
         message: `Edge "${edge.id}" is missing required resourceType in bindingConfig`,
-        severity: 'error',
+        severity: "error",
       });
       return { intents, diagnostics };
     }
 
     // Resolve access level
-    const accessLevel = bindingConfig.accessLevel ?? 'read';
-    const actionNames = bindingConfig.actions ?? ACCESS_LEVEL_ACTIONS[accessLevel];
+    const accessLevel = bindingConfig.accessLevel ?? "read";
+    const actionNames =
+      bindingConfig.actions ?? ACCESS_LEVEL_ACTIONS[accessLevel];
 
     if (!actionNames) {
       diagnostics.push({
         path: `$.edges[${edge.id}].metadata.bindingConfig.accessLevel`,
-        rule: 'unknown-access-level',
+        rule: "unknown-access-level",
         message: `Unknown access level "${accessLevel}". Allowed values: read, write, admin`,
-        severity: 'warning',
+        severity: "warning",
       });
       return { intents, diagnostics };
     }
@@ -91,24 +107,24 @@ export class ComponentPlatformBinder implements IBinder {
         {
           nodeRef: targetNode.id,
           resourceType: bindingConfig.resourceType,
-          scope: bindingConfig.scope ?? 'specific',
+          scope: bindingConfig.scope ?? "specific",
         },
-        iamActions
-      )
+        iamActions,
+      ),
     );
 
     // Emit network intent if network config present
     if (bindingConfig.network) {
       const port = bindingConfig.network.port;
-      const protocol = bindingConfig.network.protocol ?? 'tcp';
+      const protocol = bindingConfig.network.protocol ?? "tcp";
       intents.push(
         createNetworkIntent(
           edge.id,
-          'egress',
+          "egress",
           { nodeRef: sourceNode.id, ...(port !== undefined ? { port } : {}) },
           { nodeRef: targetNode.id, ...(port !== undefined ? { port } : {}) },
-          { protocol, ...(port !== undefined ? { ports: [port] } : {}) }
-        )
+          { protocol, ...(port !== undefined ? { ports: [port] } : {}) },
+        ),
       );
     }
 
@@ -120,8 +136,8 @@ export class ComponentPlatformBinder implements IBinder {
             edge.id,
             sourceNode.id,
             configEntry.key,
-            configEntry.valueSource
-          )
+            configEntry.valueSource,
+          ),
         );
       }
     }
@@ -133,8 +149,8 @@ export class ComponentPlatformBinder implements IBinder {
 /**
  * Maps an action name to its IAM action level.
  */
-function resolveActionLevel(action: string): 'read' | 'write' | 'admin' {
-  if (action === 'admin') return 'admin';
-  if (action === 'write') return 'write';
-  return 'read';
+function resolveActionLevel(action: string): "read" | "write" | "admin" {
+  if (action === "admin") return "admin";
+  if (action === "write") return "write";
+  return "read";
 }

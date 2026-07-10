@@ -11,20 +11,20 @@ Authoritative gate decision source: `docs/operations/harmony-release-gate-checkl
 
 ## Phase 1 Evidence
 
-| Gate | Weekly Status | Owner | Target Window | Evidence Artifact | Open Risk | Next Action |
-|---|---|---|---|---|---|---|
-| Contract Conformance | pass | Kristopher Bowles (Shinobi) | 2026-02-17 | `packages/cli/src/integration/__tests__/contract.test.ts` | Low - monitor contract drift on enum changes | Keep contract tests green in CI |
-| Read/Plan SLO | pass | Kristopher Bowles (Shinobi) | 2026-02-17 | `docs/operations/harmony-pilot-slo-report-2026-02-17.md` | Medium - re-capture after traffic shape changes | Re-run pilot SLO capture weekly |
-| Error Taxonomy Stability | pass | Kristopher Bowles (Shinobi) | 2026-02-17 | `packages/cli/src/integration/__tests__/envelope.test.ts` | Low - unknown runtime classes still possible on new upstreams | Add runtime unknown-code alert in wrapper logs |
+| Gate                     | Weekly Status | Owner                       | Target Window | Evidence Artifact                                         | Open Risk                                                     | Next Action                                    |
+| ------------------------ | ------------- | --------------------------- | ------------- | --------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------- |
+| Contract Conformance     | pass          | Kristopher Bowles (Shinobi) | 2026-02-17    | `packages/cli/src/integration/__tests__/contract.test.ts` | Low - monitor contract drift on enum changes                  | Keep contract tests green in CI                |
+| Read/Plan SLO            | pass          | Kristopher Bowles (Shinobi) | 2026-02-17    | `docs/operations/harmony-pilot-slo-report-2026-02-17.md`  | Medium - re-capture after traffic shape changes               | Re-run pilot SLO capture weekly                |
+| Error Taxonomy Stability | pass          | Kristopher Bowles (Shinobi) | 2026-02-17    | `packages/cli/src/integration/__tests__/envelope.test.ts` | Low - unknown runtime classes still possible on new upstreams | Add runtime unknown-code alert in wrapper logs |
 
 ## Phase 2 Evidence
 
-| Gate | Weekly Status | Owner | Target Window | Evidence Artifact | Open Risk | Next Action |
-|---|---|---|---|---|---|---|
-| Isolation Chaos Test | pass | Kristopher Bowles (Shinobi) + harmony-owner | 2026-02-17 | `docs/operations/harmony-chaos-isolation-drill-2026-02-17.md` | Medium - chaos drill currently synthetic/test-driven only | Schedule non-prod fault-injection replay |
-| Approval Wiring Validation | pass | harmony-owner | 2026-02-17 | `docs/operations/harmony-approval-wiring-validation-2026-02-17.md` | Medium - owner roster still aliases pending HRIS sync | Replace aliases with finalized roster IDs |
-| Canary + Rollback Pin | pass | Kristopher Bowles (Shinobi) + harmony-owner | 2026-02-17 | `docs/operations/harmony-canary-rollback-drill-2026-02-17.md` | Medium - drill cadence not yet automated | Add monthly canary drill calendar guardrail |
-| External Wiring Complete | pass | harmony-owner | 2026-02-17 | `docs/operations/harmony-external-wiring-evidence-2026-02-17.md` | Low - depends on environment parity across staging/prod | Validate artifact parity during prod cutover review |
+| Gate                       | Weekly Status | Owner                                       | Target Window | Evidence Artifact                                                  | Open Risk                                                 | Next Action                                         |
+| -------------------------- | ------------- | ------------------------------------------- | ------------- | ------------------------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------------- |
+| Isolation Chaos Test       | pass          | Kristopher Bowles (Shinobi) + harmony-owner | 2026-02-17    | `docs/operations/harmony-chaos-isolation-drill-2026-02-17.md`      | Medium - chaos drill currently synthetic/test-driven only | Schedule non-prod fault-injection replay            |
+| Approval Wiring Validation | pass          | harmony-owner                               | 2026-02-17    | `docs/operations/harmony-approval-wiring-validation-2026-02-17.md` | Medium - owner roster still aliases pending HRIS sync     | Replace aliases with finalized roster IDs           |
+| Canary + Rollback Pin      | pass          | Kristopher Bowles (Shinobi) + harmony-owner | 2026-02-17    | `docs/operations/harmony-canary-rollback-drill-2026-02-17.md`      | Medium - drill cadence not yet automated                  | Add monthly canary drill calendar guardrail         |
+| External Wiring Complete   | pass          | harmony-owner                               | 2026-02-17    | `docs/operations/harmony-external-wiring-evidence-2026-02-17.md`   | Low - depends on environment parity across staging/prod   | Validate artifact parity during prod cutover review |
 
 ## Async Apply Handle Contract Validation
 

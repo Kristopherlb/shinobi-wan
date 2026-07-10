@@ -1,25 +1,20 @@
 {
-    "name": "conformance",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "packages/conformance/src",
-    "projectType": "library",
-    "targets": {
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ]
-        },
-        "test": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "vitest run --config packages/conformance/vitest.config.ts",
-                "cwd": "{workspaceRoot}"
-            }
-        }
+  "name": "conformance",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/conformance/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
-    "tags": [
-        "scope:conformance",
-        "type:lib"
-    ]
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config packages/conformance/vitest.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": ["scope:conformance", "type:lib"]
 }

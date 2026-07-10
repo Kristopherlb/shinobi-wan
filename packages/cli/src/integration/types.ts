@@ -2,9 +2,13 @@ import type {
   OperationClass,
   RetriableReason,
   TerminalOperationState,
-} from './contract';
+} from "./contract";
 
-export type { OperationClass, RetriableReason, TerminalOperationState } from './contract';
+export type {
+  OperationClass,
+  RetriableReason,
+  TerminalOperationState,
+} from "./contract";
 
 export interface RetryPolicy {
   readonly maxAttempts: number;
@@ -17,13 +21,19 @@ export interface OperationPolicy {
   readonly defaultTimeoutMs: number;
   readonly maxTimeoutMs: number;
   readonly retryPolicy: RetryPolicy;
-  readonly idempotency: 'required' | 'recommended' | 'optional';
-  readonly mode: 'await' | 'start';
+  readonly idempotency: "required" | "recommended" | "optional";
+  readonly mode: "await" | "start";
 }
 
 export type ToolErrorEnvelope = {
   readonly code: string;
-  readonly category: 'validation' | 'authorization' | 'upstream' | 'runtime' | 'conflict' | 'unknown';
+  readonly category:
+    | "validation"
+    | "authorization"
+    | "upstream"
+    | "runtime"
+    | "conflict"
+    | "unknown";
   readonly source: string;
   readonly traceId: string;
   readonly message: string;
@@ -57,14 +67,16 @@ export interface AsyncOperationHandle {
   readonly submittedAt: string;
   readonly statusUrl: string;
   readonly terminalStates: ReadonlyArray<TerminalOperationState>;
-  readonly terminalStateRetryable: Readonly<Record<TerminalOperationState, boolean>>;
+  readonly terminalStateRetryable: Readonly<
+    Record<TerminalOperationState, boolean>
+  >;
   readonly cancelUrl?: string;
 }
 
 export interface IntegrationFeatureFlags {
   readonly wrapperModeEnabled: boolean;
   readonly applyEnabled: boolean;
-  readonly applyMode: 'start' | 'await';
+  readonly applyMode: "start" | "await";
   readonly approvalRequired: boolean;
   readonly approvalMaxSlaMinutes: number;
   readonly contractVersion: string;

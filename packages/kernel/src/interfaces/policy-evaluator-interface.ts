@@ -1,5 +1,5 @@
-import type { Violation } from '@shinobi/contracts';
-import type { PolicyEvaluationContext } from '../types';
+import type { Violation } from "@shinobi/contracts";
+import type { PolicyEvaluationContext } from "../types";
 
 /**
  * Interface that policy evaluator implementations must satisfy.

@@ -1,12 +1,12 @@
-import type { Intent, Violation, Severity } from '@shinobi/contracts';
-import type { GraphSnapshot, Node, Edge } from '@shinobi/ir';
-import type { ValidationResult, ValidatorOptions } from '@shinobi/validation';
+import type { Intent, Violation, Severity } from "@shinobi/contracts";
+import type { GraphSnapshot, Node, Edge } from "@shinobi/ir";
+import type { ValidationResult, ValidatorOptions } from "@shinobi/validation";
 
 /**
  * Source layer for configuration precedence (KL-007).
  */
 export interface ConfigLayer {
-  readonly source: 'defaults' | 'environment' | 'overrides';
+  readonly source: "defaults" | "environment" | "overrides";
   readonly values: Readonly<Record<string, unknown>>;
 }
 

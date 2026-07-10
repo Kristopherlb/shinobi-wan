@@ -6,8 +6,8 @@
  */
 
 // Kernel class
-export { Kernel } from './kernel';
-export type { KernelOptions } from './kernel';
+export { Kernel } from "./kernel";
+export type { KernelOptions } from "./kernel";
 
 // Types
 export type {
@@ -20,24 +20,24 @@ export type {
   BindingContext,
   BinderOutput,
   PolicyEvaluationContext,
-} from './types';
+} from "./types";
 
 // Interfaces
-export type { IBinder, SupportedEdgePattern } from './interfaces';
-export type { IPolicyEvaluator } from './interfaces';
+export type { IBinder, SupportedEdgePattern } from "./interfaces";
+export type { IPolicyEvaluator } from "./interfaces";
 
 // Config resolution
-export { resolveConfig, interpolateEnvTokens } from './config';
+export { resolveConfig, interpolateEnvTokens } from "./config";
 
 // Compilation pipeline
-export { compilePipeline } from './compilation-pipeline';
+export { compilePipeline } from "./compilation-pipeline";
 
 // Errors
-export { CompilationError, ConfigError, PolicyPackError } from './errors';
-export type { CompilationDetail } from './errors';
+export { CompilationError, ConfigError, PolicyPackError } from "./errors";
+export type { CompilationDetail } from "./errors";
 
 // Utilities
-export { deepFreeze } from './freeze';
+export { deepFreeze } from "./freeze";
 
 // Facade (Harmony integration)
 export {
@@ -48,7 +48,7 @@ export {
   applyChange,
   readEntities,
   readActivity,
-} from './facade';
+} from "./facade";
 export type {
   ContractVersion,
   ToolResponseEnvelope,
@@ -60,4 +60,4 @@ export type {
   ReadEntitiesInput,
   ReadActivityInput,
   FacadeMode,
-} from './facade';
+} from "./facade";

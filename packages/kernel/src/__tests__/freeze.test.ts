@@ -1,23 +1,23 @@
-import { describe, it, expect } from 'vitest';
-import { deepFreeze } from '../freeze';
+import { describe, it, expect } from "vitest";
+import { deepFreeze } from "../freeze";
 
-describe('deepFreeze', () => {
-  it('passes primitives through unchanged', () => {
+describe("deepFreeze", () => {
+  it("passes primitives through unchanged", () => {
     expect(deepFreeze(42)).toBe(42);
-    expect(deepFreeze('hello')).toBe('hello');
+    expect(deepFreeze("hello")).toBe("hello");
     expect(deepFreeze(true)).toBe(true);
     expect(deepFreeze(null)).toBe(null);
     expect(deepFreeze(undefined)).toBe(undefined);
   });
 
-  it('freezes a flat object', () => {
-    const obj = { a: 1, b: 'two' };
+  it("freezes a flat object", () => {
+    const obj = { a: 1, b: "two" };
     const frozen = deepFreeze(obj);
     expect(Object.isFrozen(frozen)).toBe(true);
     expect(frozen).toBe(obj); // same reference
   });
 
-  it('freezes nested objects recursively', () => {
+  it("freezes nested objects recursively", () => {
     const obj = { a: { b: { c: 3 } } };
     deepFreeze(obj);
     expect(Object.isFrozen(obj)).toBe(true);
@@ -25,7 +25,7 @@ describe('deepFreeze', () => {
     expect(Object.isFrozen(obj.a.b)).toBe(true);
   });
 
-  it('freezes arrays and their elements', () => {
+  it("freezes arrays and their elements", () => {
     const arr = [{ x: 1 }, { y: 2 }];
     deepFreeze(arr);
     expect(Object.isFrozen(arr)).toBe(true);
@@ -33,7 +33,7 @@ describe('deepFreeze', () => {
     expect(Object.isFrozen(arr[1])).toBe(true);
   });
 
-  it('is idempotent — calling twice is safe', () => {
+  it("is idempotent — calling twice is safe", () => {
     const obj = { a: { b: 1 } };
     const first = deepFreeze(obj);
     const second = deepFreeze(first);
@@ -41,7 +41,7 @@ describe('deepFreeze', () => {
     expect(Object.isFrozen(second)).toBe(true);
   });
 
-  it('prevents mutation on frozen objects', () => {
+  it("prevents mutation on frozen objects", () => {
     const obj = deepFreeze({ a: 1, nested: { b: 2 } });
     expect(() => {
       (obj as Record<string, unknown>).a = 99;
@@ -51,7 +51,7 @@ describe('deepFreeze', () => {
     }).toThrow();
   });
 
-  it('prevents mutation on frozen arrays', () => {
+  it("prevents mutation on frozen arrays", () => {
     const arr = deepFreeze([1, 2, 3]);
     expect(() => {
       (arr as number[]).push(4);

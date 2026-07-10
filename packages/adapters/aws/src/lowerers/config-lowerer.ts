@@ -1,7 +1,7 @@
-import type { ConfigIntent } from '@shinobi/contracts';
-import type { LoweredResource, LoweringContext, IntentLowerer } from '../types';
-import { resolveConfigReference } from './reference-utils';
-import { shortName } from './utils';
+import type { ConfigIntent } from "@shinobi/contracts";
+import type { LoweredResource, LoweringContext, IntentLowerer } from "../types";
+import { resolveConfigReference } from "./reference-utils";
+import { shortName } from "./utils";
 
 /**
  * Lowers ConfigIntent → SSM Parameter resources.
@@ -11,9 +11,12 @@ import { shortName } from './utils';
  * parameters via environment variables.
  */
 export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
-  readonly intentType = 'config' as const;
+  readonly intentType = "config" as const;
 
-  lower(intent: ConfigIntent, context: LoweringContext): ReadonlyArray<LoweredResource> {
+  lower(
+    intent: ConfigIntent,
+    context: LoweringContext,
+  ): ReadonlyArray<LoweredResource> {
     const targetName = shortName(intent.targetNodeRef);
     const paramName = `${context.adapterConfig.serviceName}-${targetName}-${intent.key}`;
 
@@ -22,15 +25,15 @@ export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
     return [
       {
         name: paramName,
-        resourceType: 'aws:ssm:Parameter',
+        resourceType: "aws:ssm:Parameter",
         properties: {
           name: `/${context.adapterConfig.serviceName}/${targetName}/${intent.key}`,
-          type: 'String',
+          type: "String",
           value,
           tags: {
-            'shinobi:target': intent.targetNodeRef,
-            'shinobi:key': intent.key,
-            'shinobi:edge': intent.sourceEdgeId,
+            "shinobi:target": intent.targetNodeRef,
+            "shinobi:key": intent.key,
+            "shinobi:edge": intent.sourceEdgeId,
           },
         },
         sourceId: intent.sourceEdgeId,
@@ -39,17 +42,20 @@ export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
     ];
   }
 
-  private resolveValue(intent: ConfigIntent, context: LoweringContext): unknown {
+  private resolveValue(
+    intent: ConfigIntent,
+    context: LoweringContext,
+  ): unknown {
     switch (intent.valueSource.type) {
-      case 'literal':
+      case "literal":
         return String(intent.valueSource.value);
-      case 'reference':
+      case "reference":
         return resolveConfigReference(
           context.snapshot,
           intent.valueSource.nodeRef,
           intent.valueSource.field,
         );
-      case 'secret':
+      case "secret":
         // Secrets reference SSM SecureString or Secrets Manager
         return { secretRef: intent.valueSource.secretRef };
     }

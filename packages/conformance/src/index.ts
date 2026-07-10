@@ -6,8 +6,8 @@
  */
 
 // Types
-export type { GoldenCase, TriadCell, GoldenResult } from './types';
+export type { GoldenCase, TriadCell, GoldenResult } from "./types";
 
 // Golden runner
-export { runGoldenCase } from './golden-runner';
-export type { RunGoldenCaseOptions } from './golden-runner';
+export { runGoldenCase } from "./golden-runner";
+export type { RunGoldenCaseOptions } from "./golden-runner";

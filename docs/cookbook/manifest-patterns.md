@@ -12,19 +12,20 @@ This cookbook provides practical, copy-ready manifest patterns for the current S
    - `up` (preview first)
 
 Use TDD when extending pattern behavior in code:
+
 - Red: add failing tests for new binder/lowerer behavior.
 - Green: implement minimum to pass.
 - Refactor: improve structure without behavior drift.
 
 ## Compatibility Matrix
 
-| Pattern | Platform Nodes | Binding Types | Deployable Today | Notes |
-|---|---|---|---|---|
-| Lambda -> SQS | `aws-lambda`, `aws-sqs` | `bindsTo` | yes | Includes IAM, SSM, and event source mapping where applicable |
-| API GW -> Lambda -> DynamoDB | `aws-apigateway`, `aws-lambda`, `aws-dynamodb` | `bindsTo`, `triggers` | yes | Includes API integrations, route, permission, IAM, and SSM |
-| Lambda -> S3 | `aws-lambda`, `aws-s3` | `bindsTo` | yes | S3 versioning optional via platform config |
-| Network-constrained bindsTo | any | `bindsTo` with `network` config | partial | Network intent accepted, adapter emits warning; no deployable network resource emission in MVP |
-| Telemetry-enabled pattern | any | telemetry intents | partial | Telemetry intents are currently skipped by adapter lowering |
+| Pattern                      | Platform Nodes                                 | Binding Types                   | Deployable Today | Notes                                                                                          |
+| ---------------------------- | ---------------------------------------------- | ------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
+| Lambda -> SQS                | `aws-lambda`, `aws-sqs`                        | `bindsTo`                       | yes              | Includes IAM, SSM, and event source mapping where applicable                                   |
+| API GW -> Lambda -> DynamoDB | `aws-apigateway`, `aws-lambda`, `aws-dynamodb` | `bindsTo`, `triggers`           | yes              | Includes API integrations, route, permission, IAM, and SSM                                     |
+| Lambda -> S3                 | `aws-lambda`, `aws-s3`                         | `bindsTo`                       | yes              | S3 versioning optional via platform config                                                     |
+| Network-constrained bindsTo  | any                                            | `bindsTo` with `network` config | partial          | Network intent accepted, adapter emits warning; no deployable network resource emission in MVP |
+| Telemetry-enabled pattern    | any                                            | telemetry intents               | partial          | Telemetry intents are currently skipped by adapter lowering                                    |
 
 ## Pattern 1: Lambda -> SQS
 
@@ -63,6 +64,7 @@ policyPack: Baseline
 ```
 
 Expected resource classes:
+
 - Lambda Function
 - SQS Queue
 - IAM role/policy/attachments
@@ -125,6 +127,7 @@ bindings:
 ```
 
 Expected resource classes:
+
 - API Gateway API/Stage/Integration/Route
 - Lambda Function + Permission
 - DynamoDB Table
@@ -167,6 +170,7 @@ bindings:
 ```
 
 Expected resource classes:
+
 - S3 Bucket (+ optional versioning)
 - Lambda + IAM
 - SSM parameter for injected config
@@ -174,6 +178,7 @@ Expected resource classes:
 ## Pattern 4: Least-Privilege Safer IAM
 
 When possible:
+
 - prefer `accessLevel: read` over `write/admin`
 - avoid pattern-scope wildcard resources unless required
 - keep policy pack strictness aligned to target environment

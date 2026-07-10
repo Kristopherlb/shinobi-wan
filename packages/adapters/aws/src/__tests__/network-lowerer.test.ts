@@ -1,18 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import { NetworkIntentLowerer } from '../lowerers/network-lowerer';
-import { makeNetworkIntent, makeContext } from './test-helpers';
+import { describe, it, expect } from "vitest";
+import { NetworkIntentLowerer } from "../lowerers/network-lowerer";
+import { makeNetworkIntent, makeContext } from "./test-helpers";
 
 const lowerer = new NetworkIntentLowerer();
 
-describe('NetworkIntentLowerer', () => {
-  it('does not emit pseudo network resources', () => {
+describe("NetworkIntentLowerer", () => {
+  it("does not emit pseudo network resources", () => {
     const intent = makeNetworkIntent();
     const resources = lowerer.lower(intent, makeContext());
 
     expect(resources).toEqual([]);
   });
 
-  it('determinism: identical input produces identical output', () => {
+  it("determinism: identical input produces identical output", () => {
     const intent = makeNetworkIntent();
     const ctx = makeContext();
     const r1 = lowerer.lower(intent, ctx);

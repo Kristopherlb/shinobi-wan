@@ -5,7 +5,7 @@ export type {
   ManifestBindingConfig,
   ManifestError,
   ManifestParseResult,
-} from './types';
+} from "./types";
 
-export { parseManifest } from './parser';
-export { manifestToMutations } from './graph-builder';
+export { parseManifest } from "./parser";
+export { manifestToMutations } from "./graph-builder";

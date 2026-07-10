@@ -11,8 +11,8 @@ import type {
   ConfigValueSource,
   TelemetryIntent,
   TelemetryConfig,
-} from '@shinobi/contracts';
-import { deepFreeze } from '@shinobi/kernel';
+} from "@shinobi/contracts";
+import { deepFreeze } from "@shinobi/kernel";
 
 /**
  * Creates a backend-neutral IAM intent.
@@ -23,11 +23,11 @@ export function createIamIntent(
   principal: IamPrincipal,
   resource: IamResource,
   actions: ReadonlyArray<IamAction>,
-  conditions?: ReadonlyArray<IamCondition>
+  conditions?: ReadonlyArray<IamCondition>,
 ): IamIntent {
   const intent: IamIntent = {
-    type: 'iam',
-    schemaVersion: '1.0.0',
+    type: "iam",
+    schemaVersion: "1.0.0",
     sourceEdgeId,
     principal,
     resource,
@@ -43,14 +43,14 @@ export function createIamIntent(
  */
 export function createNetworkIntent(
   sourceEdgeId: string,
-  direction: 'ingress' | 'egress',
+  direction: "ingress" | "egress",
   source: NetworkEndpoint,
   destination: NetworkEndpoint,
-  protocol: NetworkProtocol
+  protocol: NetworkProtocol,
 ): NetworkIntent {
   const intent: NetworkIntent = {
-    type: 'network',
-    schemaVersion: '1.0.0',
+    type: "network",
+    schemaVersion: "1.0.0",
     sourceEdgeId,
     direction,
     source,
@@ -68,11 +68,11 @@ export function createConfigIntent(
   sourceEdgeId: string,
   targetNodeRef: string,
   key: string,
-  valueSource: ConfigValueSource
+  valueSource: ConfigValueSource,
 ): ConfigIntent {
   const intent: ConfigIntent = {
-    type: 'config',
-    schemaVersion: '1.0.0',
+    type: "config",
+    schemaVersion: "1.0.0",
     sourceEdgeId,
     targetNodeRef,
     key,
@@ -88,12 +88,12 @@ export function createConfigIntent(
 export function createTelemetryIntent(
   sourceEdgeId: string,
   targetNodeRef: string,
-  telemetryType: 'metrics' | 'traces' | 'logs',
-  config: TelemetryConfig
+  telemetryType: "metrics" | "traces" | "logs",
+  config: TelemetryConfig,
 ): TelemetryIntent {
   const intent: TelemetryIntent = {
-    type: 'telemetry',
-    schemaVersion: '1.0.0',
+    type: "telemetry",
+    schemaVersion: "1.0.0",
     sourceEdgeId,
     targetNodeRef,
     telemetryType,

@@ -1,6 +1,11 @@
-import type { GraphSnapshot, Node, Edge, DerivedArtifact } from '@shinobi/ir';
-import { computeSemanticHash } from '@shinobi/ir';
-import { createError, createResult, type ValidationError, type ValidationResult } from '../errors';
+import type { GraphSnapshot, Node, Edge, DerivedArtifact } from "@shinobi/ir";
+import { computeSemanticHash } from "@shinobi/ir";
+import {
+  createError,
+  createResult,
+  type ValidationError,
+  type ValidationResult,
+} from "../errors";
 
 /**
  * Entity with a semantic hash (node, edge, or artifact).
@@ -12,7 +17,7 @@ type HashableEntity = Node | Edge | DerivedArtifact;
  */
 export function validateSemanticHash(
   entity: HashableEntity,
-  path: string
+  path: string,
 ): ValidationError[] {
   const expectedHash = computeSemanticHash(entity);
 
@@ -20,11 +25,12 @@ export function validateSemanticHash(
     return [
       createError({
         path: `${path}.semanticHash`,
-        rule: 'semantic-hash-mismatch',
+        rule: "semantic-hash-mismatch",
         message: `Semantic hash mismatch: stored '${entity.semanticHash}', expected '${expectedHash}'`,
-        severity: 'error',
-        remediation: 'Recompute the semantic hash using computeSemanticHash() after any content modification',
-        kernelLaw: 'KL-001',
+        severity: "error",
+        remediation:
+          "Recompute the semantic hash using computeSemanticHash() after any content modification",
+        kernelLaw: "KL-001",
       }),
     ];
   }
@@ -35,7 +41,9 @@ export function validateSemanticHash(
 /**
  * Validates all semantic hashes in a graph snapshot.
  */
-export function validateSnapshotHashes(snapshot: GraphSnapshot): ValidationResult {
+export function validateSnapshotHashes(
+  snapshot: GraphSnapshot,
+): ValidationResult {
   const errors: ValidationError[] = [];
 
   // Validate node hashes
@@ -50,7 +58,9 @@ export function validateSnapshotHashes(snapshot: GraphSnapshot): ValidationResul
 
   // Validate artifact hashes
   for (let i = 0; i < snapshot.artifacts.length; i++) {
-    errors.push(...validateSemanticHash(snapshot.artifacts[i], `$.artifacts[${i}]`));
+    errors.push(
+      ...validateSemanticHash(snapshot.artifacts[i], `$.artifacts[${i}]`),
+    );
   }
 
   return createResult(errors);

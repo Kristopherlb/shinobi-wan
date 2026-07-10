@@ -1,10 +1,14 @@
-import type { IBinder } from '@shinobi/kernel';
-import type { EdgeType, NodeType } from '@shinobi/ir';
+import type { IBinder } from "@shinobi/kernel";
+import type { EdgeType, NodeType } from "@shinobi/ir";
 
 /**
  * Formats an edge pattern as a lookup key.
  */
-function patternKey(edgeType: EdgeType, sourceType: NodeType, targetType: NodeType): string {
+function patternKey(
+  edgeType: EdgeType,
+  sourceType: NodeType,
+  targetType: NodeType,
+): string {
   return `${edgeType}:${sourceType}:${targetType}`;
 }
 
@@ -24,19 +28,27 @@ export class BinderRegistry {
    */
   register(binder: IBinder): void {
     for (const pattern of binder.supportedEdgeTypes) {
-      const key = patternKey(pattern.edgeType, pattern.sourceType, pattern.targetType);
+      const key = patternKey(
+        pattern.edgeType,
+        pattern.sourceType,
+        pattern.targetType,
+      );
       const existingId = this.patternMap.get(key);
       if (existingId !== undefined) {
         throw new Error(
           `Duplicate edge pattern: binder "${binder.id}" conflicts with ` +
-          `binder "${existingId}" on pattern ${key}`
+            `binder "${existingId}" on pattern ${key}`,
         );
       }
     }
 
     // Claim all patterns
     for (const pattern of binder.supportedEdgeTypes) {
-      const key = patternKey(pattern.edgeType, pattern.sourceType, pattern.targetType);
+      const key = patternKey(
+        pattern.edgeType,
+        pattern.sourceType,
+        pattern.targetType,
+      );
       this.patternMap.set(key, binder.id);
     }
 
@@ -58,7 +70,7 @@ export class BinderRegistry {
   findBinder(
     edgeType: EdgeType,
     sourceType: NodeType,
-    targetType: NodeType
+    targetType: NodeType,
   ): IBinder | undefined {
     const key = patternKey(edgeType, sourceType, targetType);
     const binderId = this.patternMap.get(key);

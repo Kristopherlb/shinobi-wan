@@ -4,11 +4,11 @@ This document describes how Harmony (or any external consumer) can install and u
 
 ## Public packages
 
-| Package | Purpose | Stable API surface |
-|--------|---------|--------------------|
-| `@shinobi/contracts` | Type definitions, capability/intent/violation contracts | Exported types and constants |
-| `@shinobi/ir` | Graph IR: Node, Edge, DerivedArtifact, Graph, ordering, serialization | Exported types and functions |
-| `@shinobi/kernel` | Graph engine, compilation pipeline, **kernel facade** | Kernel class, `compilePipeline`, **facade methods** and **contractVersion** |
+| Package              | Purpose                                                               | Stable API surface                                                          |
+| -------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `@shinobi/contracts` | Type definitions, capability/intent/violation contracts               | Exported types and constants                                                |
+| `@shinobi/ir`        | Graph IR: Node, Edge, DerivedArtifact, Graph, ordering, serialization | Exported types and functions                                                |
+| `@shinobi/kernel`    | Graph engine, compilation pipeline, **kernel facade**                 | Kernel class, `compilePipeline`, **facade methods** and **contractVersion** |
 
 Policy, binder, conformance, and adapters are **not** part of the public consumption contract for this first pass.
 
@@ -37,13 +37,13 @@ The kernel exposes a **facade** for tool-style invocation: JSON-serializable inp
 
 ### Facade methods (all return `Promise<ToolResponseEnvelope<...>>`)
 
-| Method | Purpose | Mode / notes |
-|--------|---------|---------------|
-| `validatePlan(input)` | Validate a graph snapshot only; no side effects | `input.mode` must be `'plan'` |
-| `planChange(input)` | Compute planned change from snapshot; no apply | `input.mode` must be `'plan'` |
-| `applyChange(input)` | Apply mutations (stub in facade-only path) | `input.mode` must be `'apply'` |
-| `readEntities(input)` | Read entities (read-only) | — |
-| `readActivity(input)` | Read activity (read-only) | — |
+| Method                | Purpose                                         | Mode / notes                   |
+| --------------------- | ----------------------------------------------- | ------------------------------ |
+| `validatePlan(input)` | Validate a graph snapshot only; no side effects | `input.mode` must be `'plan'`  |
+| `planChange(input)`   | Compute planned change from snapshot; no apply  | `input.mode` must be `'plan'`  |
+| `applyChange(input)`  | Apply mutations (stub in facade-only path)      | `input.mode` must be `'apply'` |
+| `readEntities(input)` | Read entities (read-only)                       | —                              |
+| `readActivity(input)` | Read activity (read-only)                       | —                              |
 
 ### Input shape (common)
 

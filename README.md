@@ -104,6 +104,7 @@ node packages/cli/dist/main.js up examples/lambda-sqs.yaml --region us-east-1 --
 - `up <manifest>`: Preview or deploy the generated plan
 
 For command flags, JSON/envelope outputs, and examples:
+
 - `docs/user/cli-reference.md`
 
 ## Authoring Manifests
@@ -115,6 +116,7 @@ Start from:
 - `docs/cookbook/manifest-patterns.md`
 
 For a practical authoring workflow and validation checklist:
+
 - `docs/user/manifest-authoring-guide.md`
 
 ## Repository Layout

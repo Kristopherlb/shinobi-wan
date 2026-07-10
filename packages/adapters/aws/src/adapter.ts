@@ -1,4 +1,4 @@
-import type { IamIntent, ConfigIntent } from '@shinobi/contracts';
+import type { IamIntent, ConfigIntent } from "@shinobi/contracts";
 import type {
   LoweringContext,
   AdapterResult,
@@ -7,13 +7,44 @@ import type {
   IntentLowerer,
   NodeLowerer,
   ResolvedDeps,
-} from './types';
-import { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer, TelemetryIntentLowerer } from './lowerers';
-import { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer, EksClusterLowerer, EksNodeGroupLowerer } from './lowerers';
-import { resolveConfigReference } from './lowerers/reference-utils';
-import { shortName } from './lowerers/utils';
-import { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
-import { generateEdgeIntegrations } from './edge-integrations';
+} from "./types";
+import {
+  IamIntentLowerer,
+  NetworkIntentLowerer,
+  ConfigIntentLowerer,
+  TelemetryIntentLowerer,
+} from "./lowerers";
+import {
+  LambdaLowerer,
+  SqsLowerer,
+  DynamoDbLowerer,
+  S3Lowerer,
+  ApiGatewayLowerer,
+  SnsLowerer,
+  CloudFrontLowerer,
+  WafLowerer,
+  AcmLowerer,
+  CloudFrontFunctionLowerer,
+  EventBridgeLowerer,
+  StepFunctionsLowerer,
+  VpcLowerer,
+  SubnetLowerer,
+  SecurityGroupLowerer,
+  EcrLowerer,
+  EcsClusterLowerer,
+  EcsTaskDefinitionLowerer,
+  EcsServiceLowerer,
+  AlbLowerer,
+  EksClusterLowerer,
+  EksNodeGroupLowerer,
+} from "./lowerers";
+import { resolveConfigReference } from "./lowerers/reference-utils";
+import { shortName } from "./lowerers/utils";
+import {
+  NodeLowererRegistry,
+  createDefaultNodeLowererRegistry,
+} from "./lowerer-registry";
+import { generateEdgeIntegrations } from "./edge-integrations";
 
 /** Default intent lowerers */
 const INTENT_LOWERERS: ReadonlyArray<IntentLowerer> = [
@@ -68,18 +99,21 @@ export interface LowerOptions {
  * 4. Generate event source mappings for trigger/bind relationships
  * 5. Return deterministically ordered resource list
  */
-export function lower(context: LoweringContext, options?: LowerOptions): AdapterResult {
+export function lower(
+  context: LoweringContext,
+  options?: LowerOptions,
+): AdapterResult {
   const allResources: LoweredResource[] = [];
   const diagnostics: LoweringDiagnostic[] = [];
   const resourceMap: Record<string, string[]> = {};
 
   // Phase 1: Lower intents
   for (const intent of context.intents) {
-    if (intent.type === 'network') {
+    if (intent.type === "network") {
       diagnostics.push({
-        severity: 'warning',
+        severity: "warning",
         message:
-          'Network intent lowering is not yet supported by the AWS adapter; intent was recorded but no resource was emitted',
+          "Network intent lowering is not yet supported by the AWS adapter; intent was recorded but no resource was emitted",
         sourceId: intent.sourceEdgeId,
       });
       continue;
@@ -88,7 +122,7 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
     const lowerer = INTENT_LOWERERS.find((l) => l.intentType === intent.type);
     if (!lowerer) {
       diagnostics.push({
-        severity: 'warning',
+        severity: "warning",
         message: `No lowerer for intent type '${intent.type}'`,
         sourceId: intent.sourceEdgeId,
       });
@@ -106,7 +140,7 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
       resourceMap[intent.sourceEdgeId].push(...resources.map((r) => r.name));
     } catch (e) {
       diagnostics.push({
-        severity: 'error',
+        severity: "error",
         message: `Intent lowerer "${lowerer.constructor.name}" failed: ${(e as Error).message}`,
         sourceId: intent.sourceEdgeId,
       });
@@ -118,15 +152,17 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
 
   // Phase 3: Lower nodes into AWS resources
   for (const node of context.snapshot.nodes) {
-    const platform = node.metadata.properties['platform'] as string | undefined;
+    const platform = node.metadata.properties["platform"] as string | undefined;
     if (!platform) continue;
 
     const lowerer = options?.useLegacyNodeLowererLookup
       ? NODE_LOWERERS.find((l) => l.platform === platform)
-      : (options?.nodeLowererRegistry ?? DEFAULT_NODE_LOWERER_REGISTRY).get(platform);
+      : (options?.nodeLowererRegistry ?? DEFAULT_NODE_LOWERER_REGISTRY).get(
+          platform,
+        );
     if (!lowerer) {
       diagnostics.push({
-        severity: 'warning',
+        severity: "warning",
         message: `No lowerer for platform '${platform}'`,
         sourceId: node.id,
       });
@@ -144,7 +180,7 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
       resourceMap[node.id].push(...resources.map((r) => r.name));
     } catch (e) {
       diagnostics.push({
-        severity: 'error',
+        severity: "error",
         message: `Node lowerer "${lowerer.constructor.name}" failed: ${(e as Error).message}`,
         sourceId: node.id,
       });
@@ -172,12 +208,14 @@ export function lower(context: LoweringContext, options?: LowerOptions): Adapter
     resources: deduped,
     resourceMap,
     diagnostics,
-    success: !diagnostics.some((d) => d.severity === 'error'),
+    success: !diagnostics.some((d) => d.severity === "error"),
   };
 }
 
 export interface LowerAsyncOptions {
-  readonly onPhase?: (phase: 'intents' | 'nodes' | 'event-mappings' | 'integrations' | 'complete') => void;
+  readonly onPhase?: (
+    phase: "intents" | "nodes" | "event-mappings" | "integrations" | "complete",
+  ) => void;
   readonly lowerOptions?: LowerOptions;
 }
 
@@ -189,12 +227,12 @@ export async function lowerAsync(
   context: LoweringContext,
   options?: LowerAsyncOptions,
 ): Promise<AdapterResult> {
-  options?.onPhase?.('intents');
-  options?.onPhase?.('nodes');
-  options?.onPhase?.('event-mappings');
-  options?.onPhase?.('integrations');
+  options?.onPhase?.("intents");
+  options?.onPhase?.("nodes");
+  options?.onPhase?.("event-mappings");
+  options?.onPhase?.("integrations");
   const result = lower(context, options?.lowerOptions);
-  options?.onPhase?.('complete');
+  options?.onPhase?.("complete");
   return result;
 }
 
@@ -213,13 +251,13 @@ function resolveNodeDeps(context: LoweringContext): Map<string, ResolvedDeps> {
 
     // Find IAM intents that have this node as principal
     for (const intent of context.intents) {
-      if (intent.type === 'iam') {
+      if (intent.type === "iam") {
         const iam = intent as IamIntent;
         if (iam.principal.nodeRef === nodeId) {
           roleName = `${shortName(nodeId)}-exec-role`;
         }
       }
-      if (intent.type === 'config') {
+      if (intent.type === "config") {
         const config = intent as ConfigIntent;
         if (config.targetNodeRef === nodeId) {
           envVars[config.key] = resolveConfigValue(config, context);
@@ -233,19 +271,21 @@ function resolveNodeDeps(context: LoweringContext): Map<string, ResolvedDeps> {
   return deps;
 }
 
-function resolveConfigValue(intent: ConfigIntent, context: LoweringContext): unknown {
+function resolveConfigValue(
+  intent: ConfigIntent,
+  context: LoweringContext,
+): unknown {
   switch (intent.valueSource.type) {
-    case 'literal':
+    case "literal":
       return String(intent.valueSource.value);
-    case 'reference': {
+    case "reference": {
       return resolveConfigReference(
         context.snapshot,
         intent.valueSource.nodeRef,
         intent.valueSource.field,
       );
     }
-    case 'secret':
+    case "secret":
       return { secretRef: intent.valueSource.secretRef };
   }
 }
-

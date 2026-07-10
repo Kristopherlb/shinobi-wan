@@ -1,18 +1,18 @@
-import type { Intent } from '@shinobi/contracts';
-import type { GraphSnapshot, Node, Edge } from '@shinobi/ir';
-import { validateGraph, validateIntent } from '@shinobi/validation';
-import type { ValidatorOptions } from '@shinobi/validation';
+import type { Intent } from "@shinobi/contracts";
+import type { GraphSnapshot, Node, Edge } from "@shinobi/ir";
+import { validateGraph, validateIntent } from "@shinobi/validation";
+import type { ValidatorOptions } from "@shinobi/validation";
 import type {
   KernelConfig,
   CompilationResult,
   BindingDiagnostic,
   PolicyResult,
-} from './types';
-import type { IBinder } from './interfaces/binder-interface';
-import type { IPolicyEvaluator } from './interfaces/policy-evaluator-interface';
-import { CompilationError, PolicyPackError } from './errors';
-import { resolveConfig } from './config';
-import { deepFreeze } from './freeze';
+} from "./types";
+import type { IBinder } from "./interfaces/binder-interface";
+import type { IPolicyEvaluator } from "./interfaces/policy-evaluator-interface";
+import { CompilationError, PolicyPackError } from "./errors";
+import { resolveConfig } from "./config";
+import { deepFreeze } from "./freeze";
 
 /**
  * Runs the four-phase compilation pipeline:
@@ -25,12 +25,12 @@ export function compilePipeline(
   snapshot: GraphSnapshot,
   config: KernelConfig,
   binders: ReadonlyArray<IBinder>,
-  evaluators: ReadonlyArray<IPolicyEvaluator>
+  evaluators: ReadonlyArray<IPolicyEvaluator>,
 ): CompilationResult {
   const resolvedConfig = resolveConfig(config);
   const validationOptions: ValidatorOptions = config.validationOptions ?? {
     strict: true,
-    level: 'full',
+    level: "full",
     collectAll: true,
   };
 
@@ -57,7 +57,11 @@ export function compilePipeline(
         path: e.path,
         message: e.message,
       }));
-      throw new CompilationError('binding', details, 'Binder emitted invalid intent');
+      throw new CompilationError(
+        "binding",
+        details,
+        "Binder emitted invalid intent",
+      );
     }
   }
 
@@ -69,7 +73,7 @@ export function compilePipeline(
       intents,
       config.policyPack,
       evaluators,
-      resolvedConfig
+      resolvedConfig,
     );
   }
 
@@ -92,7 +96,7 @@ export function compilePipeline(
 function bindEdges(
   snapshot: GraphSnapshot,
   binders: ReadonlyArray<IBinder>,
-  resolvedConfig: Readonly<Record<string, unknown>>
+  resolvedConfig: Readonly<Record<string, unknown>>,
 ): { intents: Intent[]; diagnostics: BindingDiagnostic[] } {
   const allIntents: Intent[] = [];
   const allDiagnostics: BindingDiagnostic[] = [];
@@ -111,9 +115,9 @@ function bindEdges(
       // Should not happen if validation passed, but be defensive
       allDiagnostics.push({
         path: `$.edges[${edge.id}]`,
-        rule: 'referential-integrity',
+        rule: "referential-integrity",
         message: `Edge references missing node(s): source=${edge.source}, target=${edge.target}`,
-        severity: 'error',
+        severity: "error",
       });
       continue;
     }
@@ -122,9 +126,9 @@ function bindEdges(
     if (!binder) {
       allDiagnostics.push({
         path: `$.edges[${edge.id}]`,
-        rule: 'unbound-edge',
+        rule: "unbound-edge",
         message: `No binder registered for edge type="${edge.type}" source="${sourceNode.type}" target="${targetNode.type}"`,
-        severity: 'warning',
+        severity: "warning",
       });
       continue;
     }
@@ -157,15 +161,15 @@ function findBinder(
   binders: ReadonlyArray<IBinder>,
   edge: Edge,
   sourceNode: Node,
-  targetNode: Node
+  targetNode: Node,
 ): IBinder | undefined {
   return binders.find((b) =>
     b.supportedEdgeTypes.some(
       (pattern) =>
         pattern.edgeType === edge.type &&
         pattern.sourceType === sourceNode.type &&
-        pattern.targetType === targetNode.type
-    )
+        pattern.targetType === targetNode.type,
+    ),
   );
 }
 
@@ -180,10 +184,10 @@ function evaluatePolicy(
   intents: ReadonlyArray<Intent>,
   policyPack: string,
   evaluators: ReadonlyArray<IPolicyEvaluator>,
-  resolvedConfig: Readonly<Record<string, unknown>>
+  resolvedConfig: Readonly<Record<string, unknown>>,
 ): PolicyResult {
   const evaluator = evaluators.find((e) =>
-    e.supportedPacks.includes(policyPack)
+    e.supportedPacks.includes(policyPack),
   );
 
   if (!evaluator) {
@@ -193,17 +197,24 @@ function evaluatePolicy(
     throw new PolicyPackError(policyPack, availablePacks);
   }
 
-  const violations = [...evaluator.evaluate({
-    snapshot,
-    intents,
-    policyPack,
-    config: resolvedConfig,
-  })];
+  const violations = [
+    ...evaluator.evaluate({
+      snapshot,
+      intents,
+      policyPack,
+      config: resolvedConfig,
+    }),
+  ];
 
   // Sort violations deterministically
-  const severityOrder: Record<string, number> = { error: 0, warning: 1, info: 2 };
+  const severityOrder: Record<string, number> = {
+    error: 0,
+    warning: 1,
+    info: 2,
+  };
   violations.sort((a, b) => {
-    const sevCmp = (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3);
+    const sevCmp =
+      (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3);
     if (sevCmp !== 0) return sevCmp;
     const ruleCmp = a.ruleId.localeCompare(b.ruleId);
     if (ruleCmp !== 0) return ruleCmp;
@@ -212,7 +223,7 @@ function evaluatePolicy(
 
   return {
     violations,
-    compliant: violations.every((v) => v.severity !== 'error'),
+    compliant: violations.every((v) => v.severity !== "error"),
     policyPack,
   };
 }

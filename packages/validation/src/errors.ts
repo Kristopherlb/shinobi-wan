@@ -1,4 +1,4 @@
-import type { Severity } from '@shinobi/contracts';
+import type { Severity } from "@shinobi/contracts";
 
 /**
  * Validation error with structured diagnostics (KL-006 compliant).
@@ -37,7 +37,7 @@ export interface ValidationResult {
   readonly errors: ReadonlyArray<ValidationError>;
 
   /** Schema version for forward compatibility */
-  readonly schemaVersion: '1.0.0';
+  readonly schemaVersion: "1.0.0";
 }
 
 /**
@@ -48,7 +48,7 @@ export interface ValidatorOptions {
   readonly strict?: boolean;
 
   /** Validation level: 'schema' | 'semantic' | 'full' (default: 'full') */
-  readonly level?: 'schema' | 'semantic' | 'full';
+  readonly level?: "schema" | "semantic" | "full";
 
   /** Collect all errors vs fail-fast (default: true = collect all) */
   readonly collectAll?: boolean;
@@ -85,7 +85,9 @@ export function createError(input: ValidationErrorInput): ValidationError {
     rule: input.rule,
     message: input.message,
     severity: input.severity,
-    ...(input.allowedValues !== undefined && { allowedValues: input.allowedValues }),
+    ...(input.allowedValues !== undefined && {
+      allowedValues: input.allowedValues,
+    }),
     ...(input.remediation !== undefined && { remediation: input.remediation }),
     ...(input.kernelLaw !== undefined && { kernelLaw: input.kernelLaw }),
   };
@@ -96,10 +98,13 @@ export function createError(input: ValidationErrorInput): ValidationError {
  * Sorts errors by severity (error > warning > info), then by path, then by rule.
  * Returns a new array (does not mutate input).
  */
-export function sortErrors(errors: ReadonlyArray<ValidationError>): ValidationError[] {
+export function sortErrors(
+  errors: ReadonlyArray<ValidationError>,
+): ValidationError[] {
   return [...errors].sort((a, b) => {
     // Primary: sort by severity (error first)
-    const severityDiff = SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
+    const severityDiff =
+      SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity];
     if (severityDiff !== 0) {
       return severityDiff;
     }
@@ -122,12 +127,12 @@ export function sortErrors(errors: ReadonlyArray<ValidationError>): ValidationEr
  */
 export function createResult(errors: ValidationError[]): ValidationResult {
   const sortedErrors = sortErrors(errors);
-  const hasErrors = sortedErrors.some((e) => e.severity === 'error');
+  const hasErrors = sortedErrors.some((e) => e.severity === "error");
 
   const result: ValidationResult = {
     valid: !hasErrors,
     errors: Object.freeze(sortedErrors),
-    schemaVersion: '1.0.0',
+    schemaVersion: "1.0.0",
   };
 
   return Object.freeze(result);

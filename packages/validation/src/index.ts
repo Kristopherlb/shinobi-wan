@@ -8,8 +8,17 @@
  */
 
 // Error types and utilities
-export type { ValidationError, ValidationResult, ValidatorOptions } from './errors';
-export { createError, createResult, sortErrors, SEVERITY_ORDER } from './errors';
+export type {
+  ValidationError,
+  ValidationResult,
+  ValidatorOptions,
+} from "./errors";
+export {
+  createError,
+  createResult,
+  sortErrors,
+  SEVERITY_ORDER,
+} from "./errors";
 
 // Orchestrator (main entry points)
 export {
@@ -17,7 +26,7 @@ export {
   validateCapabilityContract,
   validateIntent,
   validateViolation,
-} from './orchestrator';
+} from "./orchestrator";
 
 // Schema validators
 export {
@@ -38,7 +47,7 @@ export {
   validateCapabilityContractSchema,
   validateIntentSchema,
   validateViolationSchema,
-} from './schema';
+} from "./schema";
 
 // Semantic validators
 export {
@@ -57,7 +66,7 @@ export {
   // Capability compatibility
   validateCapabilityCompatibility,
   checkActionCompatibility,
-} from './semantic';
+} from "./semantic";
 
 // Determinism validators
 export {
@@ -72,4 +81,4 @@ export {
   validateStableEdgeId,
   validateStableArtifactId,
   validateSnapshotIds,
-} from './determinism';
+} from "./determinism";

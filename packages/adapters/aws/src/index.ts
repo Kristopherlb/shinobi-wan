@@ -9,19 +9,26 @@
  */
 
 // Adapter orchestrator
-export { lower, lowerAsync } from './adapter';
-export type { LowerAsyncOptions, LowerOptions } from './adapter';
-export { NodeLowererRegistry, createDefaultNodeLowererRegistry } from './lowerer-registry';
+export { lower, lowerAsync } from "./adapter";
+export type { LowerAsyncOptions, LowerOptions } from "./adapter";
+export {
+  NodeLowererRegistry,
+  createDefaultNodeLowererRegistry,
+} from "./lowerer-registry";
 
 // Program generator
-export { generatePlan } from './program-generator';
-export type { PulumiFn, ResourcePlan, PlannedResource } from './program-generator';
+export { generatePlan } from "./program-generator";
+export type {
+  PulumiFn,
+  ResourcePlan,
+  PlannedResource,
+} from "./program-generator";
 
 // Pulumi program builder
-export { createPulumiProgram } from './pulumi-program';
+export { createPulumiProgram } from "./pulumi-program";
 
 // Deployer (Pulumi Automation API)
-export { deploy, preview, classifyError } from './deployer';
+export { deploy, preview, classifyError } from "./deployer";
 export type {
   DeployResult,
   PreviewResult,
@@ -29,7 +36,7 @@ export type {
   DeployerError,
   DeployerErrorCategory,
   DeployerEvent,
-} from './deployer';
+} from "./deployer";
 
 // Types
 export type {
@@ -41,8 +48,34 @@ export type {
   IntentLowerer,
   NodeLowerer,
   ResolvedDeps,
-} from './types';
+} from "./types";
 
 // Individual lowerers (for custom adapter composition)
-export { IamIntentLowerer, NetworkIntentLowerer, ConfigIntentLowerer, TelemetryIntentLowerer } from './lowerers';
-export { LambdaLowerer, SqsLowerer, DynamoDbLowerer, S3Lowerer, ApiGatewayLowerer, SnsLowerer, CloudFrontLowerer, WafLowerer, AcmLowerer, CloudFrontFunctionLowerer, EventBridgeLowerer, StepFunctionsLowerer, VpcLowerer, SubnetLowerer, SecurityGroupLowerer, EcrLowerer, EcsClusterLowerer, EcsTaskDefinitionLowerer, EcsServiceLowerer, AlbLowerer } from './lowerers';
+export {
+  IamIntentLowerer,
+  NetworkIntentLowerer,
+  ConfigIntentLowerer,
+  TelemetryIntentLowerer,
+} from "./lowerers";
+export {
+  LambdaLowerer,
+  SqsLowerer,
+  DynamoDbLowerer,
+  S3Lowerer,
+  ApiGatewayLowerer,
+  SnsLowerer,
+  CloudFrontLowerer,
+  WafLowerer,
+  AcmLowerer,
+  CloudFrontFunctionLowerer,
+  EventBridgeLowerer,
+  StepFunctionsLowerer,
+  VpcLowerer,
+  SubnetLowerer,
+  SecurityGroupLowerer,
+  EcrLowerer,
+  EcsClusterLowerer,
+  EcsTaskDefinitionLowerer,
+  EcsServiceLowerer,
+  AlbLowerer,
+} from "./lowerers";

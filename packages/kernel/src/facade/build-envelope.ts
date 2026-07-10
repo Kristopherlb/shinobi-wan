@@ -1,10 +1,14 @@
 /**
  * Build JSON-serializable envelopes for facade responses.
  */
-import { CONTRACT_VERSION } from './contract-version';
-import type { ToolResponseEnvelope, ToolErrorEnvelope, ToolResponseMetadata } from './envelope-types';
+import { CONTRACT_VERSION } from "./contract-version";
+import type {
+  ToolResponseEnvelope,
+  ToolErrorEnvelope,
+  ToolResponseMetadata,
+} from "./envelope-types";
 
-const TOOL_ID = 'shinobi-kernel';
+const TOOL_ID = "shinobi-kernel";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -15,14 +19,14 @@ export function buildErrorEnvelope(
   source: string,
   message: string,
   traceId: string,
-  details?: Readonly<Record<string, unknown>>
+  details?: Readonly<Record<string, unknown>>,
 ): ToolErrorEnvelope {
   const category =
-    code === 'INPUT_VALIDATION_FAILED'
-      ? 'validation'
-      : code === 'MODE_MISMATCH'
-        ? 'validation'
-        : 'unknown';
+    code === "INPUT_VALIDATION_FAILED"
+      ? "validation"
+      : code === "MODE_MISMATCH"
+        ? "validation"
+        : "unknown";
   return {
     code,
     category,
@@ -35,11 +39,11 @@ export function buildErrorEnvelope(
 }
 
 export function buildEnvelope<T>(
-  operationClass: 'read' | 'plan' | 'apply',
+  operationClass: "read" | "plan" | "apply",
   traceId: string,
   success: boolean,
   data?: T,
-  error?: ToolErrorEnvelope
+  error?: ToolErrorEnvelope,
 ): ToolResponseEnvelope<T> {
   const metadata: ToolResponseMetadata = {
     toolId: TOOL_ID,

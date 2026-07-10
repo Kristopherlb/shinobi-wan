@@ -9,15 +9,18 @@ Systematic checklist for identifying improvement opportunities in a codebase.
 Use for checkpoint analysis or quick reviews.
 
 ### Code Health
+
 - [ ] Any files > 500 lines? → Candidate for splitting
 - [ ] Any functions > 50 lines? → Candidate for extraction
 - [ ] Any recent TODO/FIXME added? → Review for action
 
 ### Testing
+
 - [ ] Did you add tests for new code? → If not, note the gap
 - [ ] Are there obvious untested paths? → Note them
 
 ### Documentation
+
 - [ ] Does new code have comments where needed?
 - [ ] Are there any outdated comments?
 
@@ -30,6 +33,7 @@ Use for full retrospectives or periodic reviews.
 ### 1. Code Quality
 
 #### DRY Violations
+
 _Duplicated code that should be abstracted._
 
 ```bash
@@ -48,6 +52,7 @@ grep -rn "function.*factory" packages/ --include="*.ts"
 _Document any DRY violations found._
 
 #### Pattern Inconsistencies
+
 _Similar things done differently across the codebase._
 
 - [ ] Naming conventions consistent?
@@ -59,6 +64,7 @@ _Similar things done differently across the codebase._
 _Document any inconsistencies found._
 
 #### Dead Code
+
 _Unused exports, unreachable paths._
 
 ```bash
@@ -88,9 +94,9 @@ pnpm nx run-many --target=test --coverage
 
 # Find files without tests
 find packages -name "*.ts" ! -name "*.test.ts" ! -name "*.spec.ts" -exec basename {} \; | \
-  while read f; do 
-    if ! find packages -name "${f%.ts}.test.ts" -o -name "${f%.ts}.spec.ts" | grep -q .; then 
-      echo "Missing test: $f"; 
+  while read f; do
+    if ! find packages -name "${f%.ts}.test.ts" -o -name "${f%.ts}.spec.ts" | grep -q .; then
+      echo "Missing test: $f";
     fi
   done
 ```
@@ -196,17 +202,21 @@ _Document abstraction leaks._
 After completing the checklist, summarize:
 
 ### Critical Issues (Address Now)
+
 1. [Issue and recommended action]
 2. [Issue and recommended action]
 
 ### Important Issues (Address Soon)
+
 1. [Issue and recommended action]
 2. [Issue and recommended action]
 
 ### Minor Issues (Backlog)
+
 1. [Issue and recommended action]
 2. [Issue and recommended action]
 
 ### Positives (Keep Doing)
+
 1. [Good pattern to preserve]
 2. [Good pattern to preserve]

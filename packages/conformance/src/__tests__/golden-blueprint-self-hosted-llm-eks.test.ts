@@ -1,9 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { createTestNode, createTestEdge } from '@shinobi/ir';
-import type { GraphMutation } from '@shinobi/ir';
-import { ComponentPlatformBinder, TriggersBinder, BinderRegistry } from '@shinobi/binder';
-import { BaselinePolicyEvaluator } from '@shinobi/policy';
-import { runGoldenCase } from '../golden-runner';
+import { describe, it, expect } from "vitest";
+import { createTestNode, createTestEdge } from "@shinobi/ir";
+import type { GraphMutation } from "@shinobi/ir";
+import {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  BinderRegistry,
+} from "@shinobi/binder";
+import { BaselinePolicyEvaluator } from "@shinobi/policy";
+import { runGoldenCase } from "../golden-runner";
 
 /**
  * Golden test for Blueprint BP-A02: Self-Hosted LLM on EKS
@@ -22,173 +26,173 @@ import { runGoldenCase } from '../golden-runner';
 
 function setupBlueprint(): ReadonlyArray<GraphMutation> {
   const llmVpc = createTestNode({
-    id: 'platform:llm-vpc',
-    type: 'platform',
+    id: "platform:llm-vpc",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-vpc',
-        cidrBlock: '10.0.0.0/16',
+        platform: "aws-vpc",
+        cidrBlock: "10.0.0.0/16",
       },
     },
   });
 
   const llmSubnet1 = createTestNode({
-    id: 'platform:llm-subnet-1',
-    type: 'platform',
+    id: "platform:llm-subnet-1",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-subnet',
-        vpcId: 'platform:llm-vpc',
-        cidrBlock: '10.0.1.0/24',
-        availabilityZone: 'us-east-1a',
+        platform: "aws-subnet",
+        vpcId: "platform:llm-vpc",
+        cidrBlock: "10.0.1.0/24",
+        availabilityZone: "us-east-1a",
         mapPublicIpOnLaunch: false,
       },
     },
   });
 
   const llmSubnet2 = createTestNode({
-    id: 'platform:llm-subnet-2',
-    type: 'platform',
+    id: "platform:llm-subnet-2",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-subnet',
-        vpcId: 'platform:llm-vpc',
-        cidrBlock: '10.0.2.0/24',
-        availabilityZone: 'us-east-1b',
+        platform: "aws-subnet",
+        vpcId: "platform:llm-vpc",
+        cidrBlock: "10.0.2.0/24",
+        availabilityZone: "us-east-1b",
         mapPublicIpOnLaunch: false,
       },
     },
   });
 
   const llmSg = createTestNode({
-    id: 'platform:llm-sg',
-    type: 'platform',
+    id: "platform:llm-sg",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-security-group',
-        vpcId: 'platform:llm-vpc',
-        description: 'LLM cluster security group',
+        platform: "aws-security-group",
+        vpcId: "platform:llm-vpc",
+        description: "LLM cluster security group",
       },
     },
   });
 
   const llmCluster = createTestNode({
-    id: 'platform:llm-cluster',
-    type: 'platform',
+    id: "platform:llm-cluster",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-eks-cluster',
-        version: '1.29',
-        subnetIds: ['platform:llm-subnet-1', 'platform:llm-subnet-2'],
-        securityGroupIds: ['platform:llm-sg'],
+        platform: "aws-eks-cluster",
+        version: "1.29",
+        subnetIds: ["platform:llm-subnet-1", "platform:llm-subnet-2"],
+        securityGroupIds: ["platform:llm-sg"],
         endpointPrivateAccess: true,
         endpointPublicAccess: false,
-        enabledClusterLogTypes: ['api', 'audit', 'authenticator'],
+        enabledClusterLogTypes: ["api", "audit", "authenticator"],
       },
     },
   });
 
   const gpuNodes = createTestNode({
-    id: 'platform:gpu-nodes',
-    type: 'platform',
+    id: "platform:gpu-nodes",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-eks-gpu-node-group',
-        clusterRef: 'platform:llm-cluster',
-        instanceTypes: ['g5.xlarge'],
+        platform: "aws-eks-gpu-node-group",
+        clusterRef: "platform:llm-cluster",
+        instanceTypes: ["g5.xlarge"],
         scalingConfig: { desiredSize: 1, minSize: 0, maxSize: 4 },
-        subnetIds: ['platform:llm-subnet-1', 'platform:llm-subnet-2'],
+        subnetIds: ["platform:llm-subnet-1", "platform:llm-subnet-2"],
       },
     },
   });
 
   const vpcCniAddon = createTestNode({
-    id: 'platform:vpc-cni-addon',
-    type: 'platform',
+    id: "platform:vpc-cni-addon",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-eks-addon',
-        clusterRef: 'platform:llm-cluster',
-        addonName: 'vpc-cni',
-        addonVersion: 'v1.14.1-eksbuild.1',
-        resolveConflicts: 'OVERWRITE',
+        platform: "aws-eks-addon",
+        clusterRef: "platform:llm-cluster",
+        addonName: "vpc-cni",
+        addonVersion: "v1.14.1-eksbuild.1",
+        resolveConflicts: "OVERWRITE",
       },
     },
   });
 
   const modelRegistry = createTestNode({
-    id: 'platform:model-registry',
-    type: 'platform',
+    id: "platform:model-registry",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-ecr',
-        imageTagMutability: 'IMMUTABLE',
+        platform: "aws-ecr",
+        imageTagMutability: "IMMUTABLE",
         scanOnPush: true,
       },
     },
   });
 
   const modelWeights = createTestNode({
-    id: 'platform:model-weights',
-    type: 'platform',
+    id: "platform:model-weights",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-s3',
+        platform: "aws-s3",
         versioning: true,
       },
     },
   });
 
   const encryptionKey = createTestNode({
-    id: 'platform:encryption-key',
-    type: 'platform',
+    id: "platform:encryption-key",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-kms',
+        platform: "aws-kms",
         enableKeyRotation: true,
       },
     },
   });
 
   const inferenceEndpoint = createTestNode({
-    id: 'platform:inference-endpoint',
-    type: 'platform',
+    id: "platform:inference-endpoint",
+    type: "platform",
     metadata: {
       properties: {
-        platform: 'aws-alb',
+        platform: "aws-alb",
         internal: false,
-        subnets: ['platform:llm-subnet-1', 'platform:llm-subnet-2'],
-        securityGroups: ['platform:llm-sg'],
+        subnets: ["platform:llm-subnet-1", "platform:llm-subnet-2"],
+        securityGroups: ["platform:llm-sg"],
       },
     },
   });
 
   const gpuBindsWeights = createTestEdge({
-    id: 'edge:bindsTo:platform:gpu-nodes:platform:model-weights',
-    type: 'bindsTo',
+    id: "edge:bindsTo:platform:gpu-nodes:platform:model-weights",
+    type: "bindsTo",
     source: gpuNodes.id,
     target: modelWeights.id,
     metadata: {
       bindingConfig: {
-        resourceType: 'bucket',
-        accessLevel: 'read',
+        resourceType: "bucket",
+        accessLevel: "read",
       },
     },
   });
 
   return [
-    { type: 'addNode', node: llmVpc },
-    { type: 'addNode', node: llmSubnet1 },
-    { type: 'addNode', node: llmSubnet2 },
-    { type: 'addNode', node: llmSg },
-    { type: 'addNode', node: llmCluster },
-    { type: 'addNode', node: gpuNodes },
-    { type: 'addNode', node: vpcCniAddon },
-    { type: 'addNode', node: modelRegistry },
-    { type: 'addNode', node: modelWeights },
-    { type: 'addNode', node: encryptionKey },
-    { type: 'addNode', node: inferenceEndpoint },
-    { type: 'addEdge', edge: gpuBindsWeights },
+    { type: "addNode", node: llmVpc },
+    { type: "addNode", node: llmSubnet1 },
+    { type: "addNode", node: llmSubnet2 },
+    { type: "addNode", node: llmSg },
+    { type: "addNode", node: llmCluster },
+    { type: "addNode", node: gpuNodes },
+    { type: "addNode", node: vpcCniAddon },
+    { type: "addNode", node: modelRegistry },
+    { type: "addNode", node: modelWeights },
+    { type: "addNode", node: encryptionKey },
+    { type: "addNode", node: inferenceEndpoint },
+    { type: "addEdge", edge: gpuBindsWeights },
   ];
 }
 
@@ -199,13 +203,13 @@ function makeBinders() {
   return registry.getBinders();
 }
 
-describe('Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS', () => {
+describe("Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS", () => {
   const evaluator = new BaselinePolicyEvaluator();
 
-  it('compiles successfully', () => {
+  it("compiles successfully", () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: 'Baseline' },
+      config: { policyPack: "Baseline" },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
@@ -213,33 +217,33 @@ describe('Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS', () => {
     expect(compilation.validation.valid).toBe(true);
   });
 
-  it('contains all 11 nodes', () => {
+  it("contains all 11 nodes", () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: 'Baseline' },
+      config: { policyPack: "Baseline" },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
 
     expect(compilation.snapshot.nodes).toHaveLength(11);
     const ids = compilation.snapshot.nodes.map((n) => n.id);
-    expect(ids).toContain('platform:llm-vpc');
-    expect(ids).toContain('platform:llm-subnet-1');
-    expect(ids).toContain('platform:llm-subnet-2');
-    expect(ids).toContain('platform:llm-sg');
-    expect(ids).toContain('platform:llm-cluster');
-    expect(ids).toContain('platform:gpu-nodes');
-    expect(ids).toContain('platform:vpc-cni-addon');
-    expect(ids).toContain('platform:model-registry');
-    expect(ids).toContain('platform:model-weights');
-    expect(ids).toContain('platform:encryption-key');
-    expect(ids).toContain('platform:inference-endpoint');
+    expect(ids).toContain("platform:llm-vpc");
+    expect(ids).toContain("platform:llm-subnet-1");
+    expect(ids).toContain("platform:llm-subnet-2");
+    expect(ids).toContain("platform:llm-sg");
+    expect(ids).toContain("platform:llm-cluster");
+    expect(ids).toContain("platform:gpu-nodes");
+    expect(ids).toContain("platform:vpc-cni-addon");
+    expect(ids).toContain("platform:model-registry");
+    expect(ids).toContain("platform:model-weights");
+    expect(ids).toContain("platform:encryption-key");
+    expect(ids).toContain("platform:inference-endpoint");
   });
 
-  it('contains 1 edge (gpu-nodes→model-weights)', () => {
+  it("contains 1 edge (gpu-nodes→model-weights)", () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: 'Baseline' },
+      config: { policyPack: "Baseline" },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
@@ -247,10 +251,10 @@ describe('Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS', () => {
     expect(compilation.snapshot.edges).toHaveLength(1);
   });
 
-  it('emits zero intents (platform-to-platform edges do not produce intents)', () => {
+  it("emits zero intents (platform-to-platform edges do not produce intents)", () => {
     const { compilation } = runGoldenCase({
       setup: setupBlueprint,
-      config: { policyPack: 'Baseline' },
+      config: { policyPack: "Baseline" },
       binders: makeBinders(),
       evaluators: [evaluator],
     });
@@ -258,10 +262,10 @@ describe('Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS', () => {
     expect(compilation.intents).toHaveLength(0);
   });
 
-  it('determinism: identical output across two runs', () => {
+  it("determinism: identical output across two runs", () => {
     const opts = {
       setup: setupBlueprint,
-      config: { policyPack: 'Baseline' },
+      config: { policyPack: "Baseline" },
       binders: makeBinders(),
       evaluators: [evaluator],
     };
@@ -271,9 +275,9 @@ describe('Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS', () => {
     expect(r1.serialized).toBe(r2.serialized);
   });
 
-  describe('policy evaluation across packs', () => {
-    it.each(['Baseline', 'FedRAMP-Moderate', 'FedRAMP-High'] as const)(
-      'evaluates with pack %s without throwing',
+  describe("policy evaluation across packs", () => {
+    it.each(["Baseline", "FedRAMP-Moderate", "FedRAMP-High"] as const)(
+      "evaluates with pack %s without throwing",
       (pack) => {
         const { compilation } = runGoldenCase({
           setup: setupBlueprint,
@@ -286,44 +290,44 @@ describe('Golden: Blueprint BP-A02 — Self-Hosted LLM on EKS', () => {
       },
     );
 
-    it('eks-gpu-spot-capacity does not fire (ON_DEMAND by default)', () => {
+    it("eks-gpu-spot-capacity does not fire (ON_DEMAND by default)", () => {
       const { compilation } = runGoldenCase({
         setup: setupBlueprint,
-        config: { policyPack: 'Baseline' },
+        config: { policyPack: "Baseline" },
         binders: makeBinders(),
         evaluators: [evaluator],
       });
 
       const violations = compilation.policy?.violations.filter(
-        (v) => v.ruleId === 'eks-gpu-spot-capacity',
+        (v) => v.ruleId === "eks-gpu-spot-capacity",
       );
       expect(violations).toHaveLength(0);
     });
 
-    it('eks-addon-version-unset does not fire (version pinned)', () => {
+    it("eks-addon-version-unset does not fire (version pinned)", () => {
       const { compilation } = runGoldenCase({
         setup: setupBlueprint,
-        config: { policyPack: 'Baseline' },
+        config: { policyPack: "Baseline" },
         binders: makeBinders(),
         evaluators: [evaluator],
       });
 
       const violations = compilation.policy?.violations.filter(
-        (v) => v.ruleId === 'eks-addon-version-unset',
+        (v) => v.ruleId === "eks-addon-version-unset",
       );
       expect(violations).toHaveLength(0);
     });
 
-    it('alb-access-logs-disabled fires (access logs not configured)', () => {
+    it("alb-access-logs-disabled fires (access logs not configured)", () => {
       const { compilation } = runGoldenCase({
         setup: setupBlueprint,
-        config: { policyPack: 'Baseline' },
+        config: { policyPack: "Baseline" },
         binders: makeBinders(),
         evaluators: [evaluator],
       });
 
       const violations = compilation.policy?.violations.filter(
-        (v) => v.ruleId === 'alb-access-logs-disabled',
+        (v) => v.ruleId === "alb-access-logs-disabled",
       );
       expect(violations?.length).toBeGreaterThanOrEqual(1);
     });

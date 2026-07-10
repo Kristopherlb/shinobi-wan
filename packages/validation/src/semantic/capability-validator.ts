@@ -1,5 +1,10 @@
-import type { CapabilityContract, CapabilityAction } from '@shinobi/contracts';
-import { createError, createResult, type ValidationError, type ValidationResult } from '../errors';
+import type { CapabilityContract, CapabilityAction } from "@shinobi/contracts";
+import {
+  createError,
+  createResult,
+  type ValidationError,
+  type ValidationResult,
+} from "../errors";
 
 /**
  * Checks if required actions are available in provided actions.
@@ -8,7 +13,7 @@ export function checkActionCompatibility(
   providerId: string,
   providedActions: ReadonlyArray<CapabilityAction>,
   requiredActions: ReadonlyArray<CapabilityAction>,
-  path: string
+  path: string,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   const availableSet = new Set(providedActions);
@@ -18,13 +23,13 @@ export function checkActionCompatibility(
       errors.push(
         createError({
           path,
-          rule: 'incompatible-capability-action',
+          rule: "incompatible-capability-action",
           message: `Capability '${providerId}' does not provide action '${required}'`,
-          severity: 'error',
+          severity: "error",
           allowedValues: [...providedActions],
-          remediation: `The provider capability only supports: ${providedActions.join(', ')}. Update the consumer to use only available actions.`,
-          kernelLaw: 'KL-003',
-        })
+          remediation: `The provider capability only supports: ${providedActions.join(", ")}. Update the consumer to use only available actions.`,
+          kernelLaw: "KL-003",
+        }),
       );
     }
   }
@@ -39,13 +44,13 @@ export function checkActionCompatibility(
 export function validateCapabilityCompatibility(
   provider: CapabilityContract,
   consumer: CapabilityContract,
-  path: string
+  path: string,
 ): ValidationResult {
   const errors = checkActionCompatibility(
     provider.id,
     provider.actions,
     consumer.actions,
-    path
+    path,
   );
 
   return createResult(errors);

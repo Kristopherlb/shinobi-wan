@@ -53,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0          # target SHA must be reachable, not just the tip
+          fetch-depth: 0 # target SHA must be reachable, not just the tip
       - name: Create pending holdout-request tags
         run: |
           set -euo pipefail
@@ -82,7 +82,11 @@ branch. The workflow creates every listed tag that does not yet exist.
 `.github/holdout-requests.jsonl` — one request per line:
 
 ```json
-{"tag": "holdout-check-1", "target": "<full commit sha>", "message": "{\"dev_score\": 1.0, \"dev_ci\": [1.0, 1.0]}"}
+{
+  "tag": "holdout-check-1",
+  "target": "<full commit sha>",
+  "message": "{\"dev_score\": 1.0, \"dev_ci\": [1.0, 1.0]}"
+}
 ```
 
 `.github/workflows/holdout-request-tag.yml`:
@@ -92,7 +96,7 @@ name: holdout-request-tag
 on:
   push:
     branches:
-      - "claude/**"          # all remote-session branches
+      - "claude/**" # all remote-session branches
 permissions:
   contents: write
 jobs:
@@ -166,7 +170,7 @@ Two options, in order of preference:
 
 ## Integrity notes (why this does not weaken the eval boundary)
 
-- **One-way channel preserved.** The workflow only *creates* tags carrying
+- **One-way channel preserved.** The workflow only _creates_ tags carrying
   numbers the agent already reported; it reads nothing back. Results still
   arrive exclusively as hub-posted commit statuses.
 - **Idempotent, create-only.** Existing tags are never moved or deleted, so a
