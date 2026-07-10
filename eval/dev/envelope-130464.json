@@ -1,0 +1,58 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-130464",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "containerInsights": true
+          },
+          "id": "history",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "flexibleTimeWindow": "FLEXIBLE",
+            "retryPolicy": {
+              "maximumEventAgeInSeconds": 3600,
+              "maximumRetryAttempts": 2
+            },
+            "scheduleExpression": "cron(0 2 * * ? *)"
+          },
+          "id": "export",
+          "platform": "aws-eventbridge-scheduler",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "cloudWatchLogsEnabled": true,
+            "enableLogFileValidation": true,
+            "includeGlobalServiceEvents": true,
+            "isMultiRegionTrail": true,
+            "logRetentionDays": 90
+          },
+          "id": "uploads",
+          "platform": "aws-cloudtrail",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-webhook"
+    },
+    "manifest_yaml": "\"service\": \"ecs-webhook\"\n\"components\":\n  - \"id\": \"history\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\":\n      \"containerInsights\": true\n  - \"id\": \"export\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-eventbridge-scheduler\"\n    \"config\":\n      \"scheduleExpression\": \"cron(0 2 * * ? *)\"\n      \"flexibleTimeWindow\": \"FLEXIBLE\"\n      \"retryPolicy\":\n        \"maximumRetryAttempts\": 2\n        \"maximumEventAgeInSeconds\": 3600\n  - \"id\": \"uploads\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudtrail\"\n    \"config\":\n      \"isMultiRegionTrail\": true\n      \"enableLogFileValidation\": true\n      \"includeGlobalServiceEvents\": true\n      \"cloudWatchLogsEnabled\": true\n      \"logRetentionDays\": 90\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

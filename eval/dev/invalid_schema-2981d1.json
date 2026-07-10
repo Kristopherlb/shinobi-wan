@@ -1,0 +1,80 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.components[0].type"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-2981d1",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "COST_TABLE",
+                "valueSource": {
+                  "field": "name",
+                  "nodeRef": "queue-main",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "table"
+          },
+          "source": "kiosk",
+          "target": "queue-main",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "ingestion.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 300,
+            "tracing": true
+          },
+          "id": "kiosk",
+          "platform": "aws-lambda",
+          "type": "widget"
+        },
+        {
+          "config": {
+            "keySchema": {
+              "hashKey": {
+                "name": "pk",
+                "type": "S"
+              },
+              "rangeKey": {
+                "name": "sk",
+                "type": "S"
+              }
+            }
+          },
+          "id": "queue-main",
+          "platform": "aws-dynamodb",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "orders-stack"
+    },
+    "manifest_yaml": "\"service\": \"orders-stack\"\n\"components\":\n  - \"id\": \"kiosk\"\n    \"type\": \"widget\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"ingestion.handler\"\n      \"memorySize\": 512\n      \"timeout\": 300\n      \"tracing\": true\n  - \"id\": \"queue-main\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-dynamodb\"\n    \"config\":\n      \"keySchema\":\n        \"hashKey\":\n          \"name\": \"pk\"\n          \"type\": \"S\"\n        \"rangeKey\":\n          \"name\": \"sk\"\n          \"type\": \"S\"\n\"bindings\":\n  - \"source\": \"kiosk\"\n    \"target\": \"queue-main\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"table\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"COST_TABLE\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"queue-main\"\n            \"field\": \"name\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

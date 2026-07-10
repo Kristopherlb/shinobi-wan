@@ -1,0 +1,71 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.bindings[0].type"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-fba53e",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "key"
+          },
+          "source": "loader",
+          "target": "webhook",
+          "type": "hugs"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "resourceType": "cluster"
+          },
+          "source": "loader",
+          "target": "guard",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "rotationDays": 90,
+            "rotationEnabled": true
+          },
+          "id": "loader",
+          "platform": "aws-secretsmanager",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "deletionWindowInDays": 30,
+            "enableKeyRotation": true,
+            "keySpec": "SYMMETRIC_DEFAULT"
+          },
+          "id": "webhook",
+          "platform": "aws-kms",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "guard",
+          "platform": "aws-eks-cluster",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "mailer-core"
+    },
+    "manifest_yaml": "\"service\": \"mailer-core\"\n\"components\":\n  - \"id\": \"loader\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-secretsmanager\"\n    \"config\":\n      \"rotationEnabled\": true\n      \"rotationDays\": 90\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-kms\"\n    \"config\":\n      \"keySpec\": \"SYMMETRIC_DEFAULT\"\n      \"enableKeyRotation\": true\n      \"deletionWindowInDays\": 30\n  - \"id\": \"guard\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-eks-cluster\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"loader\"\n    \"target\": \"webhook\"\n    \"type\": \"hugs\"\n    \"config\":\n      \"resourceType\": \"key\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"loader\"\n    \"target\": \"guard\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"cluster\"\n      \"accessLevel\": \"read\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-3dc149",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "MODEL_ID",
+                "valueSource": {
+                  "type": "static",
+                  "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bedrock"
+          },
+          "source": "parser",
+          "target": "history",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 2048,
+            "powertools": true,
+            "runtime": "nodejs20.x",
+            "timeout": 900
+          },
+          "id": "parser",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "modelId": "amazon.titan-embed-text-v1"
+          },
+          "id": "history",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "metrics-svc"
+    },
+    "manifest_yaml": "\"service\": \"metrics-svc\"\n\"components\":\n  - \"id\": \"parser\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 2048\n      \"timeout\": 900\n      \"powertools\": true\n  - \"id\": \"history\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"amazon.titan-embed-text-v1\"\n      \"guardrailEnabled\": true\n\"bindings\":\n  - \"source\": \"parser\"\n    \"target\": \"history\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bedrock\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"MODEL_ID\"\n          \"valueSource\":\n            \"type\": \"static\"\n            \"value\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

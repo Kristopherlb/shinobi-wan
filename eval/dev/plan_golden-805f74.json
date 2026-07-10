@@ -1,0 +1,51 @@
+{
+  "check": {
+    "families": [
+      "aws:msk:Configuration"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "parser-msk-config",
+        "properties": {
+          "kafkaVersions": [
+            "3.5.1"
+          ],
+          "name": "solo-msk-configuration-1-parser",
+          "serverProperties": "",
+          "tags": {
+            "shinobi:node": "platform:parser",
+            "shinobi:platform": "aws-msk-configuration"
+          }
+        },
+        "resourceType": "aws:msk:Configuration"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-805f74",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "parser",
+          "platform": "aws-msk-configuration",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-msk-configuration-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-msk-configuration-1\"\n\"components\":\n  - \"id\": \"parser\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-msk-configuration\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

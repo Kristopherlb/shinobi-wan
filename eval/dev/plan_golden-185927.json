@@ -1,0 +1,216 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "search-stack-vault-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/search-stack/vault/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:vault:platform:tasks",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:vault"
+          },
+          "type": "String",
+          "value": {
+            "ref": "tasks-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "tasks-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/search-stack-tasks",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:tasks",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "tasks-log-group"
+        ],
+        "name": "tasks-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for tasks\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "tasks-log-group"
+            }
+          },
+          "name": "search-stack-tasks",
+          "tags": {
+            "shinobi:node": "platform:tasks",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      },
+      {
+        "dependsOn": [
+          "vault-exec-role"
+        ],
+        "name": "vault-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "vault-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "vault-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:vault"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "vault-exec-role"
+        ],
+        "name": "vault-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "tasks-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "search-stack-vault",
+          "handler": "index.handler",
+          "memorySize": 256,
+          "role": {
+            "ref": "vault-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:vault",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 30,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "vault-tasks-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:search-stack-tasks\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:vault:platform:tasks",
+            "shinobi:resource": "platform:tasks"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "vault-exec-role",
+          "vault-tasks-policy"
+        ],
+        "name": "vault-tasks-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "vault-tasks-policy"
+          },
+          "role": {
+            "ref": "vault-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-185927",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "tasks",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "vault",
+          "target": "tasks",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "vault",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "tasks",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "search-stack"
+    },
+    "manifest_yaml": "\"service\": \"search-stack\"\n\"components\":\n  - \"id\": \"vault\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"tasks\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n\"bindings\":\n  - \"source\": \"vault\"\n    \"target\": \"tasks\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"tasks\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

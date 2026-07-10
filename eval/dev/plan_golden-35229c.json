@@ -1,0 +1,49 @@
+{
+  "check": {
+    "families": [
+      "aws:ec2transitgateway:VpcAttachment"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "cache-tgw-attachment",
+        "properties": {
+          "dnsSupport": "enable",
+          "ipv6Support": "disable",
+          "subnetIds": [],
+          "tags": {
+            "shinobi:node": "platform:cache",
+            "shinobi:platform": "aws-tgw-vpc-attachment"
+          }
+        },
+        "resourceType": "aws:ec2transitgateway:VpcAttachment"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-35229c",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "cache",
+          "platform": "aws-tgw-vpc-attachment",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-tgw-vpc-attachment-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-tgw-vpc-attachment-1\"\n\"components\":\n  - \"id\": \"cache\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-tgw-vpc-attachment\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

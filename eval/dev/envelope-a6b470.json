@@ -1,0 +1,49 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-a6b470",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "containerInsights": true
+          },
+          "id": "ingest",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "ebsEnabled": true,
+            "encryptionAtRest": true,
+            "enforceHTTPS": true,
+            "engineVersion": "OpenSearch_2.11",
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search",
+            "nodeToNodeEncryption": true,
+            "publicAccess": false,
+            "volumeSize": 100
+          },
+          "id": "flows",
+          "platform": "aws-opensearch",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-search"
+    },
+    "manifest_yaml": "\"service\": \"ecs-search\"\n\"components\":\n  - \"id\": \"ingest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\":\n      \"containerInsights\": true\n  - \"id\": \"flows\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch\"\n    \"config\":\n      \"engineVersion\": \"OpenSearch_2.11\"\n      \"instanceType\": \"r6g.large.search\"\n      \"instanceCount\": 2\n      \"ebsEnabled\": true\n      \"volumeSize\": 100\n      \"encryptionAtRest\": true\n      \"nodeToNodeEncryption\": true\n      \"enforceHTTPS\": true\n      \"publicAccess\": false\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

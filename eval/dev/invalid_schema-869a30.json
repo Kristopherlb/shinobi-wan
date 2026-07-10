@@ -1,0 +1,83 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.service"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-869a30",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "aliases": [
+              "static-site-cdn-waf.example.com"
+            ],
+            "certificateDomain": "static-site-cdn-waf.example.com",
+            "minimumProtocolVersion": "TLSv1.2_2021"
+          },
+          "id": "journal",
+          "platform": "aws-cloudfront",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "enabled": true,
+            "findingPublishingFrequency": "FIFTEEN_MINUTES",
+            "s3DataSource": true
+          },
+          "id": "inbox",
+          "platform": "aws-guardduty",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "containerDefinitions": [
+              {
+                "cpu": 256,
+                "image": "ecs-fargate-alb-app-task:latest",
+                "memory": 512,
+                "name": "app",
+                "portMappings": [
+                  {
+                    "containerPort": 3000,
+                    "protocol": "tcp"
+                  }
+                ]
+              }
+            ],
+            "cpu": "256",
+            "memory": "512"
+          },
+          "id": "loader",
+          "platform": "aws-ecs-task-definition",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "cloudWatchLogsEnabled": true,
+            "enableLogFileValidation": true,
+            "includeGlobalServiceEvents": true,
+            "isMultiRegionTrail": true,
+            "logRetentionDays": 90
+          },
+          "id": "kiosk",
+          "platform": "aws-cloudtrail",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline"
+    },
+    "manifest_yaml": "\"components\":\n  - \"id\": \"journal\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudfront\"\n    \"config\":\n      \"minimumProtocolVersion\": \"TLSv1.2_2021\"\n      \"aliases\":\n        - \"static-site-cdn-waf.example.com\"\n      \"certificateDomain\": \"static-site-cdn-waf.example.com\"\n  - \"id\": \"inbox\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-guardduty\"\n    \"config\":\n      \"enabled\": true\n      \"findingPublishingFrequency\": \"FIFTEEN_MINUTES\"\n      \"s3DataSource\": true\n  - \"id\": \"loader\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-task-definition\"\n    \"config\":\n      \"cpu\": \"256\"\n      \"memory\": \"512\"\n      \"containerDefinitions\":\n        - \"name\": \"app\"\n          \"image\": \"ecs-fargate-alb-app-task:latest\"\n          \"cpu\": 256\n          \"memory\": 512\n          \"portMappings\":\n            - \"containerPort\": 3000\n              \"protocol\": \"tcp\"\n  - \"id\": \"kiosk\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudtrail\"\n    \"config\":\n      \"isMultiRegionTrail\": true\n      \"enableLogFileValidation\": true\n      \"includeGlobalServiceEvents\": true\n      \"cloudWatchLogsEnabled\": true\n      \"logRetentionDays\": 90\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

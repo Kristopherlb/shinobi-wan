@@ -1,0 +1,142 @@
+{
+  "check": {
+    "families": [
+      "aws:budgets:Budget",
+      "aws:sns:Topic"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "billing-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "cache-core-billing",
+          "tags": {
+            "shinobi:node": "platform:billing",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "catalog-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "cache-core-catalog",
+          "tags": {
+            "shinobi:node": "platform:catalog",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "cache-core-metrics",
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "router-topic",
+        "properties": {
+          "name": "cache-core-router",
+          "tags": {
+            "shinobi:node": "platform:router",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-39e731",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "metrics",
+          "target": "router",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "catalog",
+          "target": "router",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "billing",
+          "target": "router",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "router",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "metrics",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "catalog",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "billing",
+          "platform": "aws-budgets",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "cache-core"
+    },
+    "manifest_yaml": "\"service\": \"cache-core\"\n\"components\":\n  - \"id\": \"router\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"catalog\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"metrics\"\n    \"target\": \"router\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"catalog\"\n    \"target\": \"router\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"billing\"\n    \"target\": \"router\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

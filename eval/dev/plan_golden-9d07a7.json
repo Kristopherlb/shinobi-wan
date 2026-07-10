@@ -1,0 +1,70 @@
+{
+  "check": {
+    "families": [
+      "aws:scheduler:Schedule",
+      "aws:scheduler:ScheduleGroup"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "parser-schedule-group"
+        ],
+        "name": "parser-schedule",
+        "properties": {
+          "flexibleTimeWindow": {
+            "mode": "OFF"
+          },
+          "groupName": {
+            "ref": "parser-schedule-group"
+          },
+          "name": "solo-eventbridge-scheduler-1-parser",
+          "scheduleExpression": "rate(1 hour)",
+          "state": "ENABLED",
+          "tags": {
+            "shinobi:node": "platform:parser",
+            "shinobi:platform": "aws-eventbridge-scheduler"
+          }
+        },
+        "resourceType": "aws:scheduler:Schedule"
+      },
+      {
+        "dependsOn": [],
+        "name": "parser-schedule-group",
+        "properties": {
+          "name": "solo-eventbridge-scheduler-1-parser",
+          "tags": {
+            "shinobi:node": "platform:parser",
+            "shinobi:platform": "aws-eventbridge-scheduler"
+          }
+        },
+        "resourceType": "aws:scheduler:ScheduleGroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-9d07a7",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "parser",
+          "platform": "aws-eventbridge-scheduler",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-eventbridge-scheduler-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-eventbridge-scheduler-1\"\n\"components\":\n  - \"id\": \"parser\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-eventbridge-scheduler\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

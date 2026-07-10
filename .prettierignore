@@ -3,3 +3,12 @@
 /coverage
 /.nx/cache
 /.nx/workspace-data
+
+# LFD eval boundary — read-only per goal.md; a formatter must never write here
+/eval
+/harness
+/goal.md
+
+# machine-owned lockfile format; prettier reformatting risks
+# --frozen-lockfile install failures against pnpm's exact serialization
+/pnpm-lock.yaml

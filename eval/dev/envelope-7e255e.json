@@ -1,0 +1,105 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-7e255e",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "MODEL_ID",
+                "valueSource": {
+                  "type": "static",
+                  "value": "anthropic.claude-3-sonnet-20240229-v1:0"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bedrock"
+          },
+          "source": "search",
+          "target": "catalog",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "DISTRIBUTION_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "uploads",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "distribution"
+          },
+          "source": "search",
+          "target": "uploads",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "worker.handler",
+            "memorySize": 512,
+            "powertools": true,
+            "runtime": "nodejs20.x",
+            "timeout": 300,
+            "tracing": true
+          },
+          "id": "search",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "modelId": "amazon.titan-embed-text-v1"
+          },
+          "id": "catalog",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "aliases": [
+              "static-site-cdn-waf.example.com"
+            ],
+            "certificateDomain": "static-site-cdn-waf.example.com",
+            "minimumProtocolVersion": "TLSv1.2_2021"
+          },
+          "id": "uploads",
+          "platform": "aws-cloudfront",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "tasks-core"
+    },
+    "manifest_yaml": "\"service\": \"tasks-core\"\n\"components\":\n  - \"id\": \"search\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"worker.handler\"\n      \"memorySize\": 512\n      \"timeout\": 300\n      \"tracing\": true\n      \"powertools\": true\n  - \"id\": \"catalog\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"amazon.titan-embed-text-v1\"\n      \"guardrailEnabled\": true\n  - \"id\": \"uploads\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudfront\"\n    \"config\":\n      \"minimumProtocolVersion\": \"TLSv1.2_2021\"\n      \"aliases\":\n        - \"static-site-cdn-waf.example.com\"\n      \"certificateDomain\": \"static-site-cdn-waf.example.com\"\n\"bindings\":\n  - \"source\": \"search\"\n    \"target\": \"catalog\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bedrock\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"MODEL_ID\"\n          \"valueSource\":\n            \"type\": \"static\"\n            \"value\": \"anthropic.claude-3-sonnet-20240229-v1:0\"\n  - \"source\": \"search\"\n    \"target\": \"uploads\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"distribution\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"DISTRIBUTION_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"uploads\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-05ac1f",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "orders",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "webhook",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-router"
+    },
+    "manifest_yaml": "\"service\": \"ecs-router\"\n\"components\":\n  - \"id\": \"orders\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\": {}\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

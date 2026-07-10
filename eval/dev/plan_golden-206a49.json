@@ -1,0 +1,355 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "auditor-exec-role"
+        ],
+        "name": "auditor-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "auditor-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "auditor-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:auditor"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "auditor-exec-role"
+        ],
+        "name": "auditor-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "metrics-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "bridge-svc-auditor",
+          "handler": "remediation.handler",
+          "memorySize": 256,
+          "role": {
+            "ref": "auditor-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:auditor",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 60,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "auditor-metrics-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:bridge-svc-metrics\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:auditor:platform:metrics",
+            "shinobi:resource": "platform:metrics"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "auditor-exec-role",
+          "auditor-metrics-policy"
+        ],
+        "name": "auditor-metrics-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "auditor-metrics-policy"
+          },
+          "role": {
+            "ref": "auditor-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [
+          "billing-exec-role"
+        ],
+        "name": "billing-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "billing-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "billing-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:billing"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "billing-exec-role"
+        ],
+        "name": "billing-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "POWERTOOLS_LOG_LEVEL": "INFO",
+              "POWERTOOLS_SERVICE_NAME": "bridge-svc-billing",
+              "STATE_MACHINE_ARN": {
+                "ref": "metrics-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "bridge-svc-billing",
+          "handler": "index.handler",
+          "memorySize": 256,
+          "role": {
+            "ref": "billing-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:billing",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 30,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "billing-metrics-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:bridge-svc-metrics\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:billing:platform:metrics",
+            "shinobi:resource": "platform:metrics"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "billing-exec-role",
+          "billing-metrics-policy"
+        ],
+        "name": "billing-metrics-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "billing-metrics-policy"
+          },
+          "role": {
+            "ref": "billing-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "bridge-svc-auditor-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/bridge-svc/auditor/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:auditor:platform:metrics",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:auditor"
+          },
+          "type": "String",
+          "value": {
+            "ref": "metrics-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "bridge-svc-billing-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/bridge-svc/billing/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:billing:platform:metrics",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:billing"
+          },
+          "type": "String",
+          "value": {
+            "ref": "metrics-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/bridge-svc-metrics",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "metrics-log-group"
+        ],
+        "name": "metrics-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for metrics\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "metrics-log-group"
+            }
+          },
+          "name": "bridge-svc-metrics",
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-206a49",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "metrics",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "billing",
+          "target": "metrics",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "metrics",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "auditor",
+          "target": "metrics",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "metrics",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "powertools": true,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "billing",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "handler": "remediation.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "auditor",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "bridge-svc"
+    },
+    "manifest_yaml": "\"service\": \"bridge-svc\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n  - \"id\": \"billing\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n      \"powertools\": true\n  - \"id\": \"auditor\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"remediation.handler\"\n      \"memorySize\": 256\n      \"timeout\": 60\n      \"tracing\": true\n\"bindings\":\n  - \"source\": \"billing\"\n    \"target\": \"metrics\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"metrics\"\n            \"field\": \"arn\"\n  - \"source\": \"auditor\"\n    \"target\": \"metrics\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"metrics\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

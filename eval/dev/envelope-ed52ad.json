@@ -1,0 +1,63 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-ed52ad",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "parser",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "guardrailEnabled": true,
+            "modelId": "amazon.titan-embed-text-v1"
+          },
+          "id": "billing",
+          "platform": "aws-bedrock",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "containerDefinitions": [
+              {
+                "cpu": 256,
+                "image": "ecs-fargate-alb-app-task:latest",
+                "memory": 512,
+                "name": "app",
+                "portMappings": [
+                  {
+                    "containerPort": 3000,
+                    "protocol": "tcp"
+                  }
+                ]
+              }
+            ],
+            "cpu": "256",
+            "memory": "512"
+          },
+          "id": "kiosk",
+          "platform": "aws-ecs-task-definition",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-inbox"
+    },
+    "manifest_yaml": "\"service\": \"ecs-inbox\"\n\"components\":\n  - \"id\": \"parser\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\": {}\n  - \"id\": \"billing\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-bedrock\"\n    \"config\":\n      \"modelId\": \"amazon.titan-embed-text-v1\"\n      \"guardrailEnabled\": true\n  - \"id\": \"kiosk\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-task-definition\"\n    \"config\":\n      \"cpu\": \"256\"\n      \"memory\": \"512\"\n      \"containerDefinitions\":\n        - \"name\": \"app\"\n          \"image\": \"ecs-fargate-alb-app-task:latest\"\n          \"cpu\": 256\n          \"memory\": 512\n          \"portMappings\":\n            - \"containerPort\": 3000\n              \"protocol\": \"tcp\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

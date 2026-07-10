@@ -1,0 +1,111 @@
+{
+  "check": {
+    "families": [
+      "aws:budgets:Budget",
+      "aws:sns:Topic"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "bridge-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "journal-svc-bridge",
+          "tags": {
+            "shinobi:node": "platform:bridge",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "feeds-budget",
+        "properties": {
+          "budgetType": "COST",
+          "limitAmount": "100",
+          "limitUnit": "USD",
+          "name": "journal-svc-feeds",
+          "tags": {
+            "shinobi:node": "platform:feeds",
+            "shinobi:platform": "aws-budgets"
+          },
+          "timeUnit": "MONTHLY"
+        },
+        "resourceType": "aws:budgets:Budget"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-topic",
+        "properties": {
+          "name": "journal-svc-metrics",
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-e59879",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "bridge",
+          "target": "metrics",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "feeds",
+          "target": "metrics",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "metrics",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "bridge",
+          "platform": "aws-budgets",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "feeds",
+          "platform": "aws-budgets",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "journal-svc"
+    },
+    "manifest_yaml": "\"service\": \"journal-svc\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"bridge\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n  - \"id\": \"feeds\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-budgets\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"bridge\"\n    \"target\": \"metrics\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"feeds\"\n    \"target\": \"metrics\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "check": {
+    "families": [
+      "aws:route53:Record"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "loader-record",
+        "properties": {
+          "tags": {
+            "shinobi:node": "platform:loader",
+            "shinobi:platform": "aws-route53-record"
+          },
+          "ttl": 300
+        },
+        "resourceType": "aws:route53:Record"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-497341",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "loader",
+          "platform": "aws-route53-record",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-route53-record-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-route53-record-1\"\n\"components\":\n  - \"id\": \"loader\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-route53-record\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

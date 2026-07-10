@@ -1,0 +1,55 @@
+{
+  "check": {
+    "families": [
+      "aws:kinesis:FirehoseDeliveryStream"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "index-firehose",
+        "properties": {
+          "destination": "opensearch",
+          "name": "solo-kinesis-firehose-1-index",
+          "opensearchConfiguration": {
+            "bufferingHints": {
+              "intervalInSeconds": 60,
+              "sizeInMBs": 5
+            },
+            "s3BackupMode": "FailedDocumentsOnly"
+          },
+          "tags": {
+            "shinobi:node": "platform:index",
+            "shinobi:platform": "aws-kinesis-firehose"
+          }
+        },
+        "resourceType": "aws:kinesis:FirehoseDeliveryStream"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-24374c",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "index",
+          "platform": "aws-kinesis-firehose",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-kinesis-firehose-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-kinesis-firehose-1\"\n\"components\":\n  - \"id\": \"index\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-kinesis-firehose\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "check": {
+    "families": [
+      "aws:s3:Bucket"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "reports-bucket",
+        "properties": {
+          "bucket": "solo-s3-3-reports",
+          "tags": {
+            "shinobi:node": "platform:reports",
+            "shinobi:platform": "aws-s3"
+          }
+        },
+        "resourceType": "aws:s3:Bucket"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-145a09",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "reports",
+          "platform": "aws-s3",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-s3-3"
+    },
+    "manifest_yaml": "\"service\": \"solo-s3-3\"\n\"components\":\n  - \"id\": \"reports\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

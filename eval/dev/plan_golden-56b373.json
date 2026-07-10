@@ -1,0 +1,68 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:glue:Job"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "webhook-job",
+        "properties": {
+          "executionProperty": {
+            "maxConcurrentRuns": 1
+          },
+          "glueVersion": "4.0",
+          "maxRetries": 0,
+          "name": "solo-glue-job-0-webhook",
+          "numberOfWorkers": 2,
+          "tags": {
+            "shinobi:node": "platform:webhook",
+            "shinobi:platform": "aws-glue-job"
+          },
+          "timeout": 2880,
+          "workerType": "G.1X"
+        },
+        "resourceType": "aws:glue:Job"
+      },
+      {
+        "dependsOn": [],
+        "name": "webhook-job-log-group",
+        "properties": {
+          "name": "/aws/glue/solo-glue-job-0-webhook",
+          "tags": {
+            "shinobi:node": "platform:webhook",
+            "shinobi:platform": "aws-glue-job"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-56b373",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "webhook",
+          "platform": "aws-glue-job",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-glue-job-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-glue-job-0\"\n\"components\":\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-glue-job\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

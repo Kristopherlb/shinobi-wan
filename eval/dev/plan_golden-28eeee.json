@@ -1,0 +1,51 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogSubscriptionFilter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "flows-log-sub-filter",
+        "properties": {
+          "distribution": "ByLogStream",
+          "filterPattern": "",
+          "name": "solo-log-subscription-filter-0-flows",
+          "tags": {
+            "shinobi:node": "platform:flows",
+            "shinobi:platform": "aws-log-subscription-filter"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogSubscriptionFilter"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-28eeee",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "filterPattern": ""
+          },
+          "id": "flows",
+          "platform": "aws-log-subscription-filter",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-log-subscription-filter-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-log-subscription-filter-0\"\n\"components\":\n  - \"id\": \"flows\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-log-subscription-filter\"\n    \"config\":\n      \"filterPattern\": \"\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "check": {
+    "families": [
+      "aws:kms:Alias",
+      "aws:kms:Key"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "router-key",
+        "properties": {
+          "customerMasterKeySpec": "SYMMETRIC_DEFAULT",
+          "deletionWindowInDays": 30,
+          "description": "solo-kms-1-router",
+          "enableKeyRotation": true,
+          "keyUsage": "ENCRYPT_DECRYPT",
+          "tags": {
+            "shinobi:node": "platform:router",
+            "shinobi:platform": "aws-kms"
+          }
+        },
+        "resourceType": "aws:kms:Key"
+      },
+      {
+        "dependsOn": [
+          "router-key"
+        ],
+        "name": "router-key-alias",
+        "properties": {
+          "name": "alias/solo-kms-1-router",
+          "targetKeyId": {
+            "ref": "router-key"
+          }
+        },
+        "resourceType": "aws:kms:Alias"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-8c1d9c",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "deletionWindowInDays": 30,
+            "enableKeyRotation": true,
+            "keySpec": "SYMMETRIC_DEFAULT"
+          },
+          "id": "router",
+          "platform": "aws-kms",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-kms-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-kms-1\"\n\"components\":\n  - \"id\": \"router\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-kms\"\n    \"config\":\n      \"keySpec\": \"SYMMETRIC_DEFAULT\"\n      \"enableKeyRotation\": true\n      \"deletionWindowInDays\": 30\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

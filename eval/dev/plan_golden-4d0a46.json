@@ -1,0 +1,202 @@
+{
+  "check": {
+    "families": [
+      "aws:cfg:Rule",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "ledger-exec-role"
+        ],
+        "name": "ledger-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "ledger-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "ledger-config-rule",
+        "properties": {
+          "name": "queue-main-svc-ledger",
+          "tags": {
+            "shinobi:node": "platform:ledger",
+            "shinobi:platform": "aws-config-rules"
+          }
+        },
+        "resourceType": "aws:cfg:Rule"
+      },
+      {
+        "dependsOn": [],
+        "name": "ledger-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "platform:ledger"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [],
+        "name": "ledger-queue-main-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:lambda:*:*:function:queue-main-svc-queue-main\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:ledger:component:queue-main",
+            "shinobi:resource": "component:queue-main"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "ledger-exec-role",
+          "ledger-queue-main-policy"
+        ],
+        "name": "ledger-queue-main-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "ledger-queue-main-policy"
+          },
+          "role": {
+            "ref": "ledger-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "queue-main-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "API_GATEWAY_URL": {
+                "ref": "ledger-config-rule.arn"
+              },
+              "API_ROUTE": "POST /remediate",
+              "POWERTOOLS_LOG_LEVEL": "INFO",
+              "POWERTOOLS_SERVICE_NAME": "queue-main-svc-queue-main"
+            }
+          },
+          "functionName": "queue-main-svc-queue-main",
+          "handler": "gateway.handler",
+          "memorySize": 512,
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:queue-main",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 120,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "queue-main-svc-queue-main-API_GATEWAY_URL",
+        "properties": {
+          "name": "/queue-main-svc/queue-main/API_GATEWAY_URL",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:ledger:component:queue-main",
+            "shinobi:key": "API_GATEWAY_URL",
+            "shinobi:target": "component:queue-main"
+          },
+          "type": "String",
+          "value": {
+            "ref": "ledger-config-rule.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "queue-main-svc-queue-main-API_ROUTE",
+        "properties": {
+          "name": "/queue-main-svc/queue-main/API_ROUTE",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:ledger:component:queue-main",
+            "shinobi:key": "API_ROUTE",
+            "shinobi:target": "component:queue-main"
+          },
+          "type": "String",
+          "value": "POST /remediate"
+        },
+        "resourceType": "aws:ssm:Parameter"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-4d0a46",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "method": "POST",
+            "resourceType": "config-rule",
+            "route": "/remediate"
+          },
+          "source": "ledger",
+          "target": "queue-main",
+          "type": "triggers"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "rules": [
+              {
+                "name": "s3-bucket-versioning-enabled",
+                "source": "AWS",
+                "sourceIdentifier": "S3_BUCKET_VERSIONING_ENABLED"
+              },
+              {
+                "name": "iam-root-access-key-check",
+                "source": "AWS",
+                "sourceIdentifier": "IAM_ROOT_ACCESS_KEY_CHECK"
+              }
+            ]
+          },
+          "id": "ledger",
+          "platform": "aws-config-rules",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "gateway.handler",
+            "memorySize": 512,
+            "powertools": true,
+            "runtime": "nodejs20.x",
+            "timeout": 120,
+            "tracing": true
+          },
+          "id": "queue-main",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "queue-main-svc"
+    },
+    "manifest_yaml": "\"service\": \"queue-main-svc\"\n\"components\":\n  - \"id\": \"ledger\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-rules\"\n    \"config\":\n      \"rules\":\n        - \"name\": \"s3-bucket-versioning-enabled\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"S3_BUCKET_VERSIONING_ENABLED\"\n        - \"name\": \"iam-root-access-key-check\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"IAM_ROOT_ACCESS_KEY_CHECK\"\n  - \"id\": \"queue-main\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"gateway.handler\"\n      \"memorySize\": 512\n      \"timeout\": 120\n      \"tracing\": true\n      \"powertools\": true\n\"bindings\":\n  - \"source\": \"ledger\"\n    \"target\": \"queue-main\"\n    \"type\": \"triggers\"\n    \"config\":\n      \"resourceType\": \"config-rule\"\n      \"route\": \"/remediate\"\n      \"method\": \"POST\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "check": {
+    "families": [
+      "aws:rds:Proxy",
+      "aws:rds:ProxyDefaultTargetGroup",
+      "aws:rds:ProxyTarget"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "nightly-rds-proxy",
+        "properties": {
+          "auths": [],
+          "debugLogging": false,
+          "engineFamily": "POSTGRESQL",
+          "idleClientTimeout": 1800,
+          "name": "solo-rds-proxy-0-nightly",
+          "requireTls": true,
+          "tags": {
+            "shinobi:node": "platform:nightly",
+            "shinobi:platform": "aws-rds-proxy"
+          }
+        },
+        "resourceType": "aws:rds:Proxy"
+      },
+      {
+        "dependsOn": [
+          "nightly-rds-proxy",
+          "nightly-rds-proxy-target-group"
+        ],
+        "name": "nightly-rds-proxy-target",
+        "properties": {
+          "dbProxyName": {
+            "ref": "nightly-rds-proxy"
+          },
+          "targetGroupName": "default"
+        },
+        "resourceType": "aws:rds:ProxyTarget"
+      },
+      {
+        "dependsOn": [
+          "nightly-rds-proxy"
+        ],
+        "name": "nightly-rds-proxy-target-group",
+        "properties": {
+          "connectionPoolConfig": {
+            "maxConnectionsPercent": 100,
+            "maxIdleConnectionsPercent": 50
+          },
+          "dbProxyName": {
+            "ref": "nightly-rds-proxy"
+          }
+        },
+        "resourceType": "aws:rds:ProxyDefaultTargetGroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-9f0f51",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "nightly",
+          "platform": "aws-rds-proxy",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-rds-proxy-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-rds-proxy-0\"\n\"components\":\n  - \"id\": \"nightly\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-rds-proxy\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

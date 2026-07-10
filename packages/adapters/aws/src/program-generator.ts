@@ -253,7 +253,7 @@ export function generatePlan(
       name: resource.name,
       resourceType: resource.resourceType,
       properties: resource.properties,
-      dependsOn: resource.dependsOn as string[],
+      dependsOn: (resource.dependsOn ?? []) as string[],
     });
 
     // Collect outputs based on resource type
@@ -291,7 +291,7 @@ function topologicalSort(
     const resource = nameToResource.get(name);
     if (!resource) return;
 
-    for (const dep of resource.dependsOn) {
+    for (const dep of resource.dependsOn ?? []) {
       visit(dep);
     }
 

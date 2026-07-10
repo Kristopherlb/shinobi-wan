@@ -1,0 +1,60 @@
+{
+  "check": {
+    "families": [
+      "aws:athena:Workgroup"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "bridge-workgroup",
+        "properties": {
+          "configuration": {
+            "enforceWorkgroupConfiguration": true,
+            "engineVersion": {
+              "selectedEngineVersion": "AUTO"
+            },
+            "publishCloudWatchMetricsEnabled": true,
+            "requesterPaysEnabled": false,
+            "resultConfiguration": {
+              "encryptionConfiguration": {
+                "encryptionOption": "SSE_S3"
+              }
+            }
+          },
+          "name": "solo-athena-workgroup-0-bridge",
+          "tags": {
+            "shinobi:node": "platform:bridge",
+            "shinobi:platform": "aws-athena-workgroup"
+          }
+        },
+        "resourceType": "aws:athena:Workgroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-0c3947",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "bridge",
+          "platform": "aws-athena-workgroup",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-athena-workgroup-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-athena-workgroup-0\"\n\"components\":\n  - \"id\": \"bridge\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-athena-workgroup\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

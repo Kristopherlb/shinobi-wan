@@ -1,0 +1,197 @@
+{
+  "check": {
+    "families": [
+      "aws:cfg:Rule",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "guard-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "API_GATEWAY_URL": {
+                "ref": "metrics-config-rule.arn"
+              },
+              "API_ROUTE": "POST /remediate"
+            }
+          },
+          "functionName": "notify-app-guard",
+          "handler": "index.handler",
+          "memorySize": 256,
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:guard",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 30,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [
+          "metrics-exec-role"
+        ],
+        "name": "metrics-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "metrics-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-config-rule",
+        "properties": {
+          "maximumExecutionFrequency": "TwentyFour_Hours",
+          "name": "notify-app-metrics",
+          "source": {
+            "owner": "AWS",
+            "sourceIdentifier": "S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED"
+          },
+          "tags": {
+            "shinobi:node": "platform:metrics",
+            "shinobi:platform": "aws-config-rules"
+          }
+        },
+        "resourceType": "aws:cfg:Rule"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "platform:metrics"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-guard-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:lambda:*:*:function:notify-app-guard\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:metrics:component:guard",
+            "shinobi:resource": "component:guard"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "metrics-exec-role",
+          "metrics-guard-policy"
+        ],
+        "name": "metrics-guard-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "metrics-guard-policy"
+          },
+          "role": {
+            "ref": "metrics-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "notify-app-guard-API_GATEWAY_URL",
+        "properties": {
+          "name": "/notify-app/guard/API_GATEWAY_URL",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:metrics:component:guard",
+            "shinobi:key": "API_GATEWAY_URL",
+            "shinobi:target": "component:guard"
+          },
+          "type": "String",
+          "value": {
+            "ref": "metrics-config-rule.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "notify-app-guard-API_ROUTE",
+        "properties": {
+          "name": "/notify-app/guard/API_ROUTE",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:metrics:component:guard",
+            "shinobi:key": "API_ROUTE",
+            "shinobi:target": "component:guard"
+          },
+          "type": "String",
+          "value": "POST /remediate"
+        },
+        "resourceType": "aws:ssm:Parameter"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-643472",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "method": "POST",
+            "resourceType": "config-rule",
+            "route": "/remediate"
+          },
+          "source": "metrics",
+          "target": "guard",
+          "type": "triggers"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "maximumExecutionFrequency": "TwentyFour_Hours",
+            "source": {
+              "owner": "AWS",
+              "sourceIdentifier": "S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED"
+            }
+          },
+          "id": "metrics",
+          "platform": "aws-config-rules",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "guard",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "notify-app"
+    },
+    "manifest_yaml": "\"service\": \"notify-app\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-rules\"\n    \"config\":\n      \"source\":\n        \"owner\": \"AWS\"\n        \"sourceIdentifier\": \"S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED\"\n      \"maximumExecutionFrequency\": \"TwentyFour_Hours\"\n  - \"id\": \"guard\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n\"bindings\":\n  - \"source\": \"metrics\"\n    \"target\": \"guard\"\n    \"type\": \"triggers\"\n    \"config\":\n      \"resourceType\": \"config-rule\"\n      \"route\": \"/remediate\"\n      \"method\": \"POST\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

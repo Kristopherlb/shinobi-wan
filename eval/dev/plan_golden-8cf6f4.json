@@ -1,0 +1,46 @@
+{
+  "check": {
+    "families": [
+      "aws:route53:Zone"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "archive-zone",
+        "properties": {
+          "tags": {
+            "shinobi:node": "platform:archive",
+            "shinobi:platform": "aws-route53-zone"
+          }
+        },
+        "resourceType": "aws:route53:Zone"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-8cf6f4",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "archive",
+          "platform": "aws-route53-zone",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-route53-zone-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-route53-zone-0\"\n\"components\":\n  - \"id\": \"archive\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-route53-zone\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

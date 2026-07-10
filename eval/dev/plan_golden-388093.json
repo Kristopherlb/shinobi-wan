@@ -1,0 +1,65 @@
+{
+  "check": {
+    "families": [
+      "aws:s3:Bucket",
+      "aws:s3:BucketVersioningV2"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "uploads-bucket",
+        "properties": {
+          "bucket": "solo-s3-2-uploads",
+          "tags": {
+            "shinobi:node": "platform:uploads",
+            "shinobi:platform": "aws-s3"
+          }
+        },
+        "resourceType": "aws:s3:Bucket"
+      },
+      {
+        "dependsOn": [
+          "uploads-bucket"
+        ],
+        "name": "uploads-versioning",
+        "properties": {
+          "bucket": {
+            "ref": "uploads-bucket"
+          },
+          "versioningConfiguration": {
+            "status": "Enabled"
+          }
+        },
+        "resourceType": "aws:s3:BucketVersioningV2"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-388093",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "uploads",
+          "platform": "aws-s3",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-s3-2"
+    },
+    "manifest_yaml": "\"service\": \"solo-s3-2\"\n\"components\":\n  - \"id\": \"uploads\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

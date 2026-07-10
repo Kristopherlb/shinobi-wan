@@ -1,0 +1,67 @@
+{
+  "check": {
+    "families": [
+      "aws:ecr:LifecyclePolicy",
+      "aws:ecr:Repository"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "digest-repo"
+        ],
+        "name": "digest-lifecycle",
+        "properties": {
+          "policy": "{\"rules\":[{\"action\":{\"type\":\"expire\"},\"description\":\"Keep last 10 images\",\"rulePriority\":1,\"selection\":{\"countNumber\":10,\"countType\":\"imageCountMoreThan\",\"tagStatus\":\"any\"}}]}",
+          "repository": {
+            "ref": "digest-repo.name"
+          }
+        },
+        "resourceType": "aws:ecr:LifecyclePolicy"
+      },
+      {
+        "dependsOn": [],
+        "name": "digest-repo",
+        "properties": {
+          "imageScanningConfiguration": {
+            "scanOnPush": true
+          },
+          "imageTagMutability": "IMMUTABLE",
+          "name": "solo-ecr-1-digest",
+          "tags": {
+            "shinobi:node": "platform:digest",
+            "shinobi:platform": "aws-ecr"
+          }
+        },
+        "resourceType": "aws:ecr:Repository"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-6fe0ef",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "scanOnPush": true
+          },
+          "id": "digest",
+          "platform": "aws-ecr",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-ecr-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-ecr-1\"\n\"components\":\n  - \"id\": \"digest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecr\"\n    \"config\":\n      \"scanOnPush\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "check": {
+    "kind": "plan"
+  },
+  "class": "invalid_schema",
+  "expected": {
+    "error_paths": [
+      "$.components[0].type"
+    ],
+    "success": false
+  },
+  "id": "invalid_schema-764441",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "read",
+            "resourceType": "cluster"
+          },
+          "source": "loader",
+          "target": "gateway",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "REPORTS_BUCKET",
+                "valueSource": {
+                  "field": "bucket",
+                  "nodeRef": "ledger",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bucket"
+          },
+          "source": "loader",
+          "target": "ledger",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {},
+          "id": "loader",
+          "platform": "aws-eks-node-group",
+          "type": "widget"
+        },
+        {
+          "config": {},
+          "id": "gateway",
+          "platform": "aws-eks-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "ledger",
+          "platform": "aws-s3",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "cache-core"
+    },
+    "manifest_yaml": "\"service\": \"cache-core\"\n\"components\":\n  - \"id\": \"loader\"\n    \"type\": \"widget\"\n    \"platform\": \"aws-eks-node-group\"\n    \"config\": {}\n  - \"id\": \"gateway\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-eks-cluster\"\n    \"config\": {}\n  - \"id\": \"ledger\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"loader\"\n    \"target\": \"gateway\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"cluster\"\n      \"accessLevel\": \"read\"\n  - \"source\": \"loader\"\n    \"target\": \"ledger\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bucket\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"REPORTS_BUCKET\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"ledger\"\n            \"field\": \"bucket\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

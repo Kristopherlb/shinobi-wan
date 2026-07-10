@@ -1,0 +1,268 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:s3:Bucket",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "cache-core-jobs-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/cache-core/jobs/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:jobs:platform:orders",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:jobs"
+          },
+          "type": "String",
+          "value": {
+            "ref": "orders-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [
+          "jobs-exec-role"
+        ],
+        "name": "jobs-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "jobs-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "jobs-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:jobs"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "jobs-exec-role"
+        ],
+        "name": "jobs-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "orders-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "cache-core-jobs",
+          "handler": "index.handler",
+          "memorySize": 128,
+          "role": {
+            "ref": "jobs-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:jobs",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 3
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "jobs-notify-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"s3:GetObject\",\"s3:ListBucket\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:s3:::cache-core-notify\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:jobs:platform:notify",
+            "shinobi:resource": "platform:notify"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "jobs-exec-role",
+          "jobs-notify-policy"
+        ],
+        "name": "jobs-notify-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "jobs-notify-policy"
+          },
+          "role": {
+            "ref": "jobs-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "jobs-orders-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:cache-core-orders\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:jobs:platform:orders",
+            "shinobi:resource": "platform:orders"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "jobs-exec-role",
+          "jobs-orders-policy"
+        ],
+        "name": "jobs-orders-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "jobs-orders-policy"
+          },
+          "role": {
+            "ref": "jobs-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "notify-bucket",
+        "properties": {
+          "bucket": "cache-core-notify",
+          "tags": {
+            "shinobi:node": "platform:notify",
+            "shinobi:platform": "aws-s3"
+          }
+        },
+        "resourceType": "aws:s3:Bucket"
+      },
+      {
+        "dependsOn": [],
+        "name": "orders-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/cache-core-orders",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:orders",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "orders-log-group"
+        ],
+        "name": "orders-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for orders\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "orders-log-group"
+            }
+          },
+          "name": "cache-core-orders",
+          "tags": {
+            "shinobi:node": "platform:orders",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-226209",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "orders",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "jobs",
+          "target": "orders",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "resourceType": "bucket"
+          },
+          "source": "jobs",
+          "target": "notify",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 128,
+            "runtime": "nodejs20.x",
+            "timeout": 3
+          },
+          "id": "jobs",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "orders",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "notify",
+          "platform": "aws-s3",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "cache-core"
+    },
+    "manifest_yaml": "\"service\": \"cache-core\"\n\"components\":\n  - \"id\": \"jobs\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 128\n      \"timeout\": 3\n  - \"id\": \"orders\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n  - \"id\": \"notify\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"jobs\"\n    \"target\": \"orders\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"orders\"\n            \"field\": \"arn\"\n  - \"source\": \"jobs\"\n    \"target\": \"notify\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bucket\"\n      \"accessLevel\": \"read\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

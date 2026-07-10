@@ -1,0 +1,232 @@
+{
+  "check": {
+    "families": [
+      "aws:apigatewayv2:Api",
+      "aws:apigatewayv2:Stage",
+      "aws:s3:Bucket",
+      "aws:s3:BucketVersioningV2",
+      "aws:secretsmanager:Secret",
+      "aws:secretsmanager:SecretRotation",
+      "aws:wafv2:WebAcl"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "ingest-waf",
+        "properties": {
+          "defaultAction": {
+            "allow": {}
+          },
+          "name": "inbox-core-ingest",
+          "rules": [
+            {
+              "name": "AWSManagedRulesCommonRuleSet",
+              "overrideAction": {
+                "none": {}
+              },
+              "priority": 10,
+              "statement": {
+                "managedRuleGroupStatement": {
+                  "name": "AWSManagedRulesCommonRuleSet",
+                  "vendorName": "AWS"
+                }
+              },
+              "visibilityConfig": {
+                "cloudwatchMetricsEnabled": true,
+                "metricName": "inbox-core-ingest-AWSManagedRulesCommonRuleSet",
+                "sampledRequestsEnabled": true
+              }
+            },
+            {
+              "name": "AWSManagedRulesKnownBadInputsRuleSet",
+              "overrideAction": {
+                "none": {}
+              },
+              "priority": 20,
+              "statement": {
+                "managedRuleGroupStatement": {
+                  "name": "AWSManagedRulesKnownBadInputsRuleSet",
+                  "vendorName": "AWS"
+                }
+              },
+              "visibilityConfig": {
+                "cloudwatchMetricsEnabled": true,
+                "metricName": "inbox-core-ingest-AWSManagedRulesKnownBadInputsRuleSet",
+                "sampledRequestsEnabled": true
+              }
+            },
+            {
+              "name": "AWSManagedRulesAmazonIpReputationList",
+              "overrideAction": {
+                "none": {}
+              },
+              "priority": 30,
+              "statement": {
+                "managedRuleGroupStatement": {
+                  "name": "AWSManagedRulesAmazonIpReputationList",
+                  "vendorName": "AWS"
+                }
+              },
+              "visibilityConfig": {
+                "cloudwatchMetricsEnabled": true,
+                "metricName": "inbox-core-ingest-AWSManagedRulesAmazonIpReputationList",
+                "sampledRequestsEnabled": true
+              }
+            }
+          ],
+          "scope": "CLOUDFRONT",
+          "tags": {
+            "shinobi:node": "platform:ingest",
+            "shinobi:platform": "aws-wafv2"
+          },
+          "visibilityConfig": {
+            "cloudwatchMetricsEnabled": true,
+            "metricName": "inbox-core-ingest",
+            "sampledRequestsEnabled": true
+          }
+        },
+        "resourceType": "aws:wafv2:WebAcl"
+      },
+      {
+        "dependsOn": [],
+        "name": "loader-bucket",
+        "properties": {
+          "bucket": "inbox-core-loader",
+          "tags": {
+            "shinobi:node": "platform:loader",
+            "shinobi:platform": "aws-s3"
+          }
+        },
+        "resourceType": "aws:s3:Bucket"
+      },
+      {
+        "dependsOn": [
+          "loader-bucket"
+        ],
+        "name": "loader-versioning",
+        "properties": {
+          "bucket": {
+            "ref": "loader-bucket"
+          },
+          "versioningConfiguration": {
+            "status": "Enabled"
+          }
+        },
+        "resourceType": "aws:s3:BucketVersioningV2"
+      },
+      {
+        "dependsOn": [],
+        "name": "router-secret",
+        "properties": {
+          "name": "inbox-core-router",
+          "tags": {
+            "shinobi:node": "platform:router",
+            "shinobi:platform": "aws-secretsmanager"
+          }
+        },
+        "resourceType": "aws:secretsmanager:Secret"
+      },
+      {
+        "dependsOn": [
+          "router-secret"
+        ],
+        "name": "router-secret-rotation",
+        "properties": {
+          "rotationRules": {
+            "automaticallyAfterDays": 90
+          },
+          "secretId": {
+            "ref": "router-secret"
+          },
+          "tags": {
+            "shinobi:node": "platform:router",
+            "shinobi:platform": "aws-secretsmanager"
+          }
+        },
+        "resourceType": "aws:secretsmanager:SecretRotation"
+      },
+      {
+        "dependsOn": [],
+        "name": "worker-api",
+        "properties": {
+          "name": "inbox-core-worker",
+          "protocolType": "HTTP",
+          "tags": {
+            "shinobi:node": "platform:worker",
+            "shinobi:platform": "aws-apigateway"
+          }
+        },
+        "resourceType": "aws:apigatewayv2:Api"
+      },
+      {
+        "dependsOn": [
+          "worker-api"
+        ],
+        "name": "worker-stage",
+        "properties": {
+          "apiId": {
+            "ref": "worker-api"
+          },
+          "autoDeploy": true,
+          "name": "$default",
+          "tags": {
+            "shinobi:node": "platform:worker",
+            "shinobi:platform": "aws-apigateway"
+          }
+        },
+        "resourceType": "aws:apigatewayv2:Stage"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-cc7045",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "worker",
+          "platform": "aws-apigateway",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "loader",
+          "platform": "aws-s3",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "rotationDays": 90,
+            "rotationEnabled": true
+          },
+          "id": "router",
+          "platform": "aws-secretsmanager",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "scope": "CLOUDFRONT"
+          },
+          "id": "ingest",
+          "platform": "aws-wafv2",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "inbox-core"
+    },
+    "manifest_yaml": "\"service\": \"inbox-core\"\n\"components\":\n  - \"id\": \"worker\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-apigateway\"\n    \"config\": {}\n  - \"id\": \"loader\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n  - \"id\": \"router\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-secretsmanager\"\n    \"config\":\n      \"rotationEnabled\": true\n      \"rotationDays\": 90\n  - \"id\": \"ingest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-wafv2\"\n    \"config\":\n      \"scope\": \"CLOUDFRONT\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

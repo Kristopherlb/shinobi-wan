@@ -1,0 +1,60 @@
+{
+  "check": {
+    "families": [
+      "aws:athena:Workgroup"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "ingest-workgroup",
+        "properties": {
+          "configuration": {
+            "enforceWorkgroupConfiguration": true,
+            "engineVersion": {
+              "selectedEngineVersion": "AUTO"
+            },
+            "publishCloudWatchMetricsEnabled": true,
+            "requesterPaysEnabled": false,
+            "resultConfiguration": {
+              "encryptionConfiguration": {
+                "encryptionOption": "SSE_S3"
+              }
+            }
+          },
+          "name": "solo-athena-workgroup-1-ingest",
+          "tags": {
+            "shinobi:node": "platform:ingest",
+            "shinobi:platform": "aws-athena-workgroup"
+          }
+        },
+        "resourceType": "aws:athena:Workgroup"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-3f2bd5",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {},
+          "id": "ingest",
+          "platform": "aws-athena-workgroup",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-athena-workgroup-1"
+    },
+    "manifest_yaml": "\"service\": \"solo-athena-workgroup-1\"\n\"components\":\n  - \"id\": \"ingest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-athena-workgroup\"\n    \"config\": {}\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "events-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/webhook-stack-events",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:events",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "events-log-group"
+        ],
+        "name": "events-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for events\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "events-log-group"
+            }
+          },
+          "name": "webhook-stack-events",
+          "tags": {
+            "shinobi:node": "platform:events",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      },
+      {
+        "dependsOn": [
+          "reports-exec-role"
+        ],
+        "name": "reports-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "reports-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "reports-events-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:webhook-stack-events\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:reports:platform:events",
+            "shinobi:resource": "platform:events"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "reports-events-policy",
+          "reports-exec-role"
+        ],
+        "name": "reports-events-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "reports-events-policy"
+          },
+          "role": {
+            "ref": "reports-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "reports-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:reports"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "reports-exec-role"
+        ],
+        "name": "reports-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "events-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "webhook-stack-reports",
+          "handler": "index.handler",
+          "memorySize": 512,
+          "role": {
+            "ref": "reports-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:reports",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 60,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "webhook-stack-reports-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/webhook-stack/reports/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:reports:platform:events",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:reports"
+          },
+          "type": "String",
+          "value": {
+            "ref": "events-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-5f2e46",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "events",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "reports",
+          "target": "events",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "reports",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "events",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "webhook-stack"
+    },
+    "manifest_yaml": "\"service\": \"webhook-stack\"\n\"components\":\n  - \"id\": \"reports\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"events\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n\"bindings\":\n  - \"source\": \"reports\"\n    \"target\": \"events\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"events\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

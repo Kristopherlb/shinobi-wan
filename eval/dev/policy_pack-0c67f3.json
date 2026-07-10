@@ -1,0 +1,60 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": true,
+    "errorCount": 0,
+    "policyPack": "FedRAMP-High",
+    "success": true,
+    "valid": true,
+    "violationCount": 0,
+    "warningCount": 0
+  },
+  "id": "policy_pack-0c67f3",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "FedRAMP-High"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "enableDefaultStandards": true
+          },
+          "id": "queue-main",
+          "platform": "aws-securityhub",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "hashKey": "apiKey",
+            "rangeKey": "timestamp"
+          },
+          "id": "cache",
+          "platform": "aws-dynamodb",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "allSupported": true,
+            "deliveryFrequency": "TwentyFour_Hours",
+            "includeGlobalResourceTypes": true,
+            "recordingEnabled": true
+          },
+          "id": "events",
+          "platform": "aws-config-recorder",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "reports-app"
+    },
+    "manifest_yaml": "\"service\": \"reports-app\"\n\"components\":\n  - \"id\": \"queue-main\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-securityhub\"\n    \"config\":\n      \"enableDefaultStandards\": true\n  - \"id\": \"cache\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-dynamodb\"\n    \"config\":\n      \"hashKey\": \"apiKey\"\n      \"rangeKey\": \"timestamp\"\n  - \"id\": \"events\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-recorder\"\n    \"config\":\n      \"recordingEnabled\": true\n      \"allSupported\": true\n      \"includeGlobalResourceTypes\": true\n      \"deliveryFrequency\": \"TwentyFour_Hours\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

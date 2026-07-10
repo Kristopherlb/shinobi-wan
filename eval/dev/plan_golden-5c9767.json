@@ -1,0 +1,68 @@
+{
+  "check": {
+    "families": [
+      "aws:ecr:LifecyclePolicy",
+      "aws:ecr:Repository"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "collector-repo"
+        ],
+        "name": "collector-lifecycle",
+        "properties": {
+          "policy": "{\"rules\":[{\"action\":{\"type\":\"expire\"},\"description\":\"Keep last 10 images\",\"rulePriority\":1,\"selection\":{\"countNumber\":10,\"countType\":\"imageCountMoreThan\",\"tagStatus\":\"any\"}}]}",
+          "repository": {
+            "ref": "collector-repo.name"
+          }
+        },
+        "resourceType": "aws:ecr:LifecyclePolicy"
+      },
+      {
+        "dependsOn": [],
+        "name": "collector-repo",
+        "properties": {
+          "imageScanningConfiguration": {
+            "scanOnPush": true
+          },
+          "imageTagMutability": "IMMUTABLE",
+          "name": "solo-ecr-0-collector",
+          "tags": {
+            "shinobi:node": "platform:collector",
+            "shinobi:platform": "aws-ecr"
+          }
+        },
+        "resourceType": "aws:ecr:Repository"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-5c9767",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "imageTagMutability": "IMMUTABLE",
+            "scanOnPush": true
+          },
+          "id": "collector",
+          "platform": "aws-ecr",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "solo-ecr-0"
+    },
+    "manifest_yaml": "\"service\": \"solo-ecr-0\"\n\"components\":\n  - \"id\": \"collector\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecr\"\n    \"config\":\n      \"imageTagMutability\": \"IMMUTABLE\"\n      \"scanOnPush\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

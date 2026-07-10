@@ -1,0 +1,216 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "gateway-exec-role"
+        ],
+        "name": "gateway-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "gateway-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "gateway-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:gateway"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "gateway-exec-role"
+        ],
+        "name": "gateway-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "notify-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "metrics-svc-gateway",
+          "handler": "invoke.handler",
+          "memorySize": 512,
+          "role": {
+            "ref": "gateway-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:gateway",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 60,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "gateway-notify-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:metrics-svc-notify\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:gateway:platform:notify",
+            "shinobi:resource": "platform:notify"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "gateway-exec-role",
+          "gateway-notify-policy"
+        ],
+        "name": "gateway-notify-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "gateway-notify-policy"
+          },
+          "role": {
+            "ref": "gateway-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "metrics-svc-gateway-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/metrics-svc/gateway/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:gateway:platform:notify",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:gateway"
+          },
+          "type": "String",
+          "value": {
+            "ref": "notify-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "notify-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/metrics-svc-notify",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:notify",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "notify-log-group"
+        ],
+        "name": "notify-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for notify\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "notify-log-group"
+            }
+          },
+          "name": "metrics-svc-notify",
+          "tags": {
+            "shinobi:node": "platform:notify",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-ce2ca9",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "notify",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "gateway",
+          "target": "notify",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "invoke.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "gateway",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "notify",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "metrics-svc"
+    },
+    "manifest_yaml": "\"service\": \"metrics-svc\"\n\"components\":\n  - \"id\": \"gateway\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"invoke.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"notify\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"logging\": true\n      \"type\": \"STANDARD\"\n\"bindings\":\n  - \"source\": \"gateway\"\n    \"target\": \"notify\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"notify\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": false,
+    "errorCount": 0,
+    "policyPack": "FedRAMP-High",
+    "success": false,
+    "valid": true,
+    "violationCount": 4,
+    "warningCount": 0
+  },
+  "id": "policy_pack-a7f30a",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "FedRAMP-High"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "LOGS_BUCKET",
+                "valueSource": {
+                  "field": "bucket",
+                  "nodeRef": "dispatch",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bucket"
+          },
+          "source": "export",
+          "target": "dispatch",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "ENDPOINT_NAME",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "webhook",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "endpoint"
+          },
+          "source": "export",
+          "target": "webhook",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "OPENSEARCH_ENDPOINT",
+                "valueSource": {
+                  "field": "endpoint",
+                  "nodeRef": "search",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "domain"
+          },
+          "source": "export",
+          "target": "search",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "export",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "dispatch",
+          "platform": "aws-s3",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "webhook",
+          "platform": "aws-sagemaker-endpoint",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "ebsEnabled": true,
+            "encryptionAtRest": true,
+            "enforceHTTPS": true,
+            "engineVersion": "OpenSearch_2.11",
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search",
+            "nodeToNodeEncryption": true,
+            "publicAccess": false,
+            "volumeSize": 100
+          },
+          "id": "search",
+          "platform": "aws-opensearch",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "queue-main-svc"
+    },
+    "manifest_yaml": "\"service\": \"queue-main-svc\"\n\"components\":\n  - \"id\": \"export\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"dispatch\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sagemaker-endpoint\"\n    \"config\": {}\n  - \"id\": \"search\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch\"\n    \"config\":\n      \"engineVersion\": \"OpenSearch_2.11\"\n      \"instanceType\": \"r6g.large.search\"\n      \"instanceCount\": 2\n      \"ebsEnabled\": true\n      \"volumeSize\": 100\n      \"encryptionAtRest\": true\n      \"nodeToNodeEncryption\": true\n      \"enforceHTTPS\": true\n      \"publicAccess\": false\n\"bindings\":\n  - \"source\": \"export\"\n    \"target\": \"dispatch\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bucket\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"LOGS_BUCKET\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"dispatch\"\n            \"field\": \"bucket\"\n  - \"source\": \"export\"\n    \"target\": \"webhook\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"endpoint\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"ENDPOINT_NAME\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"webhook\"\n            \"field\": \"arn\"\n  - \"source\": \"export\"\n    \"target\": \"search\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"domain\"\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"OPENSEARCH_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"search\"\n            \"field\": \"endpoint\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

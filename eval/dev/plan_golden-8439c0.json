@@ -1,0 +1,303 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:rds:Cluster",
+      "aws:rds:ClusterInstance",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [],
+        "name": "auditor-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/worker-stack-auditor",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:auditor",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "auditor-log-group"
+        ],
+        "name": "auditor-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for auditor\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "auditor-log-group"
+            }
+          },
+          "name": "worker-stack-auditor",
+          "tags": {
+            "shinobi:node": "platform:auditor",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      },
+      {
+        "dependsOn": [],
+        "name": "harvest-rds-cluster",
+        "properties": {
+          "backupRetentionPeriod": 7,
+          "clusterIdentifier": "worker-stack-harvest",
+          "deletionProtection": true,
+          "engine": "aurora-postgresql",
+          "engineVersion": "15.4",
+          "masterUsername": "admin",
+          "serverlessv2ScalingConfiguration": {
+            "maxCapacity": 16,
+            "minCapacity": 0.5
+          },
+          "storageEncrypted": true,
+          "tags": {
+            "shinobi:node": "platform:harvest",
+            "shinobi:platform": "aws-rds-cluster"
+          }
+        },
+        "resourceType": "aws:rds:Cluster"
+      },
+      {
+        "dependsOn": [
+          "harvest-rds-cluster"
+        ],
+        "name": "harvest-rds-instance",
+        "properties": {
+          "clusterIdentifier": {
+            "ref": "harvest-rds-cluster"
+          },
+          "engine": "aurora-postgresql",
+          "instanceClass": "db.serverless",
+          "publiclyAccessible": false,
+          "tags": {
+            "shinobi:node": "platform:harvest",
+            "shinobi:platform": "aws-rds-cluster"
+          }
+        },
+        "resourceType": "aws:rds:ClusterInstance"
+      },
+      {
+        "dependsOn": [],
+        "name": "index-auditor-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:worker-stack-auditor\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:index:platform:auditor",
+            "shinobi:resource": "platform:auditor"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "index-auditor-policy",
+          "index-exec-role"
+        ],
+        "name": "index-auditor-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "index-auditor-policy"
+          },
+          "role": {
+            "ref": "index-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [
+          "index-exec-role"
+        ],
+        "name": "index-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "index-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "index-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:index"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "index-exec-role"
+        ],
+        "name": "index-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "auditor-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "worker-stack-index",
+          "handler": "query.handler",
+          "memorySize": 512,
+          "role": {
+            "ref": "index-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:index",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 60,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "index-harvest-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"rds:DescribeDBClusters\",\"rds:DescribeDBInstances\",\"rds:ModifyDBCluster\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:rds:*:*:cluster:worker-stack-harvest\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:index:platform:harvest",
+            "shinobi:resource": "platform:harvest"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "index-exec-role",
+          "index-harvest-policy"
+        ],
+        "name": "index-harvest-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "index-harvest-policy"
+          },
+          "role": {
+            "ref": "index-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "worker-stack-index-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/worker-stack/index/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:index:platform:auditor",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:index"
+          },
+          "type": "String",
+          "value": {
+            "ref": "auditor-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-8439c0",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "auditor",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "index",
+          "target": "auditor",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "rds-cluster"
+          },
+          "source": "index",
+          "target": "harvest",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "query.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "index",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "auditor",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        },
+        {
+          "config": {},
+          "id": "harvest",
+          "platform": "aws-rds-cluster",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "worker-stack"
+    },
+    "manifest_yaml": "\"service\": \"worker-stack\"\n\"components\":\n  - \"id\": \"index\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"query.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n  - \"id\": \"auditor\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n  - \"id\": \"harvest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-rds-cluster\"\n    \"config\": {}\n\"bindings\":\n  - \"source\": \"index\"\n    \"target\": \"auditor\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"auditor\"\n            \"field\": \"arn\"\n  - \"source\": \"index\"\n    \"target\": \"harvest\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"rds-cluster\"\n      \"accessLevel\": \"write\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

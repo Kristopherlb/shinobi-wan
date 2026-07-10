@@ -1,0 +1,336 @@
+{
+  "check": {
+    "families": [
+      "aws:cfg:Rule",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:s3:Bucket",
+      "aws:s3:BucketVersioningV2",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "flows-exec-role"
+        ],
+        "name": "flows-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "flows-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "flows-config-rule",
+        "properties": {
+          "name": "parser-core-flows",
+          "tags": {
+            "shinobi:node": "platform:flows",
+            "shinobi:platform": "aws-config-rules"
+          }
+        },
+        "resourceType": "aws:cfg:Rule"
+      },
+      {
+        "dependsOn": [],
+        "name": "flows-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "platform:flows"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [],
+        "name": "flows-router-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:lambda:*:*:function:parser-core-router\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:flows:component:router",
+            "shinobi:resource": "component:router"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "flows-exec-role",
+          "flows-router-policy"
+        ],
+        "name": "flows-router-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "flows-router-policy"
+          },
+          "role": {
+            "ref": "flows-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "parser-core-router-API_GATEWAY_URL",
+        "properties": {
+          "name": "/parser-core/router/API_GATEWAY_URL",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:flows:component:router",
+            "shinobi:key": "API_GATEWAY_URL",
+            "shinobi:target": "component:router"
+          },
+          "type": "String",
+          "value": {
+            "ref": "flows-config-rule.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "parser-core-router-API_ROUTE",
+        "properties": {
+          "name": "/parser-core/router/API_ROUTE",
+          "tags": {
+            "shinobi:edge": "edge:triggers:platform:flows:component:router",
+            "shinobi:key": "API_ROUTE",
+            "shinobi:target": "component:router"
+          },
+          "type": "String",
+          "value": "POST /remediate"
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "parser-core-router-LOGS_BUCKET",
+        "properties": {
+          "name": "/parser-core/router/LOGS_BUCKET",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:router:platform:search",
+            "shinobi:key": "LOGS_BUCKET",
+            "shinobi:target": "component:router"
+          },
+          "type": "String",
+          "value": {
+            "ref": "search-bucket.bucket"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [
+          "router-exec-role"
+        ],
+        "name": "router-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "router-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "router-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:router"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "router-exec-role"
+        ],
+        "name": "router-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "API_GATEWAY_URL": {
+                "ref": "flows-config-rule.arn"
+              },
+              "API_ROUTE": "POST /remediate",
+              "LOGS_BUCKET": {
+                "ref": "search-bucket.bucket"
+              }
+            }
+          },
+          "functionName": "parser-core-router",
+          "handler": "index.handler",
+          "memorySize": 256,
+          "role": {
+            "ref": "router-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:router",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 30,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "router-search-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"s3:GetObject\",\"s3:ListBucket\",\"s3:PutObject\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:s3:::parser-core-search\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:router:platform:search",
+            "shinobi:resource": "platform:search"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "router-exec-role",
+          "router-search-policy"
+        ],
+        "name": "router-search-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "router-search-policy"
+          },
+          "role": {
+            "ref": "router-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "search-bucket",
+        "properties": {
+          "bucket": "parser-core-search",
+          "tags": {
+            "shinobi:node": "platform:search",
+            "shinobi:platform": "aws-s3"
+          }
+        },
+        "resourceType": "aws:s3:Bucket"
+      },
+      {
+        "dependsOn": [
+          "search-bucket"
+        ],
+        "name": "search-versioning",
+        "properties": {
+          "bucket": {
+            "ref": "search-bucket"
+          },
+          "versioningConfiguration": {
+            "status": "Enabled"
+          }
+        },
+        "resourceType": "aws:s3:BucketVersioningV2"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-240e8d",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "method": "POST",
+            "resourceType": "config-rule",
+            "route": "/remediate"
+          },
+          "source": "flows",
+          "target": "router",
+          "type": "triggers"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "LOGS_BUCKET",
+                "valueSource": {
+                  "field": "bucket",
+                  "nodeRef": "search",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "bucket"
+          },
+          "source": "router",
+          "target": "search",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "rules": [
+              {
+                "name": "s3-bucket-versioning-enabled",
+                "source": "AWS",
+                "sourceIdentifier": "S3_BUCKET_VERSIONING_ENABLED"
+              },
+              {
+                "name": "iam-root-access-key-check",
+                "source": "AWS",
+                "sourceIdentifier": "IAM_ROOT_ACCESS_KEY_CHECK"
+              }
+            ]
+          },
+          "id": "flows",
+          "platform": "aws-config-rules",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "router",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "search",
+          "platform": "aws-s3",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "parser-core"
+    },
+    "manifest_yaml": "\"service\": \"parser-core\"\n\"components\":\n  - \"id\": \"flows\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-rules\"\n    \"config\":\n      \"rules\":\n        - \"name\": \"s3-bucket-versioning-enabled\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"S3_BUCKET_VERSIONING_ENABLED\"\n        - \"name\": \"iam-root-access-key-check\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"IAM_ROOT_ACCESS_KEY_CHECK\"\n  - \"id\": \"router\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"search\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n\"bindings\":\n  - \"source\": \"flows\"\n    \"target\": \"router\"\n    \"type\": \"triggers\"\n    \"config\":\n      \"resourceType\": \"config-rule\"\n      \"route\": \"/remediate\"\n      \"method\": \"POST\"\n  - \"source\": \"router\"\n    \"target\": \"search\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"bucket\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"LOGS_BUCKET\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"search\"\n            \"field\": \"bucket\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

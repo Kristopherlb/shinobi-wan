@@ -1,0 +1,123 @@
+{
+  "check": {
+    "families": [
+      "aws:cfg:DeliveryChannel",
+      "aws:cfg:Recorder",
+      "aws:cfg:RecorderStatus",
+      "aws:sqs:Queue"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "collector-config-recorder"
+        ],
+        "name": "collector-config-delivery-channel",
+        "properties": {
+          "name": "feeds-svc-collector-channel",
+          "snapshotDeliveryProperties": {
+            "deliveryFrequency": "TwentyFour_Hours"
+          }
+        },
+        "resourceType": "aws:cfg:DeliveryChannel"
+      },
+      {
+        "dependsOn": [],
+        "name": "collector-config-recorder",
+        "properties": {
+          "name": "feeds-svc-collector",
+          "recordingGroup": {
+            "allSupported": true,
+            "includeGlobalResourceTypes": true
+          }
+        },
+        "resourceType": "aws:cfg:Recorder"
+      },
+      {
+        "dependsOn": [
+          "collector-config-delivery-channel",
+          "collector-config-recorder"
+        ],
+        "name": "collector-config-recorder-status",
+        "properties": {
+          "isEnabled": true,
+          "name": {
+            "ref": "collector-config-recorder"
+          }
+        },
+        "resourceType": "aws:cfg:RecorderStatus"
+      },
+      {
+        "dependsOn": [],
+        "name": "parser-dlq",
+        "properties": {
+          "messageRetentionSeconds": 1209600,
+          "name": "feeds-svc-parser-dlq",
+          "tags": {
+            "shinobi:node": "platform:parser",
+            "shinobi:platform": "aws-sqs",
+            "shinobi:role": "dead-letter-queue"
+          }
+        },
+        "resourceType": "aws:sqs:Queue"
+      },
+      {
+        "dependsOn": [
+          "parser-dlq"
+        ],
+        "name": "parser-queue",
+        "properties": {
+          "messageRetentionSeconds": 345600,
+          "name": "feeds-svc-parser",
+          "redrivePolicy": "{\"deadLetterTargetArn\":{\"ref\":\"parser-dlq\"},\"maxReceiveCount\":5}",
+          "tags": {
+            "shinobi:node": "platform:parser",
+            "shinobi:platform": "aws-sqs"
+          },
+          "visibilityTimeoutSeconds": 900
+        },
+        "resourceType": "aws:sqs:Queue"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-34e72e",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "deadLetterQueue": true,
+            "maxReceiveCount": 5,
+            "visibilityTimeout": 900
+          },
+          "id": "parser",
+          "platform": "aws-sqs",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "allSupported": true,
+            "deliveryFrequency": "TwentyFour_Hours",
+            "includeGlobalResourceTypes": true,
+            "recordingEnabled": true
+          },
+          "id": "collector",
+          "platform": "aws-config-recorder",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "feeds-svc"
+    },
+    "manifest_yaml": "\"service\": \"feeds-svc\"\n\"components\":\n  - \"id\": \"parser\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 900\n      \"deadLetterQueue\": true\n      \"maxReceiveCount\": 5\n  - \"id\": \"collector\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-recorder\"\n    \"config\":\n      \"recordingEnabled\": true\n      \"allSupported\": true\n      \"includeGlobalResourceTypes\": true\n      \"deliveryFrequency\": \"TwentyFour_Hours\"\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

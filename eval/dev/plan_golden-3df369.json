@@ -1,0 +1,412 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:EventSourceMapping",
+      "aws:lambda:Function",
+      "aws:opensearch:Domain",
+      "aws:sns:Topic",
+      "aws:sqs:Queue",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "cache-exec-role"
+        ],
+        "name": "cache-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "cache-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "cache-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:cache"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "cache-exec-role"
+        ],
+        "name": "cache-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "OPENSEARCH_ENDPOINT": {
+                "ref": "nightly-domain.endpoint"
+              },
+              "QUEUE_URL": {
+                "ref": "harvest-queue.url"
+              }
+            }
+          },
+          "functionName": "queue-main-svc-cache",
+          "handler": "ingestion.handler",
+          "memorySize": 512,
+          "role": {
+            "ref": "cache-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:cache",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 300,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [
+          "cache-function",
+          "harvest-queue"
+        ],
+        "name": "cache-harvest-event-mapping",
+        "properties": {
+          "batchSize": 10,
+          "enabled": true,
+          "eventSourceArn": {
+            "ref": "harvest-queue"
+          },
+          "functionName": {
+            "ref": "cache-function"
+          },
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:cache:platform:harvest"
+          }
+        },
+        "resourceType": "aws:lambda:EventSourceMapping"
+      },
+      {
+        "dependsOn": [],
+        "name": "cache-harvest-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"sqs:ReceiveMessage\",\"sqs:GetQueueAttributes\",\"sqs:GetQueueUrl\",\"sqs:SendMessage\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:sqs:*:*:queue-main-svc-harvest\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:cache:platform:harvest",
+            "shinobi:resource": "platform:harvest"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "cache-exec-role",
+          "cache-harvest-policy"
+        ],
+        "name": "cache-harvest-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "cache-harvest-policy"
+          },
+          "role": {
+            "ref": "cache-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "cache-nightly-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"es:ESHttpGet\",\"es:DescribeElasticsearchDomain\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:es:*:*:domain/queue-main-svc-nightly\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:cache:platform:nightly",
+            "shinobi:resource": "platform:nightly"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "cache-exec-role",
+          "cache-nightly-policy"
+        ],
+        "name": "cache-nightly-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "cache-nightly-policy"
+          },
+          "role": {
+            "ref": "cache-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "cache-webhook-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"sns:GetTopicAttributes\",\"sns:ListSubscriptionsByTopic\",\"sns:Publish\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:sns:*:*:queue-main-svc-webhook\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:cache:platform:webhook",
+            "shinobi:resource": "platform:webhook"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "cache-exec-role",
+          "cache-webhook-policy"
+        ],
+        "name": "cache-webhook-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "cache-webhook-policy"
+          },
+          "role": {
+            "ref": "cache-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "harvest-queue",
+        "properties": {
+          "messageRetentionSeconds": 345600,
+          "name": "queue-main-svc-harvest",
+          "tags": {
+            "shinobi:node": "platform:harvest",
+            "shinobi:platform": "aws-sqs"
+          },
+          "visibilityTimeoutSeconds": 300
+        },
+        "resourceType": "aws:sqs:Queue"
+      },
+      {
+        "dependsOn": [
+          "nightly-domain-log-group"
+        ],
+        "name": "nightly-domain",
+        "properties": {
+          "clusterConfig": {
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search"
+          },
+          "domainEndpointOptions": {
+            "enforceHTTPS": true
+          },
+          "domainName": "queue-main-svc-nightly",
+          "ebsOptions": {
+            "ebsEnabled": true,
+            "volumeSize": 100
+          },
+          "encryptAtRestOptions": {
+            "enabled": true
+          },
+          "engineVersion": "OpenSearch_2.11",
+          "logPublishingOptions": {
+            "INDEX_SLOW_LOGS": {
+              "cloudWatchLogsLogGroupArn": {
+                "ref": "nightly-domain-log-group.arn"
+              },
+              "enabled": true
+            }
+          },
+          "nodeToNodeEncryptionOptions": {
+            "enabled": true
+          },
+          "tags": {
+            "shinobi:node": "platform:nightly",
+            "shinobi:platform": "aws-opensearch"
+          }
+        },
+        "resourceType": "aws:opensearch:Domain"
+      },
+      {
+        "dependsOn": [],
+        "name": "nightly-domain-log-group",
+        "properties": {
+          "name": "/aws/opensearch/queue-main-svc-nightly",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:nightly",
+            "shinobi:platform": "aws-opensearch"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [],
+        "name": "queue-main-svc-cache-OPENSEARCH_ENDPOINT",
+        "properties": {
+          "name": "/queue-main-svc/cache/OPENSEARCH_ENDPOINT",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:cache:platform:nightly",
+            "shinobi:key": "OPENSEARCH_ENDPOINT",
+            "shinobi:target": "component:cache"
+          },
+          "type": "String",
+          "value": {
+            "ref": "nightly-domain.endpoint"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "queue-main-svc-cache-QUEUE_URL",
+        "properties": {
+          "name": "/queue-main-svc/cache/QUEUE_URL",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:cache:platform:harvest",
+            "shinobi:key": "QUEUE_URL",
+            "shinobi:target": "component:cache"
+          },
+          "type": "String",
+          "value": {
+            "ref": "harvest-queue.url"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "webhook-topic",
+        "properties": {
+          "name": "queue-main-svc-webhook",
+          "tags": {
+            "shinobi:node": "platform:webhook",
+            "shinobi:platform": "aws-sns"
+          }
+        },
+        "resourceType": "aws:sns:Topic"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-3df369",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "resourceType": "topic"
+          },
+          "source": "cache",
+          "target": "webhook",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "QUEUE_URL",
+                "valueSource": {
+                  "field": "url",
+                  "nodeRef": "harvest",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "queue"
+          },
+          "source": "cache",
+          "target": "harvest",
+          "type": "bindsTo"
+        },
+        {
+          "config": {
+            "accessLevel": "read",
+            "configKeys": [
+              {
+                "key": "OPENSEARCH_ENDPOINT",
+                "valueSource": {
+                  "field": "endpoint",
+                  "nodeRef": "nightly",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "domain"
+          },
+          "source": "cache",
+          "target": "nightly",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "ingestion.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 300,
+            "tracing": true
+          },
+          "id": "cache",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {},
+          "id": "webhook",
+          "platform": "aws-sns",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "visibilityTimeout": 300
+          },
+          "id": "harvest",
+          "platform": "aws-sqs",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "ebsEnabled": true,
+            "encryptionAtRest": true,
+            "enforceHTTPS": true,
+            "engineVersion": "OpenSearch_2.11",
+            "instanceCount": 2,
+            "instanceType": "r6g.large.search",
+            "nodeToNodeEncryption": true,
+            "publicAccess": false,
+            "volumeSize": 100
+          },
+          "id": "nightly",
+          "platform": "aws-opensearch",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "queue-main-svc"
+    },
+    "manifest_yaml": "\"service\": \"queue-main-svc\"\n\"components\":\n  - \"id\": \"cache\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"ingestion.handler\"\n      \"memorySize\": 512\n      \"timeout\": 300\n      \"tracing\": true\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sns\"\n    \"config\": {}\n  - \"id\": \"harvest\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-sqs\"\n    \"config\":\n      \"visibilityTimeout\": 300\n  - \"id\": \"nightly\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-opensearch\"\n    \"config\":\n      \"engineVersion\": \"OpenSearch_2.11\"\n      \"instanceType\": \"r6g.large.search\"\n      \"instanceCount\": 2\n      \"ebsEnabled\": true\n      \"volumeSize\": 100\n      \"encryptionAtRest\": true\n      \"nodeToNodeEncryption\": true\n      \"enforceHTTPS\": true\n      \"publicAccess\": false\n\"bindings\":\n  - \"source\": \"cache\"\n    \"target\": \"webhook\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"topic\"\n      \"accessLevel\": \"write\"\n  - \"source\": \"cache\"\n    \"target\": \"harvest\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"queue\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"QUEUE_URL\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"harvest\"\n            \"field\": \"url\"\n  - \"source\": \"cache\"\n    \"target\": \"nightly\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"domain\"\n      \"accessLevel\": \"read\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"OPENSEARCH_ENDPOINT\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"nightly\"\n            \"field\": \"endpoint\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

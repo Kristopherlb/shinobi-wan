@@ -1,0 +1,217 @@
+{
+  "check": {
+    "families": [
+      "aws:cloudwatch:LogGroup",
+      "aws:iam:Policy",
+      "aws:iam:Role",
+      "aws:iam:RolePolicyAttachment",
+      "aws:lambda:Function",
+      "aws:sfn:StateMachine",
+      "aws:ssm:Parameter"
+    ],
+    "kind": "plan"
+  },
+  "class": "plan_golden",
+  "expected": {
+    "resources": [
+      {
+        "dependsOn": [
+          "bridge-exec-role"
+        ],
+        "name": "bridge-basic-execution-attachment",
+        "properties": {
+          "policyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "role": {
+            "ref": "bridge-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "bridge-exec-role",
+        "properties": {
+          "assumeRolePolicy": "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"}}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:principal": "component:bridge"
+          }
+        },
+        "resourceType": "aws:iam:Role"
+      },
+      {
+        "dependsOn": [
+          "bridge-exec-role"
+        ],
+        "name": "bridge-function",
+        "properties": {
+          "environment": {
+            "variables": {
+              "STATE_MACHINE_ARN": {
+                "ref": "uploads-state-machine.arn"
+              }
+            }
+          },
+          "functionName": "index-app-bridge",
+          "handler": "index.handler",
+          "memorySize": 256,
+          "role": {
+            "ref": "bridge-exec-role"
+          },
+          "runtime": "nodejs20.x",
+          "tags": {
+            "shinobi:node": "component:bridge",
+            "shinobi:platform": "aws-lambda"
+          },
+          "timeout": 30,
+          "tracingConfig": {
+            "mode": "Active"
+          }
+        },
+        "resourceType": "aws:lambda:Function"
+      },
+      {
+        "dependsOn": [],
+        "name": "bridge-uploads-policy",
+        "properties": {
+          "policy": "{\"Statement\":[{\"Action\":[\"states:DescribeStateMachine\",\"states:ListStateMachines\",\"states:ListExecutions\",\"states:StartExecution\",\"states:StopExecution\"],\"Effect\":\"Allow\",\"Resource\":\"arn:aws:states:*:*:stateMachine:index-app-uploads\"}],\"Version\":\"2012-10-17\"}",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:bridge:platform:uploads",
+            "shinobi:resource": "platform:uploads"
+          }
+        },
+        "resourceType": "aws:iam:Policy"
+      },
+      {
+        "dependsOn": [
+          "bridge-exec-role",
+          "bridge-uploads-policy"
+        ],
+        "name": "bridge-uploads-policy-attachment",
+        "properties": {
+          "policyArn": {
+            "ref": "bridge-uploads-policy"
+          },
+          "role": {
+            "ref": "bridge-exec-role"
+          }
+        },
+        "resourceType": "aws:iam:RolePolicyAttachment"
+      },
+      {
+        "dependsOn": [],
+        "name": "index-app-bridge-STATE_MACHINE_ARN",
+        "properties": {
+          "name": "/index-app/bridge/STATE_MACHINE_ARN",
+          "tags": {
+            "shinobi:edge": "edge:bindsTo:component:bridge:platform:uploads",
+            "shinobi:key": "STATE_MACHINE_ARN",
+            "shinobi:target": "component:bridge"
+          },
+          "type": "String",
+          "value": {
+            "ref": "uploads-state-machine.arn"
+          }
+        },
+        "resourceType": "aws:ssm:Parameter"
+      },
+      {
+        "dependsOn": [],
+        "name": "uploads-log-group",
+        "properties": {
+          "name": "/aws/vendedlogs/states/index-app-uploads",
+          "retentionInDays": 30,
+          "tags": {
+            "shinobi:node": "platform:uploads",
+            "shinobi:platform": "aws-stepfunctions"
+          }
+        },
+        "resourceType": "aws:cloudwatch:LogGroup"
+      },
+      {
+        "dependsOn": [
+          "uploads-log-group"
+        ],
+        "name": "uploads-state-machine",
+        "properties": {
+          "definition": "{\"Comment\":\"State machine for uploads\",\"StartAt\":\"PassState\",\"States\":{\"PassState\":{\"End\":true,\"Type\":\"Pass\"}}}",
+          "loggingConfiguration": {
+            "includeExecutionData": true,
+            "level": "ALL",
+            "logDestination": {
+              "ref": "uploads-log-group"
+            }
+          },
+          "name": "index-app-uploads",
+          "tags": {
+            "shinobi:node": "platform:uploads",
+            "shinobi:platform": "aws-stepfunctions"
+          },
+          "type": "STANDARD"
+        },
+        "resourceType": "aws:sfn:StateMachine"
+      }
+    ],
+    "success": true
+  },
+  "id": "plan_golden-29b062",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [
+        {
+          "config": {
+            "accessLevel": "write",
+            "configKeys": [
+              {
+                "key": "STATE_MACHINE_ARN",
+                "valueSource": {
+                  "field": "arn",
+                  "nodeRef": "uploads",
+                  "type": "reference"
+                }
+              }
+            ],
+            "network": {
+              "port": 443,
+              "protocol": "tcp"
+            },
+            "resourceType": "statemachine"
+          },
+          "source": "bridge",
+          "target": "uploads",
+          "type": "bindsTo"
+        }
+      ],
+      "components": [
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 256,
+            "runtime": "nodejs20.x",
+            "timeout": 30,
+            "tracing": true
+          },
+          "id": "bridge",
+          "platform": "aws-lambda",
+          "type": "component"
+        },
+        {
+          "config": {
+            "logLevel": "ALL",
+            "logging": true,
+            "type": "STANDARD"
+          },
+          "id": "uploads",
+          "platform": "aws-stepfunctions",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "index-app"
+    },
+    "manifest_yaml": "\"service\": \"index-app\"\n\"components\":\n  - \"id\": \"bridge\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 256\n      \"timeout\": 30\n      \"tracing\": true\n  - \"id\": \"uploads\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-stepfunctions\"\n    \"config\":\n      \"type\": \"STANDARD\"\n      \"logging\": true\n      \"logLevel\": \"ALL\"\n\"bindings\":\n  - \"source\": \"bridge\"\n    \"target\": \"uploads\"\n    \"type\": \"bindsTo\"\n    \"config\":\n      \"resourceType\": \"statemachine\"\n      \"accessLevel\": \"write\"\n      \"network\":\n        \"port\": 443\n        \"protocol\": \"tcp\"\n      \"configKeys\":\n        - \"key\": \"STATE_MACHINE_ARN\"\n          \"valueSource\":\n            \"type\": \"reference\"\n            \"nodeRef\": \"uploads\"\n            \"field\": \"arn\"\n\"policyPack\": \"Baseline\"\n"
+  }
+}

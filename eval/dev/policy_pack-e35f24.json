@@ -1,0 +1,73 @@
+{
+  "check": {
+    "kind": "validate"
+  },
+  "class": "policy_pack",
+  "expected": {
+    "compliant": true,
+    "errorCount": 0,
+    "policyPack": "FedRAMP-Moderate",
+    "success": true,
+    "valid": true,
+    "violationCount": 1,
+    "warningCount": 0
+  },
+  "id": "policy_pack-e35f24",
+  "input": {
+    "argv": [
+      "validate",
+      "--json",
+      "--policy-pack",
+      "FedRAMP-Moderate"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "aliases": [
+              "static-site-cdn-waf.example.com"
+            ],
+            "certificateDomain": "static-site-cdn-waf.example.com",
+            "minimumProtocolVersion": "TLSv1.2_2021"
+          },
+          "id": "uploads",
+          "platform": "aws-cloudfront",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "imageTagMutability": "IMMUTABLE",
+            "scanOnPush": true
+          },
+          "id": "jobs",
+          "platform": "aws-ecr",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "versioning": true
+          },
+          "id": "reports",
+          "platform": "aws-s3",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "cloudWatchLogsEnabled": true,
+            "enableLogFileValidation": true,
+            "includeGlobalServiceEvents": true,
+            "isMultiRegionTrail": true,
+            "logRetentionDays": 90
+          },
+          "id": "webhook",
+          "platform": "aws-cloudtrail",
+          "type": "platform"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "vault-app"
+    },
+    "manifest_yaml": "\"service\": \"vault-app\"\n\"components\":\n  - \"id\": \"uploads\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudfront\"\n    \"config\":\n      \"minimumProtocolVersion\": \"TLSv1.2_2021\"\n      \"aliases\":\n        - \"static-site-cdn-waf.example.com\"\n      \"certificateDomain\": \"static-site-cdn-waf.example.com\"\n  - \"id\": \"jobs\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecr\"\n    \"config\":\n      \"imageTagMutability\": \"IMMUTABLE\"\n      \"scanOnPush\": true\n  - \"id\": \"reports\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-s3\"\n    \"config\":\n      \"versioning\": true\n  - \"id\": \"webhook\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-cloudtrail\"\n    \"config\":\n      \"isMultiRegionTrail\": true\n      \"enableLogFileValidation\": true\n      \"includeGlobalServiceEvents\": true\n      \"cloudWatchLogsEnabled\": true\n      \"logRetentionDays\": 90\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}

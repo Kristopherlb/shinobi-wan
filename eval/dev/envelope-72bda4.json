@@ -1,0 +1,64 @@
+{
+  "check": {
+    "kind": "envelope"
+  },
+  "class": "envelope",
+  "expected": {
+    "has_success_bool": true,
+    "json_stdout": true
+  },
+  "id": "envelope-72bda4",
+  "input": {
+    "argv": [
+      "plan",
+      "--json"
+    ],
+    "manifest_obj": {
+      "bindings": [],
+      "components": [
+        {
+          "config": {
+            "containerInsights": true
+          },
+          "id": "metrics",
+          "platform": "aws-ecs-cluster",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "rules": [
+              {
+                "name": "s3-bucket-versioning-enabled",
+                "source": "AWS",
+                "sourceIdentifier": "S3_BUCKET_VERSIONING_ENABLED"
+              },
+              {
+                "name": "iam-root-access-key-check",
+                "source": "AWS",
+                "sourceIdentifier": "IAM_ROOT_ACCESS_KEY_CHECK"
+              }
+            ]
+          },
+          "id": "loader",
+          "platform": "aws-config-rules",
+          "type": "platform"
+        },
+        {
+          "config": {
+            "handler": "index.handler",
+            "memorySize": 512,
+            "runtime": "nodejs20.x",
+            "timeout": 60,
+            "tracing": true
+          },
+          "id": "flows",
+          "platform": "aws-lambda",
+          "type": "component"
+        }
+      ],
+      "policyPack": "Baseline",
+      "service": "ecs-metrics"
+    },
+    "manifest_yaml": "\"service\": \"ecs-metrics\"\n\"components\":\n  - \"id\": \"metrics\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-ecs-cluster\"\n    \"config\":\n      \"containerInsights\": true\n  - \"id\": \"loader\"\n    \"type\": \"platform\"\n    \"platform\": \"aws-config-rules\"\n    \"config\":\n      \"rules\":\n        - \"name\": \"s3-bucket-versioning-enabled\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"S3_BUCKET_VERSIONING_ENABLED\"\n        - \"name\": \"iam-root-access-key-check\"\n          \"source\": \"AWS\"\n          \"sourceIdentifier\": \"IAM_ROOT_ACCESS_KEY_CHECK\"\n  - \"id\": \"flows\"\n    \"type\": \"component\"\n    \"platform\": \"aws-lambda\"\n    \"config\":\n      \"runtime\": \"nodejs20.x\"\n      \"handler\": \"index.handler\"\n      \"memorySize\": 512\n      \"timeout\": 60\n      \"tracing\": true\n\"bindings\": []\n\"policyPack\": \"Baseline\"\n"
+  }
+}
