@@ -548,6 +548,50 @@ if (!edge.metadata?.bindingConfig?.resourceType) {
 
 ---
 
+### IMP-038: Cycle-0 Channel Smoke Test for LFD Holdout Requests
+
+**Status:** 🟡 Proposed
+**Source:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+**Effort:** 30 min
+**Impact:** The holdout tag-push channel was silently broken (session git proxy blocks `refs/tags/*`) for the entire run, discovered only when the first real holdout request failed. A no-op tag push + poll at Cycle 0 would surface this in minutes instead of ~17 hours.
+
+**Action:** Add a `scripts/target-repo/` channel-check script that attempts a throwaway tag push (and cleans it up) before any scoring cycle begins; wire it into `agent-instructions.md`'s Cycle 0 checklist.
+
+---
+
+### IMP-039: Protected-Path Write-Set Guard for Repo-Wide Codemods
+
+**Status:** 🟡 Proposed
+**Source:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+**Effort:** 1-2 hours
+**Impact:** This session manually audited the planned `prettier --write .` file list before running it, catching that it would have touched 108 files inside `eval/` plus `goal.md` — both explicitly read-only per the LFD contract. That check was manual discipline, not a structural guarantee.
+
+**Action:** Add a pre-flight script that any repo-wide formatter/codemod run must pass: compute the planned write-set and fail loudly if it intersects `eval/`, `harness/`, or `goal.md`, independent of whether `.prettierignore` happens to be configured correctly.
+
+---
+
+### IMP-040: Reusable `holdout-request-tag` Workflow
+
+**Status:** 🟡 Proposed
+**Source:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+**Effort:** 30 min
+**Impact:** `docs/operations/holdout-request-transport.md` documents a GitHub Actions transport shim for the blocked tag-push channel, with a copy-paste version for other target repos. Copy-paste means N independent copies can drift.
+
+**Action:** Host the generalized workflow as a `workflow_call` reusable workflow (scoped in the doc's "Sharing across repositories" section) so target repos carry a ~10-line caller instead of the full script.
+
+---
+
+### IMP-041: `format:check` Was Never Actually Running in CI
+
+**Status:** 🟢 Implemented
+**Source:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+**Effort:** 15 min (this session) — root cause was `package.json`'s `format:check` routing through `nx run tools:format:check` with no `tools/project.json` ever created, so Nx errored "Cannot find project" before Prettier ran at all.
+**Impact:** Formatting had been silently unenforced in CI for an unknown period, accumulating 636 files of debt and masking two latent parser bugs (PAT-024) that only surfaced once the check actually ran. Superseded on `main` by a simpler fix (calling `prettier --check .` directly from `package.json`, no Nx project needed) — this session's `tools/project.json` workaround was removed once merged with that approach.
+
+**Action:** No further action — resolved on `main`. Documented here so the "a check existing in `package.json` doesn't mean it's running" failure mode is recorded.
+
+---
+
 ## Archived
 
 _Improvements that are obsolete or superseded._

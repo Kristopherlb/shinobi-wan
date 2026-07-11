@@ -155,6 +155,32 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 
 ---
 
+#### PAT-022: `git add -A` Sweeps Up Stray Sandbox-Root Temp Artifacts
+
+**Occurrences:** 1
+**Sessions:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+
+**Description:** In this sandboxed environment, some tools in the install/build chain write scratch files directly into the repo root instead of the OS temp directory. A routine `git add -A && git commit` swept up 196 such `tmp-*` directories into git history, undetected for multiple cycles until they broke `prettier --check .`.
+
+**Impact:** One full cycle spent diagnosing + one dedicated cleanup commit; junk sat in shared PR history across several pushes before removal.
+
+**Proposed Resolution:** Always run `git status` before `git add -A`, especially right after a fresh `pnpm install`/`nx build`. Prefer explicit path lists over `-A` when the repo root could plausibly contain scratch output. Add a `.gitignore` guard for the observed pattern (`/tmp-*`).
+
+---
+
+#### PAT-023: Repo-Wide Reformat Run Without Checking `origin/main` Divergence First
+
+**Occurrences:** 1
+**Sessions:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+
+**Description:** A repo-wide Prettier pass was run using the locally-checked-out `.prettierrc.json` (`singleQuote: false`) without checking whether `main` had already diverged on that exact file. It had — a parallel session's PR had already landed `singleQuote: true` as the real canonical convention. The entire reformat became throwaway work once merged, and contributed directly to a 265-file merge conflict.
+
+**Impact:** ~527 files reformatted under the wrong convention, effectively discarded at merge time.
+
+**Proposed Resolution:** Before any repo-wide formatter/codemod run, diff the relevant config files (`.prettierrc.json`, `package.json`, CI workflow files) against `origin/main` first (`git diff origin/main -- .prettierrc.json`), not just read the local working copy.
+
+---
+
 ### 🟢 Success
 
 #### PAT-012: Pattern-Following Lowerer Implementation
@@ -228,6 +254,19 @@ Recurring patterns observed across retrospectives. Patterns with ≥3 occurrence
 **Impact:** Cannot verify lint compliance
 
 **Proposed Resolution:** Add to devDependencies: `pnpm add -wD @nx/eslint-plugin`
+
+---
+
+#### PAT-024: Repo Tooling Scripts Hardcode Exact Source Formatting
+
+**Occurrences:** 1 (two instances in the same session)
+**Sessions:** 2026-07-10-lfd-golden-path-optimization-and-ci-merge-repair
+
+**Description:** `tools/docs-check.js` matched CLI command declarations with a regex requiring single quotes (`/\.command\('([a-z-]+)'\)/g`), and `tools/rollout-dashboard.js` detected a markdown table's header via the exact unpadded string `"| Gate |"`. Both broke the first time a routine Prettier reformat changed quote style or padded table columns for alignment. Neither script was exercised by CI until `format:check` was fixed to actually run (see IMP-041) — meaning both bugs were latent and undetected for an unknown period before this session.
+
+**Impact:** Two extra debug-and-fix cycles, discovered only because this session made `format:check` run for the first time.
+
+**Proposed Resolution:** Any script parsing this repo's own markdown/TypeScript source should tolerate Prettier's canonical output shape (either quote style, padded table columns, trailing commas) by construction — use quote-agnostic regexes (`['"]`) and whitespace-tolerant table detection (`/^\|\s*Gate\s*\|/`) rather than literal strings that happen to match the tree's current formatting.
 
 ---
 
