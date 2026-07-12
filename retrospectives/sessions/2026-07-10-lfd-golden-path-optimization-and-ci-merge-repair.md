@@ -30,7 +30,7 @@ Faced with a merge against `main` that conflicted on 265 files after a parallel 
 
 ### 4. Full CI-equivalent local verification before every push
 
-Every push to the PR branch (formatting fix, doc-tooling fix, merge resolution) was preceded by running the *exact* CI job sequence locally (install → format:check → build → test → lint → conformance:check → smoke:consumer → roadmap:check → rollout:dashboard:check → docs:check) rather than trusting a partial local check and finding out on GitHub. This caught the docs-check/rollout-dashboard regressions before they could compound.
+Every push to the PR branch (formatting fix, doc-tooling fix, merge resolution) was preceded by running the _exact_ CI job sequence locally (install → format:check → build → test → lint → conformance:check → smoke:consumer → roadmap:check → rollout:dashboard:check → docs:check) rather than trusting a partial local check and finding out on GitHub. This caught the docs-check/rollout-dashboard regressions before they could compound.
 
 ---
 
@@ -58,7 +58,7 @@ The repo-wide Prettier pass was run using the `.prettierrc.json` inherited from 
 
 **Impact:** Zero holdout datapoints were ever confirmed received during the scored run; the run closed on a budget-exhaustion stop condition rather than a bar-hit stop, with acceptance undetermined.
 
-**Lesson:** For any LFD run in a remote/sandboxed Claude Code session, verify the tag-push channel works with a cheap no-op tag push *during Cycle 0*, before any scoring cycles — not after the first real holdout request fails. This is now written up generally in `docs/operations/holdout-request-transport.md` for reuse.
+**Lesson:** For any LFD run in a remote/sandboxed Claude Code session, verify the tag-push channel works with a cheap no-op tag push _during Cycle 0_, before any scoring cycles — not after the first real holdout request fails. This is now written up generally in `docs/operations/holdout-request-transport.md` for reuse.
 
 ### 4. Brittle string/regex-based tooling scripts broke under a routine reformat
 
@@ -109,39 +109,39 @@ Both `tools/docs-check.js` (quote-literal regex) and `tools/rollout-dashboard.js
 
 ### Immediate (This Sprint)
 
-| Action | Effort | Impact |
-| --- | --- | --- |
-| Add a `.gitignore` guard for stray root-level `tmp-*` artifacts repo-wide (already done on `main` via `fee8bfd`; confirm it's the canonical pattern going forward) | 5 min | Prevents recurrence of PAT-022 |
-| Add a repo-root `CONTRIBUTING`/session note: "always `pnpm format:check` and diff `.prettierrc.json`/`package.json` against `origin/main` before a repo-wide reformat commit" | 10 min | Prevents PAT-023 recurrence |
+| Action                                                                                                                                                                                                       | Effort | Impact                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | ------------------------------------------------------------- |
+| Add a `.gitignore` guard for stray root-level `tmp-*` artifacts repo-wide (already done on `main` via `fee8bfd`; confirm it's the canonical pattern going forward)                                           | 5 min  | Prevents recurrence of PAT-022                                |
+| Add a repo-root `CONTRIBUTING`/session note: "always `pnpm format:check` and diff `.prettierrc.json`/`package.json` against `origin/main` before a repo-wide reformat commit"                                | 10 min | Prevents PAT-023 recurrence                                   |
 | Make `tools/docs-check.js` and `tools/rollout-dashboard.js` parse via a real markdown/AST approach (or at minimum keep the whitespace/quote-tolerant regexes just landed) rather than literal string matches | 20 min | Removes a whole class of "breaks whenever Prettier runs" bugs |
 
 ### Near-Term (Next 2 Sprints)
 
-| Action | Effort | Impact |
-| --- | --- | --- |
-| Land a Cycle-0 "channel smoke test" step in `agent-instructions.md` for future LFD runs: attempt a no-op holdout tag push and record the result before any scoring cycle | 15 min | Would have saved ~17h of blocked holdout requests this run |
+| Action                                                                                                                                                                                                                                                                        | Effort                   | Impact                                                                                       |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------- |
+| Land a Cycle-0 "channel smoke test" step in `agent-instructions.md` for future LFD runs: attempt a no-op holdout tag push and record the result before any scoring cycle                                                                                                      | 15 min                   | Would have saved ~17h of blocked holdout requests this run                                   |
 | Reconcile `eval/dev`'s `invalid_schema` expectations with the fact that they were captured against a defective reference SHA — the eval currently punishes fixing the exact lowerer gaps `spec.md` names as legitimate Stage-0 repair targets (see LOG.md cycle 3-6 findings) | design-level, patch-mode | Removes a genuine scoring/spec contradiction, not self-patchable per `agent-instructions.md` |
-| Host the generalized `holdout-request-tag.yml` as a `workflow_call` reusable workflow (per `docs/operations/holdout-request-transport.md`'s "Sharing across repositories" section) so other target repos don't need to copy-paste it | 30 min | One fix instead of N copies drifting independently |
+| Host the generalized `holdout-request-tag.yml` as a `workflow_call` reusable workflow (per `docs/operations/holdout-request-transport.md`'s "Sharing across repositories" section) so other target repos don't need to copy-paste it                                          | 30 min                   | One fix instead of N copies drifting independently                                           |
 
 ### Strategic (Roadmap)
 
-| Action | Effort | Impact |
-| --- | --- | --- |
-| Give concurrent Claude Code sessions working the same repo some visibility into each other's open branches/PRs before starting large repo-wide changes (formatting, dependency bumps) | process/tooling | Would have prevented the entire 265-file duplicate-effort merge this session had to absorb |
-| Add an automated "protected-path write-set" check to any script that runs a formatter/codemod across the whole tree, so a run against `eval/`/`harness/`/`goal.md` fails loudly instead of relying on the operator to remember `.prettierignore` scoping | 1-2h | Converts a manual discipline (this session got right, but by inspection, not by tooling) into a structural guarantee |
+| Action                                                                                                                                                                                                                                                   | Effort          | Impact                                                                                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Give concurrent Claude Code sessions working the same repo some visibility into each other's open branches/PRs before starting large repo-wide changes (formatting, dependency bumps)                                                                    | process/tooling | Would have prevented the entire 265-file duplicate-effort merge this session had to absorb                           |
+| Add an automated "protected-path write-set" check to any script that runs a formatter/codemod across the whole tree, so a run against `eval/`/`harness/`/`goal.md` fails loudly instead of relying on the operator to remember `.prettierignore` scoping | 1-2h            | Converts a manual discipline (this session got right, but by inspection, not by tooling) into a structural guarantee |
 
 ---
 
 ## Metrics
 
-| Metric | Value | Target | Notes |
-| --- | --- | --- | --- |
-| LFD scored cycles | 6 | n/a | Cycles 0-6 per LOG.md; dev saturated at 1.000 by cycle 1 |
-| Holdout requests issued | 2 | ≤24 (budget) | Both `pending` at close; zero results received |
-| Commits on PR branch | 23 (pre-merge) → 24 (post-merge) | n/a | Includes LFD cycles, CI repairs, and the merge-conflict resolution |
-| Merge conflicts resolved | 265 files | 0 (ideal, with the golden-path pre-check) | All but 2 lines were duplicate-effort noise |
-| Stray files accidentally committed | 196 | 0 | `tmp-*` dirs from `git add -A`; fully cleaned up |
-| CI job sequence, final state | 100% green (10/10 checks) | 100% | install, build, test, lint, format, conformance, smoke, roadmap, rollout, docs |
+| Metric                             | Value                            | Target                                    | Notes                                                                          |
+| ---------------------------------- | -------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
+| LFD scored cycles                  | 6                                | n/a                                       | Cycles 0-6 per LOG.md; dev saturated at 1.000 by cycle 1                       |
+| Holdout requests issued            | 2                                | ≤24 (budget)                              | Both `pending` at close; zero results received                                 |
+| Commits on PR branch               | 23 (pre-merge) → 24 (post-merge) | n/a                                       | Includes LFD cycles, CI repairs, and the merge-conflict resolution             |
+| Merge conflicts resolved           | 265 files                        | 0 (ideal, with the golden-path pre-check) | All but 2 lines were duplicate-effort noise                                    |
+| Stray files accidentally committed | 196                              | 0                                         | `tmp-*` dirs from `git add -A`; fully cleaned up                               |
+| CI job sequence, final state       | 100% green (10/10 checks)        | 100%                                      | install, build, test, lint, format, conformance, smoke, roadmap, rollout, docs |
 
 ---
 
@@ -161,12 +161,12 @@ Both `tools/docs-check.js` (quote-literal regex) and `tools/rollout-dashboard.js
 
 ## Improvements / Capabilities That Would Help Next
 
-| Type | Proposal | Effort | Expected Impact |
-| --- | --- | --- | --- |
-| Tooling | A `scripts/target-repo/` "channel-check" script that does a no-op holdout tag push + poll at Cycle 0, separate from the real `request-holdout-check.sh` | 30 min | Surfaces a blocked transport in minutes instead of hours |
-| Tooling | A pre-formatter guard script that fails loudly if the planned write-set intersects `eval/`, `harness/`, or `goal.md`, instead of relying on `.prettierignore` alone | 1h | Converts manual discipline into a structural guarantee |
-| Skill/Docs | Extend the `holdout-request-transport.md` writeup into a reusable `workflow_call` (already scoped in the doc's "Sharing across repositories" section) | 30 min | Removes copy-paste drift risk across target repos |
-| Process | Some mechanism for concurrent sessions on the same repo to see each other's open branches before starting broad, non-additive changes (formatting, dependency bumps) | process-level | Directly addresses the root cause of this session's 265-file merge |
+| Type       | Proposal                                                                                                                                                             | Effort        | Expected Impact                                                    |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------ |
+| Tooling    | A `scripts/target-repo/` "channel-check" script that does a no-op holdout tag push + poll at Cycle 0, separate from the real `request-holdout-check.sh`              | 30 min        | Surfaces a blocked transport in minutes instead of hours           |
+| Tooling    | A pre-formatter guard script that fails loudly if the planned write-set intersects `eval/`, `harness/`, or `goal.md`, instead of relying on `.prettierignore` alone  | 1h            | Converts manual discipline into a structural guarantee             |
+| Skill/Docs | Extend the `holdout-request-transport.md` writeup into a reusable `workflow_call` (already scoped in the doc's "Sharing across repositories" section)                | 30 min        | Removes copy-paste drift risk across target repos                  |
+| Process    | Some mechanism for concurrent sessions on the same repo to see each other's open branches before starting broad, non-additive changes (formatting, dependency bumps) | process-level | Directly addresses the root cause of this session's 265-file merge |
 
 ---
 
