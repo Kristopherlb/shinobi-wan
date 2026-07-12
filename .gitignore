@@ -24,3 +24,4 @@ gate-coverage-report.json
 # claude worktrees
 .claude/worktrees/
 site/api/
+/coverage/
