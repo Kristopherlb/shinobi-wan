@@ -7,8 +7,13 @@ consumption surfaces.
 
 ## Executive Summary
 
-**Verdict: Not Ready** for a public `v0.x` publish today — but the distance is
-short and well-bounded. The blockers are almost entirely **distribution
+> **Remediation update (2026-07-12):** all P0 blockers below were fixed the
+> same day — see the Remediation Log at the end of this report. Post-fix
+> verdict: **Ready with Caveats** (zero Blockers; High findings remain and
+> are tracked in the P1/P2 backlog).
+
+**Verdict at audit time: Not Ready** for a public `v0.x` publish — but the
+distance is short and well-bounded. The blockers are almost entirely **distribution
 mechanics and community scaffolding**, not engineering quality: there is no
 LICENSE file, changesets is configured `restricted`, one package on the public
 type chain ships no declarations, the CLI manifest would publish broken, and
@@ -219,3 +224,34 @@ Effort: S (≤half day), M (1–3 days), L (1–2 weeks), XL (multi-week).
 - Existing internal findings were cross-referenced, not duplicated: see
   `2026-02-15-reality-audit.md` and `../product-management/backlog.md`
   (EE-\*, MCA-\*).
+
+## Remediation Log
+
+### 2026-07-12 — P0 batch (all publish blockers) + P1 item 17
+
+| P0 item | Status | What was done                                                                                                                                                                                                                                          |
+| ------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1       | Done   | Root `LICENSE` (MIT) added and copied into every package dir so npm includes it in tarballs; `license: "MIT"` declared in all 9 package manifests. Verified via `npm pack --dry-run`: tarballs now contain LICENSE + README + dist.                    |
+| 2       | Done   | `.changeset/config.json` `access` → `"public"`; CHANGELOG.md backfilled for binder, policy, conformance, cli, adapter-aws.                                                                                                                             |
+| 3       | Done   | `@shinobi/validation` now emits declarations: `dts: true` via a new `tsconfig.build.json` (adapter-aws pattern — extends the root tsconfig without source path mappings); `types` field + exports `types` condition added. `dist/index.d.ts` verified. |
+| 4       | Done   | `@shinobi/cli` manifest fixed: `type: "commonjs"`, `main`/`types`/`exports` point at built `dist/`, `files: ["dist"]`. tsup now builds `src/index.ts` (programmatic surface) alongside the `main.ts` bin, with declarations for the index entry.       |
+| 5       | Done   | `.github/workflows/release.yml` added: changesets action creates the Version Packages PR and publishes on merge with `NPM_TOKEN` + npm provenance (`id-token: write`). Requires the `NPM_TOKEN` repo secret to be configured.                          |
+| 6       | Done   | `CONTRIBUTING.md` added: setup, local CI-gate sequence, commit conventions, changeset/release flow, where to find work.                                                                                                                                |
+| 7       | Done   | `repository` (with `directory`), `homepage`, `bugs`, and `publishConfig.access: "public"` added to all 9 package manifests; `repository`/`homepage`/`bugs` added to the root manifest.                                                                 |
+| 17 (P1) | Done   | `SECURITY.md`, `CODE_OF_CONDUCT.md`, `.github/ISSUE_TEMPLATE/` (bug + feature), `.github/PULL_REQUEST_TEMPLATE.md`, `.github/CODEOWNERS` added.                                                                                                        |
+
+Side effects worth noting: enabling the CLI declaration build gave the CLI its
+first real typecheck (vitest transpiles without checking; dts was previously
+off). That surfaced and fixed six latent type errors — literal-widening of the
+error-envelope `category` in `src/integration/envelope.ts`, missing explicit
+generics on failure-path `buildEnvelope` calls, and four boundary casts in
+`src/mcp/wrapper.ts` now routed through `unknown`. No runtime behavior changed.
+
+Verified after the batch: full fresh build (9/9), full test suite (9/9
+projects), lint, conformance (12/12), consumer smoke, blueprints/roadmap/
+dashboard/docs checks, and `npm pack --dry-run` tarball inspection for
+validation, cli, and kernel.
+
+Remaining before first publish: configure the `NPM_TOKEN` secret, then merge a
+changeset to trigger the release workflow. P1 items 8–16 and 18–19 remain
+open.

@@ -1,10 +1,30 @@
 {
   "name": "@shinobi/cli",
   "version": "0.0.1",
-  "main": "src/index.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kristopherlb/shinobi-wan.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/Kristopherlb/shinobi-wan/tree/main/packages/cli#readme",
+  "bugs": "https://github.com/Kristopherlb/shinobi-wan/issues",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
     "shinobi": "./dist/main.js"
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@pulumi/aws": "^6.0.0",
     "@pulumi/pulumi": "^3.0.0",
@@ -20,5 +40,8 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "tsup": "^8.5.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

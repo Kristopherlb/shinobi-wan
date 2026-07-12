@@ -1,6 +1,14 @@
 {
   "name": "@shinobi/policy",
   "version": "0.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kristopherlb/shinobi-wan.git",
+    "directory": "packages/policy"
+  },
+  "homepage": "https://github.com/Kristopherlb/shinobi-wan/tree/main/packages/policy#readme",
+  "bugs": "https://github.com/Kristopherlb/shinobi-wan/issues",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -23,5 +31,8 @@
   },
   "devDependencies": {
     "@shinobi/binder": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

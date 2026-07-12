@@ -1,6 +1,14 @@
 {
   "name": "@shinobi/binder",
   "version": "0.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kristopherlb/shinobi-wan.git",
+    "directory": "packages/binder"
+  },
+  "homepage": "https://github.com/Kristopherlb/shinobi-wan/tree/main/packages/binder#readme",
+  "bugs": "https://github.com/Kristopherlb/shinobi-wan/issues",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -20,5 +28,8 @@
     "@shinobi/contracts": "workspace:*",
     "@shinobi/ir": "workspace:*",
     "@shinobi/kernel": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

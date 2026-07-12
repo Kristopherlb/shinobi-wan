@@ -2,6 +2,12 @@
   "name": "shinobi-wan",
   "version": "0.0.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kristopherlb/shinobi-wan.git"
+  },
+  "homepage": "https://github.com/Kristopherlb/shinobi-wan#readme",
+  "bugs": "https://github.com/Kristopherlb/shinobi-wan/issues",
   "scripts": {
     "build": "nx run-many -t build",
     "test": "nx run-many -t test",

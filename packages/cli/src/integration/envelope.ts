@@ -26,7 +26,7 @@ function buildErrorEnvelope(
   retriableReason?: RetriableReason,
   details?: Readonly<Record<string, unknown>>,
 ): ToolErrorEnvelope {
-  const category =
+  const category: ToolErrorEnvelope['category'] =
     code === 'INPUT_VALIDATION_FAILED'
       ? 'validation'
       : code === 'UNAUTHORIZED' || code === 'APPROVAL_REQUIRED'
@@ -99,7 +99,7 @@ export function envelopeValidateResult(
   }
 
   const firstError = result.errors[0];
-  return buildEnvelope(
+  return buildEnvelope<ValidateResult>(
     options,
     false,
     undefined,
@@ -124,7 +124,7 @@ export function envelopePlanResult(
   }
 
   const firstError = result.errors[0];
-  return buildEnvelope(
+  return buildEnvelope<PlanResult>(
     options,
     false,
     undefined,
@@ -150,7 +150,7 @@ export function envelopeUpResult(
 
   const deployError = result.deployResult?.errorDetail;
   if (deployError) {
-    return buildEnvelope(
+    return buildEnvelope<UpResult>(
       options,
       false,
       undefined,
@@ -167,7 +167,7 @@ export function envelopeUpResult(
   }
 
   const isPreviewFailure = result.message.startsWith('Preview failed');
-  return buildEnvelope(
+  return buildEnvelope<UpResult>(
     options,
     false,
     undefined,

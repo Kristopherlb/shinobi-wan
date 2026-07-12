@@ -135,19 +135,19 @@ export async function invokeHarmonyTool(
   switch (request.toolId) {
     case 'golden.shinobi.validate_plan':
       return runValidate(
-        request.input as ValidatePlanInput,
+        request.input as unknown as ValidatePlanInput,
         request.traceId,
         versions,
       );
     case 'golden.shinobi.plan_change':
       return runPlan(
-        request.input as PlanChangeInput,
+        request.input as unknown as PlanChangeInput,
         request.traceId,
         versions,
       );
     case 'golden.shinobi.apply_change':
       return runApply(
-        request.input as ApplyChangeInput,
+        request.input as unknown as ApplyChangeInput,
         request.traceId,
         versions,
         flags.applyEnabled,
@@ -161,7 +161,7 @@ export async function invokeHarmonyTool(
     case 'golden.shinobi.read_activity':
       return runReadProjection(
         request.toolId,
-        request.input as ReadInput,
+        request.input as unknown as ReadInput,
         request.traceId,
         versions,
       );

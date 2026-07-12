@@ -1,6 +1,14 @@
 {
   "name": "@shinobi/kernel",
   "version": "0.0.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kristopherlb/shinobi-wan.git",
+    "directory": "packages/kernel"
+  },
+  "homepage": "https://github.com/Kristopherlb/shinobi-wan/tree/main/packages/kernel#readme",
+  "bugs": "https://github.com/Kristopherlb/shinobi-wan/issues",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -20,5 +28,8 @@
     "@shinobi/contracts": "workspace:*",
     "@shinobi/ir": "workspace:*",
     "@shinobi/validation": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
