@@ -1,3 +1,8 @@
+---
+name: agent-roles-and-skill-bundles
+description: Map Shinobi agent roles (kernel, component, binder, policy, conformance, contract steward) to the skill bundles each role needs. Use when deciding which role and skills apply to a piece of work or when onboarding a new agent.
+---
+
 # Agent Roles and Skill Bundles
 
 This document defines **agent roles** as bundles of skills required to build the platform's **in-memory object graph kernel** that compiles to **infrastructure code**, with **policy/config-driven** compliance.

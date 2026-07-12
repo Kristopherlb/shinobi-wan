@@ -38,6 +38,17 @@ export interface ManifestComponent {
 }
 
 /**
+ * A policy exception (waiver) declared in the manifest — Standard 5.
+ */
+export interface ManifestException {
+  readonly ruleId: string;
+  readonly target: string;
+  readonly expires: string;
+  readonly justification: string;
+  readonly approvedBy?: string;
+}
+
+/**
  * The top-level service manifest model (parsed from YAML).
  */
 export interface ServiceManifest {
@@ -45,6 +56,7 @@ export interface ServiceManifest {
   readonly components: ReadonlyArray<ManifestComponent>;
   readonly bindings: ReadonlyArray<ManifestBinding>;
   readonly policyPack?: string;
+  readonly exceptions?: ReadonlyArray<ManifestException>;
 }
 
 /**

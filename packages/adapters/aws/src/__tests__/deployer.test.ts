@@ -29,6 +29,9 @@ vi.mock('@pulumi/pulumi/automation', () => {
     preview: vi.fn().mockResolvedValue({
       changeSummary: { create: 5, update: 0, delete: 0 },
     }),
+    destroy: vi.fn().mockResolvedValue({
+      summary: { resourceChanges: { delete: 5 } },
+    }),
   };
 
   return {
@@ -40,7 +43,7 @@ vi.mock('@pulumi/pulumi/automation', () => {
 });
 
 // Import after mocks
-import { deploy, preview, classifyError } from '../deployer';
+import { deploy, preview, destroy, classifyError } from '../deployer';
 import type { DeployerEvent } from '../deployer';
 import * as automation from '@pulumi/pulumi/automation';
 
@@ -52,6 +55,7 @@ function getMockStack() {
         setConfig: ReturnType<typeof vi.fn>;
         up: ReturnType<typeof vi.fn>;
         preview: ReturnType<typeof vi.fn>;
+        destroy: ReturnType<typeof vi.fn>;
       };
     }
   ).__mockStack;
@@ -121,6 +125,7 @@ describe('deploy', () => {
         stackName: 'test-service-us-east-1',
         projectName: 'test-service',
       }),
+      expect.anything(),
     );
   });
 
@@ -161,6 +166,7 @@ describe('deploy', () => {
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
       expect.objectContaining({ stackName: 'custom-stack' }),
+      expect.anything(),
     );
   });
 
@@ -169,6 +175,7 @@ describe('deploy', () => {
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
       expect.objectContaining({ projectName: 'custom-project' }),
+      expect.anything(),
     );
   });
 
@@ -240,6 +247,7 @@ describe('preview', () => {
         stackName: 'test-service-us-east-1',
         projectName: 'test-service',
       }),
+      expect.anything(),
     );
   });
 
@@ -292,6 +300,7 @@ describe('preview', () => {
 
     expect(automation.LocalWorkspace.createOrSelectStack).toHaveBeenCalledWith(
       expect.objectContaining({ stackName: 'preview-stack' }),
+      expect.anything(),
     );
   });
 });
@@ -502,5 +511,95 @@ describe('onEvent callbacks', () => {
     for (const event of events) {
       expect(event.stackName).toBe('test-service-us-east-1');
     }
+  });
+});
+
+describe('destroy', () => {
+  beforeEach(() => {
+    const mockStack = getMockStack();
+    vi.clearAllMocks();
+    mockStack.destroy.mockResolvedValue({
+      summary: { resourceChanges: { delete: 5 } },
+    });
+    (
+      automation.LocalWorkspace.createOrSelectStack as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(getMockStack());
+  });
+
+  it('destroys the stack and reports resource changes', async () => {
+    const result = await destroy(DEFAULT_CONFIG);
+    expect(result.success).toBe(true);
+    expect(result.stackName).toBe('test-service-us-east-1');
+    expect(result.summary.resourceChanges).toEqual({ delete: 5 });
+    expect(getMockStack().destroy).toHaveBeenCalled();
+  });
+
+  it('returns a classified error when destroy fails', async () => {
+    getMockStack().destroy.mockRejectedValue(new Error('stack locked'));
+    const result = await destroy(DEFAULT_CONFIG);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('stack locked');
+    expect(result.errorDetail).toBeDefined();
+  });
+
+  it('emits destroying and complete events', async () => {
+    const events: string[] = [];
+    await destroy(DEFAULT_CONFIG, {
+      onEvent: (e) => events.push(e.type),
+    });
+    expect(events).toContain('destroying');
+    expect(events).toContain('complete');
+  });
+});
+
+describe('environment and workspace configuration', () => {
+  beforeEach(() => {
+    const mockStack = getMockStack();
+    vi.clearAllMocks();
+    mockStack.up.mockResolvedValue({
+      outputs: {},
+      summary: { resourceChanges: { create: 1 } },
+    });
+    (
+      automation.LocalWorkspace.createOrSelectStack as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(getMockStack());
+  });
+
+  it('namespaces the stack name with the environment (EE-3)', async () => {
+    const result = await deploy(makePlan(), {
+      ...DEFAULT_CONFIG,
+      environment: 'staging',
+    });
+    expect(result.stackName).toBe('test-service-staging-us-east-1');
+  });
+
+  it('keeps legacy stack naming when no environment is set', async () => {
+    const result = await deploy(makePlan(), DEFAULT_CONFIG);
+    expect(result.stackName).toBe('test-service-us-east-1');
+  });
+
+  it('passes backend URL and secrets provider to the workspace (EE-4)', async () => {
+    await deploy(makePlan(), {
+      ...DEFAULT_CONFIG,
+      backendUrl: 's3://my-state-bucket',
+      secretsProvider: 'awskms://alias/pulumi',
+    });
+
+    const call = (
+      automation.LocalWorkspace.createOrSelectStack as ReturnType<typeof vi.fn>
+    ).mock.calls[0];
+    const wsOptions = call[1];
+    expect(wsOptions.secretsProvider).toBe('awskms://alias/pulumi');
+    expect(wsOptions.projectSettings.backend).toEqual({
+      url: 's3://my-state-bucket',
+    });
+  });
+
+  it('passes no backend settings when none are configured (ambient default)', async () => {
+    await deploy(makePlan(), DEFAULT_CONFIG);
+    const call = (
+      automation.LocalWorkspace.createOrSelectStack as ReturnType<typeof vi.fn>
+    ).mock.calls[0];
+    expect(call[1]).toEqual({});
   });
 });

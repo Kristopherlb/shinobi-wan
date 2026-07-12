@@ -1,3 +1,8 @@
+---
+name: provenance-and-traceability
+description: Ensure every derived fact, intent, and decision has traceable provenance back to explicit inputs and governed defaults. Use when working on origin tracking, audit evidence, or provenance-preserving refactors.
+---
+
 # Skill: Provenance & Traceability
 
 ## Intent

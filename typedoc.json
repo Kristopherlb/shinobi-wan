@@ -1,0 +1,25 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Shinobi API Reference",
+  "entryPoints": [
+    "packages/contracts/src/index.ts",
+    "packages/ir/src/index.ts",
+    "packages/validation/src/index.ts",
+    "packages/kernel/src/index.ts",
+    "packages/binder/src/index.ts",
+    "packages/policy/src/index.ts",
+    "packages/conformance/src/index.ts",
+    "packages/adapters/aws/src/index.ts",
+    "packages/cli/src/index.ts"
+  ],
+  "out": "site/api",
+  "tsconfig": "tsconfig.typedoc.json",
+  "readme": "docs/user/integration-guide.md",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "skipErrorChecking": true,
+  "navigationLinks": {
+    "Repository": "https://github.com/Kristopherlb/shinobi-wan",
+    "Atlas": "../index.html"
+  }
+}

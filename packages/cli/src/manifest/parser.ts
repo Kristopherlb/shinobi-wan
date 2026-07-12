@@ -115,6 +115,9 @@ export function parseManifest(yamlContent: string): ManifestParseResult {
     ...(typeof obj['policyPack'] === 'string'
       ? { policyPack: obj['policyPack'] }
       : {}),
+    ...(Array.isArray(obj['exceptions'])
+      ? { exceptions: obj['exceptions'] as ServiceManifest['exceptions'] }
+      : {}),
   };
 
   return { ok: true, manifest };

@@ -1,3 +1,8 @@
+---
+name: graph-reasoning-and-mutation
+description: Reason about and safely mutate the in-memory infrastructure object graph while preserving determinism, idempotence, and invariants. Use when designing graph changes, mutation planning, or invariant definition.
+---
+
 # Skill: Graph Reasoning & Mutation
 
 ## Intent

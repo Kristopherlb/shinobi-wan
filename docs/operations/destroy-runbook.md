@@ -10,7 +10,7 @@ This runbook defines safe teardown behavior for Shinobi-managed stacks.
 
 ## Scope
 
-Current Shinobi CLI does not provide a dedicated `destroy` command. This runbook uses Pulumi stack operations as the teardown mechanism after a Shinobi deploy.
+The CLI provides a dedicated `shinobi destroy <manifest>` command (dry run by default; `--no-dry-run` to execute) that selects the same stack identity used at deploy time, including `--environment` namespacing. Manual `pulumi stack destroy` remains available as a fallback when the manifest is unavailable.
 
 ## Preconditions
 

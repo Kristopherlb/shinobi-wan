@@ -104,3 +104,26 @@ describe('validate command', () => {
     expect(JSON.stringify(c1?.intents)).toBe(JSON.stringify(c2?.intents));
   });
 });
+
+describe('validate environment wiring (EE-5)', () => {
+  it('exposes the selected environment in resolvedConfig', () => {
+    const result = validate({
+      manifestPath: MANIFEST_PATH,
+      environment: 'staging',
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.compilation?.resolvedConfig).toMatchObject({
+      environment: 'staging',
+    });
+  });
+
+  it('leaves resolvedConfig unchanged when no environment is given', () => {
+    const result = validate({ manifestPath: MANIFEST_PATH });
+
+    expect(result.success).toBe(true);
+    expect(result.compilation?.resolvedConfig).not.toHaveProperty(
+      'environment',
+    );
+  });
+});

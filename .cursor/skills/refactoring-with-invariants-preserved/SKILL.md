@@ -1,3 +1,8 @@
+---
+name: refactoring-with-invariants-preserved
+description: Restructure code while preserving semantic outputs: graph meaning, derived intents, policy outcomes, and plan artifacts. Use when refactoring under determinism, provenance, and conformance constraints.
+---
+
 # Skill: Refactoring with Invariants Preserved
 
 ## Intent

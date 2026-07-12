@@ -13,7 +13,14 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "packages/cli/src/**/*.ts"
+        ]
+      }
     },
     "test": {
       "executor": "nx:run-commands",
@@ -23,5 +30,8 @@
       }
     }
   },
-  "tags": ["scope:cli", "type:app"]
+  "tags": [
+    "scope:cli",
+    "type:app"
+  ]
 }

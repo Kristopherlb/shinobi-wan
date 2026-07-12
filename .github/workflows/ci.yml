@@ -18,6 +18,9 @@ jobs:
       - run: pnpm conformance:check
       - run: pnpm smoke:consumer
       - run: pnpm blueprints:check
+      - run: pnpm schemas:check
+      - run: pnpm skills:check
+      - run: pnpm pack:check
       - run: pnpm roadmap:check
       - run: pnpm rollout:dashboard:check
   docs-check:

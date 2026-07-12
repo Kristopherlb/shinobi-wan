@@ -1,3 +1,8 @@
+---
+name: binder-logic-synthesis
+description: Design binder behavior that deterministically compiles graph edges into backend-neutral intents (IAM, network, config, telemetry). Use when writing or changing binders or edge-to-intent compilation.
+---
+
 # Skill: Binder Logic Synthesis (Edge → Derived Intents)
 
 ## Intent

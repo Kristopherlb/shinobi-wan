@@ -41,6 +41,11 @@ export async function up(options: UpOptions): Promise<UpResult> {
   const adapterConfig: AdapterConfig = {
     region: options.region ?? 'us-east-1',
     serviceName: planResult.validation.manifest?.service ?? 'shinobi-service',
+    ...(options.environment ? { environment: options.environment } : {}),
+    ...(options.backendUrl ? { backendUrl: options.backendUrl } : {}),
+    ...(options.secretsProvider
+      ? { secretsProvider: options.secretsProvider }
+      : {}),
     ...(options.codePath ? { codePath: options.codePath } : {}),
   };
 

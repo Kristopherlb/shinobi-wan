@@ -1,0 +1,3 @@
+display_name: Environment Matrix Management
+short_description: Maintain dev, staging, and prod controls
+default_prompt: Update Shinobi environment matrix defaults, policy packs, release gates, and promotion controls, and ensure they match current CLI behavior.

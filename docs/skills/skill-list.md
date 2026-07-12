@@ -1,5 +1,7 @@
 # Shinobi V3 — Agent Skill Definition & Enablement Plan
 
+> **Source of truth**: the executable skills live in `.claude/skills/` (mirrored to `.cursor/skills/` via `pnpm skills:sync`; CI enforces sync with `pnpm skills:check`). The documents under `docs/skills/` are the narrative design specs behind them.
+
 ## 1) Agent Skill Taxonomy
 
 ### S1. Graph Reasoning & Mutation

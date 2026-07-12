@@ -16,7 +16,7 @@ export type {
 } from './manifest';
 
 // Commands
-export { validate, plan, planAsync, up } from './commands';
+export { validate, plan, planAsync, up, destroy } from './commands';
 export type {
   ValidateOptions,
   ValidateResult,
@@ -25,6 +25,8 @@ export type {
   PlanAsyncOptions,
   UpOptions,
   UpResult,
+  DestroyOptions,
+  DestroyCommandResult,
 } from './commands';
 
 // Harmony integration contracts
@@ -48,3 +50,4 @@ export type {
 
 // CLI entry point
 export { createCli } from './cli';
+export type { CliExtensions } from './cli';

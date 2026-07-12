@@ -55,9 +55,22 @@ export class ConfigIntentLowerer implements IntentLowerer<ConfigIntent> {
           intent.valueSource.nodeRef,
           intent.valueSource.field,
         );
-      case 'secret':
-        // Secrets reference SSM SecureString or Secrets Manager
-        return { secretRef: intent.valueSource.secretRef };
+      case 'secret': {
+        // Resolve to a real SecretsManager reference: if the ref names a
+        // graph node lowered to a Secret, store that secret's ARN; otherwise
+        // treat it as an external secret identifier and store it verbatim.
+        const secretRef = intent.valueSource.secretRef;
+        const node = context.snapshot.nodes.find(
+          (n) => n.id === secretRef || shortName(n.id) === shortName(secretRef),
+        );
+        if (
+          node &&
+          node.metadata.properties['platform'] === 'aws-secretsmanager'
+        ) {
+          return { ref: `${shortName(node.id)}-secret.arn` };
+        }
+        return secretRef;
+      }
     }
   }
 }

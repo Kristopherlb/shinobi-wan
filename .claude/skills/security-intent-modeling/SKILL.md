@@ -1,3 +1,8 @@
+---
+name: security-intent-modeling
+description: Model security posture as backend-neutral IAM and network intents with least privilege by construction. Use when designing permissions, network posture, or security-relevant binder/adapter behavior.
+---
+
 # Skill: Security Intent Modeling (IAM/Network as Backend-Neutral IR)
 
 ## Intent

@@ -1,0 +1,3 @@
+display_name: Manifest Cookbook Authoring
+short_description: Author copy-ready manifest patterns
+default_prompt: Add or refine Shinobi manifest cookbook patterns with validated YAML examples, expected resource outputs, caveats, and extension guidance.

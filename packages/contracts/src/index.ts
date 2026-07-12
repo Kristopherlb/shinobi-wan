@@ -67,3 +67,14 @@ export {
   createViolationId,
   isValidViolationId,
 } from './violation/violation';
+
+// Backend adapter contract (MCA-1): the interface adapters implement so
+// orchestration layers can select backends without forking the CLI.
+export {
+  type BackendAdapter,
+  type BackendAdapterConfig,
+  type BackendDiagnostic,
+  type BackendLowerResult,
+  type BackendResourcePlan,
+  type BackendOperationResult,
+} from './adapter/backend-adapter';

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { parseManifest, manifestToMutations } from '../manifest';
-import { Kernel } from '@shinobi/kernel';
+import { Kernel, explainCompilation } from '@shinobi/kernel';
+import type { WhyReport } from '@shinobi/kernel';
 import type {
   IBinder,
   IPolicyEvaluator,
@@ -9,6 +10,7 @@ import type {
 import {
   ComponentPlatformBinder,
   TriggersBinder,
+  DependsOnBinder,
   BinderRegistry,
 } from '@shinobi/binder';
 import { BaselinePolicyEvaluator } from '@shinobi/policy';
@@ -17,6 +19,18 @@ export interface ValidateOptions {
   readonly manifestPath: string;
   readonly json?: boolean;
   readonly policyPack?: string;
+  /** Named environment (dev/staging/prod); exposed to binders/evaluators via resolvedConfig and used for stack naming downstream (EE-5) */
+  readonly environment?: string;
+  /** Environment variables for ${env:KEY} interpolation in config layers. Injected explicitly — the kernel never reads process.env (KL-007). */
+  readonly envVars?: Readonly<Record<string, string>>;
+  /** Evaluation date (YYYY-MM-DD) for policy-exception expiry; defaults to today. Inject a fixed date for reproducible runs. */
+  readonly evaluationDate?: string;
+  /** Include a why-report (KL-006) tracing intents, diagnostics, and violations to their causes */
+  readonly explain?: boolean;
+  /** Custom binders; defaults to the built-in registry (no-fork extension point) */
+  readonly binders?: ReadonlyArray<IBinder>;
+  /** Custom policy evaluators; defaults to BaselinePolicyEvaluator */
+  readonly evaluators?: ReadonlyArray<IPolicyEvaluator>;
 }
 
 export interface ValidateResult {
@@ -27,6 +41,12 @@ export interface ValidateResult {
     errorCount: number;
     warningCount: number;
   };
+  readonly bindingDiagnostics?: ReadonlyArray<{
+    path: string;
+    rule: string;
+    message: string;
+    severity: string;
+  }>;
   readonly policy?: {
     policyPack: string;
     compliant: boolean;
@@ -35,6 +55,8 @@ export interface ValidateResult {
     advisoryViolationCount: number;
   };
   readonly compilation?: CompilationResult;
+  /** Present when options.explain is set: causal why-report (KL-006) */
+  readonly why?: WhyReport;
   readonly errors: ReadonlyArray<{ path: string; message: string }>;
 }
 
@@ -42,6 +64,7 @@ function createBinders(): ReadonlyArray<IBinder> {
   const registry = new BinderRegistry();
   registry.register(new ComponentPlatformBinder());
   registry.register(new TriggersBinder());
+  registry.register(new DependsOnBinder());
   return registry.getBinders();
 }
 
@@ -83,12 +106,39 @@ export function validate(options: ValidateOptions): ValidateResult {
 
   // Create kernel with binders and evaluators
   const kernel = new Kernel({
-    binders: createBinders(),
-    evaluators: createEvaluators(),
-    config:
-      options.policyPack || manifest.policyPack
+    binders: options.binders ?? createBinders(),
+    evaluators: options.evaluators ?? createEvaluators(),
+    config: {
+      ...(options.policyPack || manifest.policyPack
         ? { policyPack: options.policyPack ?? manifest.policyPack }
-        : {},
+        : {}),
+      layers: [
+        ...(options.environment
+          ? [
+              {
+                source: 'environment' as const,
+                values: { environment: options.environment },
+              },
+            ]
+          : []),
+        ...(manifest.exceptions && manifest.exceptions.length > 0
+          ? [
+              {
+                source: 'overrides' as const,
+                values: {
+                  exceptions: manifest.exceptions,
+                  // The engine never reads the clock; the CLI injects today
+                  // as the evaluation date for exception expiry (Standard 5).
+                  evaluationDate:
+                    options.evaluationDate ??
+                    new Date().toISOString().slice(0, 10),
+                },
+              },
+            ]
+          : []),
+      ],
+      ...(options.envVars ? { environment: options.envVars } : {}),
+    },
   });
 
   // Apply mutations
@@ -124,6 +174,16 @@ export function validate(options: ValidateOptions): ValidateResult {
         (e) => e.severity === 'warning',
       ).length,
     },
+    ...(compilation.bindingDiagnostics.length > 0
+      ? {
+          bindingDiagnostics: compilation.bindingDiagnostics.map((d) => ({
+            path: d.path,
+            rule: d.rule,
+            message: d.message,
+            severity: d.severity,
+          })),
+        }
+      : {}),
     ...(compilation.policy
       ? {
           policy: {
@@ -140,6 +200,7 @@ export function validate(options: ValidateOptions): ValidateResult {
         }
       : {}),
     compilation,
+    ...(options.explain ? { why: explainCompilation(compilation) } : {}),
     errors: [],
   };
 

@@ -1,3 +1,8 @@
+---
+name: agent-tooling-discipline
+description: Produce machine-checkable, structured, versioned outputs (never bare strings) from agent tooling. Use when designing agent tool I/O, CLI JSON output, or any automated interface that must be validated and rejectable.
+---
+
 # Skill: Agent Tooling Discipline (Structured Outputs Only)
 
 ## Intent

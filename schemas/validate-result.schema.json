@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Kristopherlb/shinobi-wan/blob/main/schemas/validate-result.schema.json",
+  "title": "Shinobi Validate Result",
+  "description": "Structured output of `shinobi validate --json`. Mirrors ValidateResult in @shinobi/cli. The compilation property is the kernel CompilationResult and is intentionally left open here.",
+  "type": "object",
+  "required": ["success", "errors"],
+  "properties": {
+    "success": { "type": "boolean" },
+    "manifest": {
+      "type": "object",
+      "required": ["service", "components", "bindings"],
+      "properties": {
+        "service": { "type": "string" },
+        "components": { "type": "integer" },
+        "bindings": { "type": "integer" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["valid", "errorCount", "warningCount"],
+      "properties": {
+        "valid": { "type": "boolean" },
+        "errorCount": { "type": "integer" },
+        "warningCount": { "type": "integer" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["policyPack", "compliant", "violationCount"],
+      "properties": {
+        "policyPack": { "type": "string" },
+        "compliant": { "type": "boolean" },
+        "violationCount": { "type": "integer" },
+        "blockingViolationCount": { "type": "integer" },
+        "advisoryViolationCount": { "type": "integer" }
+      }
+    },
+    "compilation": { "type": "object" },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "message"],
+        "properties": {
+          "path": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}

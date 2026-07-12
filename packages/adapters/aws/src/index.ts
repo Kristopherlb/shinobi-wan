@@ -36,6 +36,7 @@ export type { DeployerError, DeployerErrorCategory } from './deployer-errors';
 export type {
   DeployResult,
   PreviewResult,
+  DestroyResult,
   DeployOptions,
   DeployerEvent,
 } from './deployer';
@@ -43,6 +44,7 @@ import type {
   DeployOptions as DeployOptionsT,
   DeployResult as DeployResultT,
   PreviewResult as PreviewResultT,
+  DestroyResult as DestroyResultT,
 } from './deployer';
 import type { ResourcePlan as ResourcePlanT } from './program-generator';
 import type { AdapterConfig as AdapterConfigT } from './types';
@@ -64,6 +66,17 @@ export async function preview(
   const mod = await import('./deployer');
   return mod.preview(plan, config, options);
 }
+
+export async function destroy(
+  config: AdapterConfigT,
+  options?: DeployOptionsT,
+): Promise<DestroyResultT> {
+  const mod = await import('./deployer');
+  return mod.destroy(config, options);
+}
+
+// Backend-neutral adapter contract implementation (MCA-1)
+export { awsAdapter } from './backend-adapter';
 
 // Types
 export type {

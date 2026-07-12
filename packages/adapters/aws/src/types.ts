@@ -42,6 +42,14 @@ export interface AdapterConfig {
   readonly region: string;
   /** Service name for resource naming prefix */
   readonly serviceName: string;
+  /** Optional: named environment (dev/staging/prod); namespaces the stack */
+  readonly environment?: string;
+  /** Optional: explicit Pulumi state backend URL (e.g. s3://my-state-bucket) */
+  readonly backendUrl?: string;
+  /** Optional: Pulumi secrets provider (e.g. awskms://alias/pulumi-secrets) */
+  readonly secretsProvider?: string;
+  /** Optional: PULUMI_HOME directory for workspace isolation */
+  readonly pulumiHome?: string;
   /** Optional: path to Lambda code artifact */
   readonly codePath?: string;
   /** Optional: S3 bucket/key for Lambda code */

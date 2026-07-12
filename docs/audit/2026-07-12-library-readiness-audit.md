@@ -8,9 +8,10 @@ consumption surfaces.
 ## Executive Summary
 
 > **Remediation update (2026-07-12):** all P0 blockers below were fixed the
-> same day — see the Remediation Log at the end of this report. Post-fix
-> verdict: **Ready with Caveats** (zero Blockers; High findings remain and
-> are tracked in the P1/P2 backlog).
+> same day, and a follow-up batch completed the entire P1/P2 backlog — see
+> the Remediation Log at the end of this report. Post-remediation verdict:
+> **Ready**, pending only the `NPM_TOKEN` repository secret and the first
+> release-train publish.
 
 **Verdict at audit time: Not Ready** for a public `v0.x` publish — but the
 distance is short and well-bounded. The blockers are almost entirely **distribution
@@ -255,3 +256,34 @@ validation, cli, and kernel.
 Remaining before first publish: configure the `NPM_TOKEN` secret, then merge a
 changeset to trigger the release workflow. P1 items 8–16 and 18–19 remain
 open.
+
+### 2026-07-12 — P1/P2 batch (full remediation backlog)
+
+All remaining P1 (8–16, 18–19) and P2 (20–27) items were completed the same
+day. Post-batch verdict: **Ready** pending the `NPM_TOKEN` secret and first
+release.
+
+| Item | Status | What was done                                                                                                                                                                                                                                                                                                                                                |
+| ---- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 8    | Done   | `docs/user/integration-guide.md`: public packages, quick-embed and kernel-level pipeline examples, extension points, ESM/versioning/stability policy. README gained a "Use as a Library" section.                                                                                                                                                            |
+| 9    | Done   | `@pulumi/*` moved to `peerDependencies` (+devDependencies) in adapter-aws; the CLI keeps hard deps because it ships a binary.                                                                                                                                                                                                                                |
+| 10   | Done   | `schemas/` published: `manifest.schema.json`, `validate-result.schema.json`, `tool-response-envelope.schema.json`; shipped inside `@shinobi/contracts` (`dist/schemas`, `./schemas/*` export); `pnpm schemas:check` validates all 25 example/blueprint manifests in CI.                                                                                      |
+| 11   | Done   | The kernel already emitted `unbound-edge` warnings — the CLI dropped them. `ValidateResult.bindingDiagnostics` now surfaces them in `--json` and human output.                                                                                                                                                                                               |
+| 12   | Done   | `docs/user/support-matrix.md`: all 55 node types with deploy-confident vs shape-tested tiers, edge coverage, promotion criteria; README links it; environment-matrix telemetry contradiction fixed.                                                                                                                                                          |
+| 13   | Done   | `shinobi destroy <manifest>` (dry-run default, `--no-dry-run` to execute) via `destroy()` in the deployer; documented in cli-reference; destroy-runbook updated. Backlog EE-1/EE-2.                                                                                                                                                                          |
+| 14   | Done   | `--environment` on validate/plan/up/destroy: feeds a kernel config layer (visible to binders/policy via `resolvedConfig`), and namespaces stacks `{service}-{env}-{region}`. Backlog EE-3/EE-5.                                                                                                                                                              |
+| 15   | Done   | Secret refs resolve to the SecretsManager secret's ARN when the ref names a graph node (Lambda env vars and SSM params), or pass through as an external identifier; `--backend-url`/`--secrets-provider`/`pulumiHome` configure the Pulumi workspace explicitly (EE-4).                                                                                      |
+| 16   | Done   | CLAUDE.md corrected (13 standards, 12 gates, 45 rules, ~1,780 tests, full 24-skill table); YAML frontmatter added to 14 skills; `adapter-lowering-contractacts` renamed to `adapter-lowering-contracts` everywhere.                                                                                                                                          |
+| 18   | Done   | All 9 package READMEs: purpose, install, usage example, doc links (npm landing pages).                                                                                                                                                                                                                                                                       |
+| 19   | Done   | `pnpm pack:check` in CI: `publint --strict` + `arethetypeswrong` (per-format profiles) on all 9 packages, plus a tarball smoke that `pnpm pack`s the kernel chain, installs it into a fixture with npm, and exercises the API.                                                                                                                               |
+| 20   | Done   | Typedoc reference for all 9 packages generated to `site/api/` (gitignored); the Pages workflow now builds it on deploy, and triggers on `packages/**` changes.                                                                                                                                                                                               |
+| 21   | Done   | `.claude/skills/` is canonical; `scripts/sync-skills.mjs` regenerates `.cursor/skills/` and `pnpm skills:check` enforces sync in CI; `docs/skills/skill-list.md` names the source of truth.                                                                                                                                                                  |
+| 22   | Done   | Root `AGENTS.md`: consumer-agent interfaces (schemas, JSON/envelope output, MCP), manifest-authoring pointers, contributor-agent gates, repository map.                                                                                                                                                                                                      |
+| 23   | Done   | Exception model implemented in `@shinobi/policy` (`parsePolicyExceptions`/`applyPolicyExceptions`): manifest-declared waivers with mandatory expiry+justification, suppressed-but-reported violations (severity `info`, `suppressed: true`), `policy-exception-expired` rule (error under FedRAMP packs), injected evaluation date (no clock in the engine). |
+| 24   | Done   | `explainCompilation()` in `@shinobi/kernel` (KL-006): deterministic why-report tracing intents to their edges/nodes, diagnostics to remediations, violations to rules and suppressing exceptions; `shinobi validate --explain` exposes it.                                                                                                                   |
+| 25   | Done   | `BackendAdapter` contract in `@shinobi/contracts` (MCA-1) with `awsAdapter` implementation; `createCli({ binders, evaluators })` lets platforms register custom binders/policy evaluators without forking (MCA-3); `validate()`/`plan()` accept the same extensions.                                                                                         |
+| 26   | Done   | `examples/programmatic/plan.mjs` (runnable validate→plan→explain via the library API); `DependsOnBinder` makes `dependsOn` an explicitly supported ordering edge (info diagnostic, no intents) across all node-type pairs.                                                                                                                                   |
+| 27   | Done   | Dead root jest configs removed (`@nx/jest` was never installed); coverage threshold decision documented as an explicit waiver in `docs/README.md` (which also separates consumer-facing from internal docs).                                                                                                                                                 |
+
+Item 17 was completed in the P0 batch. New CI gates added by this batch:
+`schemas:check`, `skills:check`, `pack:check`.

@@ -1,3 +1,8 @@
+---
+name: capability-modeling-standard
+description: Define capabilities as stable, versioned contracts between components and binders. Use when adding or evolving component capabilities, capability identifiers, or capability data contracts.
+---
+
 # Skill: Capability Modeling Standard
 
 ## Intent

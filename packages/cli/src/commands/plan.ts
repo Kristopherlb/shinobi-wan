@@ -1,5 +1,5 @@
 import { validate } from './validate';
-import type { ValidateResult } from './validate';
+import type { ValidateOptions, ValidateResult } from './validate';
 import { lower, lowerAsync, generatePlan } from '@shinobi/adapter-aws';
 import type {
   AdapterConfig,
@@ -10,9 +10,15 @@ import type {
 export interface PlanOptions {
   readonly manifestPath: string;
   readonly region?: string;
+  readonly environment?: string;
+  readonly backendUrl?: string;
+  readonly secretsProvider?: string;
   readonly codePath?: string;
   readonly json?: boolean;
   readonly policyPack?: string;
+  /** Custom binders/evaluators forwarded to validation (no-fork extension) */
+  readonly binders?: ValidateOptions['binders'];
+  readonly evaluators?: ValidateOptions['evaluators'];
 }
 
 export interface PlanResult {
@@ -41,6 +47,9 @@ export function plan(options: PlanOptions): PlanResult {
     manifestPath: options.manifestPath,
     json: options.json,
     policyPack: options.policyPack,
+    environment: options.environment,
+    binders: options.binders,
+    evaluators: options.evaluators,
   });
 
   if (!validationResult.success || !validationResult.compilation) {
@@ -57,6 +66,11 @@ export function plan(options: PlanOptions): PlanResult {
   const adapterConfig: AdapterConfig = {
     region: options.region ?? 'us-east-1',
     serviceName: validationResult.manifest?.service ?? 'shinobi-service',
+    ...(options.environment ? { environment: options.environment } : {}),
+    ...(options.backendUrl ? { backendUrl: options.backendUrl } : {}),
+    ...(options.secretsProvider
+      ? { secretsProvider: options.secretsProvider }
+      : {}),
     ...(options.codePath ? { codePath: options.codePath } : {}),
   };
 

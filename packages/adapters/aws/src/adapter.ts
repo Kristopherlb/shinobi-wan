@@ -287,7 +287,23 @@ function resolveConfigValue(
         intent.valueSource.field,
       );
     }
-    case 'secret':
-      return { secretRef: intent.valueSource.secretRef };
+    case 'secret': {
+      // Resolve to a real SecretsManager reference. If the ref names a
+      // graph node lowered by SecretsManagerLowerer, inject that secret's
+      // ARN (resolved from the live resource at deploy time). Otherwise the
+      // ref is an external secret identifier (ARN or name) and is passed
+      // through as-is for the workload to resolve at runtime.
+      const secretRef = intent.valueSource.secretRef;
+      const node = context.snapshot.nodes.find(
+        (n) => n.id === secretRef || shortName(n.id) === shortName(secretRef),
+      );
+      if (
+        node &&
+        node.metadata.properties['platform'] === 'aws-secretsmanager'
+      ) {
+        return { ref: `${shortName(node.id)}-secret.arn` };
+      }
+      return secretRef;
+    }
   }
 }

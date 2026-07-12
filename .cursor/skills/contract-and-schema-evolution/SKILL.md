@@ -1,3 +1,8 @@
+---
+name: contract-and-schema-evolution
+description: Evolve versioned interfaces (graph/IR contracts, capability data, policy rule IDs, tool I/O) without breaking consumers. Use when changing any published contract or schema.
+---
+
 # Skill: Contract & Schema Evolution (Versioned Interfaces)
 
 ## Intent

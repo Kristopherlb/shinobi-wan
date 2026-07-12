@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["packages/*/src/**/*.ts", "packages/adapters/aws/src/**/*.ts"],
+  "exclude": ["node_modules", "**/__tests__/**", "**/dist/**"]
+}

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ConfigIntentLowerer } from '../lowerers/config-lowerer';
-import { makeConfigIntent, makeContext } from './test-helpers';
+import { makeConfigIntent, makeContext, makeNode } from './test-helpers';
 
 const lowerer = new ConfigIntentLowerer();
 
@@ -49,14 +49,36 @@ describe('ConfigIntentLowerer', () => {
     expect(resources[0].properties['value']).toBe('some-value');
   });
 
-  it('resolves secret value source to secretRef', () => {
+  it('passes external secret refs through as the stored value', () => {
     const intent = makeConfigIntent({
-      valueSource: { type: 'secret', secretRef: 'my-secret' },
+      valueSource: { type: 'secret', secretRef: 'my-external-secret' },
     });
     const resources = lowerer.lower(intent, makeContext());
 
+    expect(resources[0].properties['value']).toBe('my-external-secret');
+  });
+
+  it('resolves graph-node secret refs to the secret ARN (EE-4)', () => {
+    const secretNode = makeNode({
+      id: 'platform:db-credentials',
+      type: 'platform',
+      metadata: { properties: { platform: 'aws-secretsmanager' } },
+    });
+    const base = makeContext();
+    const context = {
+      ...base,
+      snapshot: {
+        ...base.snapshot,
+        nodes: [...base.snapshot.nodes, secretNode],
+      },
+    };
+    const intent = makeConfigIntent({
+      valueSource: { type: 'secret', secretRef: 'db-credentials' },
+    });
+    const resources = lowerer.lower(intent, context);
+
     expect(resources[0].properties['value']).toEqual({
-      secretRef: 'my-secret',
+      ref: 'db-credentials-secret.arn',
     });
   });
 

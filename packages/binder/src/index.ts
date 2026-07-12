@@ -6,7 +6,11 @@
  */
 
 // Binders
-export { ComponentPlatformBinder, TriggersBinder } from './binders';
+export {
+  ComponentPlatformBinder,
+  TriggersBinder,
+  DependsOnBinder,
+} from './binders';
 
 // Registry
 export { BinderRegistry } from './registry';

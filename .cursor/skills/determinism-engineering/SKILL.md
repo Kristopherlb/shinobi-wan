@@ -1,3 +1,8 @@
+---
+name: determinism-engineering
+description: Identify and eliminate nondeterminism so identical inputs produce byte-identical graph, intents, policy outcomes, and plan artifacts. Use when debugging unstable outputs or designing IDs, ordering, and serialization.
+---
+
 # Skill: Determinism Engineering
 
 ## Intent

@@ -1,3 +1,8 @@
+---
+name: explainability-and-why-output-standard
+description: Produce verifiable why/how explanations for graph structure, derived intents, and policy decisions. Use when building or reviewing explainability, diagnostics, or provenance-backed "why" outputs.
+---
+
 # Skill: Explainability Generation (Why/How Outputs)
 
 ## Intent

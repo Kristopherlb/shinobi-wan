@@ -3,6 +3,7 @@ export type {
   ManifestComponent,
   ManifestBinding,
   ManifestBindingConfig,
+  ManifestException,
   ManifestError,
   ManifestParseResult,
 } from './types';

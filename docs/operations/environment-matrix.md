@@ -83,7 +83,7 @@ Promotion to restricted apply also requires passing `docs/operations/harmony-rol
 ## Known MVP Caveats
 
 - Network intent lowering currently emits warning diagnostics and does not produce deployable network resources.
-- Telemetry intents are currently ignored by the AWS adapter.
+- Telemetry intents: `traces` lower to X-Ray IAM permissions; `logs`/`metrics` emit no standalone resources (logging configuration is handled by node lowerers).
 
 ## Recommended Environment Variables
 

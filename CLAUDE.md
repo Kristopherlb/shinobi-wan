@@ -104,9 +104,9 @@ These invariants are non-negotiable and enforced at CI:
 
 ## Documentation Structure
 
-- `/docs/standards/` — 14 normative standards (graph-ir-schema, binder-contract, etc.)
+- `/docs/standards/` — 13 normative standards (graph-ir-schema, binder-contract, etc.)
 - `/docs/skills/` — Agent skill definitions for structured development
-- `/docs/conformance/gates.md` — 28 conformance gates mapped to standards
+- `/docs/conformance/gates.md` — 12 conformance gates mapped to standards
 - `/extraction/` — V2 → V3 migration evidence and kernel laws
 - `/test-cases/` — Test classification index mapping to kernel laws
 
@@ -114,12 +114,12 @@ These invariants are non-negotiable and enforced at CI:
 
 All 9 core packages are fully implemented and tested: contracts, ir, validation, kernel, binder, policy, conformance, cli, and adapter-aws.
 
-- **22/38 blueprints complete** (58%) across Waves A, B, and C
+- **22 blueprint reference manifests** (CI-validated) across Waves A, B, and C
 - **55 node lowerers** + 4 intent lowerers in the AWS adapter
-- **43 policy rules** across 3 packs (Baseline, FedRAMP-Moderate, FedRAMP-High)
-- **~1,750 tests** passing across all packages
+- **45 policy rules** across 3 packs (Baseline, FedRAMP-Moderate, FedRAMP-High)
+- **~1,780 tests** across 121 spec files, all packages
 
-Wave D is next: 16 remaining blueprints covering CI/CD, cross-cutting concerns, and deferred items (BP-I02 Multi-Account, BP-A10 Temporal on EKS).
+Remaining work is tracked in `docs/product-management/backlog.md` (EE-\*/MCA-\* epics) and `docs/operations/current-roadmap.md` — treat those as the source of truth for what's next, not this section.
 
 ## Agent Roles (from roles.md)
 
@@ -136,22 +136,29 @@ When contributing, consider which role applies:
 
 Skills provide structured guidance for specific development tasks:
 
-| Skill                                    | Use When                                                         |
-| ---------------------------------------- | ---------------------------------------------------------------- |
-| `graph-reasoning-and-mutation`           | Designing graph changes, mutation planning, invariant definition |
-| `determinism-engineering`                | Eliminating nondeterminism, stable IDs, canonical ordering       |
-| `binder-logic-synthesis`                 | Writing binders, edge → intent compilation                       |
-| `capability-modeling-standard`           | Defining component capabilities, contracts                       |
-| `policy-pack-authoring`                  | Creating compliance rules, enforcement tiers                     |
-| `security-intent-modeling`               | IAM and network intent design, least-privilege                   |
-| `conformance-test-design`                | Golden cases, triad matrix, determinism gates                    |
-| `contract-and-schema-evolution`          | Versioned contracts, breaking changes                            |
-| `explainability-and-why-output-standard` | Provenance, structured diagnostics                               |
-| `provenance-and-traceability`            | Origin tracking, audit evidence                                  |
-| `pulumi-best-practices`                  | Adapter implementation, Pulumi patterns                          |
-| `test-driven-development`                | Writing tests first, minimal implementations                     |
-| `docs-with-mermaid`                      | Architecture diagrams, technical documentation                   |
-| `adr-maintenance`                        | Architecture Decision Records creation and maintenance           |
-| `environment-matrix-management`          | Dev/staging/prod environment controls and policy defaults        |
-| `manifest-cookbook-authoring`            | Copy-ready manifest pattern docs and examples                    |
-| `operations-runbook`                     | Deployment workflow documentation and triage procedures          |
+| Skill                                    | Use When                                                          |
+| ---------------------------------------- | ----------------------------------------------------------------- |
+| `graph-reasoning-and-mutation`           | Designing graph changes, mutation planning, invariant definition  |
+| `determinism-engineering`                | Eliminating nondeterminism, stable IDs, canonical ordering        |
+| `binder-logic-synthesis`                 | Writing binders, edge → intent compilation                        |
+| `capability-modeling-standard`           | Defining component capabilities, contracts                        |
+| `policy-pack-authoring`                  | Creating compliance rules, enforcement tiers                      |
+| `security-intent-modeling`               | IAM and network intent design, least-privilege                    |
+| `conformance-test-design`                | Golden cases, triad matrix, determinism gates                     |
+| `contract-and-schema-evolution`          | Versioned contracts, breaking changes                             |
+| `explainability-and-why-output-standard` | Provenance, structured diagnostics                                |
+| `provenance-and-traceability`            | Origin tracking, audit evidence                                   |
+| `pulumi-best-practices`                  | Adapter implementation, Pulumi patterns                           |
+| `test-driven-development`                | Writing tests first, minimal implementations                      |
+| `docs-with-mermaid`                      | Architecture diagrams, technical documentation                    |
+| `adr-maintenance`                        | Architecture Decision Records creation and maintenance            |
+| `environment-matrix-management`          | Dev/staging/prod environment controls and policy defaults         |
+| `manifest-cookbook-authoring`            | Copy-ready manifest pattern docs and examples                     |
+| `operations-runbook`                     | Deployment workflow documentation and triage procedures           |
+| `adapter-lowering-contracts`             | Adapter lowerer contracts, intent lowering, adapter boundary      |
+| `agent-decision-records`                 | Recording agent tool selection, constraints, HITL requirements    |
+| `agent-roles-and-skill-bundles`          | Mapping roles to skill bundles, agent onboarding                  |
+| `agent-tooling-discipline`               | Structured/versioned agent tool outputs, machine-checkable I/O    |
+| `refactoring-with-invariants-preserved`  | Refactors that must preserve graph/intent/policy/plan semantics   |
+| `retrospective`                          | Checkpoints, session analysis, capturing learnings                |
+| `strategic-planning-protocol`            | Multi-persona plan evaluation before complex multi-phase projects |

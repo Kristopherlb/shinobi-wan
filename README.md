@@ -38,7 +38,8 @@ flowchart LR
 
 ## MVP Support Matrix
 
-Currently deployable resource families:
+The full coverage map — all 55 registered node types with confidence tiers —
+is in `docs/user/support-matrix.md`. Deploy-confident resource families:
 
 - `aws-lambda`
 - `aws-sqs`
@@ -106,10 +107,32 @@ node packages/cli/dist/main.js up examples/lambda-sqs.yaml --region us-east-1 --
 - `validate <manifest>`: Parse, compile, and policy-check a manifest
 - `plan <manifest>`: Validate and produce a deployment plan
 - `up <manifest>`: Preview or deploy the generated plan
+- `destroy <manifest>`: Preview or tear down the deployed stack
 
 For command flags, JSON/envelope outputs, and examples:
 
 - `docs/user/cli-reference.md`
+
+## Use as a Library
+
+All `@shinobi/*` packages publish to npm and can be embedded in a platform
+directly — no CLI required:
+
+```ts
+import { validate, plan } from '@shinobi/cli';
+
+const result = validate({ manifestPath: 'service.yaml' });
+if (!result.success) throw new Error(result.errors[0]?.message);
+
+const deployment = plan({ manifestPath: 'service.yaml', region: 'us-east-1' });
+console.log(deployment.plan?.resources.length, 'resources planned');
+```
+
+For the full embedding story — public packages, custom binders/policy
+evaluators/adapters, and the API stability policy:
+
+- `docs/user/integration-guide.md`
+- `examples/programmatic/` (runnable)
 
 ## Authoring Manifests
 
@@ -153,9 +176,14 @@ pnpm nx run-many -t test --skipNxCache
 ## Documentation Map
 
 - `docs/getting-started.md`: conceptual and operational onboarding
+- `docs/user/integration-guide.md`: embedding Shinobi as a library
+- `docs/user/support-matrix.md`: full component coverage with confidence tiers
 - `docs/user/cli-reference.md`: command-level user reference
 - `docs/user/manifest-authoring-guide.md`: authoring and validation workflow
 - `docs/cookbook/manifest-patterns.md`: copy-ready manifest patterns
 - `docs/operations/runbook.md`: operator runbook
 - `docs/operations/environment-matrix.md`: environment expectations
 - `docs/architecture/adr-log.md`: architecture decision records
+- `schemas/`: JSON Schemas for manifests and CLI output
+- `AGENTS.md`: entry point for AI agents consuming or contributing
+- `CONTRIBUTING.md`: contributor onboarding and release process

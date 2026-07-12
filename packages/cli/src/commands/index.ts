@@ -7,3 +7,6 @@ export type { PlanOptions, PlanResult, PlanAsyncOptions } from './plan';
 
 export { up } from './up';
 export type { UpOptions, UpResult } from './up';
+
+export { destroy } from './destroy';
+export type { DestroyOptions, DestroyCommandResult } from './destroy';

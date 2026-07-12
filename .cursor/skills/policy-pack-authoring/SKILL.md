@@ -1,3 +1,8 @@
+---
+name: policy-pack-authoring
+description: Express compliance requirements as data-driven policy packs and rules evaluated deterministically, with no pack branching in components or binders. Use when creating or modifying compliance rules and enforcement tiers.
+---
+
 # Skill: Policy Pack Authoring (Config-Driven Compliance)
 
 ## Intent

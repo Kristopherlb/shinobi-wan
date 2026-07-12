@@ -26,9 +26,15 @@
   "sideEffects": false,
   "dependencies": {
     "@shinobi/contracts": "workspace:*",
-    "@shinobi/ir": "workspace:*",
-    "@pulumi/pulumi": "^3.0.0",
-    "@pulumi/aws": "^6.0.0"
+    "@shinobi/ir": "workspace:*"
+  },
+  "peerDependencies": {
+    "@pulumi/aws": "^6.0.0",
+    "@pulumi/pulumi": "^3.0.0"
+  },
+  "devDependencies": {
+    "@pulumi/aws": "^6.0.0",
+    "@pulumi/pulumi": "^3.0.0"
   },
   "publishConfig": {
     "access": "public"

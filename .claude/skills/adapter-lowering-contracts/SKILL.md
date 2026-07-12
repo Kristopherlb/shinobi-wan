@@ -1,3 +1,8 @@
+---
+name: adapter-lowering-contracts
+description: Define and evolve the contracts adapters implement when lowering backend-neutral intents and nodes to provider resources. Use when writing or changing adapter lowerers, intent lowering behavior, or the adapter boundary.
+---
+
 SKILL ID: SK-201
 OWNER ROLE: Adapter/Lowering Engineer
 MATURITY: draft

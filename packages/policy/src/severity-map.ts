@@ -20,6 +20,7 @@ export const SEVERITY_MAP: Readonly<
   Record<SupportedPack, Readonly<Record<string, Severity>>>
 > = {
   Baseline: {
+    'policy-exception-expired': 'warning',
     'iam-no-wildcard-resource': 'warning',
     'iam-admin-access-review': 'info',
     'iam-missing-conditions': 'info',
@@ -65,6 +66,7 @@ export const SEVERITY_MAP: Readonly<
     'eks-addon-version-unset': 'info',
   },
   'FedRAMP-Moderate': {
+    'policy-exception-expired': 'error',
     'iam-no-wildcard-resource': 'error',
     'iam-admin-access-review': 'warning',
     'iam-missing-conditions': 'warning',
@@ -110,6 +112,7 @@ export const SEVERITY_MAP: Readonly<
     'eks-addon-version-unset': 'warning',
   },
   'FedRAMP-High': {
+    'policy-exception-expired': 'error',
     'iam-no-wildcard-resource': 'error',
     'iam-admin-access-review': 'error',
     'iam-missing-conditions': 'error',

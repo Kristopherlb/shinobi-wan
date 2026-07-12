@@ -61,3 +61,7 @@ export type {
   ReadActivityInput,
   FacadeMode,
 } from './facade';
+
+// Explainability (KL-006): why-report generation for compilations
+export { explainCompilation } from './explain';
+export type { WhyEntry, WhyReport } from './explain';

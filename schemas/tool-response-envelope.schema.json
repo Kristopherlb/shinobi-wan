@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Kristopherlb/shinobi-wan/blob/main/schemas/tool-response-envelope.schema.json",
+  "title": "Shinobi Tool Response Envelope",
+  "description": "Envelope emitted with --harmony-envelope and by the MCP wrapper. Mirrors ToolResponseEnvelope in @shinobi/cli.",
+  "type": "object",
+  "required": ["success", "metadata", "policy"],
+  "properties": {
+    "success": { "type": "boolean" },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "toolId",
+        "toolVersion",
+        "contractVersion",
+        "operationClass",
+        "traceId",
+        "timestamp"
+      ],
+      "properties": {
+        "toolId": { "type": "string" },
+        "toolVersion": { "type": "string" },
+        "contractVersion": { "type": "string" },
+        "operationClass": { "type": "string" },
+        "traceId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "operationClass",
+        "defaultTimeoutMs",
+        "maxTimeoutMs",
+        "retryPolicy",
+        "idempotency",
+        "mode"
+      ],
+      "properties": {
+        "operationClass": { "type": "string" },
+        "defaultTimeoutMs": { "type": "integer" },
+        "maxTimeoutMs": { "type": "integer" },
+        "retryPolicy": {
+          "type": "object",
+          "required": [
+            "maxAttempts",
+            "initialIntervalSeconds",
+            "backoffCoefficient"
+          ],
+          "properties": {
+            "maxAttempts": { "type": "integer" },
+            "initialIntervalSeconds": { "type": "number" },
+            "backoffCoefficient": { "type": "number" }
+          }
+        },
+        "idempotency": {
+          "type": "string",
+          "enum": ["required", "recommended", "optional"]
+        },
+        "mode": { "type": "string", "enum": ["await", "start"] }
+      }
+    },
+    "data": {
+      "description": "Command-specific structured result (e.g. ValidateResult for validate)."
+    },
+    "error": { "$ref": "#/$defs/toolError" }
+  },
+  "$defs": {
+    "toolError": {
+      "type": "object",
+      "required": [
+        "code",
+        "category",
+        "source",
+        "traceId",
+        "message",
+        "retriable"
+      ],
+      "properties": {
+        "code": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "validation",
+            "authorization",
+            "upstream",
+            "runtime",
+            "conflict",
+            "unknown"
+          ]
+        },
+        "source": { "type": "string" },
+        "traceId": { "type": "string" },
+        "message": { "type": "string" },
+        "retriable": { "type": "boolean" },
+        "retriableReason": { "type": "string" },
+        "details": { "type": "object" }
+      }
+    }
+  }
+}

@@ -31,6 +31,17 @@ export interface Violation {
   /** Rule that was violated */
   readonly ruleId: string;
 
+  /** True when an active policy exception suppressed enforcement; severity is reported as 'info' but the record is retained for audit */
+  readonly suppressed?: boolean;
+
+  /** The exception that suppressed this violation (audit trail) */
+  readonly exception?: {
+    readonly target: string;
+    readonly expires: string;
+    readonly justification: string;
+    readonly approvedBy?: string;
+  };
+
   /** Human-readable rule name */
   readonly ruleName: string;
 

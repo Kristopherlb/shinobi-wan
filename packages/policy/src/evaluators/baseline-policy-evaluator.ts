@@ -7,6 +7,7 @@ import { SUPPORTED_PACKS } from '../severity-map';
 import { getSeverity } from '../severity-map';
 import { getRuleById, type PolicyRule } from '../rules';
 import { createViolation } from '../violation-factory';
+import { applyPolicyExceptions, parsePolicyExceptions } from '../exceptions';
 
 // Pre-resolve rules at module load — avoids repeated lookups and non-null assertions.
 const RULE_IAM_WILDCARD = getRuleById('iam-no-wildcard-resource');
@@ -411,6 +412,23 @@ export class BaselinePolicyEvaluator implements IPolicyEvaluator {
 
     // Node-level checks: inspect graph snapshot for compute resource configuration
     this.checkComputeNodes(context, violations);
+
+    // Exceptions (Standard 5): suppress rule/target matches declared in the
+    // manifest, keeping suppressed records for audit. The evaluation date is
+    // injected via config — the engine never reads the clock (KL-001).
+    const { exceptions } = parsePolicyExceptions(context.config['exceptions']);
+    if (exceptions.length > 0) {
+      const evaluationDate =
+        typeof context.config['evaluationDate'] === 'string'
+          ? (context.config['evaluationDate'] as string)
+          : '9999-12-31'; // no date injected: treat all exceptions as active
+      return applyPolicyExceptions(
+        violations,
+        exceptions,
+        context.policyPack,
+        evaluationDate,
+      );
+    }
 
     return violations;
   }

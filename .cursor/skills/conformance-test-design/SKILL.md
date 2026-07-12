@@ -1,3 +1,8 @@
+---
+name: conformance-test-design
+description: Design conformance tests that mechanically enforce correctness across the component x binder x policy-pack triad matrix with golden graph/plan cases. Use when adding conformance gates, golden cases, or determinism tests.
+---
+
 # Skill: Conformance Test Design (Golden Graph/Plan + Triad Matrix)
 
 ## Intent

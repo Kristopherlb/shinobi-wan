@@ -16,6 +16,17 @@ export interface PolicyRule {
  */
 export const RULE_CATALOG: ReadonlyArray<PolicyRule> = [
   {
+    ruleId: 'policy-exception-expired',
+    ruleName: 'Policy Exception Expired',
+    description:
+      'A declared policy exception has passed its expiry date. Expired exceptions no longer suppress enforcement and must be renewed or removed (Standard 5).',
+    remediation: {
+      summary:
+        'Renew the exception with a new expiry and justification, or fix the underlying violation and delete the exception',
+      autoFixable: false,
+    },
+  },
+  {
     ruleId: 'iam-no-wildcard-resource',
     ruleName: 'No Wildcard Resources',
     description:

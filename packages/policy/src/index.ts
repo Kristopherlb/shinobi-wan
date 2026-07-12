@@ -19,3 +19,7 @@ export type { PolicyRule } from './rules';
 // Severity map
 export { SEVERITY_MAP, SUPPORTED_PACKS, getSeverity } from './severity-map';
 export type { SupportedPack } from './severity-map';
+
+// Exceptions (Standard 5 — Exception & Suppression)
+export { parsePolicyExceptions, applyPolicyExceptions } from './exceptions';
+export type { PolicyException, ExceptionParseError } from './exceptions';
